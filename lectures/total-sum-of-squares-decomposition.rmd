@@ -1,0 +1,130 @@
+---
+title: "Decomposition of Total Sum of Squares in Regression"
+output:
+  html_document:
+    theme: readable
+    highlight: tango
+    toc: true
+    self_contained: true
+    number_sections: false
+    css: textbook.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sums of Squares in Regression
+
+This document explains how the **Total Sum of Squares (TSS)** can be decomposed into the **Explained Sum of Squares (ESS)** and the **Residual Sum of Squares (RSS)** using the trick of inserting the regression line between the observed data \(y_i\) and the mean \(\bar{y}\).
+
+# 1. Definitions
+
+For observations \(y_i\), their mean \(\bar{y}\), and fitted values from a regression \(\hat{y}_i\):
+
+- **Total Sum of Squares (TSS):**
+
+$$
+TSS = \sum_i (y_i - \bar{y})^2
+$$
+
+- **Explained Sum of Squares (ESS):**
+
+$$
+ESS = \sum_i (\hat{y}_i - \bar{y})^2
+$$
+
+- **Residual Sum of Squares (RSS):**
+
+$$
+RSS = \sum_i (y_i - \hat{y}_i)^2
+$$
+
+The decomposition is:
+
+$$
+TSS = ESS + RSS
+$$
+
+# 2. The Trick
+
+We start with:
+
+$$
+y_i - \bar{y} = (y_i - \hat{y}_i) + (\hat{y}_i - \bar{y})
+$$
+
+Squaring both sides:
+
+$$
+(y_i - \bar{y})^2 = (y_i - \hat{y}_i)^2 + (\hat{y}_i - \bar{y})^2 + 2(y_i - \hat{y}_i)(\hat{y}_i - \bar{y})
+$$
+
+Summing over \(i\):
+
+$$
+TSS = RSS + ESS + 2\sum_i (y_i - \hat{y}_i)(\hat{y}_i - \bar{y})
+$$
+
+# 3. Orthogonality
+
+In OLS regression, the cross-product vanishes:
+
+$$
+\sum_i (y_i - \hat{y}_i)(\hat{y}_i - \bar{y}) = 0
+$$
+
+Thus, we obtain the decomposition:
+
+$$
+TSS = ESS + RSS
+$$
+
+# 4. Example in R
+
+Let’s demonstrate this with a small example using simulated data.
+
+```{r example}
+set.seed(123)
+
+# Generate data
+x <- 1:10
+y <- 2 + 0.5 * x + rnorm(10, 0, 1)
+
+# Fit regression
+model <- lm(y ~ x)
+yhat <- fitted(model)
+ybar <- mean(y)
+
+# Create components
+df <- data.frame(
+  X = x,
+  Y = y,
+  yhat = yhat,
+  ybar = ybar,
+  resid = y - yhat,
+  fit_dev = yhat - ybar,
+  total_dev = y - ybar
+)
+
+knitr::kable(df, digits=3)
+```
+
+# 5. Check Decomposition
+
+We can see that:
+
+$$
+TSS = ESS + RSS
+$$
+
+```{r check}
+TSS <- sum((df$total_dev)^2)
+ESS <- sum((df$fit_dev)^2)
+RSS <- sum((df$resid)^2)
+
+c(TSS = TSS, ESS = ESS, RSS = RSS, ESS_plus_RSS = ESS + RSS) |> pander::pander()
+```
+
+
+
