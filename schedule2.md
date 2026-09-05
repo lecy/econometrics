@@ -157,7 +157,7 @@ Please preview your responses before posting to ensure proper formatting. Note t
 lm( y ~ x1 + x2 )
 
 # formulas
-y = b0 + b1ïX1 + b2ïX2 + e
+y = b0 + b1‚Ä¢X1 + b2‚Ä¢X2 + e
 b1 = cov(x,y) / var(x)
 ```
 ````
@@ -479,7 +479,7 @@ You will report the instrument(s) and their reliability measures.
 
 **What is an "instrument" in social science?**
 
-> Many variables studied by psychologists are straightforward and simple to measure. These include sex, age, height, weight, and birth order. Age is measured as days since birth. Weight can be measured with a scale. Other variables studied by psychologistsóperhaps the majorityóare not so straightforward or simple to measure. We cannot accurately assess peopleís level of intelligence by looking at them, and we certainly cannot put their self-esteem on a bathroom scale. **These kinds of variables are called LATENT CONSTRUCTS** (pronounced CON-structs) and include personality traits (e.g., extraversion), emotional states (e.g., fear), attitudes (e.g., toward taxes), and abilities (e.g., athleticism). 
+> Many variables studied by psychologists are straightforward and simple to measure. These include sex, age, height, weight, and birth order. Age is measured as days since birth. Weight can be measured with a scale. Other variables studied by psychologists‚Äîperhaps the majority‚Äîare not so straightforward or simple to measure. We cannot accurately assess people‚Äôs level of intelligence by looking at them, and we certainly cannot put their self-esteem on a bathroom scale. **These kinds of variables are called LATENT CONSTRUCTS** (pronounced CON-structs) and include personality traits (e.g., extraversion), emotional states (e.g., fear), attitudes (e.g., toward taxes), and abilities (e.g., athleticism). 
 
 *[ From: [Understanding Psychological Measurement](https://opentextbc.ca/researchmethods/chapter/understanding-psychological-measurement/) ]*
 
@@ -549,7 +549,7 @@ Explain what makes it a latent construct.
 
 Identify a **valid and reliable instrument** that can be used to measure the latent construct. 
 
-I would suggest using a google search to identify some possible measures of your construct with search terms like ìmeasure ofî, ìinstrumentî, ìitemsî, ìreliabilityî, etc. 
+I would suggest using a google search to identify some possible measures of your construct with search terms like ‚Äúmeasure of‚Äù, ‚Äúinstrument‚Äù, ‚Äúitems‚Äù, ‚Äúreliability‚Äù, etc. 
 
 Then search within an academic database like Google Scholar for an academic paper that has created a reliability score for the measure you found.
 
@@ -610,7 +610,7 @@ Useful background reading or reference chapters:
 
 *MacKenzie, S. B., Podsakoff, P. M., & Podsakoff, N. P. (2011). Construct measurement and validation procedures in MIS and behavioral research: Integrating new and existing techniques. MIS quarterly, 35(2), 293-334.* [ [pdf](https://github.com/DS4PS/cpp-529-master/raw/master/articles/measurement/construct-measurement-and-validation-in-behavioral-research.pdf) ]
 
-*Sch‰ffer, U. (2007). Management accounting & control scales handbook. Springer Science & Business Media.* [ [full text](https://github.com/DS4PS/cpp-529-master/raw/master/articles/measurement/Management-Accounting-and-Control-Scales-Handbook.pdf) ]
+*Sch√§ffer, U. (2007). Management accounting & control scales handbook. Springer Science & Business Media.* [ [full text](https://github.com/DS4PS/cpp-529-master/raw/master/articles/measurement/Management-Accounting-and-Control-Scales-Handbook.pdf) ]
 
 <br>
 <hr> 

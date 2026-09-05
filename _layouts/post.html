@@ -191,7 +191,7 @@ layout: default
                     {% if page.production_code_availability %}
                     <tr>
                         <td> Production Code </td>
-                        {% if page.production_code_availability contains'Y' %}
+                        {% if page.production_code_availability contains 'Y' %}
                         <td><i id="general" class="fas fa-check fa-lg" style="color: rgb(50,205,50);"></td>
                         {% else %}
                             {% if page.production_code_availability contains 'N' %}

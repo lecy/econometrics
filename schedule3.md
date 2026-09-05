@@ -184,10 +184,10 @@ This example explores the relationship between mileage and used-car price. Car m
 
 ```r
 # pooled model - all cars share same intercept
-price = b0 + b1 × mileage + e
+price = b0 + b1 Ã— mileage + e
 
 # random effects model 
-price[j] = a[j] + b1 × mileage + e
+price[j] = a[j] + b1 Ã— mileage + e
 ```
 
 ![](https://raw.githubusercontent.com/DS4PS/cpp-525-spr-2020/master/assets/img/random-effects.png)
