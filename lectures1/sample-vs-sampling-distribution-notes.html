@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample vs Sampling Distribution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Distribution of the Sample vs the Sampling Distribution</h1>
+    <p class="dek">A reading guide for the slides that revisit variance and standard errors &mdash;
+      and separate the two things the word &ldquo;variance&rdquo; is doing.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <!-- ============ 1. KEY CONCEPTS ============ -->
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The formulas and definitions the slides depend on, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Deviations are the currency of every variance.</p>
+      <p>Every sum of squares in regression is built by measuring a distance, squaring it, and adding
+        it up. Only the <em>reference point</em> changes:</p>
+      <ul>
+        <li><span class="m"><i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span></span>
+          = <strong>deviation</strong> &mdash; distance from the mean</li>
+        <li><span class="m"><i>y<sub>i</sub></i> &minus; <i>&#375;<sub>i</sub></i> = <i>e<sub>i</sub></i></span>
+          = <strong>residual</strong> &mdash; distance from the regression line</li>
+        <li><span class="m"><i>&#375;<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span></span>
+          = <strong>explained</strong> &mdash; distance the model moved you off the mean</li>
+      </ul>
+      <div class="eq">
+        <span class="m">var(<i>y</i>) =
+          <span class="frac"><span class="num"><span class="sum">&sum;</span>(<i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)<sup>2</sup></span><span class="den"><i>n</i> &minus; 1</span></span></span>
+      </div>
+
+      <p class="claim">There are two different variances, and they answer different questions.</p>
+      <div class="table-scroll">
+        <table class="compare">
+          <thead>
+            <tr><th scope="col"></th><th scope="col">Sample distribution</th><th scope="col">Sampling distribution</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">What varies</th><td>the <strong>data</strong></td><td>the <strong>estimate</strong></td></tr>
+            <tr><th scope="row">Question</th><td>How spread out are the observations?</td><td>How much would my estimate move in a new sample?</td></tr>
+            <tr><th scope="row">Centered on</th><td>the center of the data</td><td>the &ldquo;true&rdquo; parameter</td></tr>
+            <tr><th scope="row">Measured in</th><td>standard <strong>deviations</strong></td><td>standard <strong>errors</strong></td></tr>
+            <tr><th scope="row">You can see it</th><td>yes &mdash; it is your data</td><td>no &mdash; it is hypothetical</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="claim">The variance of Y partitions into an explained and an unexplained part.</p>
+      <ul>
+        <li><strong>Total SS</strong>:
+          <span class="m"><span class="sum">&sum;</span>(<i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)<sup>2</sup></span>
+          &nbsp;(deviations)</li>
+        <li><strong>Regression SS</strong>:
+          <span class="m"><span class="sum">&sum;</span>(<i>&#375;<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)<sup>2</sup></span>
+          &nbsp;(explained)</li>
+        <li><strong>Error SS</strong>:
+          <span class="m"><span class="sum">&sum;</span>(<i>y<sub>i</sub></i> &minus; <i>&#375;<sub>i</sub></i>)<sup>2</sup></span>
+          &nbsp;(residuals)</li>
+        <li><span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span></li>
+      </ul>
+      <p>Total SS becomes the <strong>variance of Y</strong>. Error SS becomes the <strong>variance of
+        the slope</strong>.</p>
+
+      <p class="claim">The regression line is a conditional mean.</p>
+      <ul>
+        <li>Standard deviation: on average, how far is <strong>the mean</strong> from each data point.</li>
+        <li>SD of the residual: on average, how far is <strong>the conditional mean</strong> from each
+          data point.</li>
+      </ul>
+      <p>Same sentence, one word changed. The regression line is what the mean of Y becomes once you
+        let it depend on X.</p>
+
+      <p class="claim">The standard error of the slope is built out of the unexplained variance.</p>
+      <div class="eq">
+        <span class="m"><i>SSE</i> = <span class="sum">&sum;</span><i>e<sub>i</sub></i><sup>2</sup>
+          <span class="op">&nbsp;&nbsp;&nbsp;</span>
+          <i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub> =
+          <span class="frac"><span class="num"><i>SSE</i></span><span class="den"><i>n</i> &minus; 2</span></span>
+          <span class="op">&nbsp;&nbsp;&nbsp;</span>
+          SE<sub><i>b</i><sub>1</sub></sub> =
+          <span class="sqrt tall"><span class="radical">&radic;</span><span class="radicand"><span class="frac"><span class="num"><i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub></span><span class="den"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span></span></span></span></span>
+      </div>
+      <p>Or in words:</p>
+      <div class="eq">
+        <span class="m">Standard Error of the Slope &nbsp;&asymp;&nbsp;
+          <span class="frac"><span class="num">residual</span><span class="den">sample size &middot; variance X</span></span></span>
+      </div>
+      <p><strong>Standard error:</strong> on average, how far off is our best guess of the slope from
+        the true slope?</p>
+
+      <p class="claim">The Central Limit Theorem is what makes the sampling distribution usable.</p>
+      <p>Across repeated samples the estimated slope is approximately normally distributed and
+        centered on the true slope. That shape is what licenses:</p>
+      <div class="eq">
+        <span class="m"><i>&beta;</i><sub>1</sub> = <i>b</i><sub>1</sub> &plusmn; <i>t</i> &middot;
+          SE<sub><i>b</i><sub>1</sub></sub></span>
+      </div>
+
+      <p class="claim">Inference happens in the sampling distribution, not in the sample.</p>
+      <div class="chain">unexplained variance &rarr; Error SS &rarr; standard error &rarr; confidence interval &rarr; p-value</div>
+    </div>
+  </section>
+
+  <!-- ============ 2. KEY RELATIONSHIPS ============ -->
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>The whole deck in one sentence</h3>
+    <p><strong>Sample variance describes your data; sampling variance describes your estimate &mdash;
+      and the second is manufactured out of the first.</strong></p>
+    <p>That is the subtle part. These are not two unrelated topics that happen to share the word
+      <em>variance</em>. The unexplained portion of the variance in your data is the raw material the
+      standard error is made from. Noisy data produce an unstable estimate. The deck alternates
+      between the two on purpose: slides labeled <strong>&ldquo;this is sample variance&rdquo;</strong>
+      and <strong>&ldquo;this is sampling variance&rdquo;</strong> are asking you to notice which one
+      you are looking at, because the pictures look similar and the meaning is completely
+      different.</p>
+
+    <h3>Two distributions, two centers, two rulers</h3>
+    <p>The side-by-side slide near the end is the thesis of the lecture. Read it carefully:</p>
+    <ul>
+      <li>The <strong>sample distribution</strong> puts heart rates on the axis. Its center is the
+        center of the data. The red segments are deviations, and their typical size is a
+        <strong>standard deviation</strong>.</li>
+      <li>The <strong>sampling distribution</strong> puts <em>slopes</em> on the axis. Its center is
+        the true slope. The intervals are estimates from repeated samples, and their typical spread is
+        a <strong>standard error</strong>.</li>
+    </ul>
+    <p>Same picture-making logic, different unit of observation. In the first, a dot is a person. In
+      the second, a dot is an entire study.</p>
+
+    <h3>You only ever get one sample</h3>
+    <p>This is why the simulation slides exist. In real work you draw one sample, compute one slope,
+      and that is all you will ever see. The sampling distribution is <strong>counterfactual</strong>
+      &mdash; it is the spread of the estimates you <em>would have</em> gotten from all the samples you
+      did not draw.</p>
+    <p>The simulations make that invisible object visible: each frame draws a new sample from the same
+      population, fits a new line, and drops one more slope onto the sampling distribution. Watching
+      the line jump around from sample to sample <em>is</em> sampling variance. The standard error is
+      just the width of that jumping, calculated rather than simulated.</p>
+
+    <h3>Three deviations, three sums of squares</h3>
+    <p>Every quantity in the deck comes from one of three distances:</p>
+    <div class="table-scroll">
+      <table class="dist">
+        <thead>
+          <tr><th scope="col">Distance</th><th scope="col">Name</th><th scope="col">Sum of squares</th><th scope="col">Becomes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="m"><i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span></span></td>
+            <td>deviation</td><td>Total SS</td><td>variance of Y</td>
+          </tr>
+          <tr>
+            <td><span class="m"><i>&#375;<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span></span></td>
+            <td>explained</td><td>Regression SS</td><td>model fit (<span class="m"><i>R</i><sup>2</sup></span>)</td>
+          </tr>
+          <tr>
+            <td><span class="m"><i>y<sub>i</sub></i> &minus; <i>&#375;<sub>i</sub></i></span></td>
+            <td>residual</td><td>Error SS</td><td>variance of the <strong>slope</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The third row is the one this deck is really about. Everything that determines whether your
+      result is statistically significant flows out of the residual.</p>
+
+    <blockquote>
+      <p><strong>Notation warning.</strong> This deck writes
+        <span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span> where <strong>RSS = Regression
+        SS</strong> and <strong>ESS = Error SS</strong>. Many textbooks use exactly the opposite
+        (RSS = Residual, ESS = Explained). One slide reconciles it explicitly &mdash; <em>&ldquo;Error
+        SS, same as the Residual SS.&rdquo;</em> When you see <strong>ESS</strong> in these slides,
+        read <strong>error</strong>, not explained.</p>
+    </blockquote>
+
+    <h3>Why the regression line is &ldquo;just&rdquo; a mean</h3>
+    <p>Slide 5 is doing more work than it looks like. It slices caffeine into bins and plots the
+      average heart rate in each &mdash; 74, 78, 82, 86, 90, 95, 99, 103, 107, 111 &mdash; against a
+      flat &ldquo;mean of Y&rdquo; line at 90.</p>
+    <p>The flat line is the unconditional mean: your best guess about anyone&rsquo;s heart rate if you
+      know nothing about them. The rising sequence of bin averages is the conditional mean: your best
+      guess once you know their caffeine intake. The regression line is a smooth version of that
+      second sequence.</p>
+    <p>Once you see it that way, the parallel interpretations fall out for free:</p>
+    <ul>
+      <li>Standard deviation = how far the data sit from <strong>the mean</strong>.</li>
+      <li>SD of the residual = how far the data sit from <strong>the conditional mean</strong>.</li>
+    </ul>
+    <p>Regression did not introduce a new kind of dispersion. It moved the reference point from a flat
+      line to a tilted one.</p>
+
+    <h3>What makes a standard error small</h3>
+    <p>The approximation slide is worth memorizing because it tells you what to do as a researcher:</p>
+    <div class="eq">
+      <span class="m">SE<sub><i>b</i><sub>1</sub></sub> &nbsp;&asymp;&nbsp;
+        <span class="frac"><span class="num">residual</span><span class="den">sample size &middot; variance X</span></span></span>
+    </div>
+    <p>Three levers, and only three:</p>
+    <ul>
+      <li><strong>Less residual</strong> (numerator) &mdash; a better-specified model with less
+        unexplained noise. This is what control variables and specification buy you.</li>
+      <li><strong>A larger sample</strong> (denominator) &mdash; more cases, more precision.</li>
+      <li><strong>More spread in X</strong> (denominator) &mdash; because
+        <span class="m"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup>
+        = (<i>n</i> &minus; 1) &middot; var(<i>x</i>)</span>, a treatment that barely varies cannot
+        produce a precise estimate of its effect, no matter how many cases you have.</li>
+    </ul>
+    <p>That last one surprises people. If everyone in your study got roughly the same dose, you cannot
+      learn much about dosage.</p>
+
+    <h3>The chain that ends in a p-value</h3>
+    <p>The final slide is the payoff, and it is worth being able to recite:</p>
+    <div class="chain">unexplained variance &rarr; Error SS &rarr; standard error &rarr; confidence interval &rarr; p-value</div>
+    <p>Read left to right, this says that statistical significance is downstream of model fit. Read
+      right to left, it says a p-value is never a standalone fact &mdash; it inherits everything from
+      how much of Y your model failed to explain. This is also why the Central Limit Theorem appears in
+      the middle of the deck: it is the step that turns a spread of hypothetical estimates into a
+      probability statement.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead>
+          <tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1&ndash;2</td><td>Framing: deviations as the common currency</td>
+            <td>Every variance is squared distances from <em>some</em> reference point.</td></tr>
+          <tr><td>3&ndash;6</td><td>Sample variance, four ways</td>
+            <td>The mean, then the conditional mean, then the partition into explained and residual.</td></tr>
+          <tr><td>7</td><td>Partitioning the variance of Y</td>
+            <td>The formula sheet for the whole deck. Note the ESS/RSS convention.</td></tr>
+          <tr><td>8&ndash;10</td><td>The Central Limit Theorem and <span class="m">SE<sub><i>b</i><sub>1</sub></sub></span></td>
+            <td>The standard error is the residual variance, scaled by n and the spread of X.</td></tr>
+          <tr><td>11&ndash;12, 15</td><td>Simulations</td>
+            <td>The sampling distribution made visible. Each frame is a study you did not run.</td></tr>
+          <tr><td>13&ndash;14</td><td>Back to sample variance</td>
+            <td>Deliberate whiplash. Ask yourself which variance you are looking at.</td></tr>
+          <tr><td>16</td><td>Sample vs sampling, side by side</td>
+            <td><strong>The thesis slide.</strong> Two centers, two rulers.</td></tr>
+          <tr><td>17</td><td>Deviations vs residuals</td>
+            <td>The conditional-mean parallel.</td></tr>
+          <tr><td>18</td><td>Unexplained variance &rarr; p-value</td>
+            <td>The chain. Be able to recite it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p>The alternation between &ldquo;this is sample variance&rdquo; and &ldquo;this is sampling
+        variance&rdquo; is not disorganization &mdash; it is the exercise. If you can label each slide
+        correctly without reading the title, you have the distinction.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3. WHAT SHOULD BE CLEAR ============ -->
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">The four things this deck exists to settle.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>The difference between the distribution of the sample and the sampling
+        distribution.</strong> One describes the data you collected and is measured in standard
+        deviations; the other describes how your <em>estimate</em> would behave across repeated samples
+        and is measured in standard errors. You observe the first and can only infer the second.</li>
+      <li><strong>The difference between a deviation and a residual.</strong> A deviation is the
+        distance from a data point to the mean. A residual is the distance from a data point to the
+        regression line &mdash; that is, to the conditional mean. Both are &ldquo;distances from a best
+        guess&rdquo;; the second just has a better guess.</li>
+      <li><strong>Where the standard error of the slope comes from.</strong> It is the variance of the
+        residual, divided by the spread of X, square-rooted. Unexplained variance in your model becomes
+        uncertainty in your estimate.</li>
+      <li><strong>Why the confidence interval and p-value depend on unexplained variance.</strong>
+        Because the whole chain &mdash; Error SS to standard error to interval to p-value &mdash;
+        starts at the residual. Improving fit narrows the interval.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Two variances, one word.</strong> Sample variance is about spread in the data;
+        sampling variance is about spread in the estimate. Always ask which one is on the axis.</li>
+      <li><strong>A dot means different things in the two pictures.</strong> In the sample distribution
+        a dot is an observation. In the sampling distribution a dot is a whole study.</li>
+      <li><strong>The sampling distribution is counterfactual.</strong> You draw one sample; the
+        standard error is a calculated stand-in for the ones you did not draw.</li>
+      <li><strong>The regression line is the mean conditioned on X.</strong> This is why the
+        interpretation of the residual SD mirrors the interpretation of the ordinary SD word for
+        word.</li>
+      <li><strong>Total SS splits into explained and error</strong>, and it is the <em>error</em> half
+        that determines the precision of your slope.</li>
+      <li><strong>Three levers shrink a standard error:</strong> less residual, more cases, more
+        variation in X. A treatment with little variation cannot yield a precise estimate.</li>
+      <li><strong>Significance is downstream of fit.</strong> Unexplained variance &rarr; Error SS
+        &rarr; standard error &rarr; confidence interval &rarr; p-value.</li>
+      <li><strong>Watch the abbreviation.</strong> In this deck ESS means <em>Error</em> SS, the
+        opposite of the common textbook convention.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">sample-vs-sampling-distribution</span>. Source file lives
+      alongside the deck as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>

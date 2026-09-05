@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Instrumental variables</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="assets/custom.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Instrumental variables</h1>
+
+</div>
+
+
+<p><strong>Packages</strong></p>
+<p>Here are the packages we will use in this lecture. If you don’t remember how to install them, you can have a look at the code.</p>
+<ul>
+<li><strong>AER</strong> for the ivreg function.</li>
+<li><strong>stargazer</strong> for nice tables</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages( AER )</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages( stargazer )</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( <span class="st">&quot;AER&quot;</span> )          <span class="co"># ivreg function</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( <span class="st">&quot;stargazer&quot;</span> )</span></code></pre></div>
+<p><strong>What you should know after this lecture</strong></p>
+<ul>
+<li>Under what circumstances do you need to use an instrumental variable? Why?</li>
+<li>What are the main characteristics of a valid instrumental variable?</li>
+<li>Understanding key mechanisms behind an instrumental variable model</li>
+</ul>
+<div id="the-key-concept" class="section level1">
+<h1>The key concept</h1>
+<p>We use instrumental variables to address <strong>omitted variable bias</strong>. As you might remember, omitted variables are variables significantly correlated with an outcome variable (Y) but that cannot be observed or measured. Omitted variables are problematic when they are significantly correlated with both the outcome variable and a policy variable (X1) of interest because they can cause bias in the estimation of the coefficient.</p>
+<p>Figure 1 illustrates the covariance structure of a model with an omitted variable correlated with both Y and X1:</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Picture2.png" alt="Figure 1. Covariance structure of an omitted variable model" width="40%" />
+<p class="caption">
+Figure 1. Covariance structure of an omitted variable model
+</p>
+</div>
+<p>In the illustrated case, the “full model” would include all variables, such as:</p>
+<p><span class="math display">\[\begin{equation} 
+Y=\beta_0 + \beta_1X_1 + \beta_2X_2
+  \tag{1}
+\end{equation}\]</span></p>
+<p>In reality, the omitted variable cannot be observed nor measured, so we end up with a “naive model” where the omitted variable is excluded:</p>
+<p><span class="math display">\[\begin{equation} 
+Y=\text{b}_0 + \text{b}_1X_1
+  \tag{2}
+\end{equation}\]</span> <br> <br></p>
+<p>When we omit a variable that is correlated with the policy and the outcome variable, it affects both the slope and the standard error of the model - you can observe this in figure 2. Including or excluding Ability significantly changes the covariance between Y and X1 (the intersection between Y and X1) and the residual of Y (the part of Y which does not intersect with X1 or X2).</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Cov_Structure.png" alt="Figure 2. Covariance structure and residuals" width="80%" />
+<p class="caption">
+Figure 2. Covariance structure and residuals
+</p>
+</div>
+<p>Instrumental variables are helpful to reduce the omitted variable bias and get a more precise estimate of the effect of X1 on Y. An instrumental variable is a variable correlated with the policy variable, so that it can be a good “substitute” for it, but not correlated with the omitted variable, so as to reduce its interference in estimating the effect of Y. Figure 3 represents the covariance structure:</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Picture3.png" alt="Figure 3. Instrumental variable modeal, covariance structure" width="40%" />
+<p class="caption">
+Figure 3. Instrumental variable modeal, covariance structure
+</p>
+</div>
+<p>Note that because the instrumental variable is correlated to the policy variable, it is also correlated with the outcome variable (figure 3). However, this correlation only occurs through X1 as illustrated in the path diagram.</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Picture6.png" alt="Figure 4. Path diagram of the instrumental variable model" width="40%" />
+<p class="caption">
+Figure 4. Path diagram of the instrumental variable model
+</p>
+</div>
+<p>We use the instrumental variable to partition the variance of the policy variable into 2 parts. One part (A) that is highly correlated with the instrumental variable and will be used to predict the outcome variable and one part (B+C) that is uncorrelated with the instrumental variable but it is correlated with the omitted variable and will be excluded from the model:</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Picture7.png" alt="Figure 5. Partitioning the variance of X1" width="40%" />
+<p class="caption">
+Figure 5. Partitioning the variance of X1
+</p>
+</div>
+<div id="the-statistical-model" class="section level2">
+<h2>The statistical model</h2>
+<p>We can express this in formula, where we first predict X1 using Z:</p>
+<p><span class="math display">\[\begin{equation} 
+\text{X}_1 = \text{b}_0 + \text{b}_1 \text{Z}_1 + \text{e}_x
+  \tag{3}
+\end{equation}\]</span></p>
+<p>And then use the predicted value of X1 (the A section in figure 5) to predict Y. In this way we remove from the model the correlation between X1 and X2 (which is part of error term <span class="math inline">\(\text{e}_x\)</span>)</p>
+<p><span class="math display">\[\begin{equation} 
+\text{Y}_1 = \text{b}_0 + \text{b}_1 \text{X}_1 + \text{e}_y
+  \tag{4}
+\end{equation}\]</span></p>
+</div>
+</div>
+<div id="an-instrumental-variable-model" class="section level1">
+<h1>An instrumental variable model</h1>
+<p><img src="FIGURE/InstVar/Graduation.jpg" alt="" width="60%" /></p>
+<p>In the following working example, we will look at the correlation between hourly wage and education. The discussion regarding <a href="https://www.nytimes.com/2014/09/11/business/economy/a-simple-equation-more-education-more-income.html">“more education, more income”</a> gets continuous attention in the media and in the policy world (see for instance the <a href="https://www.nytimes.com/2014/05/27/upshot/is-college-worth-it-clearly-new-data-say.html">New York Times</a>). We ask: <strong>how much does your salary (Y) increase for any additional year of education?</strong> In other words, we are interested in estimating <span class="math inline">\(\beta_1\)</span>.</p>
+<p><span class="math display">\[\begin{equation} 
+Earnings=\beta_0 + \beta_1Education
+  \tag{5}
+\end{equation}\]</span></p>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>Data contain the following variables:</p>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Variable nameb </strong></th>
+<th><strong>Description </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>wage</td>
+<td>Wage</td>
+</tr>
+<tr class="even">
+<td>educ</td>
+<td>Education</td>
+</tr>
+<tr class="odd">
+<td>ability</td>
+<td>Ability (omitted variable)</td>
+</tr>
+<tr class="even">
+<td>experience</td>
+<td>Experience</td>
+</tr>
+<tr class="odd">
+<td>fathereduc</td>
+<td>Father’s education</td>
+</tr>
+</tbody>
+</table>
+<p>Our <strong>dependent variable</strong> represents an individual’s hourly wage in a given year in the United States. Our <strong>policy variable</strong> is the number of years that individuals have spent in school. We can look at some key summary statistics.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( dat,  </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit =</span> <span class="fu">c</span>(<span class="st">&quot;ability&quot;</span>, <span class="st">&quot;experience&quot;</span>, <span class="st">&quot;fathereduc&quot;</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.summary.stat =</span> <span class="fu">c</span>(<span class="st">&quot;p25&quot;</span>, <span class="st">&quot;p75&quot;</span>), </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Wage&quot;</span>, <span class="st">&quot;Education&quot;</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+<td>
+Min
+</td>
+<td>
+Max
+</td>
+</tr>
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Wage
+</td>
+<td>
+1,000
+</td>
+<td>
+148.07
+</td>
+<td>
+44.82
+</td>
+<td>
+7.75
+</td>
+<td>
+300.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Education
+</td>
+<td>
+1,000
+</td>
+<td>
+16.35
+</td>
+<td>
+2.29
+</td>
+<td>
+10.00
+</td>
+<td>
+23.00
+</td>
+</tr>
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+</table>
+<p>When estimating the relationship between wage and education, scholars have encountered issues in dealing with the so-called “ability bias”: individuals who have higher ability are more likely both to stay longer in school and get a more highly paid job. We can represent these relationships in this diagram:</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Ex_Model.png" alt="Figure 6. Ability bias" width="70%" />
+<p class="caption">
+Figure 6. Ability bias
+</p>
+</div>
+<p>Ability, however, is difficult to measure and cannot be included in the model. It is an omitted variable, which is correlated with both our outcome variable and our policy variable. Excluding “ability” from the analysis creates a bias in the estimation of <span class="math inline">\(\beta_1\)</span>.</p>
+<p>We can observe this bias with our simulated data. Let’s assume we can create a variable measuring ability and include it in our model (<strong>full model</strong>) based on equation (1) such that:</p>
+<center>
+<span class="math inline">\(Earnings=\beta_0 + \beta_1\text{Education} + \beta_2\text{Ability} + \beta_3\text{Experience}\)</span>
+</center>
+<p>Let’s then run a more realistic model (<strong>naive model</strong>) based on equation (2) where the ability variable is excluded:</p>
+<center>
+<span class="math inline">\(Earnings=\text{b}_0 + \text{b}_1\text{Education} + \text{b}_3\text{Experience}\)</span>
+</center>
+<p><br> <br> We can now compare the different estimates:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>full.model  <span class="ot">&lt;-</span> <span class="fu">lm</span>( wage <span class="sc">~</span> educ <span class="sc">+</span> ability <span class="sc">+</span> experience ) <span class="co"># Full Model if we were able to measure ability</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>naive.model <span class="ot">&lt;-</span> <span class="fu">lm</span>( wage <span class="sc">~</span> educ <span class="sc">+</span> experience )      <span class="co"># Naive Model where ability is excluded (omitted variable bias)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( full.model, naive.model, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">dep.var.labels =</span> (<span class="st">&quot;Wage&quot;</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Full Model&quot;</span>, <span class="st">&quot;Naive Model&quot;</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Education&quot;</span>, <span class="st">&quot;Ability&quot;</span>, <span class="st">&quot;Experience&quot;</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="st">&quot;all&quot;</span>, </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+Wage
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Full Model
+</td>
+<td>
+Naive Model
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Education
+</td>
+<td>
+8.76<sup>***</sup>
+</td>
+<td>
+11.59<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.32)
+</td>
+<td>
+(0.48)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Ability
+</td>
+<td>
+0.24<sup>***</sup>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.01)
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Experience
+</td>
+<td>
+4.61<sup>***</sup>
+</td>
+<td>
+4.24<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.35)
+</td>
+<td>
+(0.53)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+-97.89<sup>***</sup>
+</td>
+<td>
+-69.14<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(5.23)
+</td>
+<td>
+(7.83)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="2" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>We note that the coefficient of the education variable is significantly different in the naive and the full model, where the naive model overestimate the effect of education on wage.</p>
+</div>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<p>In order to avoid the omitted variable bias we can introduce an instrumental variable. As mentioned above, the instrumental variable has these key characterististics:</p>
+<blockquote>
+<ol style="list-style-type: decimal">
+<li>It is correlated with the policy variable.</li>
+<li>It is correlated to the dependent variable only through the policy variable.</li>
+<li>It is not correlated with the omitted variable.</li>
+</ol>
+</blockquote>
+<p>While point #1 and #2 can be empirically tested, point #3 needs to be argued by theory.</p>
+<p>We based our example on previous studies which utilize an individual’s father’s education as an instrumental variable ( <a href="https://www.nber.org/papers/w3693">Blackburn &amp; Newmark, 1993</a>; <a href="https://personal.eur.nl/thurik/Research/Articles/Family%20background%20variables%20as%20instruments%20in%20EER.pdf">Hoogerheide et al. 2012</a> ). Individuals who come from <a href="https://www.nytimes.com/2015/09/23/business/economy/education-gap-between-rich-and-poor-is-growing-wider.html">more educated families are more likely to stay in school longer</a>, especially <a href="https://www.theguardian.com/society/2014/sep/23/fathers-education-child-success-school">when fathers are more educated</a>but one’s father’s education has little to no direct effect on hourly wage.</p>
+<p>We can empirically test these hypotheses by looking at correlations across the variables in our dataset. In the first graph, we can see that father’s education is positively correlated with education. In the second graph, there is a slight correlation between a father’s education and hourly wage. We would expect this, because education and hourly wage are correlated. However, we theoretically argue that there is no direct correlation: a father’s education increases the hourly wage <em>only because it increases one’s education</em>, which in turn leads to a higher salary. Finally, in the third graph, we can see that there is no correlation between father’s education and ability.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>( <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>) )</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fathereduc, educ, <span class="at">xlab =</span> <span class="st">&quot;Father&#39;s education&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Education&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )   <span class="co"># Plot</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="fu">lm</span>( educ <span class="sc">~</span> fathereduc ), <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd=</span><span class="dv">3</span> )          <span class="co"># regression line </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( fathereduc, wage, <span class="at">xlab =</span> <span class="st">&quot;Father&#39;s education&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Hourly wage&quot;</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>( wage <span class="sc">~</span> fathereduc ), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">lwd=</span><span class="dv">3</span>) </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( fathereduc, ability, <span class="at">xlab =</span> <span class="st">&quot;Father&#39;s education&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Ability&quot;</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>( ability <span class="sc">~</span> fathereduc ), <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
+<p><img src="p-050-instrumental-variables_files/figure-html/unnamed-chunk-7-1.png" alt="" width="960" /></p>
+<p>We now run the model using our instrumental variable. The model is defined in two stages: first, we estimate our policy variable based on our instrumental variable (equation (3)):</p>
+<p><strong>First stage:</strong></p>
+<center>
+<span class="math inline">\(Education=\beta_0 + \beta_1\text{Father&#39;s education} + \beta_2\text{Experience}\)</span>
+</center>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>first.stage  <span class="ot">&lt;-</span> <span class="fu">lm</span>( educ <span class="sc">~</span> fathereduc <span class="sc">+</span> experience)        <span class="co">#Run the first stage predict the education variable</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( first.stage,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">dep.var.labels =</span> (<span class="st">&quot;Education&quot;</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;First stage&quot;</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="fu">c</span>(<span class="st">&quot;adj.rsq&quot;</span>, <span class="st">&quot;ser&quot;</span>), </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Father&#39;s education&quot;</span>, <span class="st">&quot;Experience&quot;</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="1" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Education
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+First stage
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Father’s education
+</td>
+<td>
+0.75<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.02)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Experience
+</td>
+<td>
+0.26<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.02)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+2.44<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.43)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+1,000
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+R<sup>2</sup>
+</td>
+<td>
+0.52
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+F Statistic
+</td>
+<td>
+541.18<sup>***</sup> (df = 2; 997)
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>Then, we estimate our dependent variable (Wage) using the predicted values of education estimated in the first model (equation (4)):</p>
+<p><strong>Second stage:</strong></p>
+<center>
+<span class="math inline">\(Wage=\beta_0 + \beta_1\text{Education} + \beta_2\text{Experience}\)</span>
+</center>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x1_hat       <span class="ot">&lt;-</span> <span class="fu">fitted</span>( first.stage )   </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Saved the predicted values of education from the first stage</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>second.stage <span class="ot">&lt;-</span> <span class="fu">lm</span>( wage <span class="sc">~</span> x1_hat <span class="sc">+</span> experience )   </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Run the 2nd stage using the predicted values of education to look at the effect on income.</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( full.model, naive.model, second.stage,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">dep.var.labels =</span> (<span class="st">&quot;Wage&quot;</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Full Model&quot;</span>, <span class="st">&quot;Naive Model&quot;</span>, <span class="st">&quot;IV model&quot;</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="fu">c</span>(<span class="st">&quot;adj.rsq&quot;</span>, <span class="st">&quot;ser&quot;</span>), </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Education&quot;</span>, <span class="st">&quot;Ability&quot;</span>, <span class="st">&quot;Predicted Education&quot;</span>, <span class="st">&quot;Experience&quot;</span>),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+Wage
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Full Model
+</td>
+<td>
+Naive Model
+</td>
+<td>
+IV model
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+<td>
+(3)
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Education
+</td>
+<td>
+8.76<sup>***</sup>
+</td>
+<td>
+11.59<sup>***</sup>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.32)
+</td>
+<td>
+(0.48)
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Ability
+</td>
+<td>
+0.24<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.01)
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Predicted Education
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+8.76<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+(0.81)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Experience
+</td>
+<td>
+4.61<sup>***</sup>
+</td>
+<td>
+4.24<sup>***</sup>
+</td>
+<td>
+4.96<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.35)
+</td>
+<td>
+(0.53)
+</td>
+<td>
+(0.64)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+-97.89<sup>***</sup>
+</td>
+<td>
+-69.14<sup>***</sup>
+</td>
+<td>
+-27.56<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(5.23)
+</td>
+<td>
+(7.83)
+</td>
+<td>
+(12.62)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+1,000
+</td>
+<td>
+1,000
+</td>
+<td>
+1,000
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+R<sup>2</sup>
+</td>
+<td>
+0.76
+</td>
+<td>
+0.44
+</td>
+<td>
+0.20
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+F Statistic
+</td>
+<td>
+1,033.66<sup>***</sup> (df = 3; 996)
+</td>
+<td>
+394.18<sup>***</sup> (df = 2; 997)
+</td>
+<td>
+127.80<sup>***</sup> (df = 2; 997)
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="3" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>Note that the table report the “true”” model (full model) where we include all variables, the naive model where we omit the ability variable, and the instrumental variable model where we use the predicted values of the first stage. The IV model has almost completely recovered the true slope.</p>
+</div>
+<div id="additional-explanation-plotting-the-results" class="section level2">
+<h2>Additional explanation: plotting the results</h2>
+<p>Using our simulated data, we can have a look at what is happening when we estimate the model with an instrument variable.</p>
+<p>We know that omitted variable bias results from the correlation of our policy variable (Education) and the omitted variable (Ability).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ability, educ, <span class="at">xlab =</span> <span class="st">&quot;Ability&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Education&quot;</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>( educ <span class="sc">~</span> ability ), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">lwd=</span><span class="dv">3</span> )</span></code></pre></div>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/plot1-1.png" alt="Figure 7. Relationship between Y and the omitted variable" width="960" />
+<p class="caption">
+Figure 7. Relationship between Y and the omitted variable
+</p>
+</div>
+<p>The instrumental variable, however, is correlated only with the policy variable, not the omitted variable. Therefore, we can use the instrumental variable to partition the variance of education into a component that is highly correlated with ability (the residual), and a component that is uncorrelated with ability (X1-hat). Remember the figure 5 we discussed at the beginning of the lecture:</p>
+<div class="figure">
+<img src="FIGURE/InstVar/Ex_Partition.png" alt="Figure 8. Instrumental variable model" width="40%" />
+<p class="caption">
+Figure 8. Instrumental variable model
+</p>
+</div>
+<p>To see this in practice, we can plot the predicted values (x1_hat) and the residual (e_x1) of the first stage in two graphs and look at the correlation with the omitted variable ability. You can see that there is almost no correlation between h1_hat and ability, but ability is highly correlated with the residual (e_x1).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>first.stage <span class="ot">&lt;-</span> <span class="fu">lm</span>( educ <span class="sc">~</span> fathereduc <span class="sc">+</span> experience )          <span class="co">#Run again the first stage to predict education (x1)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>x1_hat      <span class="ot">&lt;-</span> <span class="fu">fitted</span>( first.stage )      <span class="co">#Save the predicted values of education (x1_hat)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>e_x1        <span class="ot">&lt;-</span> <span class="fu">residuals</span>( first.stage )   <span class="co">#Save residuals of education (e_x1)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>( <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>) )</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Plot the predicted values against ability</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( ability, x1_hat, </span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Ability (omitted variable)&quot;</span>, </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;Predicted values of Education (x1_hat)&quot;</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="fu">lm</span>( x1_hat <span class="sc">~</span> ability), <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Plot the residual against ability</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( ability, e_x1, </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Ability (omitted variable)&quot;</span>, </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;Education - Residual (e_X1)&quot;</span>,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="fu">lm</span>( e_x1 <span class="sc">~</span> ability), <span class="at">col =</span> <span class="st">&quot;green&quot;</span>)</span></code></pre></div>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/plot2-1.png" alt="Figure 9. Partitioning the variance of Education" width="960" />
+<p class="caption">
+Figure 9. Partitioning the variance of Education
+</p>
+</div>
+<p>One interesting thing about the instrumental variable model is that Education will be more correlated with Wage than X1-hat, but X1-hat does a better job of recovering the true slope B1 from the full model.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>( <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>) )</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( educ, wage, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Education&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Wage&quot;</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="fu">lm</span>( wage <span class="sc">~</span> educ), <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd=</span><span class="dv">3</span> )</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( x1_hat, wage, </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Predicted values of Education (x1_hat)&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Wage&quot;</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="fu">lm</span>( wage <span class="sc">~</span> x1_hat), <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd=</span><span class="dv">3</span> )</span></code></pre></div>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/plot3-1.png" alt="Figure 10. Relationship between the 'parts' of education and Y" width="960" />
+<p class="caption">
+Figure 10. Relationship between the ‘parts’ of education and Y
+</p>
+</div>
+</div>
+<div id="summary-how-to-select-a-valid-instrumental-variable" class="section level2">
+<h2>Summary: How to select a valid instrumental variable</h2>
+<p>Some things you should keep in mind about instrumental variables and how to select a valid one.</p>
+<ol style="list-style-type: decimal">
+<li>An instrumental variable should be strongly correlated with your policy variable; the higher the correlation, the better. You can empirically test how ‘good’ the correlation is, when running the first stage. The rule of thumb is that the first stage should have an <strong>F Statistic of at least 10</strong> in the first stage model to avoid the <strong>weak instrument problem</strong>.`</li>
+</ol>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>first.stage <span class="ot">&lt;-</span> <span class="fu">lm</span>( educ <span class="sc">~</span> fathereduc <span class="sc">+</span> ability )</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( first.stage,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;First Stage&quot;</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">type=</span><span class="st">&quot;html&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Father&#39;s education&quot;</span>, <span class="st">&quot;Experience&quot;</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="fu">c</span>(<span class="st">&quot;rsq&quot;</span>,<span class="st">&quot;ser&quot;</span>), </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="1" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+educ
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+First Stage
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Father’s education
+</td>
+<td>
+0.74<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.02)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Experience
+</td>
+<td>
+0.005<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.0005)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+2.85<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.42)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+1,000
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Adjusted R<sup>2</sup>
+</td>
+<td>
+0.51
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+F Statistic
+</td>
+<td>
+529.26<sup>***</sup> (df = 2; 997)
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>If your instrumental variable is weak, it means that it is little correlated with the policy variable, so it does a “bad” job in approximating its effect on the policy outcome. You might find no policy effect even if there is one! You need to have strong evidence that the instrumental variable does a good job in approximating the policy variable (e.g., the F test) before concluding that the policy has no effect.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Because the instrumental variable is correlated with the policy variable and the policy variable is correlated with the outcome variable, the instrumental variable is also correlated with the outcome. See for instance the correlation between father’s education and wage.</li>
+</ol>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( fathereduc, wage, </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Father&#39;s education&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Hourly wage&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span>  )</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>( wage <span class="sc">~</span> fathereduc ), <span class="at">col =</span> <span class="st">&quot;green&quot;</span>) </span></code></pre></div>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/plot4-1.png" alt="Figure 11. Correlation between Y and the omitted variable" width="960" />
+<p class="caption">
+Figure 11. Correlation between Y and the omitted variable
+</p>
+</div>
+<p>However, it is important to be able to argue that such correlation occurs only through the policy variable and there is no direct correlation between the instrumental and the outcome variable.</p>
+<div class="figure">
+<img src="FIGURE/InstVar/PathDiagram_2.png" alt="Figure 12. Instrumental variable model, path diagram" width="40%" />
+<p class="caption">
+Figure 12. Instrumental variable model, path diagram
+</p>
+</div>
+<p>In our previous example, a father’s education increases the hourly wage only if it makes an individual stays longer in school. If not, it has no effect on the wage.</p>
+<p>The lack of direct correlation between the instrumental and the oucome variable is argued through theory and previous studies.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>To recap, the covariance structure among the variables in an omitted variable model can be summarized in the following table, where:</li>
+</ol>
+<ul>
+<li>Wage is the outcome variable</li>
+<li>Education is the policy variable</li>
+<li>Ability is the omitted variable</li>
+<li>Experience is a control variable</li>
+<li>Father’s education is the instrumental variable</li>
+</ul>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/matrixstructure-1.png" alt="Figure 13. Correlation matrix structure" width="960" />
+<p class="caption">
+Figure 13. Correlation matrix structure
+</p>
+</div>
+<ol start="4" style="list-style-type: decimal">
+<li>Finding a valid instrumental variable is challenging, requires creativity and some review of previous studies to get ideas and preliminary assess the correlation between the model variables.</li>
+</ol>
+</div>
+</div>
+<div id="replication-of-a-study" class="section level1">
+<h1>Replication of a study</h1>
+<p>We now look at data that have been used by <a href="https://www.nber.org/papers/w4483.pdf">Card in 1995</a> for estimating a similar model. The dataset is contained in the Wooldrige package and you can download it to replicate this exercise.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>( <span class="st">&quot;wooldridge&quot;</span>, <span class="at">repos=</span><span class="st">&quot;https://cran.cnr.berkeley.edu&quot;</span> )</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( <span class="st">&quot;wooldridge&quot;</span> )</span></code></pre></div>
+<div id="data-1" class="section level2">
+<h2>Data</h2>
+<p>The dataset contains 3,010 observations collected in 1966/1976.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>( <span class="st">&quot;card&quot;</span> ) <span class="do">## we attach the data to our R working space</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>( card ) <span class="do">## To check if data were properly load, we can look if the number of obs is equal to 3010</span></span></code></pre></div>
+<pre><code>## [1] 3010</code></pre>
+<p>For this exercise we are going to use the following variables. You can find a description of all variables <a href="http://fmwww.bc.edu/ec-p/data/wooldridge/card.des">here</a>.</p>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Variable name </strong></th>
+<th><strong>Description </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lwage</td>
+<td>Annual wage (log form)</td>
+</tr>
+<tr class="even">
+<td>educ</td>
+<td>Years of education</td>
+</tr>
+<tr class="odd">
+<td>nearc4</td>
+<td>Living close to college (=1) or far from college (=0)</td>
+</tr>
+<tr class="even">
+<td>smsa</td>
+<td>Living in metropolitan area (=1) or not (=0)</td>
+</tr>
+<tr class="odd">
+<td>exper</td>
+<td>Years of experience</td>
+</tr>
+<tr class="even">
+<td>expersq</td>
+<td>Years of experience (squared term)</td>
+</tr>
+<tr class="odd">
+<td>black</td>
+<td>Black (=1), not black (=0)</td>
+</tr>
+<tr class="even">
+<td>south</td>
+<td>Living in the south (=1) or not (=0)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="analysis-1" class="section level2">
+<h2>Analysis</h2>
+<p>As we did before, Card wants to estimate the impact of education on wage. But to solve the ability bias, he utilizes a different instrumental variable: <strong>proximity to college</strong>. He provides arguments to support each of three main characteristics of a good instrumental variable:</p>
+<ol style="list-style-type: decimal">
+<li><strong>It is correlated with the policy variable:</strong> Individuals who live close to a 4-year college have easier access to education at a lower costs (no communiting costs and time nor accomodation costs), so they have greater incentives to pursue education.</li>
+<li><strong>It is not correlated with the omitted variable:</strong> Individual ability does not depend on proximity to a college.</li>
+<li><strong>It is correlated to the dependent variable only through the policy variable:</strong> Proximity to a college has no effect on your annual income, unless you decide to pursue further education because of the nearby college.</li>
+</ol>
+<p>Therefore, he estimates a model where:</p>
+<p><strong>First stage</strong> (equation (3))</p>
+<center>
+<span class="math inline">\(Educ = \beta_0 + \beta_1\text{nearc4} + \beta_{2-6}\text{Control variables}\)</span>
+</center>
+<p><strong>Second stage</strong> (equation (4))</p>
+<center>
+<span class="math inline">\(lwage = \beta_0 + \beta_1\text{Educ} + \beta_{2-6}\text{Control variables}\)</span>
+</center>
+<p>We replicate the study starting by having a look at the summary statistics and distribution of the 3 key variables:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( card,  </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">keep =</span> <span class="fu">c</span>(<span class="st">&quot;lwage&quot;</span>, <span class="st">&quot;^educ$&quot;</span>, <span class="st">&quot;nearc4&quot;</span>), </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.summary.stat =</span> <span class="fu">c</span>(<span class="st">&quot;p25&quot;</span>, <span class="st">&quot;p75&quot;</span>),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+<td>
+Min
+</td>
+<td>
+Max
+</td>
+</tr>
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+nearc4
+</td>
+<td>
+3,010
+</td>
+<td>
+0.68
+</td>
+<td>
+0.47
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+educ
+</td>
+<td>
+3,010
+</td>
+<td>
+13.26
+</td>
+<td>
+2.68
+</td>
+<td>
+1
+</td>
+<td>
+18
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+lwage
+</td>
+<td>
+3,010
+</td>
+<td>
+6.26
+</td>
+<td>
+0.44
+</td>
+<td>
+4.61
+</td>
+<td>
+7.78
+</td>
+</tr>
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+</table>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Note: the symbols ^ &amp; $ around educ prevents the function from grabbing other variables containing educ, such as fatheduc or mothedut</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>( <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>) )</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( <span class="fu">density</span>(card<span class="sc">$</span>lwage), </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Wage&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Dependent variable&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Frequency&quot;</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( <span class="fu">density</span>(card<span class="sc">$</span>educ), </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;Education&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Policy variable&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Frequency&quot;</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">col=</span><span class="fu">gray</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>), <span class="at">cex=</span><span class="fl">1.3</span> )</span></code></pre></div>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/plot5-1.png" alt="Figure 14. Distribution of Y, X, and Z" width="960" />
+<p class="caption">
+Figure 14. Distribution of Y, X, and Z
+</p>
+</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>( <span class="fu">table</span>(card<span class="sc">$</span>nearc4), <span class="at">xlab =</span> <span class="st">&quot;Living near a four-year college&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Frequency&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Instrumental variable&quot;</span>)</span></code></pre></div>
+<div class="figure">
+<img src="p-050-instrumental-variables_files/figure-html/plot5-2.png" alt="Figure 14. Distribution of Y, X, and Z" width="960" />
+<p class="caption">
+Figure 14. Distribution of Y, X, and Z
+</p>
+</div>
+<p>We then estimate the model using two stages. As before, in the first stage we estimate education using our instrumental variable; you can see that the F statistic is greater than 10, suggesting that <span class="math inline">\(\text{nearc4}\)</span> is a valid instrumental variable. Then, we estimate the impact of education on wage using the predicted values of education.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>first.stage <span class="ot">=</span> <span class="fu">lm</span>(educ <span class="sc">~</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>nearc4 <span class="sc">+</span>  </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>smsa66 <span class="sc">+</span>          </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>exper <span class="sc">+</span>          </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>expersq <span class="sc">+</span>        </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>black <span class="sc">+</span>         </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>south66, <span class="at">data =</span> card)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>x1_hat <span class="ot">&lt;-</span> <span class="fu">fitted</span>( first.stage ) <span class="co">#Save predicted values for education</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>second.stage <span class="ot">&lt;-</span> <span class="fu">lm</span>(lwage <span class="sc">~</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>x1_hat <span class="sc">+</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>smsa66 <span class="sc">+</span>          </span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>exper <span class="sc">+</span>          </span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>expersq <span class="sc">+</span>        </span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>black <span class="sc">+</span>         </span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>south66, <span class="at">data =</span> card)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( first.stage, second.stage,</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;First Stage&quot;</span>, <span class="st">&quot;Second Stage&quot;</span>),</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="fu">c</span>(<span class="st">&quot;rsq&quot;</span>,<span class="st">&quot;ser&quot;</span>), </span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+educ
+</td>
+<td>
+lwage
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+First Stage
+</td>
+<td>
+Second Stage
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+nearc4
+</td>
+<td>
+0.33<sup>***</sup>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.09)
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+x1_hat
+</td>
+<td>
+</td>
+<td>
+0.16<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+(0.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+smsa66
+</td>
+<td>
+0.25<sup>***</sup>
+</td>
+<td>
+0.08<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.08)
+</td>
+<td>
+(0.03)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+exper
+</td>
+<td>
+-0.41<sup>***</sup>
+</td>
+<td>
+0.12<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.03)
+</td>
+<td>
+(0.02)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+expersq
+</td>
+<td>
+0.0005
+</td>
+<td>
+-0.002<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.002)
+</td>
+<td>
+(0.0003)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+black
+</td>
+<td>
+-0.92<sup>***</sup>
+</td>
+<td>
+-0.10<sup>*</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.09)
+</td>
+<td>
+(0.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+south66
+</td>
+<td>
+-0.35<sup>***</sup>
+</td>
+<td>
+-0.06<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.08)
+</td>
+<td>
+(0.03)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+16.81<sup>***</sup>
+</td>
+<td>
+3.36<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.17)
+</td>
+<td>
+(0.93)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+3,010
+</td>
+<td>
+3,010
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Adjusted R<sup>2</sup>
+</td>
+<td>
+0.47
+</td>
+<td>
+0.16
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+F Statistic (df = 6; 3003)
+</td>
+<td>
+448.71<sup>***</sup>
+</td>
+<td>
+95.16<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="2" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>As you can see, our policy variable has a different estimate in the two models.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>naive.model <span class="ot">&lt;-</span> <span class="fu">lm</span>(lwage <span class="sc">~</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>educ <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>smsa66 <span class="sc">+</span>          </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>exper <span class="sc">+</span>          </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>expersq <span class="sc">+</span>        </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>black <span class="sc">+</span>         </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>south66, <span class="at">data =</span> card)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( naive.model, second.stage,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">model.numbers =</span> F,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="st">&quot;all&quot;</span>, </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span>,  <span class="at">keep =</span> <span class="fu">c</span>(<span class="st">&quot;educ&quot;</span>, <span class="st">&quot;x1_hat&quot;</span>) )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+lwage
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+educ
+</td>
+<td>
+0.08<sup>***</sup>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.004)
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+x1_hat
+</td>
+<td>
+</td>
+<td>
+0.16<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+(0.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="2" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="additional-notes" class="section level1">
+<h1>Additional notes</h1>
+<div id="ivreg-function" class="section level2">
+<h2><em>ivreg</em> function</h2>
+<p>If you like to explore new R functions, you can use the <em>ivreg</em> function from the package <em>AER</em> to calculate your instrumental variable model. See the example below using the same data as in the Card’s example.</p>
+<p>Note the syntax for using the ivreg function.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>simple.model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>lwage <span class="sc">~</span>              </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>educ <span class="sc">+</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>smsa66 <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>exper <span class="sc">+</span>    </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>expersq <span class="sc">+</span> </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>black <span class="sc">+</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>south66, <span class="at">data =</span> card)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>ivreg.model <span class="ot">&lt;-</span> </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ivreg</span>(            <span class="do">## Call the ivreg function</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>lwage <span class="sc">~</span>           <span class="do">## Dependent variable of the second stage </span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>educ <span class="sc">+</span>            <span class="do">## Education, as estimated in the first stage below </span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>smsa66 <span class="sc">+</span>          <span class="do">## Control variable - Living in a metropolitan area</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>exper <span class="sc">+</span>           <span class="do">## Control variable - Expertise</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>expersq <span class="sc">+</span>         <span class="do">## Control variable - Squared term of the expertise variable</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>black <span class="sc">+</span>           <span class="do">## Control variable - If race is black = 1, otherwise = 0</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>south66           <span class="do">## Control variable - If living in the south = 1, otherwise = 0 </span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="sc">|</span>                 <span class="do">## Separate first and second stage   </span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>.<span class="sc">-</span>educ <span class="sc">+</span>          <span class="do">## we include all variable of the first stage, minus the education variable that is estimated     </span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>nearc4,           <span class="do">## The instrumental variable is included only here, in the first stage</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="at">data =</span> card )     <span class="do">## Set the dataset</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( simple.model, ivreg.model,</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;No IV model&quot;</span>, <span class="st">&quot;IV model&quot;</span>),</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">type=</span><span class="st">&quot;html&quot;</span>, </span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="fu">c</span>(<span class="st">&quot;rsq&quot;</span>,<span class="st">&quot;ser&quot;</span>), </span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits=</span><span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+lwage
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>OLS</em>
+</td>
+<td>
+<em>instrumental</em>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em></em>
+</td>
+<td>
+<em>variable</em>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+No IV model
+</td>
+<td>
+IV model
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+educ
+</td>
+<td>
+0.08<sup>***</sup>
+</td>
+<td>
+0.16<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.004)
+</td>
+<td>
+(0.06)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+smsa66
+</td>
+<td>
+0.11<sup>***</sup>
+</td>
+<td>
+0.08<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.02)
+</td>
+<td>
+(0.03)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+exper
+</td>
+<td>
+0.09<sup>***</sup>
+</td>
+<td>
+0.12<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.01)
+</td>
+<td>
+(0.02)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+expersq
+</td>
+<td>
+-0.002<sup>***</sup>
+</td>
+<td>
+-0.002<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.0003)
+</td>
+<td>
+(0.0003)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+black
+</td>
+<td>
+-0.18<sup>***</sup>
+</td>
+<td>
+-0.10<sup>*</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.02)
+</td>
+<td>
+(0.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+south66
+</td>
+<td>
+-0.10<sup>***</sup>
+</td>
+<td>
+-0.06<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.02)
+</td>
+<td>
+(0.03)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+4.73<sup>***</sup>
+</td>
+<td>
+3.36<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.07)
+</td>
+<td>
+(0.94)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+3,010
+</td>
+<td>
+3,010
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Adjusted R<sup>2</sup>
+</td>
+<td>
+0.27
+</td>
+<td>
+0.14
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+F Statistic
+</td>
+<td>
+184.61<sup>***</sup> (df = 6; 3003)
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="2" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+</div>
+<div id="additional-examples" class="section level2">
+<h2>Additional examples</h2>
+<p>Several studies have used instrumental variables to solve omitted variable issues. Here are some examples:</p>
+<table>
+<colgroup>
+<col width="18%" />
+<col width="26%" />
+<col width="30%" />
+<col width="24%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Outcome variable</strong></th>
+<th><strong>Policy variable</strong></th>
+<th><strong>Omitted variable</strong></th>
+<th><strong>Instrumental variable</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Health</td>
+<td>Smoking cigarettes</td>
+<td>Other negative health behaviors</td>
+<td>Tobacco taxes</td>
+</tr>
+<tr class="even">
+<td>Crime rate</td>
+<td>Patrol hours</td>
+<td># of criminals</td>
+<td>Election cycles</td>
+</tr>
+<tr class="odd">
+<td>Income</td>
+<td>Education</td>
+<td>Ability</td>
+<td>Father’s education</td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td>Distance to college</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td>Military draft</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Crime</td>
+<td>Incarceration rate</td>
+<td>Simultaneous causality</td>
+<td>Overcrowding litigations</td>
+</tr>
+<tr class="odd">
+<td>Election outcomes</td>
+<td>Federal spending in a district</td>
+<td>Political vulnerability</td>
+<td>Federal spending in the rest of the state</td>
+</tr>
+<tr class="even">
+<td>Conflicts</td>
+<td>Economic growth</td>
+<td>Simultaneous causality</td>
+<td>Rainfall</td>
+</tr>
+</tbody>
+</table>
+<style type="text/css">
+p {
+color: black;
+margin: 0 0 20px 0;
+}
+
+p.caption {
+    text-align: center;
+    font-style: italic;
+}
+
+td {
+    padding: 3px 10px 3px 10px;
+    }
+
+table
+{ 
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:80px;
+    margin-bottom:100px;
+}
+
+h1, h2{
+  margin-top:100px;
+  margin-bottom:20px;
+}
+
+H5{
+    text-align: center;
+    color: gray;
+    font-size:0.8em;
+}
+
+img {
+    max-width: 90%;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top:30px;
+    margin-bottom:20px;
+}
+
+pre {
+  overflow-x: auto;
+}
+
+pre code {
+   display: block; 
+   padding: 0.5em;
+   margin-bottom:20px;
+}
+
+code {
+  font-size: 92%;
+  border: 10px solid #F8F8F8;
+  margin-bottom: 2px;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+</style>
+</div>
+</div>
+
+
+<div class="footer">
+<div class="row"  align="center">
+
+  <br>
+  Written by <a href=http://fusifederica.weebly.com/ target="_blank">Federica Fusi</a> & <a href=http://lecy.info target="_blank">Jesse Lecy</a><br>
+  Content licensed under Creative Commons: <a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target="_blank"> (CC BY-NC-SA 4.0)</a><br>
+  Source code is available on <a href=https://github.com/DS4PS/cpp-523-spr-2020/tree/master/labs target="_blank">GitHub</a><br>
+  <br>
+  CPP 525 <a href="https://ds4ps.org/cpp-525-spr-2020/" target="_blank">Foundations of Prog Eval III</a><br>
+  Part of the <a href=http://ds4ps.org/ms-prog-eval-data-analytics/ target="_blank">MS in Evaluation and Analytics</a><br>
+  @ <a href=https://asuonline.asu.edu/online-degree-programs/graduate/program-evaluation-and-data-analytics-ms/ target="_blank">Arizona State University</a><br>
+  <br>
+  Copyright &copy; 2020
+
+<br>
+<br>
+<br>
+<br>
+
+</div>
+</div>
+
+
+
+
+<style>
+
+blockquote {
+    padding: 11px 22px;
+    margin: 0 0 22px;
+    font-size: 18px;
+    border-left: 5px solid lightgray;
+}
+
+.footer {
+  color:white;
+  min-height: 450px !important;
+  background-color: #696969;
+  padding-bottom: 3em;
+  padding-top: 3em;
+  margin: auto;
+}
+
+.footer a {
+  color: orange;
+}
+
+.footer body{
+     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     font-size:calc(1.5em + 0.25vw);
+     font-weight:300;line-height:1.65;
+     -webkit-font-smoothing:antialiased;
+     -moz-osx-font-smoothing:grayscale;
+     margin-left:20%;
+     margin-right:20%
+}
+
+footer.body{
+     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     font-size:calc(1.5em + 0.25vw);
+     font-weight:300;line-height:1.65;
+     -webkit-font-smoothing:antialiased;
+     -moz-osx-font-smoothing:grayscale;
+     margin-left:20%;
+     margin-right:20%
+}
+
+.footerFloatOuter {
+	width: 25%;
+	float: left;
+}
+
+.footerFloatInner1 {
+	width: 20%;
+	float: left;
+	align: left;
+	margin-left: 0px;
+}
+
+.footerFloatInner2 {
+	width: 50%;
+	float: left;
+	text-align: left;
+}
+
+
+
+.footer ul li {
+	font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:calc(0.55em + 0.25vw) !important;
+  font-weight:300;
+  line-height:1.2 !important;
+  color: #FFF;
+	text-transform: uppercase;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+</style>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

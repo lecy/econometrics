@@ -1,0 +1,996 @@
+# ---------------------------------------------------------------------------
+# Content for the one-page archive at index.md (layout: archive)
+#
+# Each unit renders as one section. Links use paths relative to the repo root;
+# the layout runs them through Jekyll's relative_url filter, so absolute URLs
+# (http://...) also work as-is.
+#
+# link kinds control button styling:
+#   notes  html  pdf  pptx  docx  data  rmd
+#
+# link flags:
+#   download: true   save the file instead of opening it (same-origin files only)
+#   raw: true        resolve the url against site.raw_root on GitHub instead of
+#                    against the built site. Required for .rmd files: they carry a
+#                    YAML header, so Jekyll excludes them from the build (see the
+#                    exclude: block in _config.yml) and GitHub serves the original.
+# ---------------------------------------------------------------------------
+
+- id: nuts-and-bolts
+  number: "01"
+  part: "Part 1 — Regression Foundations"
+  title: Nuts and Bolts of Regression
+  tagline: Slopes, intercepts, residuals, and what a regression line actually claims.
+  overview: |
+    The building blocks of a bivariate regression model: sample variance and standard
+    deviation, the slope, the intercept, the regression line, and the error term.
+
+    Before we can talk about causal impact we need a model that describes the
+    *relationship* between a treatment and an outcome. The running example asks whether
+    caffeine intake raises heart rate — a question that is easy to model and hard to
+    interpret, which makes it a good place to start.
+  objectives:
+    - Explain what a regression slope represents (a conditional mean).
+    - Write down and apply the formulas for the regression coefficients.
+    - Tabulate residuals and decompose the total sum of squares.
+  readings:
+    - title: Using Regression Models to Estimate Program Effects
+      cite: Reichardt, C. S., & Bormann, C. A. (1994). Handbook of Practical Program Evaluation.
+      url: pubs/Estimating%20Program%20Effects%20Using%20Regression%20Models.pdf
+    - title: "Applied Regression: An Introduction"
+      cite: Lewis-Beck, C., & Lewis-Beck, M. (2015). Sage. Reference for the core formulas.
+      url: pubs/Applied%20Regression%20Lewis-Beck.pdf
+    - title: "OpenIntro Statistics, Ch. 8 — Introduction to Linear Regression"
+      cite: Diez, D. M., Barr, C. D., & Cetinkaya-Rundel, M. (2012).
+      url: pubs/openintro-statistics-sample.pdf
+    - title: Regression Review Self-Test
+      cite: Benchmark your baseline knowledge before starting the sequence.
+      url: handouts/Regression-Review-Self-Test.pdf
+    - title: Common Statistics Notation
+      cite: One-page key to the symbols used throughout the lectures.
+      url: handouts/Common-Statistics-Notation.pdf
+  lectures:
+    - title: Building a Regression Model
+      blurb: Caffeine and heart rate, from scatterplot to fitted model to residual table.
+      links:
+        - { label: Lecture, url: lectures1/caffeine.html, kind: html }
+        - { label: Data (CSV), url: lectures1/data/caffeine.csv, kind: data }
+    - title: Total Sum of Squares Decomposition
+      blurb: Where the variance of Y goes once a model is fit — SST, SSE, and SSR.
+      links:
+        - { label: Lecture, url: lectures1/total-sum-of-squares-decomposition.html, kind: html }
+  labs:
+    - title: Lab P101 — Regression Review
+      blurb: >
+        Calculate a bivariate slope and intercept by hand on five data points, tabulate
+        residuals, and compute R-squared. Worked on paper rather than in R.
+      links:
+        - { label: Instructions, url: labs1/lab-01-instructions.html, kind: html }
+        - { label: Worksheet (DOCX), url: labs1/Lab-01-Regression-Review.docx, kind: docx, download: true }
+        - { label: Worksheet (PDF), url: labs1/Lab-01-Regression-Review.pdf, kind: pdf }
+
+- id: variance-and-inference
+  number: "02"
+  part: "Part 1 — Regression Foundations"
+  title: Variance, Standard Errors, and Confidence Intervals
+  tagline: How much of your estimate is signal, and how far off is it likely to be?
+  overview: |
+    Confidence intervals are built from standard errors, standard errors are built from
+    residuals, and residuals come out of the regression model. This unit walks that chain
+    backwards until the whole apparatus of hypothesis testing rests on quantities you can
+    calculate by hand.
+
+    The distinction that does the most work here is between the *distribution of the sample*
+    (how spread out your data are) and the *sampling distribution* (how spread out your
+    estimates would be across repeated samples). Standard deviation describes the first;
+    standard error describes the second.
+  objectives:
+    - Build a confidence interval around a slope estimate of program impact.
+    - Distinguish standard deviation from standard error, and totals from averages.
+    - Read a regression table reporting several models side by side.
+  readings:
+    - title: Common Statistics Notation
+      cite: Symbol key — worth keeping open while working through these lectures.
+      url: handouts/Common-Statistics-Notation.pdf
+    - title: "The New Statistics, Ch. 1"
+      cite: Estimation, effect sizes, and why p-values are not the whole story.
+      url: pubs/The%20New%20Statistics%20Chapter%201.pdf
+    - title: "The New Statistics, Ch. 2"
+      cite: Confidence intervals as the primary reporting unit.
+      url: pubs/The%20New%20Statistics%20Chapter%202.pdf
+  lectures:
+    - title: Variance, Covariance, and the Regression Slope
+      blurb: Everything in this lecture is built from one quantity — the deviation from the mean.
+      links:
+        - { label: Notes, url: lectures1/p-01-variance-covariance-slope-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-01-variance-covariance-slope.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-01-variance-covariance-slope.pptx, kind: pptx, download: true }
+    - title: Partitioning the Variance of Y
+      blurb: Explained versus unexplained variance, and what R-squared is measuring.
+      links:
+        - { label: Notes, url: lectures1/p-02-partitioning-variance-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-02-partitioning-variance.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-02-partitioning-variance.pptx, kind: pptx, download: true }
+    - title: Standard Error of the Slope
+      blurb: The three levers — residual variance, spread of X, and sample size.
+      links:
+        - { label: Notes, url: lectures1/p-03-standard-errors-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-03-standard-errors.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-03-standard-errors.pptx, kind: pptx, download: true }
+    - title: Confidence Intervals
+      blurb: Turning a standard error into a range of plausible values for the true slope.
+      links:
+        - { label: Notes, url: lectures1/p-04-confidence-intervals-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-04-confidence-intervals.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-04-confidence-intervals.pptx, kind: pptx, download: true }
+    - title: Interpreting Program Impact
+      blurb: Effect size, practical versus statistical significance, and coefficient plots.
+      links:
+        - { label: Notes, url: lectures1/p-05-program-impact-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-05-program-impact.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-05-program-impact.pptx, kind: pptx, download: true }
+    - title: Sample vs. Sampling Distribution
+      blurb: A short reading guide on the distinction students most often collapse.
+      links:
+        - { label: Notes, url: lectures1/sample-vs-sampling-distribution-notes.html, kind: notes }
+  labs:
+    - title: Lab P102 — Class Size and Confidence Intervals
+      blurb: >
+        Opens the education-policy case study used for the rest of the sequence. Build
+        confidence intervals around slope estimates and run visual hypothesis tests with
+        coefficient plots.
+      links:
+        - { label: Instructions, url: labs1/lab-02-class-size-confidence-intervals.html, kind: html }
+        - { label: RMD Template, url: labs1/lab-02-TEMPLATE.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs1/class-size-seed-1234.csv, kind: data }
+        - { label: Background reading, url: labs1/class-size-debate-lit-review.pdf, kind: pdf }
+
+- id: control-variables
+  number: "03"
+  part: "Part 1 — Regression Foundations"
+  title: Control Variables
+  tagline: Two kinds of control variable, and the two different things they do to a model.
+  overview: |
+    Moving from bivariate to multiple regression: `Y = b0 + b1*X1 + b2*X2 + e`, where X1 is
+    always the policy variable and everything after it is a control.
+
+    Some controls are correlated with the outcome but not with the treatment — they shrink
+    standard errors and buy precision. Others are correlated with both — they move the
+    slope. Knowing which kind you have added is the difference between a more efficient
+    model and a different answer. Ballentine Venn diagrams are introduced here as the tool
+    for keeping the two straight.
+  objectives:
+    - Predict how adding a given control will change the slopes in a model.
+    - Predict how adding a given control will change the standard errors.
+    - Use Ballentine diagrams to compare competing specifications.
+  readings:
+    - title: Multiple Regression
+      cite: "Tufte, E. R. (1974). Data Analysis for Politics and Policy, Ch. 4."
+      url: pubs/Multiple%20Regression.pdf
+  lectures:
+    - title: Control Variables
+      blurb: What a control variable does to the slope, and what it does to precision.
+      links:
+        - { label: Notes, url: lectures1/p-06-control-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-06-control-variables.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-06-control-variables.pptx, kind: pptx, download: true }
+    - title: Control Variables in R
+      blurb: Worked example with regression tables and partial-effect scatterplots.
+      links:
+        - { label: Lecture, url: lectures1/control-variables.html, kind: html }
+  labs:
+    - title: Lab P103 — Control Variables
+      blurb: >
+        Model code is provided; the work is interpretation. Compare specifications on the
+        class-size data and explain what each control is doing to the estimate.
+      links:
+        - { label: Instructions, url: labs1/lab-03-instructions.html, kind: html }
+        - { label: RMD Template, url: labs1/lab-03-template.rmd, kind: rmd, raw: true }
+
+- id: omitted-variable-bias
+  number: "04"
+  part: "Part 1 — Regression Foundations"
+  title: Omitted Variable Bias
+  tagline: The variable you left out is still in the model — it is hiding in your slope.
+  overview: |
+    When a variable that belongs in the model is left out, its effect does not disappear.
+    It gets absorbed into the coefficients of the variables that remain, in an amount you
+    can calculate exactly: `bias = a1 * B2`, where `a1` comes from the auxiliary regression
+    of the omitted variable on the policy variable.
+
+    The canonical example is the 1989 "crack baby" research, where a strong apparent effect
+    of prenatal cocaine exposure on child development largely dissolved once poverty was
+    added to the models. The doctor-patient racial concordance debate is the same story
+    playing out in a current literature.
+  objectives:
+    - Identify variables with the potential to cause omitted variable bias.
+    - Calculate the size and direction of bias from omitting a variable.
+    - Explain why randomization breaks the bias term.
+  readings:
+    - title: "Crack Babies: Study Ends with Unexpected but Clear Result"
+      cite: The omitted variable was poverty. Required reading for this unit.
+      url: pubs/crack-vs-poverty.pdf
+    - title: Doctor-Patient Racial Concordance — the original study
+      cite: Strong claims from a cross-sectional model.
+      url: pubs/racial-concordance-and-disparities-in-birthing-mortality.pdf
+    - title: Doctor-Patient Racial Concordance — revisited with controls added
+      cite: What happens to the finding once omitted variables enter the model.
+      url: pubs/racial-concordance-and-disparities-in-birthing-mortality-revisited.pdf
+    - title: Doctor-Patient Racial Concordance — press coverage
+      cite: The Economist, on why a correction gets less attention than the finding.
+      url: pubs/racial-concordance-and-disparities-in-birthing-mortality-economist.pdf
+  lectures:
+    - title: Omitted Variable Bias
+      blurb: The full model, the naive model, the auxiliary regression, and the bias term.
+      links:
+        - { label: Notes, url: lectures1/p-07-omitted-variable-bias-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-07-omitted-variable-bias.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-07-omitted-variable-bias.pptx, kind: pptx, download: true }
+    - title: A Taxonomy of Control Variables
+      blurb: Confounders, mediators, colliders, and proxies — which to include and which to leave alone.
+      links:
+        - { label: Notes, url: lectures1/taxonomy-of-control-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/taxonomy-of-control-variables.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/taxonomy-of-control-variables.pptx, kind: pptx, download: true }
+    - title: Randomization Breaks Omitted Variable Bias
+      blurb: Why an experiment sets the auxiliary slope to zero, and what that buys you.
+      links:
+        - { label: Notes, url: lectures1/randomization-breaks-ovb-notes.html, kind: notes }
+    - title: Calculating Bias — Worked Example
+      blurb: Class size and socioeconomic status, with all three regressions run in R.
+      links:
+        - { label: Walk-through, url: lectures1/walk-through/omitted-variable-bias-example.html, kind: html }
+        - { label: PDF, url: lectures1/omitted-variable-bias-example.pdf, kind: pdf }
+    - title: Indirect Effects Example
+      blurb: Short handout on decomposing an effect that travels through a mediator.
+      links:
+        - { label: Handout (PDF), url: handouts/indirect-effect-example.pdf, kind: pdf }
+  labs:
+    - title: Lab P104 — Omitted Variable Bias
+      blurb: >
+        Estimate the naive model, the full model, and the auxiliary regression on the
+        class-size data, then show that the bias term reconciles the two slopes.
+      links:
+        - { label: Instructions, url: labs1/lab-04-instructions.html, kind: html }
+        - { label: RMD Template, url: labs1/lab-04-template.rmd, kind: rmd, raw: true }
+
+- id: dummy-variables
+  number: "05"
+  part: "Part 1 — Regression Foundations"
+  title: Dummy Variables and Interactions
+  tagline: Modeling groups, and testing whether a program works differently for each of them.
+  overview: |
+    Dummy variables are binary 0/1 indicators — one for each level of a categorical variable,
+    minus the reference category:
+
+    `y = b0 + b1(X) + b2(D) + e`
+
+    Interactions multiply a covariate by a dummy, which lets the slope itself differ by group:
+
+    `y = b0 + b1(X) + b2(D) + b3(X)(D) + e`
+
+    Together they turn a single regression into a set of hypothesis tests about differences
+    between groups — different intercepts, different slopes, or both.
+  objectives:
+    - Construct dummy variables and choose a sensible reference category.
+    - Interpret main effects and interaction terms in the same model.
+    - State and test hypotheses about group differences in intercepts and slopes.
+  readings:
+    - title: Regression with Interaction Effects — practice questions
+      cite: Work these before the lab.
+      url: handouts/Regression%20with%20Interaction%20Effects.pdf
+    - title: Regression with Interaction Effects — solutions
+      cite: Check your answers here.
+      url: handouts/Regression-with-Interaction-Effects-SOLUTIONS.pdf
+    - title: Interaction Effects in Research
+      cite: Background on why interactions are so often misread.
+      url: pubs/interaction-effects-in-research.pdf
+  lectures:
+    - title: Interactions in Regression Models
+      blurb: How a single interaction term changes the meaning of every other coefficient.
+      links:
+        - { label: Notes, url: lectures1/p-08-dummy-variables-notes.html, kind: notes }
+        - { label: PPTX, url: lectures1/p-08-dummy-variables.pptx, kind: pptx, download: true }
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: Which coefficient answers which question about group differences.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/hypotheses-tests-with-dummy-variables.pptx, kind: pptx, download: true }
+    - title: Groups in Regression Models
+      blurb: The R-side treatment — building dummies, setting factor levels, reading output.
+      links:
+        - { label: Lecture, url: lectures1/dummy-variables.html, kind: html }
+        - { label: Worked examples, url: lectures1/dummy-variable-examples-v2.html, kind: html }
+  labs:
+    - title: Lab P105 — Dummy Variables and Group Hypotheses
+      blurb: >
+        Construct group indicators, fit models with and without interaction terms, and use
+        the coefficients to test explicit hypotheses about group differences.
+      links:
+        - { label: Instructions, url: labs1/lab-05-instructions.html, kind: html }
+
+- id: specification
+  number: "06"
+  part: "Part 1 — Regression Foundations"
+  title: Specification and Measurement Error
+  tagline: What goes wrong when you run the regression without looking at the data.
+  overview: |
+    Specification bias is the error you get from fitting the wrong functional form — a
+    straight line through a curved relationship, or a slope dragged around by a highly
+    leveraged outlier. Because OLS minimizes *squared* error, a residual twice as large has
+    four times the influence, which is why outliers near the extremes of X do so much damage.
+
+    The fixes are quadratic terms for non-linearity and log transformations for skew and for
+    modeling growth rates rather than levels. Measurement error is the companion problem:
+    error in the dependent variable inflates standard errors, while error in the independent
+    variable attenuates the slope toward zero.
+  objectives:
+    - Diagnose specification bias from residual plots rather than from summary statistics.
+    - Identify leveraged outliers and run sensitivity analysis on them.
+    - Specify and interpret quadratic and logged regression models.
+  readings:
+    - title: Anscombe's Quartet
+      cite: Four datasets, identical regression output, four completely different stories.
+      url: handouts/Anscombes-Quartet.pdf
+    - title: Marginal Effects in Quadratic Regression Models
+      cite: How to report a slope that changes across the range of X.
+      url: handouts/Marginal-Effects-in-Quadratic-Regression-Models.pdf
+    - title: Interpreting Logged Regression Models
+      cite: Log-linear, linear-log, and log-log specifications side by side.
+      url: handouts/Interpretting-Logged-Regression-Models.pdf
+  lectures:
+    - title: Specification Bias I
+      blurb: Non-linearity, outliers, and leverage, worked through in R.
+      links:
+        - { label: Lecture, url: lectures1/specification-bias.html, kind: html }
+    - title: Bias from Specification or Measurement
+      blurb: Quadratic and log models, plus the distinct signatures of measurement error in X and Y.
+      links:
+        - { label: Notes, url: lectures1/p-09-specification-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-09-specification.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-09-specification.pptx, kind: pptx, download: true }
+  labs:
+    - title: Lab P106 — Non-linear Models
+      blurb: >
+        Fit and interpret a quadratic regression and a logged regression, and report the
+        marginal effect at meaningful values of X.
+      links:
+        - { label: Instructions, url: labs1/lab-06-instructions.html, kind: html }
+        - { label: RMD Template, url: labs1/lab-06-template.rmd, kind: rmd, raw: true }
+
+- id: threats-and-power
+  number: "07"
+  part: "Part 1 — Regression Foundations"
+  title: Threats to Inference and Statistical Power
+  tagline: The seven ways a regression lies to you, and whether your study could detect anything at all.
+  overview: |
+    A consolidated tour of the things that corrupt a regression inference: selection,
+    omitted variable bias, measurement error, specification, group heterogeneity,
+    multicollinearity, and simultaneity. Most of the sequence so far has been a slow walk
+    through the middle of that list; this unit puts the whole set in one place.
+
+    Statistical power is the mirror-image question. Before asking whether a program worked,
+    ask whether the study was ever capable of showing that it worked — a null result from an
+    underpowered design carries almost no information.
+  objectives:
+    - Name the mechanism behind each of the seven threats and its signature in the output.
+    - Diagnose which threat is most plausible in a given study design.
+    - Assess whether a design has enough power to detect an effect worth detecting.
+  readings:
+    - title: Seven Sins of Regression Analysis
+      cite: Concise one-page summary of all seven threats.
+      url: handouts/Seven-Sins-of-Regression-Analysis.pdf
+    - title: Difference-in-Difference Models
+      cite: One design-based route around several of the seven.
+      url: handouts/Difference-in-Difference-Models.pdf
+  lectures:
+    - title: Seven Sins of Regression
+      blurb: Selection, omitted variables, measurement error, specification, heterogeneity, multicollinearity, simultaneity.
+      links:
+        - { label: Notes, url: lectures1/p-10-seven-sins-of-regression-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-10-seven-sins-of-regression.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-10-seven-sins-of-regression.pptx, kind: pptx, download: true }
+    - title: Statistical Power
+      blurb: Effect size, sample size, and the probability of detecting an effect that is really there.
+      links:
+        - { label: Notes, url: lectures1/p-11-statistical-power-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/p-11-statistical-power.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-11-statistical-power.pptx, kind: pptx, download: true }
+
+# ===========================================================================
+# PART 2 — Research Design and Counterfactuals   (schedule2 / lectures2 / labs2)
+# ===========================================================================
+
+- id: counterfactual-analysis
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "08"
+  title: Counterfactual Analysis
+  tagline: The world that did not happen, and why choosing it decides your answer.
+  overview: |
+    A causal claim is a counterfactual claim in disguise: to say the program caused the
+    outcome is to say the outcome would not have occurred without it. Since we only get one
+    world, we build comparison groups that stand in for the one we cannot observe.
+
+    The running example is a suburban California school district with an unusual number of
+    student suicides. Tested against the state population it looks high; against all high
+    school students it looks average; against suburban high school students it looks low.
+    Same data, same model, three defensible counterfactuals, three opposite conclusions.
+  objectives:
+    - Define a counterfactual and explain why every causal claim implies one.
+    - Identify the comparison group hiding inside any null hypothesis.
+    - Distinguish a comparison group from a control group.
+    - Construct the elements of a randomized control trial and check they were implemented correctly.
+  readings:
+    - title: "Improving Cognitive Ability in Chronically Deprived Children (Ch. 5)"
+      cite: "Bingham & Felbinger, Evaluation in Practice. The RCT case study used in Lab P201."
+      url: pubs/eval-in-practice-CH5-randomized-control-trial.pdf
+    - title: Causal Inference Based Upon Counterfactuals
+      cite: Background on the potential-outcomes framework.
+      url: pubs/causal-inference-based-upon-counterfactuals.pdf
+    - title: An Introduction to Causal Inference
+      cite: Elwert. Graphical models and the logic of confounding.
+      url: pubs/1-Elwert_Causal_Intro.pdf
+    - title: Using Regression Models to Estimate Program Effects
+      cite: Reichardt & Bormann (1994). Carried over from the first course.
+      url: pubs/Estimating%20Program%20Effects%20Using%20Regression%20Models.pdf
+  lectures:
+    - title: Introduction to Counterfactual Analysis
+      blurb: Lewis on subjunctive conditionals, the treatment effect as a difference of means, and five examples where the comparison group decides the result.
+      links:
+        - { label: Notes, url: lectures2/p-01-intro-to-counterfactuals-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-01-intro-to-counterfactuals.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-01-intro-to-counterfactuals.pptx, kind: pptx, download: true }
+    - title: Contrasts and Effect Size
+      blurb: One staggered-start study read four different ways — dosage, pooling, and the age confound.
+      links:
+        - { label: Notes, url: lectures2/p-01.01-counterfactual-example-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-01.01-counterfactual-example.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-01.01-counterfactual-example.pptx, kind: pptx, download: true }
+  labs:
+    - title: Lab P201 — Counterfactual Reasoning with RCTs
+      blurb: >
+        Read the Bingham & Felbinger cognitive-ability study and report on the control group,
+        the program theory, the treatment and its duration, and the confounding factors.
+      links:
+        - { label: Instructions (DOCX), url: labs2/lab-01-instructions.docx, kind: docx, download: true }
+        - { label: Case study (PDF), url: pubs/eval-in-practice-CH5-randomized-control-trial.pdf, kind: pdf }
+
+- id: cf-validity-and-varieties
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "09"
+  title: Testing and Varieties of the Counterfactual
+  tagline: Selection, attrition, balance tests, and the three estimators you can build.
+  overview: |
+    Two lectures that belong together. The first asks whether your groups are comparable at
+    all — the selection problem, non-random attrition, and the balance table that every
+    study should report. The second asks what to compute once they are: the reflexive,
+    post-test-only, and difference-in-difference estimators.
+
+    The organizing insight is that diff-in-diff is the general case. Reflexive is valid only
+    when there is no secular trend; post-test-only is valid only when the groups were
+    equivalent at baseline. Each of the weaker estimators is a bet that one term drops out.
+  objectives:
+    - Explain why participants differ from non-participants, and what randomization or matching fixes.
+    - Apply the Bonferroni correction to a table of contrasts and decide whether groups are equivalent.
+    - Distinguish random from non-random attrition and run the tests that tell them apart.
+    - Compute all three estimators and state the identifying assumption each one needs.
+  readings:
+    - title: A Dialogue with Tom Cook and Michael Scriven
+      cite: Cook, Scriven, Coryn & Evergreen (2010). Contemporary thinking about causation in evaluation.
+      url: pubs/conversation-with-tom-cook-and-michael-scriven.pdf
+    - title: A Review of Quasi-Experimental Design
+      cite: Where quasi-experimental methods sit relative to the randomized trial.
+      url: pubs/review-of-quasi-experimental-design.pdf
+    - title: Alternatives to Randomized Control Trials
+      cite: When an RCT is impractical or unethical, and what replaces it.
+      url: pubs/alternatives-to-randomized-control-trials.pdf
+    - title: Examples of Quasi-Experiments in Public Health
+      cite: Worked designs from the health literature.
+      url: pubs/examples-quasi-experiments-public-health.pdf
+  lectures:
+    - title: Testing the Validity of the Counterfactual
+      blurb: The selection problem, the microfinance table, attrition, unhappy randomization, and the Bonferroni correction.
+      links:
+        - { label: Notes, url: lectures2/p-02-tests-for-cf-validity-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-02-tests-for-cf-validity.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-02-tests-for-cf-validity.pptx, kind: pptx, download: true }
+    - title: Varieties of the Counterfactual
+      blurb: Three estimators, the parallel-lines assumption, and the gender pay gap worked example.
+      links:
+        - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-03-varieties-of-counterfactuals.pptx, kind: pptx, download: true }
+    - title: "Effect Size: ATE, ITT, and TOT"
+      blurb: What counts as an effect, and the difference between being offered a treatment and taking it.
+      links:
+        - { label: Notes, url: lectures2/p-04-effect-size-notes.html, kind: notes }
+        - { label: PPTX, url: lectures2/p-04-effect-size.pptx, kind: pptx, download: true }
+    - title: Happy Randomization
+      blurb: Short companion piece on why balance fails 5% of the time by construction.
+      links:
+        - { label: Lecture, url: lectures2/happy-randomization/, kind: html }
+  labs:
+    - title: Lab P202 — Tests for Group Equivalence
+      blurb: >
+        Build a balance table, apply the corrected decision rule, and decide whether the
+        randomization in a study can be called happy.
+      links:
+        - { label: Instructions, url: labs2/lab-02-equivalence-tests.html, kind: html }
+        - { label: RMD Template, url: labs2/lab-02-template.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs2/data/counterfactuals.csv, kind: data }
+
+- id: campbell-scores
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "10"
+  title: Campbell Scores
+  tagline: Ten competing hypotheses that could explain your result instead of the program.
+  overview: |
+    A framework for evaluating the internal validity of a study as a structured search for
+    competing hypotheses. The program hypothesis says the change came from the program; each
+    Campbell Score item is a rival explanation that has to be ruled out first.
+
+    The scoring rule is asymmetric on purpose. Selection and non-random attrition are so
+    common in observational work that they are **guilty until proven innocent** — a study
+    must show it handled them. The remaining eight items are innocent until proven guilty:
+    you have to argue from evidence in the study that the threat is live.
+  objectives:
+    - Identify design weaknesses that threaten internal validity and could undermine results.
+    - Read an evaluation study efficiently by knowing which tests the author owes you.
+    - Score a study on all ten items and defend each score with evidence.
+    - Package a description of your own research design so that others can assess it.
+  readings:
+    - title: "Post-Test Only Estimator (Ch. 7 — hospital follow-up care)"
+      cite: Bingham & Felbinger. One of the three studies scored in Lab P203.
+      url: pubs/eval-in-practice-CH7-hospital-follow-up-care.pdf
+    - title: "Pre-Post with Comparison (Ch. 8 — energy savings)"
+      cite: Bingham & Felbinger. Second study scored in Lab P203.
+      url: pubs/eval-in-practice-CH8-energy-savings.pdf
+    - title: "Reflexive Study Design (Ch. 11 — nutrition behavior change)"
+      cite: Bingham & Felbinger. Third study scored in Lab P203.
+      url: pubs/eval-in-practice-CH11-nutrition-behavior-change.pdf
+    - title: A Checklist for Classifying Health Intervention Studies
+      cite: A parallel framework from the health literature.
+      url: pubs/a%20checklist%20for%C2%A0classifying%20health%20intervention%20studies.pdf
+  lectures:
+    - title: "Campbell Scores: Eliminating Competing Hypotheses"
+      blurb: The ten items, the two standards of proof, and the fix for each threat.
+      links:
+        - { label: Notes, url: lectures2/p-07-campbell-scores-v2-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-07-campbell-scores-v2.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-07-campbell-scores-v2.pptx, kind: pptx, download: true }
+    - title: Campbell Score Examples
+      blurb: Worked scoring of published studies, item by item.
+      links:
+        - { label: Examples, url: lectures2/CampbellScore.html, kind: html }
+  labs:
+    - title: Lab P203 — Scoring Three Studies
+      blurb: >
+        Score Chapters 7, 8, and 11 on every Campbell Score item, awarding +1 where the
+        threat is adequately neutralized and +0 where it is not, with reasoning for each.
+      links:
+        - { label: Instructions (PDF), url: labs2/campbell-score-instructions.pdf, kind: pdf }
+        - { label: Instructions (DOCX), url: labs2/campbell-score-instructions.docx, kind: docx, download: true }
+        - { label: Example solution, url: labs2/Campbell-Scores-CH5%20-SOLUTIONS.pdf, kind: pdf }
+        - { label: Worked solutions, url: labs2/lab-03-SOLUTIONS.html, kind: html }
+
+- id: more-campbell-scores
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "11"
+  title: Two Studies, Same Data, Opposite Conclusions
+  tagline: A riddle in two chapters, and the estimator choice that resolves it.
+  overview: |
+    Chapters 20 and 21 evaluate the same school choice program using the same data and reach
+    opposite conclusions: Chapter 20 finds the program ineffective, Chapter 21 finds it
+    effective. Nothing about the data changed.
+
+    Two things differ. Chapter 21 uses a strong counterfactual where Chapter 20 uses a weak
+    comparison group — and, more importantly, each chapter calculates program effects with a
+    different estimator. Work out which of the three each author used and the divergence
+    stops being mysterious.
+
+    The time-frame question is subtler than it looks. If a study collects four years of data
+    but analyses only one, its time-frame is one year, not four. Here the time-frame is a
+    function of how effects are calculated, not of how long collection ran.
+  objectives:
+    - Reverse-engineer which counterfactual estimator a published study actually used.
+    - Explain how estimator choice alone can flip a conclusion about program effectiveness.
+    - Define a study's analytic time-frame separately from its data collection window.
+  readings:
+    - title: "Evaluation of a School Choice Program (Ch. 20 and Ch. 21)"
+      cite: "Bingham & Felbinger. Focus on Tables 10A–10D and the regression models in 11A and 11B."
+      url: pubs/eval-in-practice-CH20-CH21-school-choice.pdf
+    - title: "Pre-Post with Control (Ch. 5)"
+      cite: Companion chapter for comparing designs.
+      url: pubs/evaluation-in-practice-CH5-pre-post-with-control.pdf
+  lectures:
+    - title: No new lectures this unit
+      blurb: >
+        The exercises draw on the counterfactual and Campbell Score material already covered.
+        The four decks below are the ones you will need at hand.
+      links:
+        - { label: Counterfactuals, url: lectures2/p-01-intro-to-counterfactuals-notes.html, kind: notes }
+        - { label: CF validity, url: lectures2/p-02-tests-for-cf-validity-notes.html, kind: notes }
+        - { label: Three estimators, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+        - { label: Campbell Scores, url: lectures2/p-07-campbell-scores-v2-notes.html, kind: notes }
+  labs:
+    - title: Lab P204 — Campbell Scores on Competing Studies
+      blurb: >
+        Apply the Campbell Score to both school choice chapters and explain why two skilled
+        research teams reached different conclusions from identical data.
+      links:
+        - { label: Instructions (PDF), url: labs2/campbell-score-instructions.pdf, kind: pdf }
+        - { label: Case study, url: pubs/eval-in-practice-CH20-CH21-school-choice.pdf, kind: pdf }
+
+- id: comparing-estimators
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "12"
+  title: Comparing the Three Estimators on One Dataset
+  tagline: Run all three, test the assumptions, and defend the one you believe.
+  overview: |
+    The synthesis lab. Return to the cognitive-ability study from Unit 08 and calculate
+    program impact three ways — reflexive, post-test only, and difference-in-difference —
+    on the same data.
+
+    The regression models are provided. The work is interpretation: read the coefficients
+    correctly, identify which counterfactual each model deploys, run the identification
+    tests, and decide which estimates you actually believe. Some estimators are valid in this
+    context and some are not.
+  objectives:
+    - Map a fitted regression back to the counterfactual it implements.
+    - Run identification tests and check whether each estimator's assumptions hold.
+    - Argue in writing for one estimate over the others.
+  readings:
+    - title: "Improving Cognitive Ability in Chronically Deprived Children (Ch. 5)"
+      cite: The same study from Lab P201, now analysed rather than described.
+      url: pubs/eval-in-practice-CH5-randomized-control-trial.pdf
+    - title: Designing Difference-in-Difference Studies
+      cite: "Wing, Simon & Bello-Gomez (2018). Best practices for public health policy research."
+      url: pubs/eval-in-practice-CH12-rent-control-time-series.pdf
+  lectures:
+    - title: The Three Counterfactual Estimators
+      blurb: The reference for this lab — formulas, assumptions, and the parallel-lines test.
+      links:
+        - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
+  labs:
+    - title: Lab P205 — Difference-in-Difference
+      blurb: >
+        Compare program effects across all three estimators on one dataset, check the
+        assumptions behind each, and write up which you trust and why.
+      links:
+        - { label: Instructions, url: labs2/lab-05-diff-in-diff.html, kind: html }
+        - { label: RMD Template, url: labs2/lab-05-template.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs2/data/counterfactuals.csv, kind: data }
+
+- id: design-extras
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "13"
+  title: Extra Practice — Groups and the Gender Pay Gap
+  tagline: Optional labs for more work with dummy variables and a real diff-in-diff.
+  overview: |
+    Optional material. Lab P206 is additional practice with dummy-variable regression for
+    anyone who wants more repetitions or needs to recover points from an earlier lab.
+
+    Lab P207 is the gender wage gap study that lecture p-03 uses as its worked
+    difference-in-difference example: executive director salaries, where the counterfactual
+    is the salary a female ED would have received had she been given the same recruitment
+    premium as an incoming male ED. The comparison group is there to supply the trend, and
+    `C2` is never compared directly to `T2`.
+  objectives:
+    - Get further practice constructing and interpreting dummy-variable models.
+    - Build a counterfactual from a baseline plus a trend rather than from a second group's level.
+  readings:
+    - title: Why Struggling Companies Promote Women
+      cite: VOX. Background on selection into executive roles.
+      url: labs2/references/VOX-why-struggling-companies-promote-women.pdf
+    - title: Want to Invest Better? Act More Like a Woman
+      cite: Washington Post. Companion reading for the wage gap lab.
+      url: labs2/references/WashPost-want-to-invest-better-act-more-like-a-woman.pdf
+    - title: Specification and the Gender Pay Gap
+      cite: Lab handout on specification choices in pay gap studies.
+      url: labs2/specification-lab-gender-pay-gap.pdf
+  lectures:
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: The reference deck for both optional labs, carried over from the first course.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
+  labs:
+    - title: Lab P206 — Dummy Variables (optional)
+      blurb: Extra practice with group indicators and interaction terms in regression.
+      links:
+        - { label: Instructions, url: labs2/lab-06-dummy-variables.html, kind: html }
+        - { label: RMD Template, url: labs2/lab-06-template.rmd, kind: rmd, raw: true }
+    - title: Lab P207 — Gender Wage Gap (optional)
+      blurb: A difference-in-difference estimate of the pay gap among incoming executive directors.
+      links:
+        - { label: Instructions, url: labs2/lab-07-gender-wage-gap.html, kind: html }
+        - { label: Data (CSV), url: labs2/data/female-np-entrepreneurs.csv, kind: data }
+
+# ===========================================================================
+# PART 3 — Regression Tools for Impact Analysis  (schedule3 / lectures3 / labs3)
+# ===========================================================================
+
+- id: interrupted-time-series
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "14"
+  title: Interrupted Time Series
+  tagline: One group, many time points, and a policy that lands in the middle of them.
+  overview: |
+    The reflexive counterfactual with enough time points to see a trend. A single unit is
+    observed repeatedly before and after an intervention, and the model separates the
+    pre-existing trajectory from what the intervention changed.
+
+    `Y = b0 + b1·T + b2·D + b3·P + e`, where `T` counts time, `D` is a treatment dummy
+    (0 before, 1 after), and `P` counts time since the intervention. That gives `b1` as the
+    pre-intervention trend, `b2` as the immediate level change, and `b3` as the sustained
+    change in slope. A policy can have an immediate effect, a sustained effect, both, or
+    neither, and the four coefficients tell them apart.
+  objectives:
+    - Recognize when data are suited to an interrupted time series model.
+    - Organize a dataset into the time, treatment, and time-since-treatment variables the model needs.
+    - Interpret each coefficient and identify the two counterfactuals in the model.
+    - Detect and test for autocorrelation in the residuals.
+  readings:
+    - title: "Rent Control as a Time Series (Ch. 12)"
+      cite: Bingham & Felbinger. A worked interrupted time series in policy.
+      url: pubs/eval-in-practice-CH12-rent-control-time-series.pdf
+    - title: NYC Robberies Occur as School Gets Out
+      cite: A seasonality and cycle example worth reading alongside the lecture.
+      url: pubs/nyc-robberies-occur-as-school-gets-out.pdf
+  lectures:
+    - title: Interrupted Time Series
+      blurb: Tobacco taxes, the Oklahoma City birth-rate series, counterfactual prediction at each time point, and the Durbin-Watson test.
+      links:
+        - { label: Lecture, url: lectures3/p-020-time-series.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-020-time-series.rmd, kind: rmd, raw: true }
+  labs:
+    - title: Lab P301 — Interrupted Time Series
+      blurb: Build the three time variables, fit the model, and plot predicted outcomes against their counterfactuals.
+      links:
+        - { label: Instructions, url: labs3/time-series-lab.html, kind: html }
+        - { label: RMD Template, url: labs3/time-series-lab.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs3/DATA/TS_lab.csv, kind: data }
+        - { label: Grouped data (CSV), url: labs3/DATA/TS_Groups_lab.csv, kind: data }
+
+- id: diff-in-diff
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "15"
+  title: Difference-in-Difference Models
+  tagline: The strong counterfactual, now as a regression rather than a table of four means.
+  overview: |
+    The estimator introduced in Unit 09 becomes a regression here. Two groups, two periods,
+    and an interaction term whose coefficient is the program effect: the treated group's
+    change minus the comparison group's change.
+
+    Its strength is that the groups need not be equivalent at baseline — level differences
+    difference out. What it does require is that the two groups were moving in parallel
+    before the intervention, which is a testable claim whenever you have more than one
+    pre-period.
+  objectives:
+    - Specify a difference-in-difference model as an interaction in regression.
+    - Read the program effect off the interaction coefficient.
+    - State and test the parallel trends assumption.
+  readings:
+    - title: Designing Difference-in-Difference Studies
+      cite: "Wing, Simon & Bello-Gomez (2018), Annual Review of Public Health."
+      url: https://www.annualreviews.org/doi/pdf/10.1146/annurev-publhealth-040617-013507
+    - title: "Impact Evaluation in Practice, Ch. 7"
+      cite: "Gertler et al. (2016), World Bank. Difference-in-differences."
+      url: pubs/Impact_Evaluation_in_Practice%20WB%20full%20text%20second%20edition.pdf
+    - title: Shutdowns Prevented 60 Million Coronavirus Infections
+      cite: A high-profile diff-in-diff style policy claim to read critically.
+      url: pubs/shutdowns-prevented-60-million-coronavirus-infections-in-the-US-study-finds.pdf
+  lectures:
+    - title: Difference-in-Difference Models
+      blurb: The four means, the interaction specification, and what breaks when trends are not parallel.
+      links:
+        - { label: Lecture, url: lectures3/p-030-diff-in-diff.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-030-diff-in-diff.rmd, kind: rmd, raw: true }
+    - title: Varieties of the Counterfactual
+      blurb: Review — where diff-in-diff sits among the three estimators.
+      links:
+        - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+  labs:
+    - title: Lab P302 — Difference-in-Difference
+      blurb: Fit the interaction model, interpret the effect, and check the pre-treatment trends.
+      links:
+        - { label: Instructions, url: labs3/diff-in-diff-lab.html, kind: html }
+        - { label: RMD Template, url: labs3/diff-in-diff-lab.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs3/DATA/diff-in-diff-lab.csv, kind: data }
+
+- id: fixed-effects
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "16"
+  title: Panel Data with Fixed Effects
+  tagline: Let every unit keep its own intercept, and identify the effect from within-unit change.
+  overview: |
+    With repeated observations on the same units, a fixed effects model gives each unit its
+    own intercept and estimates the slope from variation *within* units over time. Anything
+    stable about a unit — however unmeasurable — is absorbed and can no longer confound the
+    estimate.
+
+    The lecture contrasts the pooled model, where every unit shares one intercept, with the
+    random effects and fixed effects alternatives, and shows the equivalence between the
+    dummy-variable formulation and the demeaned-data formulation.
+  objectives:
+    - Explain what a unit fixed effect absorbs and what it cannot.
+    - Compare pooled, random effects, and fixed effects specifications on the same panel.
+    - Fit a fixed effects model both with dummy variables and with the plm package.
+  readings:
+    - title: "Impact Evaluation in Practice (World Bank)"
+      cite: Reference text for panel designs.
+      url: pubs/Impact_Evaluation_in_Practice%20WB%20full%20text%20second%20edition.pdf
+  lectures:
+    - title: Fixed Effect Models
+      blurb: Corn and fertilizer, company R&D investment, pooled vs. grouped intercepts, and the plm package.
+      links:
+        - { label: Lecture, url: lectures3/p-040-fixed-effects.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-040-fixed-effects.rmd, kind: rmd, raw: true }
+    - title: Panel Model Specification
+      blurb: Choosing between pooled, random, and fixed effects, and the tests that inform the choice.
+      links:
+        - { label: Lecture, url: lectures3/p-041-panel-model-specification.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-041-panel-model-specification.rmd, kind: rmd, raw: true }
+  labs:
+    - title: Lab P303 — Fixed Effects
+      blurb: Estimate the same relationship pooled and with fixed effects, and account for the difference.
+      links:
+        - { label: Instructions, url: labs3/fixed-effects-lab.html, kind: html }
+        - { label: RMD Template, url: labs3/fixed-effects-lab.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs3/DATA/beer-tax-fixed-effects.csv, kind: data }
+
+- id: instrumental-variables
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "17"
+  title: Instrumental Variables
+  tagline: Borrow the part of your treatment that is uncorrelated with the error.
+  overview: |
+    When the policy variable is correlated with the error term — through omitted variables,
+    measurement error, or simultaneity — OLS is biased and no amount of data fixes it. An
+    instrument is a variable that moves the treatment but affects the outcome only through
+    the treatment.
+
+    Two-stage least squares makes the logic explicit: regress the endogenous variable on the
+    instrument, keep the fitted values, and use those in the second stage in place of the
+    original variable.
+
+    ```r
+    first.stage  <- lm( x1 ~ z + x2, data=dat )
+    x1_hat       <- fitted( first.stage )
+    second.stage <- lm( y ~ x1_hat + x2, data=dat )
+    ```
+  objectives:
+    - State the two conditions a valid instrument must satisfy.
+    - Run two-stage least squares by hand and with a canned estimator.
+    - Compare the full, naive, and IV models and explain the pattern in the slopes.
+  readings:
+    - title: Causal Inference — What If
+      cite: Hernán & Robins. Reference text; the IV chapters are the relevant ones here.
+      url: pubs/causal-inference-what-if-full-text.pdf
+  lectures:
+    - title: Instrumental Variables
+      blurb: Endogeneity, the exclusion restriction, and 2SLS built up one regression at a time.
+      links:
+        - { label: Lecture, url: lectures3/p-050-instrumental-variables.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-050-instrumental-variables.rmd, kind: rmd, raw: true }
+  labs:
+    - title: Lab P304 — Instrumental Variables
+      blurb: Estimate a naive model, build the first stage, and show what the instrument recovers.
+      links:
+        - { label: Instructions, url: labs3/instrumental-variables.html, kind: html }
+        - { label: RMD Template, url: labs3/instrumental-variables.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs3/DATA/IV_lab.csv, kind: data }
+
+- id: regression-discontinuity
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "18"
+  title: Regression Discontinuity Design
+  tagline: Near an arbitrary cutoff, who gets treated is almost random.
+  overview: |
+    When eligibility is determined by whether a running variable crosses a threshold — a
+    test score, an income line, a date of birth — the units just above and just below the
+    cutoff are close to comparable. The jump in outcomes at the threshold is the effect.
+
+    The design buys credibility cheaply, and pays for it in generalizability: the estimate
+    is a local effect at the cutoff, and says nothing about units far from it.
+  objectives:
+    - Identify a running variable and a cutoff in a policy setting.
+    - Estimate the discontinuity and choose a sensible bandwidth.
+    - Explain why the estimate is local and what would invalidate it.
+  readings:
+    - title: "Impact Evaluation in Practice, Ch. 5"
+      cite: "Gertler et al. (2016). Regression discontinuity design."
+      url: pubs/Impact_Evaluation_in_Practice%20WB%20full%20text%20second%20edition.pdf
+  lectures:
+    - title: Regression Discontinuity Design
+      blurb: The cutoff, the local comparison, bandwidth choice, and what manipulation of the running variable would do.
+      links:
+        - { label: Lecture, url: lectures3/p-060-reg-discontinuity.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-060-reg-discontinuity.rmd, kind: rmd, raw: true }
+  labs:
+    - title: Lab P305 — Regression Discontinuity
+      blurb: Fit the discontinuity, vary the bandwidth, and report how sensitive the estimate is.
+      links:
+        - { label: Instructions, url: labs3/regression-discontinuity-lab.html, kind: html }
+        - { label: RMD Template, url: labs3/regression-discontinuity-lab.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs3/DATA/RegDisc_lab2.csv, kind: data }
+
+- id: logistic-regression
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "19"
+  title: Logistic Regression
+  tagline: Binary outcomes, log-odds, and why marginal effects depend on where you stand.
+  overview: |
+    When the outcome is yes/no — admitted, employed, enrolled — the linear probability model
+    can predict probabilities outside [0,1]. The logit link keeps predictions in range at the
+    cost of coefficients that are no longer read directly.
+
+    The model reports log-odds, which have to be converted to probabilities before they mean
+    anything. And because the curve is not linear, the value of a change in X depends on the
+    baseline: in the law school admissions example, a 10-point LSAT increase is worth very
+    different amounts starting from 120, from 140, and from 170.
+  objectives:
+    - Explain why a linear probability model is inadequate for a binary outcome.
+    - Convert log-odds to predicted probabilities.
+    - Compute marginal effects, centering the other covariates, and interpret them at different baselines.
+  readings:
+    - title: Reporting Effect Sizes to Facilitate Cumulative Science
+      cite: On reporting effects in a way readers can actually use.
+      url: pubs/reporting-effect-sizes-to-facilitate-cumulative-science.pdf
+    - title: "It's the Effect Size, Stupid"
+      cite: Coe. Why the magnitude matters more than the p-value.
+      url: pubs/its-the-effect-size-stupid.pdf
+  lectures:
+    - title: Logistic Regression
+      blurb: The LPM, the logit link, log-odds to probabilities, and marginal effects across the range of X.
+      links:
+        - { label: Lecture, url: lectures3/p-070-logistic-regression.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-070-logistic-regression.rmd, kind: rmd, raw: true }
+  labs:
+    - title: Lab P306 — Logistic Regression
+      blurb: Fit a logit model, convert coefficients to probabilities, and compare marginal effects at different baselines.
+      links:
+        - { label: Instructions, url: labs3/logit-lab.html, kind: html }
+        - { label: RMD Template, url: labs3/logit-lab.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: labs3/DATA/harry-potter.csv, kind: data }
+
+- id: matching
+  part: "Part 3 — Regression Tools for Impact Analysis"
+  number: "20"
+  title: Propensity Score Matching
+  tagline: Manufacture a comparison group by pairing each treated unit with its nearest twin.
+  overview: |
+    The post-test-only estimator needs equivalent groups, and observational data rarely
+    supplies them. Matching builds them after the fact: model each unit's probability of
+    being treated, then pair treated units with untreated units that had similar
+    probabilities.
+
+    The lecture works through distance calculations between treated and untreated students,
+    nearest-neighbour matching with and without a caliper, and matching with and without
+    replacement. What matching cannot do is balance anything you did not measure — which is
+    why it addresses selection on observables only.
+  objectives:
+    - Estimate propensity scores with a logit model.
+    - Apply nearest-neighbour matching and explain the role of the caliper distance.
+    - Assess balance after matching, and state what matching cannot fix.
+  readings:
+    - title: A Review of Quasi-Experimental Design
+      cite: Where matching sits relative to the other quasi-experimental tools.
+      url: pubs/review-of-quasi-experimental-design.pdf
+    - title: The Counterfactual in Program Evaluation
+      cite: Schwartz. Framing reading for the matching approach.
+      url: pubs/Schwartz_counterfactual.pdf
+  lectures:
+    - title: Matching
+      blurb: Propensity scores, distance between units, nearest neighbour and caliper rules, and the MatchIt package.
+      links:
+        - { label: Lecture, url: lectures3/p-080-matching.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-080-matching.rmd, kind: rmd, raw: true }
+  labs:
+    - title: Lab P307 — Propensity Score Matching
+      blurb: Build matching scores, construct a matched comparison group, and re-estimate the program effect.
+      links:
+        - { label: Instructions, url: labs3/matching-lab.html, kind: html }
+        - { label: RMD Template, url: labs3/matching-lab.rmd, kind: rmd, raw: true }

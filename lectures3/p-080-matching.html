@@ -1,0 +1,2556 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Matching</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="site_libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+<script src="site_libs/bsTable-3.3.7/bootstrapTable.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="assets/custom.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Matching</h1>
+
+</div>
+
+
+<p><strong>Packages</strong></p>
+<p>We will use the following packages in this lecture.</p>
+<ul>
+<li><strong>kableExtra</strong> for nice tables</li>
+<li><strong>dplyr</strong> to support formatting options in your table</li>
+<li><strong>MatchIt</strong> to perform matching algorithms in R</li>
+<li><strong>ggplot2</strong> for nice visualizations of covariates</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages( &quot;dplyr&quot; )</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages( &quot;kableExtra&quot; )</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages( &quot;MatchIt&quot; )</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages( &quot;ggplot2&quot; )</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( dplyr )</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( kableExtra )</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( MatchIt )</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( ggplot2 )</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( stargazer )</span></code></pre></div>
+<p><strong>Learning Objectives:</strong></p>
+<ul>
+<li>What problem does matching solve and when is it appropriate?</li>
+<li>What are different methods used to match observations? What are pros and cons of each?</li>
+<li>What is a propensity scores?</li>
+<li>How can you estimate propensity scores and use them for matching?</li>
+<li>What is the primary weakness of matching?</li>
+</ul>
+<div id="key-insights" class="section level1">
+<h1>Key Insights</h1>
+<p>We have learned that the selection problem is the primary challenge to causal estimation of policy or program impact. When people can decide whether or not to participate in a voluntary program, almost universally the types of people that enroll are different than the types that do not. Or conversely, the types of people that are selected during an a competitive process are different from other applicants. The types of organizations that are required to do remedial training because they failed an inspection or safety checks are different than organizations that pass. These differences typically lead to unobservable omitted variables that will bias any estimates of program effectiveness.</p>
+<p>Randomized controlled trials are the gold standard approach to mitigating selection problems. Randomization ensures that observable characteristics like gender and age will be equally distributed between the treatment and control groups. It also ensures that latent or unobservable characteristics like motivation, ability, experience, and support are also balanced. As a result, it breaks any correlations that exist between the choice to enroll in a program and all other traits of study participants. If randomization is successful, it makes the treatment (or level of treatment) completely exogenous. Thus, differences between treated and untreated subjects (or levels of treatment), can be interpretted as <strong>caused</strong> by the treatment, and not other factors. <em>This assumes ‘happy’ randomization and no non-random attrition, but these are testable assumptions.</em></p>
+<p>Note that randomization ensures that there are no pre-treatment differences between study groups, thus the post-test only estimator is appropriate.</p>
+<p><img src="FIGURE/Matching/post-test-only-estimator.png" /></p>
+<p>Unfortunately in many cases, a randomized control trial is not a feasible option and we need to consider other methods, such as some of the quasi-experimental methodologies that we have seen so far.</p>
+<p>Propensity score matching is a methodology that tries to achieve the favorable conditions of a randomized controlled trail while using observational data thas has potential selection bias. In several circumstances, individuals self-select into the treatment or the control group because of “certain characteristics” that make them more likely to select into one group or the other.</p>
+<p>For instance, we might be interested in understanding whether government funding provided to small businesses to hire individuals from disadvantaged populations promotes higher employment rates for this segment of the labor force. If we only consider the businesses that applied and received the funding we would likely find a positive correlation between program dollars and employment of disadvantaged populations. But to what extent were these businesses already planning to hire individuals from disadvantaged populations before the program started? In order words, what would have these businesses done had they not receive funding? How many business apply for the funds because they already employ a large number of people that meet the eligibility criteria versus businesses changing their hiring practices to qualify? In non-randomized studies the selection problem undermine the ability to use non-treated individuals as the counterfactual to treated individuals in the sample.</p>
+<p>The <strong>propensity score</strong> model came about when scholars asked, if the choice to participate in the program is introducing omitted variable bias into the study, can we control for the decision? Can we model the <strong>propensity</strong> or likelihood that a person participates in the program? The goal of <strong>propensity scores</strong> is to find individuals that are almost idenentical on a given set of measured characteristics so that they are both equally likely to participate in a program, i.e. self-select into the treatment group. However, we are matching those that participated in the treatment to those that are not. In order words, in the example above we are looking for businesses with identical work forces, one of which received funding for hiring disadvantaged populations (the treatment), another which did not apply but would have received it if they had since they are almost identical to the organizaton that was treated (control or counterfactual). We can then compare their outcomes.</p>
+<p>In very simple terms, we are looking for <a href="https://en.wikipedia.org/wiki/Doppelg%C3%A4nger"><strong>doppelgangers</strong></a>, individuals that <strong>look identical</strong> even if they are not genetically related.</p>
+<div class="figure">
+<img src="FIGURE/Matching/doppelganger.jpg" alt="Figure 1. Doppelg?nger" width="80%" />
+<p class="caption">
+Figure 1. Doppelg?nger
+</p>
+</div>
+<div id="example" class="section level2">
+<h2>Example</h2>
+<p>Let’s consider a case with a top dollar admissions coaching service for college students interested in law school. The services helps coach students on application materials and selection of programs. You pay a premium for the services, though.</p>
+<p>The question, however, is whether the program really works? They boast high success rates on their website, but what types of students would sign up for their services in the first place? Those that really want to attend law school. We almost certainly have a selection problem, where merely signing up for the program is a signal of commitment to law school. Those students are likely different than other students. Is the program actually improving chances of getting admitted to a good program? Or is the organization merely capturing the top students that are already strong candidates?</p>
+<p>The challenge is going to be that students signing up for an expensive admissions coaching program are likely doing a lot of other things to improve their chances of success. Those that sign up for admissions coaching are not “typical” students in the pool of applicants. They tend to have high GPAs and good LSAT scores, making their likelihood of success high even without the coaching.</p>
+<p><img src="FIGURE/Matching/law-school-01.png" /></p>
+<p>Looking at the figure, the challenges is the high correlation between participating in the admissions coaching program and admissions to law school. If admissions success was entirely driven by the program the the high correlation would be fine. But we see that admissions is also correlated with GPA and LSAT scores. The strong relationships between these four variables suggests there may be another factor driving the correlations we observe. Admissions does not have to be impacted at all by the coaching program for there to be a strong correlation if there is a common variable like level of motivation shaping all of the covariates in the model.</p>
+<p><img src="FIGURE/Matching/law-school-04.png" /></p>
+<p>Note that including LSAT and GPA in the model will improve estimates beyond a naive model that only includes program participation. But they are not sufficient to control for missing variables. The underlying variable of motivation is still missing, so the estimate of the impact of admissions coaching on the final outcome will still be biased.</p>
+<p>The trick is to recognize that the treatment and control groups are apples and oranges so a raw comparison of success rates between the two groups will be problematic. Since there is no way to measure admissions rates before students sign up for coaching program and apply, we cannot use some of the common models that can help correct for bias such as a difference-in-difference framework or panel methods. We only have outcomes that occur after the treatment. We know that post-test only estimates will only be unbiased if we have groups that are identical prior to the treatment.</p>
+<p>The fix is to use a matching process to identify twins in the data such that two cases are “identical” on measured characteristics but one received the treatment and one did not. In this case we have two control variables only, so we will use a very simplistic method of looking at instances where treated and untreated cases overlap on the scatterplot, dropping the rest of the data:</p>
+<p><img src="FIGURE/Matching/law-school-02.png" /></p>
+<p>Note that the covariates are all measures from prior to when the treatment occurred, so they are describing the pre-treatment state of the study group. As a result, by discarding a large proportion of the data and focusing on the subset of matched cases we have re-created the conditions of an RCT, primarily that two groups should be balanced. We can now consider the data in more detail and the evidence for program success. In this case both the treatment and the outcome are binary, so we can use visual inspection and reason through the scenarios:</p>
+<p><img src="FIGURE/Matching/law-school-03.png" /></p>
+<p>Conceptually, each pair represents a counter-factual if we believe the assumption that your untreated doppelganger is a reasonable representation of what you would look like if you had not received the treatment. We can now estimate the impact of admissions coaching by comparion treated and untreated cases. For simplicity, we will use a linear probability model:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; dput(gpa)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>gpa <span class="ot">&lt;-</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fl">2.6159787901946</span>, <span class="fl">3.21736812236511</span>, <span class="fl">3.5405463872337</span>, <span class="fl">3.91970108539356</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fl">2.03511472781177</span>, <span class="fl">2.68532174464602</span>, <span class="fl">2.28188577528272</span>, <span class="fl">3.08720640268527</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fl">3.48284146544279</span>, <span class="fl">3.22380189104055</span>, <span class="fl">3.30665435896137</span>, <span class="fl">3.32780850423293</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fl">3.63068142350387</span>, <span class="fl">3.83636515392655</span>, <span class="fl">3.05930145996071</span>, <span class="fl">3.84185246439118</span>, </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fl">2.5851924685327</span>, <span class="fl">2.00855552381307</span>, <span class="fl">2.79299048387649</span>, <span class="fl">2.70916293710547</span>, </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fl">3.81917149760915</span>, <span class="fl">3.6228595647663</span>, <span class="fl">2.02911531212327</span>, <span class="fl">4.06257304112354</span>, </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fl">3.31000053524501</span>, <span class="fl">2.24801764007312</span>, <span class="fl">3.21803571258973</span>, <span class="fl">2.88121994382121</span>, </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fl">3.28149707848388</span>, <span class="fl">3.37537264518966</span>, <span class="fl">2.06694528290228</span>, <span class="fl">2.8341656291009</span>, </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fl">2.67077874220602</span>, <span class="fl">2.99320790449838</span>, <span class="fl">3.62199372770993</span>, <span class="fl">2.41017136636896</span>, </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fl">2.48878104071005</span>, <span class="fl">1.94074545589611</span>, <span class="fl">2.06551642414302</span>, <span class="fl">3.00895809303604</span>, </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fl">3.17268682678355</span>, <span class="fl">3.63900386751848</span>, <span class="fl">1.95564219272312</span>, <span class="fl">2.90445155197373</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fl">2.96985021333923</span>, <span class="fl">2.04184280729974</span>, <span class="fl">3.51497964386235</span>, <span class="fl">3.44927166080488</span>, </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fl">2.32360299429693</span>, <span class="fl">3.62939363940064</span>, <span class="fl">2.67644331229011</span>, <span class="fl">3.9625794083367</span>, </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fl">3.78254297208907</span>, <span class="fl">2.65219077868443</span>, <span class="fl">2.04978651754732</span>, <span class="fl">4.14464452793737</span>, </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fl">2.48963425316853</span>, <span class="fl">3.87916927405778</span>, <span class="fl">2.27686723428854</span>, <span class="fl">3.2758285853739</span>, </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fl">2.25702120670263</span>, <span class="fl">2.22312919313002</span>, <span class="fl">1.90659155192284</span>, <span class="fl">2.7412970195498</span>, </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fl">2.05778186661082</span>, <span class="fl">2.32975939146246</span>, <span class="fl">3.97168731681461</span>, <span class="fl">2.19218613139104</span>, </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fl">3.64476468242825</span>, <span class="fl">2.44186660097907</span>, <span class="fl">2.18107385074341</span>, <span class="fl">2.56219410820381</span>, </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="fl">3.7841979264117</span>, <span class="fl">3.71822022692478</span>, <span class="fl">4.11113336088402</span>, <span class="fl">3.12366098811401</span>, </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fl">2.60484367948823</span>, <span class="fl">3.44220105531685</span>, <span class="fl">2.87896437353783</span>, <span class="fl">3.25610482267806</span>, </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="fl">2.88243076763779</span>, <span class="fl">2.9046920441307</span>, <span class="fl">2.35062220472042</span>, <span class="fl">2.18646903048459</span>, </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fl">3.34780158776369</span>, <span class="fl">1.98127124131876</span>, <span class="fl">3.35514639143928</span>, <span class="fl">3.45353594577433</span>, </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="fl">3.49068473784773</span>, <span class="fl">2.0978658668199</span>, <span class="fl">2.8337986455381</span>, <span class="fl">3.3948034778424</span>, </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fl">3.9917474339063</span>, <span class="fl">2.17246398713074</span>, <span class="fl">2.46460939967413</span>, <span class="fl">2.66652609693591</span>, </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="fl">3.47013062349409</span>, <span class="fl">2.65792960385949</span>, <span class="fl">2.71760079662088</span>, <span class="fl">2.05328463950335</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; dput(lsat)</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>lsat <span class="ot">&lt;-</span> </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fl">145.952300905935</span>, <span class="fl">164.888289647179</span>, <span class="fl">159.910726683132</span>, <span class="fl">129.970164649436</span>, </span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="fl">166.887384502726</span>, <span class="fl">176.082647938974</span>, <span class="fl">126.107126639122</span>, <span class="fl">138.122725198303</span>, </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="fl">175.01429450674</span>, <span class="fl">124.198774814702</span>, <span class="fl">148.157905651809</span>, <span class="fl">165.902042918279</span>, </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="fl">170.86210876751</span>, <span class="fl">129.99790831433</span>, <span class="fl">158.942759642743</span>, <span class="fl">144.08190941799</span>, </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="fl">157.928700436461</span>, <span class="fl">127.061252394214</span>, <span class="fl">127.976715835044</span>, <span class="fl">143.977311018364</span>, </span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="fl">168.106455706551</span>, <span class="fl">153.055960309505</span>, <span class="fl">129.064444014144</span>, <span class="fl">175.849294786817</span>, </span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="fl">158.727197609528</span>, <span class="fl">120.151646259827</span>, <span class="fl">140.020994141552</span>, <span class="fl">120.91269127151</span>, </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="fl">144.065689775316</span>, <span class="fl">166.973298192915</span>, <span class="fl">156.958358920427</span>, <span class="fl">155.027941726026</span>, </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="fl">141.951051458246</span>, <span class="fl">133.161455824508</span>, <span class="fl">167.033654426077</span>, <span class="fl">136.925631393548</span>, </span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="fl">155.958900412229</span>, <span class="fl">173.109818741141</span>, <span class="fl">167.154034182213</span>, <span class="fl">179.02157657656</span>, </span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="fl">131.002511364673</span>, <span class="fl">120.050625056506</span>, <span class="fl">134.837196550179</span>, <span class="fl">145.944899668184</span>, </span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="fl">120.95292452038</span>, <span class="fl">123.038299671817</span>, <span class="fl">175.857511479449</span>, <span class="fl">124.055513940446</span>, </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="fl">129.064654266376</span>, <span class="fl">160.908015210708</span>, <span class="fl">128.862085689755</span>, <span class="fl">122.076773077479</span>, </span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="fl">147.898610773285</span>, <span class="fl">134.045987415308</span>, <span class="fl">159.03168608195</span>, <span class="fl">157.004128686876</span>, </span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="fl">173.101477346685</span>, <span class="fl">140.034635459666</span>, <span class="fl">154.128716946311</span>, <span class="fl">152.00978239957</span>, </span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="fl">129.985348798586</span>, <span class="fl">154.973056993292</span>, <span class="fl">134.992192179686</span>, <span class="fl">129.855955393512</span>, </span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="fl">167.006113927053</span>, <span class="fl">173.073118368711</span>, <span class="fl">171.768836785606</span>, <span class="fl">151.123510536061</span>, </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="fl">143.107434454865</span>, <span class="fl">129.001508432487</span>, <span class="fl">143.018432642471</span>, <span class="fl">171.956900333934</span>, </span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="fl">132.955417572184</span>, <span class="fl">152.919779850605</span>, <span class="fl">145.042058294691</span>, <span class="fl">174.016230162574</span>, </span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="fl">178.881300588744</span>, <span class="fl">140.008999177798</span>, <span class="fl">153.04453474676</span>, <span class="fl">174.0134253414</span>, </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="fl">136.101729739799</span>, <span class="fl">175.950286787161</span>, <span class="fl">165.917359624194</span>, <span class="fl">129.991254750415</span>, </span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="fl">121.055826911114</span>, <span class="fl">161.95634242456</span>, <span class="fl">123.067521423418</span>, <span class="fl">169.012586453432</span>, </span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="fl">178.970514980657</span>, <span class="fl">177.055312739649</span>, <span class="fl">120.009700877406</span>, <span class="fl">151.926746758908</span>, </span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="fl">173.993404666208</span>, <span class="fl">120.944944607453</span>, <span class="fl">150.032393136119</span>, <span class="fl">170.036478709669</span>, </span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="fl">151.184419758293</span>, <span class="fl">137.937387497094</span>, <span class="fl">156.080379871703</span>, <span class="fl">166.978991885011</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; dput( coaching )</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>coaching <span class="ot">&lt;-</span> </span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(0L, 1L, 0L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 0L, 0L, 1L, 0L, 0L, </span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>1L, 0L, 0L, 1L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, </span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>0L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, </span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 0L, 1L, 0L, 0L, 0L, </span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>1L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 1L, 1L, 1L, 0L, 1L, </span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>1L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 0L, </span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>0L, 0L, 0L, 0L, 0L)</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; dput( admit )</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>admit <span class="ot">&lt;-</span> </span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(0L, 1L, 0L, 1L, 0L, 1L, 0L, 1L, 1L, 0L, 0L, 1L, 1L, 0L, 1L, </span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>1L, 0L, 0L, 0L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 0L, 0L, 1L, 0L, </span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>0L, 1L, 0L, 1L, 0L, 1L, 0L, 0L, 1L, 0L, 0L, 0L, 1L, 1L, 0L, 0L, </span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>0L, 0L, 0L, 0L, 1L, 0L, 0L, 0L, 1L, 1L, 0L, 0L, 1L, 0L, 0L, 0L, </span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>0L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 1L, 1L, 0L, 1L, </span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>1L, 0L, 1L, 0L, 1L, 1L, 0L, 0L, 1L, 1L, 0L, 1L, 1L, 0L, 0L, 0L, </span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>0L, 0L, 1L, 0L, 0L)</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>( admit, coaching, gpa, lsat ) </span></code></pre></div>
+<p>Code for graphs:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>border <span class="ot">&lt;-</span> <span class="fu">ifelse</span>( coaching<span class="sc">==</span><span class="dv">1</span>, <span class="st">&quot;darkorchid4&quot;</span>, <span class="st">&quot;gray&quot;</span> )</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>background <span class="ot">&lt;-</span> <span class="fu">ifelse</span>( admit<span class="sc">==</span><span class="dv">1</span>, <span class="st">&quot;forestgreen&quot;</span>, <span class="st">&quot;gray&quot;</span> )</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( gpa, lsat, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">pch=</span><span class="dv">21</span>, <span class="at">cex=</span><span class="dv">3</span>, <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">col=</span>border, <span class="at">bg=</span><span class="fu">adjustcolor</span>( background, <span class="at">alph=</span><span class="fl">0.4</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">&quot;GPA&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;LSAT&quot;</span>, <span class="at">lwd=</span><span class="dv">2</span>  )</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>twins <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">14</span>,<span class="dv">22</span>,<span class="dv">27</span>,<span class="dv">30</span>,<span class="dv">32</span>,<span class="dv">40</span>,<span class="dv">47</span>,<span class="dv">50</span>,<span class="dv">51</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>           <span class="dv">64</span>,<span class="dv">67</span>,<span class="dv">72</span>,<span class="dv">74</span>,<span class="dv">79</span>,<span class="dv">82</span>,<span class="dv">88</span>,<span class="dv">92</span>,<span class="dv">93</span>,<span class="dv">96</span>,<span class="dv">97</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>( gpa[twins], lsat[twins], <span class="at">pch=</span><span class="dv">21</span>, <span class="at">cex=</span><span class="fl">3.5</span>, <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">col=</span>border[twins], </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">bg=</span><span class="fu">adjustcolor</span>( background[twins], <span class="at">alph=</span><span class="fl">0.4</span> ),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">&quot;GPA&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;LSAT&quot;</span>, <span class="at">lwd=</span><span class="dv">2</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">120</span>,<span class="dv">180</span>) )</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># row positions of matched pairs in dataset</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>twins <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">14</span>,<span class="dv">22</span>,<span class="dv">27</span>,<span class="dv">30</span>,<span class="dv">32</span>,<span class="dv">40</span>,<span class="dv">47</span>,<span class="dv">50</span>,<span class="dv">51</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="dv">64</span>,<span class="dv">67</span>,<span class="dv">72</span>,<span class="dv">74</span>,<span class="dv">79</span>,<span class="dv">82</span>,<span class="dv">88</span>,<span class="dv">92</span>,<span class="dv">93</span>,<span class="dv">96</span>,<span class="dv">97</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>data.twins <span class="ot">&lt;-</span> data[ twins , ]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>( admit <span class="sc">~</span> coaching <span class="sc">+</span> gpa <span class="sc">+</span> lsat, <span class="at">data=</span>data )</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>( admit <span class="sc">~</span> coaching <span class="sc">+</span> gpa <span class="sc">+</span> lsat, <span class="at">data=</span>data.twins )</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( m1, m2, </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">type=</span><span class="st">&quot;html&quot;</span>, <span class="at">digits=</span><span class="dv">2</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="fu">c</span>(<span class="st">&quot;ser&quot;</span>,<span class="st">&quot;f&quot;</span>) )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+admit
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+coaching
+</td>
+<td>
+0.34<sup>***</sup>
+</td>
+<td>
+0.50<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.11)
+</td>
+<td>
+(0.19)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+gpa
+</td>
+<td>
+0.19<sup>**</sup>
+</td>
+<td>
+0.13
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.07)
+</td>
+<td>
+(0.22)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+lsat
+</td>
+<td>
+0.003
+</td>
+<td>
+0.003
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.002)
+</td>
+<td>
+(0.01)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+-0.78<sup>*</sup>
+</td>
+<td>
+-0.70
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.44)
+</td>
+<td>
+(1.16)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+100
+</td>
+<td>
+24
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+R<sup>2</sup>
+</td>
+<td>
+0.29
+</td>
+<td>
+0.28
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Adjusted R<sup>2</sup>
+</td>
+<td>
+0.27
+</td>
+<td>
+0.17
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="2" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<blockquote>
+<p>A propensity score represents the probability of being assigned to the treatment group based on a given set of characteristics.</p>
+</blockquote>
+<p>In this example it would be the likelihood that an applicant had participated in an expensive admissions coaching service.</p>
+<p>By matching observations in the treatment and in the control based on their propensity score, we can create artificial treatment and control groups that are more balanced than a blind comparison of the raw data. In some circumstances matching can reduce or eliminate the effects of confounding variables.</p>
+</div>
+</div>
+<div id="matching-scores" class="section level1">
+<h1>Matching Scores</h1>
+<div class="figure">
+<img src="FIGURE/Matching/Picture1.jpg" alt="Figure 2. Source: https://pixabay.com/images/search/classroom/" width="60%" />
+<p class="caption">
+Figure 2. Source: <a href="https://pixabay.com/images/search/classroom/" class="uri">https://pixabay.com/images/search/classroom/</a>
+</p>
+</div>
+<p>An area of research where propensity score matching has attracted a lot of attention is <a href="https://www.coe.unt.edu/sites/default/files/1846/Forrest%20Lane%20-%20Propensity%20Score%20Matching.pdf">education policy</a>. In education policy research is often difficult to use randomized trails as we cannot force families to randomly send their kids to private or public schools or to some programs rather than others. Nor can we observe the same individual under one condition or the other - a child can either attend a Catholic elementary school or a public one! <a href="https://www.researchgate.net/publication/273061804_An_Illustrative_Example_of_Propensity_Score_Matching_with_Education_Research">Propensity score matching is therefore a good technique</a> to control for differences across groups of childrend and evaluate the impact of different types of school, programs, and policies.</p>
+<p><a href="https://cepa.stanford.edu/sites/default/files/reardon_cheadle_robinson_catholic_schools_effects_SREE_march_7_2008.pdf">Reardon, Cheadle, and Robinson (2008)</a>, for instance, utilized propensity score matching to estimate the effect of attending a Catholic vs. a public elementary school on math and reading skills. The key idea is that characteristics (income or parents’ occupation and education) that lead students to self-select into Catholic schools might also explain their better performance. As the authors say: “given that Catholic and public school students differ in many ways likely to affect their cognitive skills, a simple comparison of their mean test scores at subsequent waves is likely to yield substantially biased estimates of the effect of Catholic schooling.”</p>
+<p><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3630079/">Morgan, Frisco, Farkas, and Hibel (2010)</a> look at special education programs and compare students who were legally entitled to be enrolled vs students who did not attend these programs to establish their effectiveness on math and reading skills. Students who are legally entitled to these programs have generally higher scores even before being involved and attend better schools. Directly compare the two groups will lead to biased estimates.</p>
+<p>In this example, we use simulated data to evaluate the effect of attending a private vs a public high school on math skills. For convenience, we will work on a small sample of 25 students. We will walk through all the steps of a matching score approach.</p>
+<blockquote>
+<p><strong>Research question</strong>: Do students who attend private high schools have higher math skills than students who attend a public high school?</p>
+<p><strong>Hypothesis</strong>: Students who attend a private high schools will not have higher math skills than students in public school.</p>
+</blockquote>
+<div id="identify-the-covariates" class="section level2">
+<h2>Identify the covariates</h2>
+<p>First of all, we need to determine the variables that might explain self-selection into private vs public school. It is important to match the two groups based on all possible covariates. Covariates can be identified by looking at previous literature or empirical diffrences across the two groups.</p>
+<p>We identify 3 covariates:</p>
+<table>
+<colgroup>
+<col width="20%" />
+<col width="79%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable name </strong></th>
+<th><strong>Description </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\text{income}\)</span></td>
+<td>Family income</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\text{occ_score}\)</span></td>
+<td>Father’s occupational score based on education, salary and prestige, from 0 to 100</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\text{y_educ}\)</span></td>
+<td>Father’s year of education</td>
+</tr>
+</tbody>
+</table>
+<p>We will use this three covariates to predict whether a student enrolls in a private school (=1) or in a public school (=0).</p>
+</div>
+<div id="creating-matching-score" class="section level2">
+<h2>Creating matching score</h2>
+<p>A matching score describes an individual’s probability to belong in the treatment or control group based on a set of covariates. In our case, the propensity scores are built based on the 3 covariates that we have just identified and will predict the likelihood that the child will attend a private or public school. Note that since we consider “going to a private school” to be our treatment, students in a private school are the “treament group” while students in a public school are the “control group”.</p>
+<p>To estimate probability we can use a logit or a linear probability model that we discussed in the previous lecture. We chose to utilize a logit model in this example.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Estimate the logit model</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>log <span class="ot">=</span> <span class="fu">glm</span>( school <span class="sc">~</span> income <span class="sc">+</span> occ_score <span class="sc">+</span> y_educ, <span class="at">data =</span> df, <span class="at">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculate the propensity score by estimating the probability for each child to attend a private or a public school.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>prop_score <span class="ot">&lt;-</span> <span class="fu">predict</span>(log, <span class="at">newdata =</span> df, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span></code></pre></div>
+<p>We can have a look at the summary statistics of the propensity scores</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df<span class="sc">$</span>prop_score)</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.2295  0.4346  0.5802  0.6000  0.7210  0.9903</code></pre>
+<p>We can also plot the propensity score for each student.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">palette</span>(<span class="fu">c</span>(<span class="st">&quot;darkred&quot;</span>, <span class="st">&quot;dodgerblue1&quot;</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(df<span class="sc">$</span>student, df<span class="sc">$</span>prop_score, <span class="at">col =</span> df<span class="sc">$</span>school<span class="sc">+</span><span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">ylab =</span> <span class="st">&quot;Predicted probabilities&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;Observations&quot;</span>, <span class="at">xaxt =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#points(19, 0.3, col = &quot;darkred&quot;, lwd = 3)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#text(22.5, 0.3, &quot;Treatment (Private School)&quot;, col = &quot;darkred&quot;)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#points(19, 0.25, col = &quot;dodgerblue1&quot;, lwd = 3)</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#text(22.5, 0.25, &quot;Control (Public School)&quot;, col = &quot;dodgerblue1&quot;)</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(df)){</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(df<span class="sc">$</span>student[i], <span class="dv">0</span>, df<span class="sc">$</span>student[i], df<span class="sc">$</span>prop_score[i], <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;gray70&quot;</span>)}</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-10-1.png" alt="" width="960" /></p>
+</div>
+<div id="chose-a-matching-strategy" class="section level2">
+<h2>Chose a matching strategy</h2>
+<p>Now that we have our propensity scores we need to decide <em>how</em> to match individuals with one another. There are several choices to be made and each choice influences the final dataset.</p>
+<div id="one-to-one-vs-one-to-many" class="section level3">
+<h3>One-to-one vs one-to-many</h3>
+<p>First, we need to decide whether we want a <em>one-to-one match or a one-to-many match</em>. In the first case, we match one student in a private school with only one student in a public school. In the second case, we want to match a single case in the treatment group (private school) with several students in public schools (control group). This second method allows us to get less precise matches but, potentially, to retain a large sample of observations. By contrast, a one-to-one match is more precise but potentially throws away several observations.</p>
+<p>For example, let’s take five random students from our dataset. We have only one student in the treatment group (#5, in bold). We could decide to match the student with multiple students from the control group or only one, throwing away the remaining 4 observations.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## We order our observations by propensity score, so that we can observations that are close to each other.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> <span class="fu">as.data.frame</span>(df[<span class="fu">order</span>(df<span class="sc">$</span>prop_score), ])</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="do">## We just look at the top 5 observations</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">=</span> <span class="fu">round</span>(df[<span class="dv">5</span><span class="sc">:</span><span class="dv">9</span>,], <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(df2)<span class="ot">&lt;-</span><span class="cn">NULL</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">=</span> df2[,<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">6</span>)]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>df2 <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">&quot;Top 5 observations with lowest propensity scores&quot;</span>, <span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span>  </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df2<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Top 5 observations with lowest propensity scores
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+5
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.37
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.46
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="nearest-neighbor-matching-and-caliper-distance" class="section level3">
+<h3>Nearest neighbor matching and caliper distance</h3>
+<p>But how do we match? There are two common strategies. The first one is called <em>nearest neighbor matching</em>. It means that we will select the student(s) with the closest propensity score to our “treated” student #20. The second one is called <em>nearest neighbor matching within a specified caliper distance</em> - don’t get scared by the name. It just means that you specify a maximum distance between two scores for them to be a match.</p>
+<p>Let’s see this in practice. For each possible control observation, we calculate the distance from their propensity score to the propensity score of the treated student #20.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Note that we take the absolute value of the difference</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df2<span class="sc">$</span>distance <span class="ot">=</span> <span class="fu">abs</span>(df2<span class="sc">$</span>prop_score[df2<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>] <span class="sc">-</span> df2<span class="sc">$</span>prop_score)</span></code></pre></div>
+<p>Now, if we use a nearest neighbor matching strategy, we would match student #5 with student #20 or student #4 (highlighted in yellow) because they are the ones at the closest distance.</p>
+<p>If we decide for a one-to-one strategy, we would need to decide whether to match the student with #12 or #2 (we will discuss how to make this choice in a moment). With a many-to-many strategy we would match student #5 with both #12 and #2 and retain all three observations.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df2 <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance =</span> <span class="fu">cell_spec</span>(distance, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">ifelse</span>(distance <span class="sc">==</span>  <span class="fu">min</span>(distance[distance <span class="sc">!=</span> <span class="dv">0</span>]), <span class="st">&quot;#FFCC00&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Distances from student #5&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df2<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Distances from student #5
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+distance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+5
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.37
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">0.06</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">0.06</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.46
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0.09</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0.13</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If we use a nearest neighbor matching within a specified caliper distance strategy, then we first need to pick the maximum distance that we would allow between two observations.</p>
+<p>Let’s say we decide 0.1. If we take a look at the table below, we can see that up to three students match the required rule and are at less than 0.1 distance from the propensity score of the students admitted to law school.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df2<span class="sc">$</span>Caliper_Distance <span class="ot">=</span> <span class="fu">ifelse</span>(df2<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>, <span class="st">&quot; &quot;</span>, <span class="fu">ifelse</span>(df2<span class="sc">$</span>distance <span class="sc">&lt;</span><span class="fl">0.1</span>, <span class="st">&quot;MATCH&quot;</span>, <span class="st">&quot;NO MATCH&quot;</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>df2 <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance =</span> <span class="fu">cell_spec</span>(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        distance, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">ifelse</span>(distance <span class="sc">==</span>  <span class="fu">min</span>(distance[distance <span class="sc">!=</span> <span class="dv">0</span>]), <span class="st">&quot;#FFCC00&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Caliper_Distance =</span> <span class="fu">cell_spec</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        Caliper_Distance, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">ifelse</span>(Caliper_Distance <span class="sc">==</span> <span class="st">&quot; &quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>, <span class="fu">ifelse</span>(Caliper_Distance <span class="sc">==</span>  <span class="st">&quot;MATCH&quot;</span>, <span class="st">&quot;#00CC00&quot;</span>, <span class="st">&quot;#FF0000&quot;</span>)), <span class="at">bold =</span> T)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Caliper Distance from student #5&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df2<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Caliper Distance from student #5
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+distance
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Caliper_Distance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+5
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.37
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0</span>
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;"> </span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">0.06</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 204, 0, 1) !important;">MATCH</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">0.06</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 204, 0, 1) !important;">MATCH</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.46
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0.09</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 204, 0, 1) !important;">MATCH</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0.13</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 0, 0, 1) !important;">NO MATCH</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s now say we decide 0.03. In this case,there would be no match for student #20 as all other propensity scores are at more than 0.03 points of distance.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df2<span class="sc">$</span>Caliper_Distance <span class="ot">=</span> <span class="fu">ifelse</span>(df2<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>, <span class="st">&quot; &quot;</span>, <span class="fu">ifelse</span>(df2<span class="sc">$</span>distance <span class="sc">&lt;</span><span class="fl">0.03</span>, <span class="st">&quot;MATCH&quot;</span>, <span class="st">&quot;NO MATCH&quot;</span>))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>df2 <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance =</span> <span class="fu">cell_spec</span>(</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        distance, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">ifelse</span>(distance <span class="sc">==</span>  <span class="fu">min</span>(distance[distance <span class="sc">!=</span> <span class="dv">0</span>]), <span class="st">&quot;#FFCC00&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Caliper_Distance =</span> <span class="fu">cell_spec</span>(</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        Caliper_Distance, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">ifelse</span>(Caliper_Distance <span class="sc">==</span> <span class="st">&quot; &quot;</span> , <span class="st">&quot;#FFFFFF&quot;</span>, <span class="fu">ifelse</span>(Caliper_Distance <span class="sc">==</span>  <span class="st">&quot;MATCH&quot;</span>, <span class="st">&quot;#00CC00&quot;</span>, <span class="st">&quot;#FF0000&quot;</span>)), <span class="at">bold =</span> T)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Caliper Distance from student #5&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df2<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Caliper Distance from student #5
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+distance
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Caliper_Distance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+5
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.37
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0</span>
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;"> </span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">0.06</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 0, 0, 1) !important;">NO MATCH</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">0.06</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 0, 0, 1) !important;">NO MATCH</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.46
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0.09</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 0, 0, 1) !important;">NO MATCH</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">0.13</span>
+</td>
+<td style="text-align:left;">
+<span style="font-weight: bold;    border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 0, 0, 1) !important;">NO MATCH</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="with-or-without-replacement" class="section level3">
+<h3>With or Without replacement</h3>
+<p>Right now we are working with only one case. The situation might get more complicated when with have multiple observations with similar scores.</p>
+<p>Let’s have a look some others observations in our dataset</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df3 <span class="ot">=</span> <span class="fu">round</span>(df[<span class="dv">15</span><span class="sc">:</span><span class="dv">19</span>,], <span class="dv">2</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>df3 <span class="ot">=</span> df3[,<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">6</span>)]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>df3 <span class="ot">=</span> <span class="fu">as.data.frame</span>(df3[<span class="fu">order</span>(df3<span class="sc">$</span>school, <span class="at">decreasing =</span> T), ])</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#df3$distance = df3[3,6] - df3$prop_score</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>df3 <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a> <span class="co"># mutate(distance = cell_spec(</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">#distance, &quot;html&quot;, background = ifelse(distance ==  min(distance[distance != 0]), &quot;#FFCC00&quot;, &quot;#FFFFFF&quot;))) %&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#mutate(Caliper_Distance = cell_spec(</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Caliper_Distance, &quot;html&quot;, background = ifelse(Caliper_Distance ==  &quot;MATCH&quot;, &quot;#00CC00&quot;, &quot;#FF0000&quot;), bold = T)) %&gt;%</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Caliper Distance from student #5&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df3<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Caliper Distance from student #5
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.67
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.71
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.72
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.70
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.71
+</td>
+</tr>
+</tbody>
+</table>
+<p>How do we match the different “treated” students (in bold)? First, we need to decide if we want to match <strong>with or without replacement</strong>. Matching without replacement means that once a student has been matched with another, it will be no longer available for another match. Vicecersa, in matching with replacement the same student is allowed to match with multiple other students. In the first case, observations will be independent from one another as they are matched with only one student at a time. In the second case, observations will be dependent from one another but we might have better matches, especially when there are only few individuals in the control group.</p>
+<p>You can see in table 2.6. We have 3 treated students and 2 untreated students. We calculate the distance from each treated student to each untreated students (#14 and #6). You can see results in column “distance_14” and “distance_6”. Let’s assume we are matching according to the nearest neighbor matching rule (see "Nearest neighbor matching and caliper distance”).</p>
+<p>If we match with replacement, we can match the same untreated student to multiple treated students as in column “WithReplacement”. In this way, we retain all 5 observations. But if we match withour replacement, then we will match each untreated student with only one treated student. As result, we lose one observation in our final dataset as shown in column “WithoutReplacement”.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>distance_14 <span class="ot">=</span> <span class="fu">ifelse</span>(df3<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>, df3<span class="sc">$</span>prop_score <span class="sc">-</span> df3<span class="sc">$</span>prop_score[df3<span class="sc">$</span>student <span class="sc">==</span> <span class="st">&quot;14&quot;</span>], <span class="cn">NA</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>distance_14 <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">abs</span>(df3<span class="sc">$</span>distance_14), <span class="dv">2</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>distance_6 <span class="ot">=</span> <span class="fu">ifelse</span>(df3<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>, df3<span class="sc">$</span>prop_score <span class="sc">-</span> df3<span class="sc">$</span>prop_score[df3<span class="sc">$</span>student <span class="sc">==</span> <span class="st">&quot;6&quot;</span>], <span class="cn">NA</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>distance_6 <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">abs</span>(df3<span class="sc">$</span>distance_6), <span class="dv">2</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>WithReplacement <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">14</span>, <span class="dv">6</span>, <span class="dv">6</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>WithoutReplacement <span class="ot">=</span> <span class="fu">c</span>( <span class="st">&quot;&quot;</span>, <span class="dv">6</span>, <span class="dv">14</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>df3 <span class="sc">%&gt;%</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(<span class="at">WithReplacement =</span> <span class="fu">cell_spec</span>(</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        WithReplacement, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">c</span>(<span class="st">&quot;#FFCC00&quot;</span>, <span class="st">&quot;#00CC00&quot;</span>, <span class="st">&quot;#00CC00&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">WithoutReplacement =</span> <span class="fu">cell_spec</span>(</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        WithoutReplacement, <span class="st">&quot;html&quot;</span>, <span class="at">background =</span> <span class="fu">c</span>(<span class="st">&quot;#FFFFFF&quot;</span>, <span class="st">&quot;#00CC00&quot;</span>, <span class="st">&quot;#FFCC00&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>, <span class="st">&quot;#FFFFFF&quot;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Assignment with or without replacement&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df3<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Assignment with or without replacement
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+distance_14
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+distance_6
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+WithReplacement
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+WithoutReplacement
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.67
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.03
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.04
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">14</span>
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;"></span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.71
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.01
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.00
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 204, 0, 1) !important;">6</span>
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 204, 0, 1) !important;">6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.72
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.02
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.01
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 204, 0, 1) !important;">6</span>
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 204, 0, 1) !important;">14</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.70
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">NA</span>
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">NA</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.71
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">NA</span>
+</td>
+<td style="text-align:left;">
+<span style="border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(255, 255, 255, 1) !important;">NA</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="greedy-and-optimal-process" class="section level3">
+<h3>Greedy and optimal process</h3>
+<p>Note that the assignment of treated and untreated students also depends on the process that we choose for matching observation.</p>
+<p>In a <strong>greedy process</strong>, we select a random treated observation and we start the matching process from there.</p>
+<p>Let’s say we start from student #11 (see column “Start_11”). We would match it with student #14 as it is the nearest neighbor. Then, we look at student #8 and we would matched with student #6. No untreated student would be available to be matched with #9 in a without replacement process.</p>
+<p>While this seems trivial, the problem with a greedy process is that we might loose good matches. For instance, have a look at column “Start_9”, where the greedy process selected student #9 as a starting point. In this case, the unmatched case is student #8, which has a perfect match with student #6!</p>
+<p>The problem with a greedy process is that it doesn’t consider all observations together and does not try to maximize the end result.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>WithoutReplacement <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>WithReplacement <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>Start_11 <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">14</span>, <span class="dv">6</span>, <span class="st">&quot; &quot;</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>Start_8 <span class="ot">=</span> <span class="fu">c</span>( <span class="st">&quot; &quot;</span>, <span class="dv">6</span>, <span class="dv">14</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>Start_9 <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">14</span>, <span class="st">&quot; &quot;</span>, <span class="dv">6</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>df3 <span class="sc">%&gt;%</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Greedy process, starting from student #9&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df3<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Greedy process, starting from student #9
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+distance_14
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+distance_6
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Start_11
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Start_8
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Start_9
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.67
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.03
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.04
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.71
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.01
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.00
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.72
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.02
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.01
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.70
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.71
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<p>We can see this by looking at how the total distance change across the difference options.</p>
+<p>If we start from student #11 the total distance is 0.03 (0.03 + 0). If we start from student #8 the total distance is 0.02 (0 + 0.02). If we start from student #9 the total distance is 0.04 (0.03 + 0.01).</p>
+<p>Alternatively, we can use an optimal matching proceess in which we look at all observations at the same time and we try to minimize the difference between two scores based on previous rules.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df3<span class="sc">$</span>OptimalProcess <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="dv">14</span>, <span class="dv">6</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">kableExtra.html.bsTable =</span> T)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>df3 <span class="sc">%&gt;%</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;html&quot;</span>, <span class="at">escape =</span> F, <span class="at">caption =</span> <span class="st">&quot;Optimal process, one-to-one&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> F, <span class="at">fixed_thead =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">which</span>(df3<span class="sc">$</span>school <span class="sc">==</span> <span class="dv">1</span>), <span class="at">bold =</span> T, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>)</span></code></pre></div>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Optimal process, one-to-one
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+student
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+school
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+prop_score
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+distance_14
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+distance_6
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Start_11
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Start_8
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Start_9
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+OptimalProcess
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+11
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.67
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.03
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.04
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+8
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.71
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.01
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.00
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+9
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+1
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.72
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.02
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;">
+0.01
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+14
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.70
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.71
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<p>In this case, the outcome is different from the greedy process as we are try to minimize the difference for each observation.</p>
+</div>
+<div id="to-summarize" class="section level3">
+<h3>To summarize</h3>
+<p>While you won’t have to ‘manually’ account for all these options understand differences across them is important as some choices have more restringent criteria than others.</p>
+<table>
+<colgroup>
+<col width="20%" />
+<col width="79%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Options </strong></th>
+<th><strong>Description </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>One-to-one or One-to-Many</td>
+<td>One-to-one increases the precision of the match but a one-to-many approach allows to retain more observations</td>
+</tr>
+<tr class="even">
+<td>Nearest neighbor or caliper distance neighbor</td>
+<td>With the Caliper distance neighbor approach we can control “how different” two observations are. While with the nearest neighbor approach we might include more observations, but some of them might be very far apart.</td>
+</tr>
+<tr class="odd">
+<td>With or Without Replacement</td>
+<td>With replacement decreases the number of observations that we retain and might decrease precision, especially when combined with a greedy approach. Without replacement increases the precision and number of matches but create dependence across observation</td>
+</tr>
+<tr class="even">
+<td>Greedy vs Optimal Process</td>
+<td>An optimal process is generally preferred, as a greedy process is contigent upon the starting observation.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="matchit-function-in-r" class="section level2">
+<h2>MatchIT function in R</h2>
+<p>Now that we understand the basics of matching, we can use the <em>MatchIt</em> function to match propensity scores across all observations.</p>
+<p>We will use the same dataset as before, but we are going to enlarge into 10.000 observations. Propensity score matching generally works better with large dataset where few cases are “treated” and many of them are “untreated” - in this way, it it easy to find a doppelganger!</p>
+<p>Before using the MatchIt function, let’s have a look at the covariates between treated and untreated observations. We run a set of t-test for looking at differences across years of education, occupational scores, and income. As you can see, all three t-tests show a p-value &lt; 0.001 suggesting that we cannot reject the null hypothesis that the two groups are equal.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(df<span class="sc">$</span>y_educ[df<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], df<span class="sc">$</span>y_educ[df<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>])</span></code></pre></div>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  df$y_educ[df$school == 1] and df$y_educ[df$school == 0]
+## t = 21.715, df = 1515.1, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  0.9241756 1.1077224
+## sample estimates:
+## mean of x mean of y 
+##  19.65831  18.64236</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(df<span class="sc">$</span>occ_score[df<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], df<span class="sc">$</span>occ_score[df<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>])</span></code></pre></div>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  df$occ_score[df$school == 1] and df$occ_score[df$school == 0]
+## t = 10.337, df = 1467.6, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  3.417171 5.017846
+## sample estimates:
+## mean of x mean of y 
+##  52.58552  48.36801</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(df<span class="sc">$</span>income[df<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], df<span class="sc">$</span>income[df<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>])</span></code></pre></div>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  df$income[df$school == 1] and df$income[df$school == 0]
+## t = 37.552, df = 1803.8, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  0.2082153 0.2311632
+## sample estimates:
+## mean of x mean of y 
+##  12.17919  11.95950</code></pre>
+<p>Graphically, we can represent the distribution density for each group and compare them. As you can see in the graphs below, the main difference is in the income level.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>school2 <span class="ot">=</span> <span class="fu">as.factor</span>(df<span class="sc">$</span>school)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> df<span class="sc">$</span>y_educ, <span class="at">fill =</span> df<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of years of education, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Years of education&quot;</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">12</span>, <span class="dv">25</span>, <span class="dv">2</span>),</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">25</span>)) <span class="sc">+</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-24-1.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> df<span class="sc">$</span>income, <span class="at">fill =</span> df<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of income, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Income&quot;</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fl">9.5</span>, <span class="dv">13</span>, <span class="fl">0.5</span>),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">9</span>, <span class="dv">13</span>)) <span class="sc">+</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-24-2.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> df<span class="sc">$</span>occ_score, <span class="at">fill =</span> df<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of occupational score, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Occupational score&quot;</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">20</span>),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-24-3.png" alt="" width="960" /></p>
+<p>From the package <em>MatchIt</em> we will use the function <em>matchit</em> to create the propensity scores and the new dataset with the matched observation.</p>
+<p>Note the function code. First, we specificy the logit model to calculate the propensity scores as we did before in section "Creating matching score”. We then specify the method to match the scores. We will use the <em>nearest neighbor</em> method (see "Nearest neighbor matching and caliper distance”). The default method is “withour replacement”.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">=</span> <span class="fu">matchit</span>(df<span class="sc">$</span>school <span class="sc">~</span> df<span class="sc">$</span>income <span class="sc">+</span> df<span class="sc">$</span>occ_score <span class="sc">+</span> df<span class="sc">$</span>y_educ, <span class="at">method =</span> <span class="st">&quot;nearest&quot;</span>, <span class="at">data =</span> df)</span></code></pre></div>
+<p>We can see the outcome of the process by using <em>summary</em>.</p>
+<p>Have a look at the column “Mean Diff” and compare results in the “Summary of balance for all data” vs “Summary of balance for matched data”. You can see that the mean difference is drastically reduced in the matched data.</p>
+<p>We can also look at the “Sample sizes” summary at the very end of the output. We started with 8841 control cases and 1159 treated cases. The algorithm matched all treated cases with only one control case, discarding 7682 observations.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## matchit(formula = df$school ~ df$income + df$occ_score + df$y_educ, 
+##     data = df, method = &quot;nearest&quot;)
+## 
+## Summary of Balance for All Data:
+##              Means Treated Means Control Std. Mean Diff. Var. Ratio eCDF Mean
+## distance            0.2924        0.0928          0.9942     3.0852    0.3331
+## df$income          12.1792       11.9595          1.2349     0.5175    0.2734
+## df$occ_score       52.5855       48.3680          0.3223     1.0324    0.0919
+## df$y_educ          19.6583       18.6424          0.6826     0.9015    0.1805
+##              eCDF Max
+## distance       0.5101
+## df$income      0.4123
+## df$occ_score   0.1340
+## df$y_educ      0.2616
+## 
+## Summary of Balance for Matched Data:
+##              Means Treated Means Control Std. Mean Diff. Var. Ratio eCDF Mean
+## distance            0.2924        0.2730          0.0968     1.3383    0.0039
+## df$income          12.1792       12.1715          0.0431     1.1509    0.0118
+## df$occ_score       52.5855       52.7692         -0.0140     1.0411    0.0069
+## df$y_educ          19.6583       19.5687          0.0602     0.9780    0.0157
+##              eCDF Max Std. Pair Dist.
+## distance       0.0785          0.0970
+## df$income      0.0509          0.7550
+## df$occ_score   0.0224          1.0481
+## df$y_educ      0.0492          1.0022
+## 
+## Sample Sizes:
+##           Control Treated
+## All          8841    1159
+## Matched      1159    1159
+## Unmatched    7682       0
+## Discarded       0       0</code></pre>
+<p>Once the algotrithm has calculated and matched the propensity scores, we can create a new dataset that contains all matched observations using the function <em>match.data</em>.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>m1data <span class="ot">=</span> <span class="fu">match.data</span>(m1)</span></code></pre></div>
+<p>Now that we have the dataset with the matched observations, we can have another look at the covariates and compare the treated and untreated cases.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(m1data<span class="sc">$</span>y_educ[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], m1data<span class="sc">$</span>y_educ[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>], <span class="at">paired =</span> T)</span></code></pre></div>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  m1data$y_educ[m1data$school == 1] and m1data$y_educ[m1data$school == 0]
+## t = 1.4374, df = 1158, p-value = 0.1509
+## alternative hypothesis: true mean difference is not equal to 0
+## 95 percent confidence interval:
+##  -0.0327088  0.2119413
+## sample estimates:
+## mean difference 
+##      0.08961627</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(m1data<span class="sc">$</span>occ_score[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], m1data<span class="sc">$</span>occ_score[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>], <span class="at">paired =</span> T)</span></code></pre></div>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  m1data$occ_score[m1data$school == 1] and m1data$occ_score[m1data$school == 0]
+## t = -0.3478, df = 1158, p-value = 0.7281
+## alternative hypothesis: true mean difference is not equal to 0
+## 95 percent confidence interval:
+##  -1.219561  0.852292
+## sample estimates:
+## mean difference 
+##      -0.1836343</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(m1data<span class="sc">$</span>income[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], m1data<span class="sc">$</span>income[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>], <span class="at">paired =</span> T)</span></code></pre></div>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  m1data$income[m1data$school == 1] and m1data$income[m1data$school == 0]
+## t = 1.0654, df = 1158, p-value = 0.2869
+## alternative hypothesis: true mean difference is not equal to 0
+## 95 percent confidence interval:
+##  -0.006449185  0.021775323
+## sample estimates:
+## mean difference 
+##     0.007663069</code></pre>
+<p>The t-tests show that the differences between treated and untreated cases in terms of years of education, occupational score, and income are no longer significant. The matching process has crated a balanced data set.</p>
+<p>We can see this graphically by looking at the dentisy plots for each independent variables in the treated and untreated group.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>m1data<span class="sc">$</span>school <span class="ot">=</span> <span class="fu">as.factor</span>(m1data<span class="sc">$</span>school2)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(m1data, <span class="fu">aes</span>(<span class="at">x =</span> m1data<span class="sc">$</span>y_educ, <span class="at">fill =</span> m1data<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of years of education, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Years of education&quot;</span>,</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">14</span>, <span class="dv">25</span>, <span class="dv">2</span>),</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">14</span>, <span class="dv">25</span>)) <span class="sc">+</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-29-1.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(m1data, <span class="fu">aes</span>(<span class="at">x =</span> m1data<span class="sc">$</span>income, <span class="at">fill =</span> m1data<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of income, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Income&quot;</span>,</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">11</span>, <span class="dv">13</span>, <span class="fl">0.5</span>),</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">13</span>)) <span class="sc">+</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-29-2.png" alt="" width="960" /></p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(m1data, <span class="fu">aes</span>(<span class="at">x =</span> m1data<span class="sc">$</span>occ_score, <span class="at">fill =</span> m1data<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of occupational score, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Occupational score&quot;</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">20</span>),</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-29-3.png" alt="" width="960" /></p>
+<div id="other-options-in-matchit" class="section level3">
+<h3>Other options in matchit</h3>
+<p>The <em>matchit</em> function has several options that you can explore in <a href="https://r.iq.harvard.edu/docs/matchit/2.4-15/User_s_Guide_to.html">Gary King’s User guide</a>. You are familiar with some of them as we discussed them above in section XX:</p>
+<ul>
+<li><p>replace - allows to implement with replacement and without replacement procedures. In other words, you can indicate if each control case can be matched with more than one treated case. The default is “without replacement”. If you want to use “with replacement”, you need to state replace = TRUE.</p></li>
+<li><p>ratio: if the matching is done “with replacement”, you can specify the number of control matched with each treated case (one-to-many strategy). For instance, ratio = 3.</p></li>
+<li><p>caliper: you can indicate the caliper distance by specificy the number of standard deviations of the distance measure. You can also indicate if, when no matches are available within the caliper distance, the nearest neighbor should be considered using calclosest = TRUE.</p></li>
+</ul>
+<p>SHINY APP</p>
+</div>
+</div>
+<div id="calculating-the-treatment-effect" class="section level2">
+<h2>Calculating the treatment effect</h2>
+<p>Now that we have a matched dataset we can calculate the effect of treatment ( = being in a private school). As before, we can do a simple t-test across the two groups and compare the math skill scores between students in a private school and students in a public school.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(m1data<span class="sc">$</span>math_skills[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">1</span>], m1data<span class="sc">$</span>math_skills[m1data<span class="sc">$</span>school<span class="sc">==</span><span class="dv">0</span>], <span class="at">paired =</span> T)</span></code></pre></div>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  m1data$math_skills[m1data$school == 1] and m1data$math_skills[m1data$school == 0]
+## t = -8.7622, df = 1158, p-value &lt; 2.2e-16
+## alternative hypothesis: true mean difference is not equal to 0
+## 95 percent confidence interval:
+##  -5.305209 -3.364009
+## sample estimates:
+## mean difference 
+##       -4.334609</code></pre>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(math_skills)</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00   45.21   53.91   53.84   62.51  100.00</code></pre>
+<p>The t-test shows that there is a statistically significant difference across the two groups (p-value &lt; 0.001). The difference is equal to -0.34, suggesting that students attending a private school report, on average, a math skills score that is 4.33 points lower that students in public schools.</p>
+<p>As before, we can look at results in a graphical form below. The treatment density curve (blue) tend more towards lower scores, marked on the left side of the graph, compared to the control (pink) curve.</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(m1data, <span class="fu">aes</span>(<span class="at">x =</span> m1data<span class="sc">$</span>math_skills, <span class="at">fill =</span> m1data<span class="sc">$</span>school2)) <span class="sc">+</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">position=</span><span class="st">&quot;identity&quot;</span>, <span class="at">alpha=</span><span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">&quot;Dark2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Density plot of math skill score, by group&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Math skill score&quot;</span>,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">20</span>),</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">limits=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>)) <span class="sc">+</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">fill=</span><span class="fu">guide_legend</span>(<span class="at">title=</span><span class="cn">NULL</span>))<span class="sc">+</span> </span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_discrete</span>(<span class="at">labels=</span><span class="fu">c</span>(<span class="st">&quot;Control - Public School&quot;</span>, <span class="st">&quot;Treatment - Private School&quot;</span>))</span></code></pre></div>
+<p><img src="p-080-matching_files/figure-html/unnamed-chunk-31-1.png" alt="" width="960" /></p>
+<style type="text/css">
+p {
+color: black;
+margin: 0 0 20px 0;
+}
+
+td {
+    padding: 3px 10px 3px 10px;
+}
+
+p.caption {
+    text-align: center;
+    font-style: italic;
+}
+
+table
+{ 
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:40px;
+    margin-bottom:100px;
+}
+
+caption {
+    caption-side: bottom;
+    color: black;
+    text-align: center;
+    font-style: italic;
+}
+
+h1, h2{
+  margin-top:100px;
+  margin-bottom:20px;
+}
+
+H5{
+    text-align: center;
+    color: gray;
+    font-size:0.8em;
+}
+
+img {
+    max-width: 90%;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top:30px;
+    margin-bottom:20px;
+}
+
+pre {
+  overflow-x: auto;
+}
+
+pre code {
+   display: block; 
+   padding: 0.5em;
+   margin-bottom:20px;
+}
+
+code {
+  font-size: 92%;
+  border: 10px solid #F8F8F8;
+  margin-bottom: 2px;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+
+caption {
+  font-style: bold;
+}
+
+</style>
+</div>
+</div>
+
+
+<div class="footer">
+<div class="row"  align="center">
+
+  <br>
+  Written by <a href=http://fusifederica.weebly.com/ target="_blank">Federica Fusi</a> & <a href=http://lecy.info target="_blank">Jesse Lecy</a><br>
+  Content licensed under Creative Commons: <a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target="_blank"> (CC BY-NC-SA 4.0)</a><br>
+  Source code is available on <a href=https://github.com/DS4PS/cpp-523-spr-2020/tree/master/labs target="_blank">GitHub</a><br>
+  <br>
+  CPP 525 <a href="https://ds4ps.org/cpp-525-spr-2020/" target="_blank">Foundations of Prog Eval III</a><br>
+  Part of the <a href=http://ds4ps.org/ms-prog-eval-data-analytics/ target="_blank">MS in Evaluation and Analytics</a><br>
+  @ <a href=https://asuonline.asu.edu/online-degree-programs/graduate/program-evaluation-and-data-analytics-ms/ target="_blank">Arizona State University</a><br>
+  <br>
+  Copyright &copy; 2020
+
+<br>
+<br>
+<br>
+<br>
+
+</div>
+</div>
+
+
+
+
+<style>
+
+blockquote {
+    padding: 11px 22px;
+    margin: 0 0 22px;
+    font-size: 18px;
+    border-left: 5px solid lightgray;
+}
+
+.footer {
+  color:white;
+  min-height: 450px !important;
+  background-color: #696969;
+  padding-bottom: 3em;
+  padding-top: 3em;
+  margin: auto;
+}
+
+.footer a {
+  color: orange;
+}
+
+.footer body{
+     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     font-size:calc(1.5em + 0.25vw);
+     font-weight:300;line-height:1.65;
+     -webkit-font-smoothing:antialiased;
+     -moz-osx-font-smoothing:grayscale;
+     margin-left:20%;
+     margin-right:20%
+}
+
+footer.body{
+     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     font-size:calc(1.5em + 0.25vw);
+     font-weight:300;line-height:1.65;
+     -webkit-font-smoothing:antialiased;
+     -moz-osx-font-smoothing:grayscale;
+     margin-left:20%;
+     margin-right:20%
+}
+
+.footerFloatOuter {
+	width: 25%;
+	float: left;
+}
+
+.footerFloatInner1 {
+	width: 20%;
+	float: left;
+	align: left;
+	margin-left: 0px;
+}
+
+.footerFloatInner2 {
+	width: 50%;
+	float: left;
+	text-align: left;
+}
+
+
+
+.footer ul li {
+	font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:calc(0.55em + 0.25vw) !important;
+  font-weight:300;
+  line-height:1.2 !important;
+  color: #FFF;
+	text-transform: uppercase;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+</style>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

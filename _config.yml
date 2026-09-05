@@ -3,18 +3,27 @@
 # This config file is meant for settings that affect your whole website.
 
 
+# Site identity
+
+title:              "Applied Econometrics"
+description:        "An archive of lectures, reading guides, labs, and R Markdown templates from a graduate regression sequence."
+
 # GitHub Course Location 
 
 github_info:
-    username:          watts-college
+    username:          lecy
     branch:            main
-    website-repo:      paf-510-template
-    course-repo:       paf-510-template
+    website-repo:      econometrics
+    course-repo:       econometrics
 
 # Site subpath, e.g. /blog
-url :               "https://watts-college.github.io/"
-baseurl:            "/paf-510-template"
-course_url:         "https://watts-college.github.io/paf-510-template/"
+url :               "https://lecy.github.io"
+baseurl:            "/econometrics"
+course_url:         "https://lecy.github.io/econometrics/"
+
+# Root for files linked straight from GitHub rather than from the built site
+# (the R Markdown templates -- see the note in the exclude: block below).
+raw_root:           "https://github.com/lecy/econometrics/raw/main"
 
 
 # NAVIGATION BAR
@@ -23,7 +32,7 @@ course_url:         "https://watts-college.github.io/paf-510-template/"
 # Header text on the left
 brand:
     image:          # logo.svg  # e.g. logo.png, upload logo image file to /assets/img/ folder
-    text:           "Program Evaluation"    # if the above "logo:" image variable  is not set, this text logo is displayed instead
+    text:           "Applied Econometrics"    # if the above "logo:" image variable  is not set, this text logo is displayed instead
     # in the default html file add extra fav icons to header for parts II and III
 
 # Main website top navigation bar
@@ -111,6 +120,30 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - node_modules
+  # Source files that begin with a YAML header. Jekyll would otherwise treat them
+  # as pages, strip that header, and render them into _site:
+  #   *-notes.md   would overwrite the matching *-notes.html we actually publish
+  #   *.rmd/*.Rmd  would be served with their knitr header removed
+  # All of them stay in the repo and remain reachable on GitHub; they are just not
+  # part of the built site.
+  - "lectures1/*-notes.md"
+  - "lectures1/*.rmd"
+  - "lectures1/*.Rmd"
+  - "lectures1/walk-through/*.rmd"
+  - "labs1/*.rmd"
+  - "labs1/*.Rmd"
+  - "labs1/*.utf8.md"
+  - "lectures2/*-notes.md"
+  - "lectures2/*.rmd"
+  - "lectures2/*.Rmd"
+  - "labs2/*.rmd"
+  - "labs2/*.Rmd"
+  - "labs2/*.knit.md"
+  - "lectures3/*.rmd"
+  - "lectures3/*.Rmd"
+  - "labs3/*.rmd"
+  - "labs3/*.Rmd"
+  - "labs3/DATA/*.Rmd"
 
 sass:
   style:            compressed

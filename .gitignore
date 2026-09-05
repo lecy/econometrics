@@ -9,3 +9,11 @@ _site
 
 # R files
 .Rhistory
+# local preview render (not part of the site)
+__preview.html
+
+# Incidental copies kept locally but not published with the site:
+#   CPP-523  - nested duplicate of the Part 1 decks already in lectures1/
+#   xaringan - slide-template sandbox (mostly large demo GIFs)
+lectures2/CPP-523/
+lectures2/xaringan/

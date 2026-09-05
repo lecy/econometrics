@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contrasts and Effect Size</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Contrasts and Effect Size</h1>
+  <p class="dek">A reading guide for lecture p-01.01 — a single staggered-start study read four different ways, and the three estimators you can build out of the same grid of cells.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#relationships">Key relationships</a>
+    <a href="#clear">What should be clear</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">The vocabulary for describing a design as a grid of groups and time periods.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+      <p class="claim">A design is a grid: groups down the side, time periods across the top.</p>
+<p>The whole deck runs on one picture. Four groups (G1–G4) observed at five time points
+(t=0 through t=4), with an <code>x</code> marking when each group starts treatment:</p>
+
+<pre><code>G1  t=0   t=1   t=2   t=3   t=4
+G2  t=0   t=1   t=2   t=3   t=4
+G3  t=0   t=1   t=2   t=3   t=4
+G4  t=0   t=1   t=2   t=3   t=4
+</code></pre>
+<p>Once the study is drawn this way, a “contrast” is just a choice of which cells to compare.</p>
+      <p class="claim">A contrast is a chosen comparison, not a fixed property of the study.</p>
+<p>The same grid supports many different comparisons, and each one answers a different
+question. The design does not hand you an answer — it hands you a menu.</p>
+      <p class="claim">Staggered start dates turn a single study into a dose–response study.</p>
+<p>Because the groups begin treatment at different times, the grid encodes <strong>treatment
+dosage</strong> measured as program duration:</p>
+
+<ul>
+  <li>Group 1 reaches 6, 12, 18, and 24 months of treatment across the observation window</li>
+  <li>Group 2 reaches 6, 12, and 18 months</li>
+  <li>Comparing G1 against {G2, G3, G4} at the right moment isolates <em>6 months versus 0 months</em></li>
+</ul>
+      <p class="claim">Pooling groups buys statistical power and costs interpretability.</p>
+<p>Two examples from the deck:</p>
+
+<ul>
+  <li>Pool {G2, G3, G4} as untreated to estimate the effect of 6 months of treatment.</li>
+  <li>Pool G1 (12 months) with G2 (6 months) and the pooled estimate now represents roughly
+<strong>9 months</strong> of treatment — an average dose that no individual group actually received.</li>
+</ul>
+
+<p>More observations shrink the standard error; the price is that the “treatment” being
+estimated becomes an average of unlike things.</p>
+      <p class="claim">Dosage and age are confounded when programs start at different ages.</p>
+<p>Children enter at 3, 3.5, 4, and 4.5 years old. A 6-months-versus-0-months contrast is
+therefore always <strong>conditioned on the age at which the child started the program.</strong> You
+cannot vary duration without also varying age.</p>
+      <p class="claim">Three estimators, three sets of assumptions.</p>
+<p>The deck names the estimators the rest of the course develops, each paired with what it
+must assume to be valid:</p>
+
+<ul>
+  <li><strong>Reflexive</strong> — the group is its own comparison, before versus after.</li>
+  <li><strong>Post-test only</strong> — treatment versus comparison, measured once, after the fact.</li>
+  <li><strong>Difference-in-difference</strong> — the change in the treated group minus the change in the
+comparison group.</li>
+</ul>
+    </div>
+  </section>
+
+<section id="relationships">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>Key relationships</h2>
+    <p class="sub">The mental map. One study, many contrasts, and what each one costs.</p>
+  </div>
+
+<h3 id="this-deck-is-the-applied-companion-to-p-01">This deck is the applied companion to p-01</h3>
+
+<p>Lecture p-01 argued that the choice of counterfactual determines the answer. This deck
+takes one real study — the Bingham &amp; Felbinger chapter on improving cognitive ability in
+chronically deprived children — and makes you <em>do</em> the choosing. The grid is the same
+diagram that appeared at the end of p-01; here it gets eleven slides of variations.</p>
+
+<h3 id="every-question-you-might-ask-maps-to-a-different-set-of-cells">Every question you might ask maps to a different set of cells</h3>
+
+<p>Work through the deck by asking, for each slide, <em>which cells are being differenced?</em></p>
+
+<ul>
+  <li><strong>Is there any effect at all?</strong> Treated rows against untreated rows at a common time.</li>
+  <li><strong>Does more treatment help more?</strong> Groups at 6, 12, 18, 24 months against untreated.</li>
+  <li><strong>Do late starters gain as much as early starters?</strong> The deck’s “treatment gains for
+late treatment” slides compare groups that entered at different points.</li>
+  <li><strong>Is two periods as good as three, but cheaper?</strong> A contrast between two dosage levels,
+which is a cost-effectiveness question rather than an efficacy question.</li>
+</ul>
+
+<h3 id="the-high-ses-group-is-doing-something-different-from-the-control-group">The high-SES group is doing something different from the control group</h3>
+
+<p>One of the discussion questions asks what role the high socioeconomic status group plays.
+It is not a control group in the strict sense — it is not equivalent to the treated
+children and was never going to be. It functions as a <strong>benchmark</strong>: a target level the
+intervention is trying to move deprived children toward. Confusing a benchmark with a
+control group is one of the easier mistakes to make when reading a study like this.</p>
+
+<h3 id="this-is-not-an-rct-and-the-deck-wants-you-to-say-so">This is not an RCT, and the deck wants you to say so</h3>
+
+<p>The discussion slide opens by asking directly: <em>Is this an RCT? Do we have an identical
+control group?</em> The staggered starts, the age confound, and the SES benchmark all point
+the same way. It is a strong quasi-experimental design, and the course’s whole project is
+establishing when a design like this can stand in for the randomized one.</p>
+
+<h3 id="where-each-estimator-shows-up-later">Where each estimator shows up later</h3>
+
+<p>The three estimators sketched at the end are placeholders for the rest of the sequence.
+The reflexive and post-test-only estimators are developed in the varieties-of-the-
+counterfactual lecture; difference-in-difference gets its own lab (<code>lab-05-diff-in-diff</code>),
+and the gender wage gap lab (<code>lab-07</code>) is the second worked example the deck points to.</p>
+
+  </section>
+
+<section id="clear">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>What should be clear in my mind?</h2>
+    <p class="sub">The questions the deck asks you to answer about the case study.</p>
+  </div>
+
+<h3 id="the-decks-own-discussion-questions">The deck’s own discussion questions</h3>
+
+<p>Answer these before moving on — they are the assessment for this lecture:</p>
+
+<ul>
+  <li>Is this an RCT? Do we have an identical control group?</li>
+  <li>What role does the high-SES group perform?</li>
+  <li>Why are there four treatment groups rather than one?</li>
+  <li>What outcome is measured, and is it valid and reliable?</li>
+  <li>How would you test whether two treatment periods have the same impact as three, but at
+lower cost?</li>
+  <li>Can you identify a weakness in the design, or a threat to validity?</li>
+</ul>
+
+<h3 id="key-takeaways">Key takeaways</h3>
+
+<ul>
+  <li>Draw the design as a groups × time-periods grid before doing anything else. Most design
+questions become visible once the grid is on paper.</li>
+  <li>A contrast is a decision. The same study yields different effect sizes depending on
+which cells you difference.</li>
+  <li>Staggered entry converts a yes/no treatment into a dose, which is more informative and
+harder to interpret.</li>
+  <li>Pooling groups raises power and blurs the definition of the treatment. Say what dose the
+pooled estimate actually represents.</li>
+  <li>When entry age varies with dose, duration effects and age effects cannot be separated
+without further assumptions.</li>
+  <li>Reflexive, post-test-only, and difference-in-difference are three ways of filling in the
+missing cell of the grid, and each is only as good as its assumptions.</li>
+</ul>
+
+  </section>
+
+</div>
+</body>
+</html>

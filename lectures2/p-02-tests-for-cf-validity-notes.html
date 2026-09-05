@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing the Validity of the Counterfactual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Testing the Validity of the Counterfactual</h1>
+  <p class="dek">A reading guide for lecture p-02 — the selection problem, the two tests every study should report, and why the Bonferroni correction changes your decision rule.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#relationships">Key relationships</a>
+    <a href="#clear">What should be clear</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">The selection problem, the balance tests, and the correction that makes them honest.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+      <p class="claim">Nature gives us correlations, not experiments.</p>
+<p>The deck opens with the city-scaling example from Radiolab. Walking speed correlates with
+patents, crime, and salary. So does population.</p>
+
+<ul>
+  <li><em>If you increased the walking speed of a city, would you get more patents?</em></li>
+  <li>Obviously not — <strong>population</strong> drives both.</li>
+</ul>
+
+<p>Four ways a correlation can appear without X causing Y:</p>
+
+<ol>
+  <li>X and Z both affect Y (no correlation between X and Z)</li>
+  <li>Z affects both X and Y — high correlation, no causal relationship</li>
+  <li>Causal chain X → Z → Y — no <em>direct</em> relationship, high correlation</li>
+  <li><strong>Reverse causality</strong> — <code>Y = b0 + b1X + e</code> and <code>X = b0 + b1Y + e</code> are both highly
+significant. Nothing in the regression output tells you which direction is causal.</li>
+</ol>
+      <p class="claim">The counterfactual is valid when groups differ *only* by the treatment.</p>
+<p>Stated as the deck states it: the framework is valid and robust when the groups differ by
+the treatment and are <strong>otherwise identical</strong>. When that holds, post-treatment differences
+in outcomes can be read as caused by the treatment. Everything else in this lecture is
+machinery for checking that condition.</p>
+      <p class="claim">Selection is the biggest problem in impact evaluation.</p>
+<p><em>Those who participate in a program are different from those who do not.</em> The microfinance
+example makes it concrete. Suppose loans have <strong>zero</strong> effect on income, and:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: right">Not entrepreneurial</th>
+      <th style="text-align: right">Entrepreneurial</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>No loan</td>
+      <td style="text-align: right">30 people @ $10</td>
+      <td style="text-align: right">15 people @ $20</td>
+    </tr>
+    <tr>
+      <td>Takes a loan</td>
+      <td style="text-align: right">20 people @ $10</td>
+      <td style="text-align: right">35 people @ $20</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>No loan: (30·$10 + 15·$20) / 45 = <strong>$13.33</strong></li>
+  <li>Loan: (20·$10 + 35·$20) / 55 = <strong>$16.37</strong></li>
+</ul>
+
+<p>The loan appears to work — and we built the example so that it does nothing. People who
+know they are good at business are more likely to borrow. That is selection, not impact.</p>
+      <p class="claim">The estimator you choose decides whether selection fools you.</p>
+<p>Same data, two estimators:</p>
+
+<ul>
+  <li><strong>Post-test only</strong> (<code>T2 − C2</code>) — requires the groups to be balanced <em>before</em> the
+intervention. In the microfinance example they are not, so it reports a false effect.</li>
+  <li><strong>Difference-in-difference</strong> (<code>[T2 − T1] − [C2 − C1]</code>) — the pre-treatment imbalance
+cancels out, so it correctly reports no impact. The cost is that it needs pre-treatment
+data, which is often the thing you do not have.</li>
+</ul>
+
+<p>More robust, more data-intensive. That trade recurs for the rest of the course.</p>
+      <p class="claim">Selection also happens on the way *out* — attrition.</p>
+<p>Reflexive design, average household income $2.00 before and after a program that does
+nothing:</p>
+
+<ul>
+  <li><strong>Random attrition</strong> — people drop out at every income level; mean stays $2.00;
+<code>T2 − T1 = 0</code>. The study still gets the right answer.</li>
+  <li><strong>Non-random attrition (low earners leave)</strong> — mean rises to $2.50; the program looks
+effective.</li>
+  <li><strong>Non-random attrition (high earners leave)</strong> — mean falls to $1.50; the program looks
+harmful.</li>
+</ul>
+
+<p>Attrition is natural. The question is never whether it happened but whether it was random.</p>
+      <p class="claim">Randomization "fails" 5 times in 100, by construction.</p>
+<p>If you randomly split 100 people into two groups of 50, how often do the average weights
+differ? <strong>Mathematically, always</strong> — they are never exactly equal. So “different” has to
+mean statistically different, which means a t-test at some α.</p>
+
+<p>At α = 0.05, each measured characteristic will read as significantly different <strong>5 times
+out of 100</strong> even when both groups came from the same population. The deck calls this
+<strong>unhappy randomization</strong> — not a failure of the process, just a bad draw.</p>
+      <p class="claim">The Bonferroni correction fixes the multiple-comparison problem.</p>
+<p>The balance table reports many contrasts, and each gets its own 5% chance of a false
+alarm. With <em>n</em> contrasts the chance of at least one p-value below 0.05 is roughly
+<strong>n × 0.05</strong>, not 0.05.</p>
+
+<p>So to stay 95% confident about the <em>groups</em> rather than about each contrast, divide:</p>
+
+<ul>
+  <li>10 contrasts → new decision rule is 0.05 / 10 = <strong>0.005</strong></li>
+  <li>7 contrasts → new α = 0.05 / 7 = <strong>0.0071</strong>; a smallest p-value of 0.04 is
+<code>0.04 &gt; 0.0071</code>, so <strong>do not reject</strong> — the groups are equivalent</li>
+</ul>
+    </div>
+  </section>
+
+<section id="relationships">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>Key relationships</h2>
+    <p class="sub">The mental map. Selection in, selection out, and which estimator survives each.</p>
+  </div>
+
+<h3 id="the-lecture-has-two-halves-that-mirror-each-other">The lecture has two halves that mirror each other</h3>
+
+<p><strong>Selection into</strong> the study group (who joins) and <strong>selection out of</strong> it (who leaves)
+are the same problem at two different moments, and they get the same fix: compare the
+traits of the groups you actually have, and test whether the differences are larger than
+chance would produce.</p>
+
+<h3 id="the-balance-table-is-the-most-important-table-in-any-study">The balance table is the most important table in any study</h3>
+
+<p>The deck says this outright. Before you read a single result, read the table comparing
+treatment and control characteristics. For the counterfactual to hold, the groups can only
+differ by the treatment — so this table is where a study either earns its causal language
+or does not.</p>
+
+<p>Two things to check: <strong>which</strong> traits were measured (unmeasured traits cannot be balanced,
+only assumed), and <strong>whether the decision rule was corrected</strong> for the number of contrasts.</p>
+
+<h3 id="the-four-attrition-tests-and-the-two-that-get-reported">The four attrition tests, and the two that get reported</h3>
+
+<p>The deck’s attrition diagram splits each group into stayers and leavers, producing four
+possible tests:</p>
+
+<ul>
+  <li><strong>Test 0</strong> — group equivalence at time 1, before attrition</li>
+  <li><strong>Test 1</strong> — group equivalence at time 2, after attrition</li>
+  <li><strong>Test 2</strong> — do stayers differ from leavers? <em>This is the only real test of random
+attrition.</em></li>
+  <li><strong>Test 3</strong> — do the two groups experience the same kind of attrition?</li>
+</ul>
+
+<p>Most studies report only 0 and 1. That is defensible — test 1 is agnostic about the type
+of attrition and only asks whether balance survived it — but it is weaker than test 2.</p>
+
+<p>The deck is careful about a nuance worth keeping: attrition can be <strong>non-random and still
+harmless</strong> if it is non-random <em>in the same way in both groups</em>. If all high performers
+leave both arms, the groups stay balanced. Test 3 checks exactly that.</p>
+
+<h3 id="all-four-tests-are-the-same-regression">All four tests are the same regression</h3>
+
+<p>This is the practical payoff of the lecture. Subset the data to isolate the two groups you
+want to compare, build a dummy for one of them, and run:</p>
+
+<p><code>Y = b0 + b1(dummy) + e</code></p>
+
+<p>A significant <code>b1</code> means the groups are not balanced (test 1), attrition is non-random
+(test 2), or attrition is non-equivalent (test 3). <code>Y</code> can be the pre-treatment outcome or
+any participant trait. It is the same tool you used in Lab 2, pointed at different subsets.</p>
+
+<h3 id="rcts-natural-experiments-and-quasi-experiments-arrive-at-balance-differently">RCTs, natural experiments, and quasi-experiments arrive at balance differently</h3>
+
+<ul>
+  <li><strong>RCT</strong> — assumes complete control over assignment.</li>
+  <li><strong>Natural experiment</strong> — borrows randomization that already exists in the world: charter
+school lotteries, the Vietnam draft.</li>
+  <li><strong>Quasi-experimental</strong> — manufactures equivalence by other means, matching above all.</li>
+</ul>
+
+<p>All three are trying to satisfy the same condition. Only the mechanism differs.</p>
+
+<h3 id="how-to-read-the-slides">How to read the slides</h3>
+
+<p>Slides 3–19 are the correlation-is-not-causation setup and can be skimmed if the first
+course is fresh. Slides 21–29 are the two worked examples and are the heart of the
+lecture. Slides 34–43 are the statistical argument about balance testing, and slide 42
+(Bonferroni) is the one you will actually need to apply in the lab.</p>
+
+  </section>
+
+<section id="clear">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>What should be clear in my mind?</h2>
+    <p class="sub">The checklist to run against any study's balance table.</p>
+  </div>
+
+<h3 id="what-the-deck-asks-you-to-be-able-to-do">What the deck asks you to be able to do</h3>
+
+<ul>
+  <li>State why a correlation between X and Y is consistent with at least four different causal
+stories.</li>
+  <li>Explain when <code>b1</code> is an impact and when it is just a relationship in the data.</li>
+  <li>Compute a post-test-only and a difference-in-difference estimate from the same table and
+say why they disagree.</li>
+  <li>Read a balance table and apply the corrected decision rule.</li>
+  <li>Say which attrition test a study reported, and which it skipped.</li>
+</ul>
+
+<h3 id="key-takeaways">Key takeaways</h3>
+
+<ul>
+  <li>Selection is the central problem of impact evaluation: participants differ from
+non-participants before the program ever starts.</li>
+  <li>Post-test-only estimators require pre-treatment balance. Difference-in-difference does
+not, but it requires pre-treatment data.</li>
+  <li>Attrition is selection out of the study, and non-random attrition biases the estimate in
+whichever direction the leavers came from.</li>
+  <li>Randomization does not guarantee balance in any particular sample. Expect roughly one
+significant contrast in twenty by chance alone.</li>
+  <li>Unhappy randomization is bad luck, not a broken process — but it still threatens the
+counterfactual and still has to be dealt with.</li>
+  <li>With <em>n</em> contrasts in the balance table, the decision rule is α / n, not α.</li>
+  <li>Every balance and attrition test is the same one-dummy regression run on a different
+subset of the data.</li>
+</ul>
+
+  </section>
+
+</div>
+</body>
+</html>

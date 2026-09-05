@@ -1,0 +1,253 @@
+# ---------------------------------------------------------------------------
+# The reference shelf at the bottom of the archive page: material that is not
+# tied to any single unit. Same link format as _data/units.yml.
+# ---------------------------------------------------------------------------
+
+- group: Exam Review
+  items:
+    - title: Review Material for the Final Exam — with solutions
+      url: handouts/Review%20Material%20for%20the%20Final%20Exam%20-%20SOLUTIONS.pdf
+      kind: pdf
+    - title: Practice Exam
+      url: handouts/Practice%20Exam.pdf
+      kind: pdf
+    - title: Practice Exam — solutions
+      url: handouts/Practice-Exam-SOLUTIONS.pdf
+      kind: pdf
+    - title: Regression Review Self-Test
+      url: handouts/Regression-Review-Self-Test.pdf
+      kind: pdf
+
+- group: Notation and Formulas
+  items:
+    - title: Common Statistics Notation
+      url: handouts/Common-Statistics-Notation.pdf
+      kind: pdf
+    - title: Marginal Effects in Quadratic Regression Models
+      url: handouts/Marginal-Effects-in-Quadratic-Regression-Models.pdf
+      kind: pdf
+    - title: Interpreting Logged Regression Models
+      url: handouts/Interpretting-Logged-Regression-Models.pdf
+      kind: pdf
+    - title: Indirect Effects Example
+      url: handouts/indirect-effect-example.pdf
+      kind: pdf
+    - title: Difference-in-Difference Models
+      url: handouts/Difference-in-Difference-Models.pdf
+      kind: pdf
+
+- group: Reporting Results
+  items:
+    - title: Reporting Statistical Results
+      url: handouts/reporting-statistical-results.pdf
+      kind: pdf
+    - title: Tables and Figures in APA Format
+      url: handouts/tables-and-figures-in-apa-format.pdf
+      kind: pdf
+    - title: Stargazer Table Formats
+      url: handouts/stargazer-formats.pdf
+      kind: pdf
+    - title: Clean Table Design
+      url: handouts/clean-table-design.pdf
+      kind: pdf
+    - title: What Makes for Good Visualizations
+      url: pubs/what-makes-for-good-visualizations.pdf
+      kind: pdf
+
+- group: Textbook Chapters
+  items:
+    - title: "Lewis-Beck, Applied Regression — Ch. 1"
+      url: pubs/lewis-beck-applied-regression-ch-01.pdf
+      kind: pdf
+    - title: "Lewis-Beck, Applied Regression — Ch. 2"
+      url: pubs/lewis-beck-applied-regression-ch-02.pdf
+      kind: pdf
+    - title: "Lewis-Beck, Applied Regression — Ch. 3"
+      url: pubs/lewis-beck-applied-regression-ch-03.pdf
+      kind: pdf
+    - title: "The New Statistics — Ch. 1"
+      url: pubs/The%20New%20Statistics%20Chapter%201.pdf
+      kind: pdf
+    - title: "The New Statistics — Ch. 2"
+      url: pubs/The%20New%20Statistics%20Chapter%202.pdf
+      kind: pdf
+    - title: "The New Statistics — Ch. 3"
+      url: pubs/The%20New%20Statistics%20Chapter%203.pdf
+      kind: pdf
+    - title: "The New Statistics — Ch. 4"
+      url: pubs/The%20New%20Statistics%20Chapter%204.pdf
+      kind: pdf
+    - title: "OpenIntro Statistics — regression chapter"
+      url: pubs/openintro-statistics-sample.pdf
+      kind: pdf
+
+- group: Program Evaluation Background
+  items:
+    - title: A Basic Guide to Program Evaluation
+      url: pubs/A-Basic-Guide-to-Program-Evaluation.pdf
+      kind: pdf
+    - title: "Impact Evaluation in Practice (World Bank, 2nd ed.)"
+      url: pubs/Impact_Evaluation_in_Practice%20WB%20full%20text%20second%20edition.pdf
+      kind: pdf
+    - title: Reflections on Impact Evaluation
+      url: pubs/Reflections-on-Impact-Evaluation-White.pdf
+      kind: pdf
+
+- group: Datasets
+  items:
+    - title: Caffeine and heart rate
+      url: lectures1/data/caffeine.csv
+      kind: data
+    - title: Caffeine and heart rate, with controls
+      url: labs1/data/caffeine-heart-rate-w-controls.csv
+      kind: data
+    - title: Class size and test scores (seed 1234)
+      url: labs1/class-size-seed-1234.csv
+      kind: data
+    - title: Income and happiness
+      url: labs1/data/IncomeHappiness.csv
+      kind: data
+    - title: Engineer salaries
+      url: labs1/data/engineer-salaries.csv
+      kind: data
+    - title: Nonprofit executive compensation
+      url: labs1/data/np-comp-data.csv
+      kind: data
+    - title: Predicting subjective wellbeing
+      url: labs1/data/predicting-subjective-wellbeing.csv
+      kind: data
+
+- group: Evaluation in Practice Case Studies
+  items:
+    - title: "Ch. 5 — Improving cognitive ability (RCT)"
+      url: pubs/eval-in-practice-CH5-randomized-control-trial.pdf
+      kind: pdf
+    - title: "Ch. 5 — Pre-post with control"
+      url: pubs/evaluation-in-practice-CH5-pre-post-with-control.pdf
+      kind: pdf
+    - title: "Ch. 7 — Hospital follow-up care (post-test only)"
+      url: pubs/eval-in-practice-CH7-hospital-follow-up-care.pdf
+      kind: pdf
+    - title: "Ch. 8 — Energy savings (pre-post with comparison)"
+      url: pubs/eval-in-practice-CH8-energy-savings.pdf
+      kind: pdf
+    - title: "Ch. 11 — Nutrition behavior change (reflexive)"
+      url: pubs/eval-in-practice-CH11-nutrition-behavior-change.pdf
+      kind: pdf
+    - title: "Ch. 12 — Rent control (time series)"
+      url: pubs/eval-in-practice-CH12-rent-control-time-series.pdf
+      kind: pdf
+    - title: "Ch. 20 and 21 — School choice (two conclusions, one dataset)"
+      url: pubs/eval-in-practice-CH20-CH21-school-choice.pdf
+      kind: pdf
+
+- group: Causal Inference and Design
+  items:
+    - title: An Introduction to Causal Inference
+      url: pubs/1-Elwert_Causal_Intro.pdf
+      kind: pdf
+    - title: "Causal Inference: What If"
+      url: pubs/causal-inference-what-if-full-text.pdf
+      kind: pdf
+    - title: Causal Inference Based Upon Counterfactuals
+      url: pubs/causal-inference-based-upon-counterfactuals.pdf
+      kind: pdf
+    - title: The Counterfactual in Program Evaluation
+      url: pubs/Schwartz_counterfactual.pdf
+      kind: pdf
+    - title: A Review of Quasi-Experimental Design
+      url: pubs/review-of-quasi-experimental-design.pdf
+      kind: pdf
+    - title: Alternatives to Randomized Control Trials
+      url: pubs/alternatives-to-randomized-control-trials.pdf
+      kind: pdf
+    - title: Examples of Quasi-Experiments in Public Health
+      url: pubs/examples-quasi-experiments-public-health.pdf
+      kind: pdf
+    - title: A Checklist for Classifying Health Intervention Studies
+      url: pubs/a%20checklist%20for%C2%A0classifying%20health%20intervention%20studies.pdf
+      kind: pdf
+    - title: A Dialogue with Tom Cook and Michael Scriven
+      url: pubs/conversation-with-tom-cook-and-michael-scriven.pdf
+      kind: pdf
+
+- group: Effect Size
+  items:
+    - title: "It's the Effect Size, Stupid"
+      url: pubs/its-the-effect-size-stupid.pdf
+      kind: pdf
+    - title: What Does Effect Size Tell You?
+      url: pubs/what-does-effect-size-tell-you.pdf
+      kind: pdf
+    - title: Reporting Effect Sizes to Facilitate Cumulative Science
+      url: pubs/reporting-effect-sizes-to-facilitate-cumulative-science.pdf
+      kind: pdf
+    - title: "Kraft (2019) — Interpreting Effect Sizes in Education Research"
+      url: pubs/effect-size/kraft_2019_effect_sizes.pdf
+      kind: pdf
+    - title: Interpretable Effect Size Metrics
+      url: pubs/effect-size/interpretable-effect-size-metrics.pdf
+      kind: pdf
+    - title: "Interpreting Effect Sizes (Shanker Institute)"
+      url: pubs/effect-size/Interpreting-Effect-Sizes-Shanker-Institute.pdf
+      kind: pdf
+    - title: Class Size Reduction and Student Achievement
+      url: pubs/effect-size/Class-Size-Reduction-and-Student-Achievement.pdf
+      kind: pdf
+
+- group: Research in the Wild
+  items:
+    - title: Shutdowns Prevented 60 Million Coronavirus Infections
+      url: pubs/shutdowns-prevented-60-million-coronavirus-infections-in-the-US-study-finds.pdf
+      kind: pdf
+    - title: A Company's Coronavirus Papers in Top Journals May Be Unraveling
+      url: pubs/open-science/a-mysterious-companys-coronavirus-papers-in-top-medical-journals-may-be-unraveling.pdf
+      kind: pdf
+    - title: NYC Robberies Occur as School Gets Out
+      url: pubs/nyc-robberies-occur-as-school-gets-out.pdf
+      kind: pdf
+    - title: Duhigg on Theory of Change
+      url: pubs/duhigg-fludd-theory-of-change.pdf
+      kind: pdf
+    - title: Study Suggests Top Humanities Journals Favor Elite Institutions
+      url: pubs/study-suggests-top-humanities-journals-favor-research-from-elite-institutions.pdf
+      kind: pdf
+
+- group: Datasets — Research Design
+  items:
+    - title: Counterfactuals lab data
+      url: labs2/data/counterfactuals.csv
+      kind: data
+    - title: Female nonprofit entrepreneurs
+      url: labs2/data/female-np-entrepreneurs.csv
+      kind: data
+    - title: Teach for America
+      url: labs2/data/teach-for-america.csv
+      kind: data
+    - title: Nonprofit CEO compensation
+      url: labs2/data/np-ceo-comp-data.csv
+      kind: data
+
+- group: Datasets — Impact Analysis
+  items:
+    - title: Interrupted time series
+      url: labs3/DATA/TS_lab.csv
+      kind: data
+    - title: Interrupted time series, grouped
+      url: labs3/DATA/TS_Groups_lab.csv
+      kind: data
+    - title: Difference-in-difference
+      url: labs3/DATA/diff-in-diff-lab.csv
+      kind: data
+    - title: Beer tax panel (fixed effects)
+      url: labs3/DATA/beer-tax-fixed-effects.csv
+      kind: data
+    - title: Instrumental variables
+      url: labs3/DATA/IV_lab.csv
+      kind: data
+    - title: Regression discontinuity
+      url: labs3/DATA/RegDisc_lab2.csv
+      kind: data
+    - title: Harry Potter (logistic regression)
+      url: labs3/DATA/harry-potter.csv
+      kind: data

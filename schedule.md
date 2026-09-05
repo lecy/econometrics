@@ -51,52 +51,6 @@ Submit Button - <a class="uk-button uk-button-primary" href="{{page.canvas.assig
 
 -----------------------
 
-<br>
-
-
-
-# Semester Overview 
-
-
-These courses are designed to be interactive, and a lot of learning occurs by practicing the technical jargon from the field and learning how to talk about data and models. 
-
-
-
-
-<br>
-
-## Course Cadence 
-
-Please note the organizatin of assignments for class. 
-
-![](../assets/img/course-cadence.png)
-
-<br>
-
-**Labs are due Saturday**, mini assessments covering the previous lab are on Tuesday. 
-
-Get started early on labs so you have time to ask questions on the discussion board if you get stuck. 
-
-Labs are graded pass-fail. The criteria is that you demonstrate an understanding of the topics covered, which is typically operationalized as getting over half of the questions on the assignment correct. 
-
-The mini assessments typically consist of three multiple-choice or matching questions to guage your understanding of the previous week's lectures and lab. If you understood everything on the labs you should do fine on the mini assessments. 
-
-**Mini-assessments open on Saturday and close Tuesday at 11:59pm (AZ time).** You have 30 minutes to complete an assessment once they start. You can take it at any time Sat-Tues.
-
-
-
-<br>
-
-## Tips for Success
-
-**There is no way to learn and retain all of this material in one course.** 
-
-It is completely normal for this material to not click the first time you see it. We will try to repeat concepts and build on them through the semester, and the Evaluation sequence in this program (CPP 523, 524, and 525) offer reinforcement. 
-
-You are investing in a skill-set that you will build over time. You will find some material organized for quick reference on the [Resources](../resources/) page. 
-
-You are encouraged to build your own library of sources you find useful and keep them for future reference. 
-
 
 
 <br>
@@ -156,7 +110,7 @@ The fences are three back-ticks. These look like quotation marks, but are actual
 
 
 
-# Week 1 - Nuts and Bolts of Regression Models
+# Unit 1 - Nuts and Bolts of Regression Models
 
 ## Overview 
 
@@ -207,7 +161,7 @@ Is caffeine good for you? [ [in the news](https://www.hsph.harvard.edu/news/hsph
 
 *Before we can understand causal impact we must first create a regression model that tells us about the RELATIONSHIP between caffeine intake and heart rate. We will then add nuance to our understanding of when the relationship can be interpretted as casual, and when it is simply correlational.*
 
-LECTURE: [ [BUILDING A REGRESSION MODEL](../lectures/caffeine.html) ]
+LECTURE: [ [BUILDING A REGRESSION MODEL](../lectures1/caffeine.html) ]
 
 **Data Used in this Section**
 
@@ -236,7 +190,7 @@ summary( model.01 )
 
 -----
 
-<a class="uk-button uk-button-default" href="{{page.pdf-root-url}}/raw/main/labs/Lab-01-Regression-Review.docx">Lab-01 Instructions</a>
+<a class="uk-button uk-button-default" href="{{page.pdf-root-url}}/raw/main/labs1/Lab-01-Regression-Review.docx">Lab-01 Instructions</a>
 
 
 -----
@@ -256,7 +210,7 @@ The first lab is meant as a review of some important regression formulas to eith
 
 The lecture notes needed for the lab are available on the course shell:
 
-[ [Building a regression model](../lectures/caffeine.html) ]
+[ [Building a regression model](../lectures1/caffeine.html) ]
 
 And the first chapter from Lewis-Beck serves as a reference for specific formulas if needed:
 
@@ -289,35 +243,8 @@ And submit via Canvas.
 -----
 
 
-## Mini-Assessment 01
 
-**Open {{page.assessments.mini-assessment-01}}**
-
-<hr>
-
-<a class="uk-button uk-button-default" href="{{page.canvas.assignment_url}}">Start the Mini-Assessment</a>
-
-<hr> 
-
-
-
-This mini-assessment consists of three multiple-choice questions. You have **30 minutes** to complete the assessment from the time you start the assessment. You can take it any time over the 4 days it is open.
-
-The assessment covers the definition of a regression line, and the concept of sums of squares from the first chapter:
-
-[Building a regression model](../lectures/caffeine.html)
-
-This first assessment is not graded. All others are worth 2 points each.
-
-
-<br>
-<hr>
-<br>
-
-
-
-
-# Week 2 - Effect Size and Confidence Intervals 
+# Unit 2 - Effect Size and Confidence Intervals 
 
 ## Overview 
 
@@ -366,11 +293,11 @@ If we create 95% confidence intervals around these guesses, we can see that appr
 
 Please review the following lecture notes:
 
-* [Variance and Covariance]({{page.pdf-root-url}}/raw/main/lectures/p-01-variance-covariance-slope.pdf)
-* [Partitioning the Variance of Y]({{page.pdf-root-url}}/raw/main/lectures/p-02-partitioning-variance.pdf)
-* [Standard Errors]({{page.pdf-root-url}}/raw/main/lectures/p-03-standard-errors.pdf)
-* [Confidence Intervals]({{page.pdf-root-url}}/raw/main/lectures/p-04-confidence-intervals.pdf)
-* [Effect Size]({{page.pdf-root-url}}/raw/main/lectures/p-05-program-impact.pdf)
+* [Variance and Covariance]({{page.pdf-root-url}}/raw/main/lectures1/p-01-variance-covariance-slope.pdf)
+* [Partitioning the Variance of Y]({{page.pdf-root-url}}/raw/main/lectures1/p-02-partitioning-variance.pdf)
+* [Standard Errors]({{page.pdf-root-url}}/raw/main/lectures1/p-03-standard-errors.pdf)
+* [Confidence Intervals]({{page.pdf-root-url}}/raw/main/lectures1/p-04-confidence-intervals.pdf)
+* [Effect Size]({{page.pdf-root-url}}/raw/main/lectures1/p-05-program-impact.pdf)
 
 You might find this summary of notation helpful [**pdf**]({{page.pdf-root-url}}/raw/main/handouts/Common-Statistics-Notation.pdf)
 
@@ -382,7 +309,7 @@ You might find this summary of notation helpful [**pdf**]({{page.pdf-root-url}}/
 **Due {{page.labs.lab-02}}**
 
 <hr>
-<a class="uk-button uk-button-default" href="../labs/lab-02-class-size-confidence-intervals.html">Lab-02 Instructions</a>
+<a class="uk-button uk-button-default" href="../labs1/lab-02-class-size-confidence-intervals.html">Lab-02 Instructions</a>
 <hr>
 
 
@@ -390,8 +317,8 @@ This lab introduces a case study on education policy that we will be using for t
 
 You will need the formula for confidence intervals, and the concept of visual hypothesis-testing with coefficient plots. 
 
-* [Confidence Intervals]({{page.pdf-root-url}}/raw/main/lectures/p-04-confidence-intervals.pdf)
-* [Effect Size (+hypothesis tests)]({{page.pdf-root-url}}/raw/main/lectures/p-05-program-impact.pdf)
+* [Confidence Intervals]({{page.pdf-root-url}}/raw/main/lectures1/p-04-confidence-intervals.pdf)
+* [Effect Size (+hypothesis tests)]({{page.pdf-root-url}}/raw/main/lectures1/p-05-program-impact.pdf)
 
 
 When you are complete:
@@ -401,18 +328,7 @@ When you are complete:
 
 <br>
 
-## Mini Assessment 02 
 
-**Open {{page.assessments.mini-assessment-02}}**
-
-This mini-assessment tests your understanding of the interpretation of [statistical significance using confidence intervals]({{page.pdf-root-url}}/raw/main/lectures/p-05-program-impact.pdf).
-
-
-![](assets/img/ci-and-significance.png)
-
-<a class="uk-button uk-button-primary" href="{{page.canvas.assignment_url}}">Start the Mini-Assessment</a>
-
-<br>
 
 
 <br><br>
@@ -424,7 +340,7 @@ This mini-assessment tests your understanding of the interpretation of [statisti
 
 
 
-# Week 3 - Control Variables 
+# Unit 3 - Control Variables 
 
 
 ## Overview
@@ -466,7 +382,7 @@ Bailey, M. A. (2016). Real Stats: Using Econometrics for Political Science and P
 
 ## Lecture 
 
-[Lecture 06 on Control Variables]({{page.pdf-root-url}}/raw/main/lectures/p-06-control-variables.pdf)
+[Lecture 06 on Control Variables]({{page.pdf-root-url}}/raw/main/lectures1/p-06-control-variables.pdf)
 
 <br>
 
@@ -496,14 +412,14 @@ Tufte, E. R. (1974). *Data analysis for politics and policy.* Prentice Hall. [CH
 
 <hr>
 
-<a class="uk-button uk-button-default" href="../labs/lab-03-instructions.html">Lab-03 Instructions</a>
+<a class="uk-button uk-button-default" href="../labs1/lab-03-instructions.html">Lab-03 Instructions</a>
 
 <hr>
 
 
 This lab introduces the important role of control variables in our models. They can be used to reduce standard errors of the model and thus increase model efficiency, or they can be used to to adjust slopes in the model. The lab draws on material from the lecture 06 notes. 
 
-* [Control Variables]({{page.pdf-root-url}}/raw/main/lectures/p-06-control-variables.pdf)
+* [Control Variables]({{page.pdf-root-url}}/raw/main/lectures1/p-06-control-variables.pdf)
 
 I have provided the code for the regression models and scatterplots. This lab focuses on interpretation of results. You do need to create an RMD document, and knit an HTML file to submit your results. 
 
@@ -516,25 +432,6 @@ When you are complete:
 
 
 
-## Mini Assessment 03
-
-**Open {{page.assessments.mini-assessment-03}}**
-
-This mini-assessment tests your understanding of the differences between the two types of control variables (those correlated with the policy or intervention, i.e. classroom size and socio-economic status, and those that are uncorrelated with the policy but correlated with the outcome, i.e. teacher quality).
-
-![](assets/img/two-types-of-controls.png)
-
-[Control Variables]({{page.pdf-root-url}}/raw/main/lectures/p-06-control-variables.pdf)
-
-These differences are summarized on some of the review notes for the final exam: 
-
-[Taxonomy of Control Variables]({{page.pdf-root-url}}/raw/main/lectures/taxonomy-of-control-variables.pdf) 
-
-<br>
-
-<a class="uk-button uk-button-primary" href="{{page.canvas.assignment_url}}">Start the Mini-Assessment</a>
-
-
 <br><br>
 <hr>
 <br><br>
@@ -545,7 +442,7 @@ These differences are summarized on some of the review notes for the final exam:
 
 
 
-# Week 4 - Omitted Variable Bias 
+# Unit 4 - Omitted Variable Bias 
 
 
 
@@ -600,9 +497,9 @@ The study above was published in 1989, which was still early in the econometrics
 
 ## Lecture
 
-Lecture Notes: **Omitted Variable Bias** [ [pdf]({{page.pdf-root-url}}/raw/main/lectures/p-07-omitted-variable-bias.pdf) ]  [ [example](https://ds4ps.org/cpp-523-spr-2020/lectures/walk-through/omitted-variable-bias-example.html) ]
+Lecture Notes: **Omitted Variable Bias** [ [pdf]({{page.pdf-root-url}}/raw/main/lectures1/p-07-omitted-variable-bias.pdf) ]  [ [example](https://ds4ps.org/cpp-523-spr-2020/lectures/walk-through/omitted-variable-bias-example.html) ]
 
-Lecure Notes: **A Taxonomy of Control Variables** [ [pdf]({{page.pdf-root-url}}/raw/main/lectures/taxonomy-of-control-variables.pdf) ]  
+Lecure Notes: **A Taxonomy of Control Variables** [ [pdf]({{page.pdf-root-url}}/raw/main/lectures1/taxonomy-of-control-variables.pdf) ]  
 
 <br>
 
@@ -625,13 +522,13 @@ Lecure Notes: **A Taxonomy of Control Variables** [ [pdf]({{page.pdf-root-url}}/
 
 This lab examines the impact of omitted variable bias on our inferences. 
 
-[Omitted Variable Bias]({{page.pdf-root-url}}/raw/main/lectures/p-07-omitted-variable-bias.pdf) 
+[Omitted Variable Bias]({{page.pdf-root-url}}/raw/main/lectures1/p-07-omitted-variable-bias.pdf) 
 
-[Example of How to Calculate Bias](../lectures/walk-through/omitted-variable-bias-example.html)  [ [PDF](https://www.dropbox.com/s/10bl6z9rhbirp1t/omitted-variable-bias-example.pdf?dl=1) ]
+[Example of How to Calculate Bias](../lectures1/walk-through/omitted-variable-bias-example.html)  [ [PDF](https://www.dropbox.com/s/10bl6z9rhbirp1t/omitted-variable-bias-example.pdf?dl=1) ]
 
 A lab solutions RMD template has been provided. Submit your knitted files via Canvas. 
 
-<a class="uk-button uk-button-default" href="../labs/lab-04-instructions.html">Lab-04 Instructions</a>
+<a class="uk-button uk-button-default" href="../labs1/lab-04-instructions.html">Lab-04 Instructions</a>
 
 When you are complete:
 
@@ -712,35 +609,6 @@ a1*B2
 
 
 
-## Mini-Assessment 04
-
-**Open {{page.assessments.mini-assessment-04}}**
-
-<br>
-
-This mini-assessment tests your understanding of the interpretation of the impact of control variables on statistical significance.
-
-Note that the lecture on control variables covers cases where we add variables to a model:
-
-```
-Y = b0 + b1 X1 + e  # add controls
->>>
-Y = b0 + b1(X1) + b2(X2) + b3(X3) + e
-```
-And the lecture on omitted variable bias is the **exact same concepts**, but now in reverse: 
-
-```
-Y = b0 + b1(X1) + b2(X2) + b3(X3) + e  # full model
->>>
-Y = b0 + b1 X1 + e  # omit variables
-```
-We are interested in how these operations impact (1) **the slope** of our policy variable and (2) **the standard errors** (i.e. confidence intervals) of our policy variable. Statistical significance is determined by the combination of slope and SE. 
-
-
-<a class="uk-button uk-button-primary" href="{{page.canvas.assignment_url}}">Start the Mini-Assessment</a>
-
-
-
 
 <br><br>
 <hr>
@@ -750,7 +618,7 @@ We are interested in how these operations impact (1) **the slope** of our policy
 
 
 
-# Week 5 - Dummy Variables 
+# Unit 5 - Dummy Variables 
 
 ## Overview
 
@@ -782,7 +650,7 @@ Once you have completed this section you will be able to run and interpret regre
 
 [Hypothesis-Testing With Groups Part-01](https://ds4ps.org/cpp-523-spr-2020/lectures/dummy-variables.html) 
 
-[Hypothesis-Testing With Groups Part-02]({{page.pdf-root-url}}/raw/main/lectures/hypotheses-tests-with-dummy-variables.pdf) 
+[Hypothesis-Testing With Groups Part-02]({{page.pdf-root-url}}/raw/main/lectures1/hypotheses-tests-with-dummy-variables.pdf) 
 
 
 **Lab Preview** 
@@ -804,7 +672,7 @@ Once you have completed this section you will be able to run and interpret regre
 **Due {{page.labs.lab-05}}**
 
 <hr>
-<a class="uk-button uk-button-default" href="../labs/lab-05-instructions.html">Lab-05 Instructions</a>
+<a class="uk-button uk-button-default" href="../labs1/lab-05-instructions.html">Lab-05 Instructions</a>
 <hr>
 
 This lab examines tests your understanding of constructing groups and conducting hypothesis tests using dummy variables. 
@@ -818,25 +686,6 @@ When you are complete:
 
 
 
-
-## Mini-Assessment 05
-
-**Open {{page.assessments.mini-assessment-05}}**
-
-------
-
-This mini-assessment tests your understanding of the interpretation of dummy variables in regression models. 
-
-```r
-# test of group means
-y = b0 + b1(female) + e
-
-# test of slope differences
-y = b0 + b1(X) + b2(female) + b3(female•X) + e
-```
-
-<a class="uk-button uk-button-primary" href="{{page.canvas.assignment_url}}">Start the Mini-Assessment</a>
-
 <br><br>
 <hr>
 <br><br>
@@ -851,7 +700,7 @@ y = b0 + b1(X) + b2(female) + b3(female•X) + e
 
 
 
-# Week 6 - Specification Bias
+# Unit 6 - Specification Bias
 
 ## Overview 
 
@@ -954,8 +803,8 @@ Once you have completed this section you will be able to:
 
 ## Lecture
 
-Specification Bias I [ [html](../lectures/specification-bias.html) ]  
-Specification Bias II [ [pdf]({{page.pdf-root-url}}/raw/main/lectures/p-09-specification.pdf) ]  
+Specification Bias I [ [html](../lectures1/specification-bias.html) ]  
+Specification Bias II [ [pdf]({{page.pdf-root-url}}/raw/main/lectures1/p-09-specification.pdf) ]  
 
 For this lab you will run and interpret a quadratic regression and a logged regression model. 
 
@@ -970,7 +819,7 @@ For this lab you will run and interpret a quadratic regression and a logged regr
 
 This lab gives you a chance to practice non-linear regression models. 
 
-<a class="uk-button uk-button-default" href="../labs/lab-06-instructions.html">Lab-06 Instructions</a>
+<a class="uk-button uk-button-default" href="../labs1/lab-06-instructions.html">Lab-06 Instructions</a>
 
 When you are complete:
 
@@ -978,31 +827,6 @@ When you are complete:
 
 <br>
 
-## Mini-Assessment 06
-
-**Open {{page.assessments.mini-assessment-06}}**
-
------
-
-This mini assessment covers material from the [Taxonomy of Controls](https://github.com/DS4PS/cpp-523-spr-2020/raw/main/lectures/taxonomy-of-control-variables.pdf).
-
-And on Measurement Error. See the animated simulations below for examples of the effects of measurement error in the DV versus IVs. And see questions 3 and 4 on the review sheet for the same examples explained as Venn diagrams. 
-
-[Review Questions]({{page.pdf-root-url}}/raw/main/handouts/Review%20Material%20for%20the%20Final%20Exam%20-%20SOLUTIONS.pdf)  
-
-This mini assessment should give you an idea of the types of questions you might expect on the final exam. 
-
-<a class="uk-button uk-button-primary" href="{{page.canvas.assignment_url}}">Mini Assessment 05</a>
-
-**THE IMPACT OF MEASUREMENT ERROR**
-
-**Measurement Error in the DV:**
-
-*Increase in standard errors. No slope bias.* 
-
-![](assets/img/measurement-error-in-dv-large.gif) 
-
-<br>
 
 **Measurement Error in the IV:**
 
@@ -1038,7 +862,7 @@ Please post questions on the discussion board if you are not sure of the correct
 
 ## Useful Summaries or Examples
 
-[Taxonomy of Control Variables]({{page.pdf-root-url}}/raw/main/lectures/taxonomy-of-control-variables.pdf)  
+[Taxonomy of Control Variables]({{page.pdf-root-url}}/raw/main/lectures1/taxonomy-of-control-variables.pdf)  
 
 [Indirect Effects Example]({{page.pdf-root-url}}/raw/main/handouts/indirect-effect-example.pdf)  
 
@@ -1055,7 +879,7 @@ Concise summary of the seven most common issues that will corrupt your regressio
 * Multi-collinearity 
 * Simultenaeity 
 
-Some longer notes: Seven Sins of Regression [ [pdf]({{page.pdf-root-url}}/raw/main/lectures/p-10-seven-sins-of-regression.pdf) ] 
+Some longer notes: Seven Sins of Regression [ [pdf]({{page.pdf-root-url}}/raw/main/lectures1/p-10-seven-sins-of-regression.pdf) ] 
 
 <br>
 
@@ -1085,19 +909,6 @@ Measurement Error in the IV:
 <br><br>
 
 
-
-
-# Final Exam
-
-**The exam is open {{page.final.exam-date}}.**
-
-The final exam is on Canvas. You have 4 hours to complete it once it is started. 
-
-You are NOT allowed to pause and return. The 4 hour limit starts once you begin the exam.
-
-You are allowed to look back over your notes and use a calculator for help with math.
-
-You are **NOT** allowed to work together on the final exam. Do **NOT** discuss questions after you have take it.
 
 <br>
 <br>

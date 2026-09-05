@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bias from Specification or Measurement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Bias from Specification or Measurement</h1>
+    <p class="dek">A reading guide for lecture <span class="m">p-09</span> &mdash; what outliers,
+      measurement error, and the wrong functional form each do to your slope and your standard
+      error.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The threats the deck catalogues, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Anscombe&rsquo;s quartet: identical summary statistics, four different relationships.</p>
+      <p>Four datasets with the same mean, variance, correlation, and regression line &mdash; and
+        completely different scatterplots. One is well behaved, one is non-linear, two are driven by
+        outliers.</p>
+      <div class="callout">
+        <p>The lesson: <strong>summary statistics cannot detect a specification problem. Only the plot
+          can.</strong></p>
+      </div>
+
+      <p class="claim">Two classes of inferential failure.</p>
+      <ul>
+        <li><strong>Type I error</strong> &mdash; false positive; claiming impact where there is none.
+          Typically caused by <strong>bias</strong> (bias causes significance).</li>
+        <li><strong>Type II error</strong> &mdash; false negative; missing real impact. Caused by bias
+          <em>or</em> by <strong>inflated standard errors</strong>.</li>
+      </ul>
+
+      <p class="claim">A linear transformation is not measurement error.</p>
+      <p><strong>Linear transformation</strong>
+        (<span class="m"><i>X</i><sub>2</sub> = <i>X</i><sub>1</sub> + 100</span>): add the <em>same
+        constant</em> to every value.</p>
+      <ul>
+        <li><span class="m">mean(<i>X</i><sub>2</sub>) = mean(<i>X</i><sub>1</sub>) + 100</span></li>
+        <li><span class="m">var(<i>X</i><sub>2</sub>) = var(<i>X</i><sub>1</sub>)</span> &mdash;
+          <strong>unchanged</strong></li>
+        <li>Slopes and standard errors are <strong>identical</strong>; only the intercept moves</li>
+      </ul>
+      <p><strong>Measurement error</strong>
+        (<span class="m"><i>X</i><sub>2</sub> = <i>X</i><sub>1</sub> + <i>&epsilon;</i></span>): add
+        <em>random noise</em>, equally likely to over- or under-measure.</p>
+      <ul>
+        <li><span class="m">mean(<i>X</i><sub>2</sub>) = mean(<i>X</i><sub>1</sub>)</span> &mdash; unchanged</li>
+        <li><span class="m">var(<i>X</i><sub>2</sub>) = var(<i>X</i><sub>1</sub>) + <i>&epsilon;</i></span>
+          &mdash; <strong>larger</strong></li>
+      </ul>
+
+      <p class="claim">Measurement error in the dependent variable inflates standard errors.</p>
+      <ul>
+        <li>Slope: <strong>unbiased</strong></li>
+        <li>Standard error: <strong>larger</strong></li>
+        <li>Risk: <strong>Type II error</strong></li>
+      </ul>
+      <p>Noise in Y goes straight into the residual, which is the numerator of
+        <span class="m">SE<sub><i>b</i><sub>1</sub></sub></span>.</p>
+
+      <p class="claim">Measurement error in the independent variable causes attenuation bias.</p>
+      <p>Because <span class="m">var(<i>x</i><sub>1</sub>)</span> sits in the denominator of both
+        quantities, inflating it shrinks both:</p>
+      <div class="eq">
+        <span class="m"><i>b</i><sub>1</sub> &darr; =
+          <span class="frac"><span class="num">cov(<i>x</i><sub>1</sub>,&thinsp;<i>y</i>)</span><span class="den">var(<i>x</i><sub>1</sub>) &uarr;</span></span>
+          <span class="op">&nbsp;&nbsp;&nbsp;</span>
+          SE<sub><i>b</i><sub>1</sub></sub> &darr; =
+          <span class="frac"><span class="num">residual</span><span class="den">sample size &middot; var(<i>x</i><sub>1</sub>) &uarr;</span></span></span>
+      </div>
+      <ul>
+        <li>Slope: <strong>biased toward zero</strong></li>
+        <li>Standard error: <strong>smaller</strong></li>
+        <li>Risk: a confidently estimated effect that is too small</li>
+      </ul>
+
+      <p class="claim">Outliers do different damage depending on where they sit.</p>
+      <div class="table-scroll">
+        <table class="split">
+          <thead><tr><th scope="col">Position</th><th scope="col">Slope</th><th scope="col">SE</th><th scope="col">Risk</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Middle of X</th><td>unbiased</td><td>larger</td><td>false negative</td></tr>
+            <tr><th scope="row">Extreme of X, with the trend</th><td><strong>too large</strong></td><td>larger</td><td><strong>false positive</strong></td></tr>
+            <tr><th scope="row">Extreme of X, against the trend</th><td><strong>too small</strong></td><td>larger</td><td>false negative</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Leverage comes from distance along X, not from being far from the line.</p>
+
+      <p class="claim">Fixes for non-linearity.</p>
+      <ul>
+        <li><strong>Log transformations</strong> &mdash; level-level, log-linear, linear-log, log-log.
+          For highly skewed data, logging converts a curved cloud into a linear one.</li>
+        <li><strong>Quadratic models</strong> &mdash;
+          <span class="m"><i>Y</i> = <i>b</i><sub>0</sub> + <i>b</i><sub>1</sub><i>X</i><sub>1</sub>
+          + <i>b</i><sub>2</sub><i>X</i><sub>1</sub><sup>2</sup> + <i>e</i></span>, when the
+          relationship rises and then falls.</li>
+        <li><strong>Cook&rsquo;s distance and residual plots</strong> &mdash; for identifying
+          influential points.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>One question, asked of every problem</h3>
+    <p>This deck looks like a grab-bag &mdash; Anscombe, error types, transformations, outliers, logs,
+      quadratics. It is not. Every section asks the same two questions about a different threat:</p>
+    <ol>
+      <li>What does it do to the <strong>slope</strong>?</li>
+      <li>What does it do to the <strong>standard error</strong>?</li>
+    </ol>
+    <p>And those two answers determine the third: which kind of error you are at risk of. Build this
+      table as you read and the deck becomes one page:</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr><th scope="col">Threat</th><th scope="col">Slope</th><th scope="col">Standard error</th><th scope="col">Risk</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Omitted variable (p-07)</th><td>biased</td><td>&mdash;</td><td>Type I</td></tr>
+          <tr><th scope="row">Measurement error in <strong>Y</strong></th><td>unbiased</td><td>larger</td><td>Type II</td></tr>
+          <tr><th scope="row">Measurement error in <strong>X</strong></th><td>biased toward zero</td><td><strong>smaller</strong></td><td>too-small effect, held confidently</td></tr>
+          <tr><th scope="row">Outlier in middle of X</th><td>unbiased</td><td>larger</td><td>Type II</td></tr>
+          <tr><th scope="row">Outlier at extreme, with trend</th><td>too large</td><td>larger</td><td><strong>Type I</strong></td></tr>
+          <tr><th scope="row">Outlier at extreme, against trend</th><td>too small</td><td>larger</td><td>Type II</td></tr>
+          <tr><th scope="row">Wrong functional form</th><td>meaningless</td><td>&mdash;</td><td>either</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Adding a constant versus adding noise</h3>
+    <p>Slides 9 through 12 set up a contrast that is easy to skim and worth slowing down for, because
+      both operations look like &ldquo;changing X.&rdquo;</p>
+    <p>Adding 100 to every observation slides the whole distribution to the right. The spacing between
+      points is untouched, so <span class="m">var(<i>x</i>)</span> is untouched, so the slope and the
+      standard error are <em>exactly</em> the same. Only <span class="m"><i>b</i><sub>0</sub></span>
+      changes, because the intercept answers &ldquo;what is Y when X = 0,&rdquo; and X = 0 now means
+      something different.</p>
+    <p>Adding random error to every observation leaves the centre where it was but spreads the points
+      out. <span class="m">var(<i>x</i>)</span> <strong>increases</strong> &mdash; and
+      <span class="m">var(<i>x</i>)</span> is load-bearing in both formulas you care about.</p>
+    <p>The distinction is: a constant preserves the ordering and spacing of your data; noise degrades it.
+      That is why one is harmless and the other is not.</p>
+
+    <h3>Attenuation bias is the nastiest failure in the deck</h3>
+    <p>Every other threat here either biases you <em>or</em> inflates your standard errors. Measurement
+      error in X does something worse: it <strong>shrinks both at once</strong>.</p>
+    <p>Look at the two formulas together. <span class="m">var(<i>x</i><sub>1</sub>)</span> is in the
+      denominator of the slope, so a bigger <span class="m">var(<i>x</i><sub>1</sub>)</span> makes
+      <span class="m"><i>b</i><sub>1</sub></span> smaller. And it is in the denominator of the standard
+      error, so it makes <span class="m">SE<sub><i>b</i><sub>1</sub></sub></span> smaller too.</p>
+    <div class="callout">
+      <p>The result is an estimate that is <strong>too close to zero</strong> and a confidence interval
+        that is <strong>too narrow around it</strong>. Nothing in your output looks wrong. You will
+        report a small, precisely estimated effect, and the true effect is larger.</p>
+    </div>
+    <p>Two consolations. First, the direction is predictable: attenuation is always <em>toward</em> zero,
+      never away from it, so a significant finding measured with error is if anything an understatement.
+      Second, it is a measurement problem, so it is fixable at the design stage &mdash; better
+      instruments, repeated measures &mdash; rather than in the regression.</p>
+
+    <h3>Outliers are about leverage, not about being far from the line</h3>
+    <p>The three-panel slide is the one to internalise. All three panels have exactly one unusual point,
+      and they do completely different things.</p>
+    <p>What matters is <strong>where the point sits along X</strong>, not how far it is from the fitted
+      line:</p>
+    <ul>
+      <li>Near the <strong>middle of X</strong>, an unusual point has almost no leverage. It cannot pivot
+        the line, because the line passes through
+        <span class="m">(<span class="bar"><i>x</i></span>,&thinsp;<span class="bar"><i>y</i></span>)</span>
+        and the point is near that pivot. It just adds residual, which inflates your standard error.</li>
+      <li>Out at the <strong>extreme of X</strong>, the same point has enormous leverage &mdash; it is
+        furthest from the pivot, so it swings the line hardest. Depending on which way it sits, it makes
+        the slope too steep or too shallow.</li>
+    </ul>
+    <p>This connects back to p-01&rsquo;s outlier slides, where a single point far from both means
+      dominated the covariance. Same mechanism, seen from the other side.</p>
+    <p>Note that the extreme cases inflate the standard error <em>as well as</em> biasing the slope,
+      which is why the deck lists &ldquo;SE larger&rdquo; under all three panels. An influential point
+      rarely fits the line it created.</p>
+
+    <h3>Why the fix for skew is a log, not a deletion</h3>
+    <p>Slides 20 through 22 introduce a second kind of outlier: not a data error, but the natural
+      consequence of <strong>highly skewed data</strong>. Metro population and nonprofit counts are the
+      example, and the level-level plot is a hockey stick with a few enormous values on the right.</p>
+    <p>You cannot delete these points &mdash; they are real, and deleting the largest metros would be a
+      substantive decision, not a technical one. Logging both axes instead converts a curved,
+      heteroskedastic cloud into a straight, even band.</p>
+    <p>The four combinations are worth knowing by name because they change what the coefficient
+      means:</p>
+    <ul>
+      <li><strong>level-level</strong> &mdash; a one-unit change in X gives
+        <span class="m"><i>b</i><sub>1</sub></span> units of Y</li>
+      <li><strong>log-linear</strong> (log Y) &mdash; a one-unit change in X gives roughly
+        <span class="m">100 &middot; <i>b</i><sub>1</sub></span> percent change in Y</li>
+      <li><strong>linear-log</strong> (log X) &mdash; a one-percent change in X gives roughly
+        <span class="m"><i>b</i><sub>1</sub>/100</span> units of Y</li>
+      <li><strong>log-log</strong> &mdash; a one-percent change in X gives
+        <span class="m"><i>b</i><sub>1</sub></span> percent change in Y (an elasticity)</li>
+    </ul>
+
+    <h3>Deleting an outlier is a claim, and the numbers will flatter you</h3>
+    <p>The before-and-after table on slide 19 is instructive and slightly alarming: removing one point
+      moves the slope from 0.50 to 0.35 and takes <span class="m"><i>R</i><sup>2</sup></span> from 0.67
+      to <strong>1.00</strong>, with the standard error dropping by a factor of hundreds.</p>
+    <p>That is a real risk of specification work: nearly any model looks better after you remove the
+      observations that disagree with it. The diagnostic tools &mdash; residual plots, Cook&rsquo;s
+      distance &mdash; tell you <em>which</em> points are influential, but they cannot tell you whether
+      those points are errors or evidence. That judgement is substantive.</p>
+    <p>The honest workflow is to report both, or to have a rule decided before you looked.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>2&ndash;5</td><td>Anscombe&rsquo;s quartet</td><td>Same statistics, four relationships. Always plot.</td></tr>
+          <tr><td>6&ndash;7</td><td>Type I and Type II errors</td><td>Bias &rarr; false positives. Big standard errors &rarr; false negatives.</td></tr>
+          <tr><td>8&ndash;11</td><td>Linear transformations</td><td>Adding a constant changes only the intercept.</td></tr>
+          <tr><td>12</td><td>Measurement error defined</td><td>Same mean, more variance. The key contrast with slide 9.</td></tr>
+          <tr><td>13</td><td>Error in the DV</td><td>No bias, bigger standard errors, Type II risk.</td></tr>
+          <tr><td>14</td><td><strong>Attenuation bias</strong></td><td>Error in X shrinks the slope <em>and</em> the standard error.</td></tr>
+          <tr><td>15&ndash;17</td><td>Outliers by position</td><td>Leverage comes from distance along X.</td></tr>
+          <tr><td>18&ndash;19</td><td>Cook&rsquo;s distance; before/after</td><td>Diagnostics find influence; they do not justify deletion.</td></tr>
+          <tr><td>20&ndash;22</td><td>Logged models</td><td>The fix for skew-driven outliers.</td></tr>
+          <tr><td>23&ndash;24</td><td>Quadratic models</td><td>The fix for genuinely curved relationships.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">This deck has no closing checklist. These are the things to be able to answer.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>Why summary statistics are not enough.</strong> Anscombe&rsquo;s quartet: four datasets
+        agree on every number you would report and disagree on everything that matters.</li>
+      <li><strong>The difference between a linear transformation and measurement error.</strong> One
+        preserves <span class="m">var(<i>x</i>)</span> and is harmless; the other inflates it and is
+        not.</li>
+      <li><strong>What measurement error does, depending on where it is.</strong> In Y: bigger standard
+        errors, no bias. In X: attenuation toward zero, with a <em>smaller</em> standard error.</li>
+      <li><strong>Why an outlier&rsquo;s position along X determines its damage.</strong> Leverage is
+        distance from the pivot at
+        <span class="m">(<span class="bar"><i>x</i></span>,&thinsp;<span class="bar"><i>y</i></span>)</span>.</li>
+      <li><strong>Which threats produce which error type.</strong> Bias-producing threats risk false
+        positives; variance-inflating threats risk false negatives.</li>
+      <li><strong>When to log and when to go quadratic.</strong> Log for skew and multiplicative
+        relationships; quadratic for relationships that turn around.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Always plot the data.</strong> Anscombe&rsquo;s quartet exists to make this
+        non-negotiable.</li>
+      <li><strong>Ask two questions of every threat:</strong> what does it do to the slope, and what does
+        it do to the standard error?</li>
+      <li><strong>Adding a constant is free; adding noise is not.</strong> The difference is whether
+        <span class="m">var(<i>x</i>)</span> changes.</li>
+      <li><strong>Measurement error in Y costs precision only.</strong> It lands in the residual.</li>
+      <li><strong>Measurement error in X causes attenuation bias</strong> &mdash; a smaller estimate
+        reported with more confidence, the worst combination in the deck.</li>
+      <li><strong>Attenuation always runs toward zero</strong>, so a significant result measured with
+        error is likely an understatement.</li>
+      <li><strong>Outliers in the middle of X inflate standard errors; outliers at the extremes bend the
+        slope.</strong></li>
+      <li><strong>Cook&rsquo;s distance identifies influence, not error.</strong> Whether to drop a point
+        is a substantive judgement.</li>
+      <li><strong>Logs fix skew; quadratics fix curvature.</strong> Both change what the coefficient
+        means, so re-state the interpretation when you transform.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">p-09-specification</span>. Source file lives alongside this page
+      as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>

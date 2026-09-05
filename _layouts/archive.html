@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title | default: site.title }}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  /* Palette and type scale match the lecture notes pages so the archive and the
+     material it links to read as one system. */
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --navy-ink:#ffffff;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:38rem;
+    --step--2:.75rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#0e2231;
+      --navy-ink:#e8edf1;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#0e2231;
+    --navy-ink:#e8edf1;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:4.5rem;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+  img{max-width:100%;}
+  .wrap{max-width:64rem;margin:0 auto;padding:0 1.5rem;}
+
+  /* ---------- sticky bar ---------- */
+  .bar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter:saturate(160%) blur(8px);
+    border-bottom:1px solid var(--rule);
+  }
+  .bar-inner{
+    max-width:64rem;
+    margin:0 auto;
+    padding:.65rem 1.5rem;
+    display:flex;
+    align-items:baseline;
+    gap:1.25rem;
+    flex-wrap:wrap;
+  }
+  .bar-brand{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-0);
+    letter-spacing:-.01em;
+    text-decoration:none;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .bar-nav{
+    display:flex;
+    gap:.15rem;
+    flex-wrap:wrap;
+    margin-left:auto;
+  }
+  .bar-nav a{
+    font-size:var(--step--1);
+    font-weight:600;
+    color:var(--ink-soft);
+    text-decoration:none;
+    padding:.15rem .45rem;
+    border-radius:2px;
+  }
+  .bar-nav a:hover{color:var(--accent-ink);background:var(--accent-wash);}
+  @media (max-width:46rem){ .bar-nav{display:none;} }
+
+  /* ---------- masthead ---------- */
+  .masthead{padding:4rem 0 2.5rem;border-bottom:1px solid var(--rule);}
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0 0 .9rem;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.04;
+    letter-spacing:-.02em;
+    margin:0 0 .9rem;
+    text-wrap:balance;
+    max-width:16ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);font-size:var(--step-1);line-height:1.5;}
+  .masthead .fine{margin:1.4rem 0 0;color:var(--ink-soft);max-width:var(--measure);font-size:var(--step--1);}
+
+  /* ---------- contents ---------- */
+  .contents{padding:2.5rem 0 1rem;}
+  .contents h2{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 1.1rem;
+  }
+  .toc{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));
+    gap:0;
+    border-top:1px solid var(--rule);
+  }
+  .toc li{border-bottom:1px solid var(--rule);}
+  .toc a{
+    display:flex;
+    gap:.7rem;
+    align-items:baseline;
+    padding:.7rem .2rem;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .toc a:hover{color:var(--accent-ink);}
+  .toc .n{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    font-size:var(--step--1);
+    color:var(--accent);
+    font-weight:600;
+    flex:none;
+  }
+  .toc .t{font-weight:600;font-size:var(--step--1);line-height:1.35;}
+
+  .toc-part{
+    font-family:var(--font-body);
+    font-size:var(--step--2);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--accent-ink);
+    margin:1.6rem 0 .5rem;
+  }
+  .contents .toc-part:first-of-type{margin-top:0;}
+
+  /* ---------- part divider ---------- */
+  .part-rule{
+    margin:4.5rem 0 0;
+    padding-top:2.5rem;
+    border-top:2px solid var(--accent);
+    display:flex;
+    align-items:baseline;
+    gap:1rem;
+  }
+  .part-rule span{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-2);
+    letter-spacing:-.015em;
+    color:var(--accent-ink);
+    line-height:1.15;
+    text-wrap:balance;
+  }
+  .part-rule + .unit{border-top:0;padding-top:2rem;}
+
+  /* ---------- units ---------- */
+  .unit{
+    padding:3.5rem 0;
+    border-top:1px solid var(--rule);
+  }
+  .unit-grid{display:grid;gap:2rem;}
+  @media (min-width:60rem){
+    .unit-grid{grid-template-columns:15rem 1fr;gap:3rem;}
+    .unit-rail{position:sticky;top:4.5rem;align-self:start;}
+  }
+  .unit-num{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 .5rem;
+  }
+  .unit-rail h2{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-2);
+    line-height:1.15;
+    letter-spacing:-.015em;
+    margin:0 0 .6rem;
+    text-wrap:balance;
+  }
+  .unit-tagline{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:var(--step--1);
+    line-height:1.5;
+    font-style:italic;
+  }
+
+  .prose{max-width:var(--measure);}
+  .prose p{margin:0 0 1rem;color:var(--ink-mid);}
+  .prose em{font-style:italic;}
+  .prose code{
+    font-family:var(--font-math);
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:.05em .35em;
+    font-size:.95em;
+    color:var(--ink);
+  }
+
+  .objectives{
+    margin:1.5rem 0 0;
+    padding:1rem 1.2rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
+    list-style:none;
+    max-width:var(--measure);
+  }
+  .objectives .lab{
+    display:block;
+    font-size:var(--step--2);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:.55rem;
+  }
+  .objectives li{
+    position:relative;
+    padding-left:1.1rem;
+    font-size:var(--step--1);
+    color:var(--ink-mid);
+    margin:.3rem 0;
+  }
+  .objectives li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:.62em;
+    width:.4rem;
+    height:.4rem;
+    background:var(--accent);
+    border-radius:50%;
+  }
+
+  .block{margin-top:2.5rem;}
+  .block-title{
+    font-family:var(--font-body);
+    font-size:var(--step--2);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .9rem;
+    padding-bottom:.4rem;
+    border-bottom:1px solid var(--rule-strong);
+  }
+
+  /* readings */
+  .readings{list-style:none;margin:0;padding:0;}
+  .readings li{padding:.55rem 0;border-bottom:1px solid var(--rule);}
+  .readings a{
+    color:var(--ink);
+    text-decoration:none;
+    font-weight:600;
+    border-bottom:1px solid var(--accent);
+    font-size:var(--step--1);
+  }
+  .readings a:hover{color:var(--accent-ink);}
+  .readings .cite{
+    display:block;
+    color:var(--ink-soft);
+    font-size:var(--step--2);
+    line-height:1.45;
+    margin-top:.15rem;
+  }
+
+  /* item rows */
+  .item{
+    padding:1.05rem 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .item:last-child{border-bottom:0;}
+  .item h4{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-1);
+    line-height:1.25;
+    margin:0 0 .25rem;
+    color:var(--ink);
+  }
+  .item p{
+    margin:0 0 .7rem;
+    color:var(--ink-soft);
+    font-size:var(--step--1);
+    line-height:1.5;
+    max-width:var(--measure);
+  }
+  .btns{display:flex;flex-wrap:wrap;gap:.4rem;}
+
+  /* buttons */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    font-size:var(--step--1);
+    font-weight:600;
+    line-height:1;
+    text-decoration:none;
+    border-radius:2px;
+    padding:.42rem .72rem;
+    border:1px solid var(--rule-strong);
+    background:var(--ground);
+    color:var(--ink-mid);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-wash);}
+  .btn .ico{font-size:.85em;opacity:.7;}
+
+  .btn--notes{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn--notes:hover{background:var(--accent-ink);border-color:var(--accent-ink);color:#fff;}
+  .btn--html{border-color:var(--accent);color:var(--accent-ink);}
+  .btn--rmd{background:var(--navy);border-color:var(--navy);color:var(--navy-ink);}
+  .btn--rmd:hover{background:var(--navy);border-color:var(--accent);color:#fff;}
+  .btn--data,.btn--pptx,.btn--docx{font-weight:400;color:var(--ink-soft);}
+
+  /* ---------- reference shelf ---------- */
+  .shelf{border-top:1px solid var(--rule);padding:3.5rem 0 1rem;}
+  .shelf > .shelf-head{max-width:var(--measure);margin-bottom:2rem;}
+  .shelf-head h2{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-3);
+    line-height:1.1;
+    letter-spacing:-.02em;
+    margin:0 0 .6rem;
+  }
+  .shelf-head p{margin:0;color:var(--ink-mid);}
+  .shelf-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(18rem,1fr));
+    gap:2rem;
+  }
+  .shelf-grid h3{
+    font-family:var(--font-body);
+    font-size:var(--step--2);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .7rem;
+    padding-bottom:.35rem;
+    border-bottom:1px solid var(--rule-strong);
+  }
+  .shelf-grid ul{list-style:none;margin:0;padding:0;}
+  .shelf-grid li{padding:.32rem 0;}
+  .shelf-grid a{
+    color:var(--ink-mid);
+    text-decoration:none;
+    font-size:var(--step--1);
+    display:inline-flex;
+    gap:.4rem;
+    align-items:baseline;
+  }
+  .shelf-grid a:hover{color:var(--accent-ink);}
+  .shelf-grid .tag{
+    font-size:var(--step--2);
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    opacity:.65;
+    flex:none;
+  }
+
+  /* ---------- footer ---------- */
+  .foot{
+    border-top:1px solid var(--rule);
+    margin-top:3.5rem;
+    padding:2.5rem 0 4rem;
+    color:var(--ink-soft);
+    font-size:var(--step--1);
+  }
+  .foot a{color:var(--ink-mid);}
+  .foot p{margin:0 0 .4rem;max-width:var(--measure);}
+
+  .totop{
+    display:inline-block;
+    margin-top:1rem;
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-soft);
+  }
+  .totop:hover{color:var(--accent-ink);}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-inner">
+    <a class="bar-brand" href="#top">{{ site.title | default: "Applied Econometrics" }}</a>
+    <nav class="bar-nav">
+      {% assign nav_parts = site.data.units | group_by: "part" %}
+      {% for g in nav_parts %}<a href="#{{ g.items.first.id }}">{{ g.name | split: " — " | first }}</a>{% endfor %}
+      <a href="#reference">Reference</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap" id="top">
+
+  <header class="masthead">
+    <p class="eyebrow">Course Archive</p>
+    <h1>{{ page.heading | default: site.title }}</h1>
+    <p class="dek">{{ page.dek }}</p>
+    {% if page.fine %}<p class="fine">{{ page.fine }}</p>{% endif %}
+  </header>
+
+  <nav class="contents">
+    <h2>Contents</h2>
+    {% assign by_part = site.data.units | group_by: "part" %}
+    {% for g in by_part %}
+    <h3 class="toc-part">{{ g.name }}</h3>
+    <ul class="toc">
+      {% for u in g.items %}
+      <li>
+        <a href="#{{ u.id }}">
+          <span class="n">{{ u.number }}</span>
+          <span class="t">{{ u.title }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+    <ul class="toc">
+      <li>
+        <a href="#reference">
+          <span class="n">&#9679;</span>
+          <span class="t">Reference Shelf</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <main>
+  {% assign prev_part = "" %}
+  {% for u in site.data.units %}
+    {% if u.part != prev_part %}
+    <div class="part-rule" id="part-{{ forloop.index }}">
+      <span>{{ u.part }}</span>
+    </div>
+    {% assign prev_part = u.part %}
+    {% endif %}
+    <section class="unit" id="{{ u.id }}">
+      <div class="unit-grid">
+
+        <div class="unit-rail">
+          <p class="unit-num">Unit {{ u.number }}</p>
+          <h2>{{ u.title }}</h2>
+          {% if u.tagline %}<p class="unit-tagline">{{ u.tagline }}</p>{% endif %}
+        </div>
+
+        <div class="unit-body">
+
+          <div class="prose">{{ u.overview | markdownify }}</div>
+
+          {% if u.objectives %}
+          <ul class="objectives">
+            <span class="lab">Learning objectives</span>
+            {% for o in u.objectives %}<li>{{ o }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if u.readings %}
+          <div class="block">
+            <h3 class="block-title">Readings</h3>
+            <ul class="readings">
+              {% for r in u.readings %}
+              <li>
+                <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
+                {% if r.cite %}<span class="cite">{{ r.cite }}</span>{% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {% if u.lectures %}
+          <div class="block">
+            <h3 class="block-title">Lectures &amp; Notes</h3>
+            {% for item in u.lectures %}
+            <div class="item">
+              <h4>{{ item.title }}</h4>
+              {% if item.blurb %}<p>{{ item.blurb }}</p>{% endif %}
+              <div class="btns">
+                {% for l in item.links %}
+                {% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}
+                <a class="btn btn--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{% if l.download or l.raw %}<span class="ico">&#8595;</span>{% endif %}{{ l.label }}</a>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% if u.labs %}
+          <div class="block">
+            <h3 class="block-title">Lab &amp; Template</h3>
+            {% for item in u.labs %}
+            <div class="item">
+              <h4>{{ item.title }}</h4>
+              {% if item.blurb %}<p>{{ item.blurb }}</p>{% endif %}
+              <div class="btns">
+                {% for l in item.links %}
+                {% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}
+                <a class="btn btn--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{% if l.download or l.raw %}<span class="ico">&#8595;</span>{% endif %}{{ l.label }}</a>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </section>
+  {% endfor %}
+  </main>
+
+  <section class="shelf" id="reference">
+    <div class="shelf-head">
+      <h2>Reference Shelf</h2>
+      <p>Handouts, textbook chapters, and datasets that are used across more than one unit.</p>
+    </div>
+    <div class="shelf-grid">
+      {% for g in site.data.reference %}
+      <div>
+        <h3>{{ g.group }}</h3>
+        <ul>
+          {% for i in g.items %}
+          {% if i.raw %}{% assign href = site.raw_root | append: "/" | append: i.url %}{% else %}{% assign href = i.url | relative_url %}{% endif %}
+          <li>
+            <a href="{{ href }}"{% if i.download %} download{% endif %}>
+              <span class="tag">{{ i.kind }}</span>
+              <span>{{ i.title }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <footer class="foot">
+    {{ content }}
+    <a class="totop" href="#top">&#8593; Back to top</a>
+  </footer>
+
+</div>
+</body>
+</html>

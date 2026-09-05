@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partitioning the Variance of Y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Partitioning the Variance of Y</h1>
+    <p class="dek">A reading guide for lecture <span class="m">p-02</span> &mdash; how one algebraic
+      trick splits the variance of Y, and why both <span class="m"><i>R</i><sup>2</sup></span> and the
+      standard error come out of it.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The formulas and definitions the slides depend on, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Inserting the regression line splits every deviation in two.</p>
+      <p>Take the distance from a point to the mean and add and subtract
+        <span class="m"><i>&#375;<sub>i</sub></i></span>:</p>
+      <div class="eq center">
+        <span class="term"><span class="m">(<i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)</span><span class="lbl">total</span></span>
+        <span class="term"><span class="m">=</span><span class="lbl">&nbsp;</span></span>
+        <span class="term"><span class="m">(<i>&#375;<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)</span><span class="lbl">explained</span></span>
+        <span class="term"><span class="m">+</span><span class="lbl">&nbsp;</span></span>
+        <span class="term"><span class="m">(<i>y<sub>i</sub></i> &minus; <i>&#375;<sub>i</sub></i>)</span><span class="lbl">unexplained</span></span>
+      </div>
+      <ul>
+        <li><span class="m"><i>&#375;<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span></span>
+          = how far the model moved you off the mean</li>
+        <li><span class="m"><i>y<sub>i</sub></i> &minus; <i>&#375;<sub>i</sub></i> = <i>e<sub>i</sub></i></span>
+          = how far it still missed by</li>
+      </ul>
+
+      <p class="claim">Squaring and summing gives three sums of squares.</p>
+      <ul>
+        <li><strong>Total SS</strong> = <span class="m"><span class="sum">&sum;</span>(<i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)<sup>2</sup></span></li>
+        <li><strong>Regression SS</strong> = <span class="m"><span class="sum">&sum;</span>(<i>&#375;<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)<sup>2</sup></span></li>
+        <li><strong>Error SS</strong> = <span class="m"><span class="sum">&sum;</span>(<i>y<sub>i</sub></i> &minus; <i>&#375;<sub>i</sub></i>)<sup>2</sup></span></li>
+        <li><span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span></li>
+      </ul>
+      <p>Divide any of them by <span class="m"><i>n</i> &minus; 1</span> and you have a variance. The
+        slides often work with the raw sums because the divisors cancel.</p>
+
+      <p class="claim"><span class="m"><i>R</i><sup>2</sup></span> is the explained share of the total.</p>
+      <div class="eq">
+        <span class="m"><i>R</i><sup>2</sup> =
+          <span class="frac"><span class="num"><i>RSS</i></span><span class="den"><i>TSS</i></span></span>
+          <span class="op">=</span>
+          <span class="frac"><span class="num">Explained SS</span><span class="den">Total SS</span></span>
+          <span class="op">=</span> 1 &minus;
+          <span class="frac"><span class="num"><i>ESS</i></span><span class="den"><i>TSS</i></span></span></span>
+      </div>
+      <p><em>Note:</em> these slides use <strong>RSS = Regression SS</strong> and <strong>ESS = Error
+        SS</strong>. The deck flags this itself &mdash; some textbooks use RSS for <em>residual</em>
+        and ESS for <em>explained</em>.</p>
+
+      <p class="claim">In Venn terms, the overlap between X and Y is the explained part.</p>
+      <ul>
+        <li>The circle Y is <span class="m">var(<i>y</i>)</span>; the overlap with X is
+          <span class="m">cov(<i>x</i>,&thinsp;<i>y</i>)</span>.</li>
+        <li>More overlap = more covariance = stronger correlation = higher
+          <span class="m"><i>R</i><sup>2</sup></span>.</li>
+        <li><span class="m">cov(<i>x</i>,&thinsp;<i>y</i>) = 0</span> means the circles do not touch
+          and X explains nothing.</li>
+      </ul>
+
+      <p class="claim">The standard error of the slope is built from the unexplained part.</p>
+      <div class="eq">
+        <span class="m"><i>SSE</i> = <span class="sum">&sum;</span><i>e<sub>i</sub></i><sup>2</sup>
+          <span class="op">&nbsp;&nbsp;&nbsp;</span>
+          <i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub> =
+          <span class="frac"><span class="num"><i>SSE</i></span><span class="den"><i>n</i> &minus; 2</span></span>
+          <span class="op">&nbsp;&nbsp;&nbsp;</span>
+          SE<sub><i>b</i><sub>1</sub></sub> =
+          <span class="sqrt tall"><span class="radical">&radic;</span><span class="radicand"><span class="frac"><span class="num"><i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub></span><span class="den"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span></span></span></span></span>
+      </div>
+
+      <p class="claim">The same standard error can be written two ways.</p>
+      <p>Because <span class="m"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup>
+        = (<i>n</i> &minus; 1) &middot; var(<i>x</i>)</span>:</p>
+      <div class="eq">
+        <span class="m">SE<sub><i>b</i><sub>1</sub></sub> =
+          <span class="frac"><span class="num"><i>s<sub>&epsilon;</sub></i></span><span class="den"><span class="sqrt"><span class="radical">&radic;</span><span class="radicand">(<i>n</i> &minus; 1) &middot; var(<i>x</i>)</span></span></span></span>
+          <span class="op">=</span>
+          <span class="frac"><span class="num"><i>s<sub>&epsilon;</sub></i></span><span class="den"><span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span></span></span></span></span>
+      </div>
+      <p>The first form is preferred in the slides because it names its three moving parts out loud:</p>
+      <div class="eq">
+        <span class="m">Standard Error of the Slope &nbsp;&asymp;&nbsp;
+          <span class="frac"><span class="num">residual</span><span class="den">sample size &middot; variance X</span></span></span>
+      </div>
+      <p>Compare the standard error of the <em>mean</em>, which has only two moving parts:
+        <span class="m">SE<sub><span class="bar"><i>x</i></span></sub> = <i>s<sub>x</sub></i> / <span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><i>n</i></span></span></span>.</p>
+    </div>
+  </section>
+
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>The whole lecture is one algebraic trick</h3>
+    <p>Add and subtract <span class="m"><i>&#375;<sub>i</sub></i></span>. That is it.</p>
+    <p>The distance from a data point to the mean is the only thing we had before this lecture. By
+      inserting the fitted value in the middle of that distance, it becomes two distances: the part
+      the model accounts for, and the part it does not. Everything downstream &mdash;
+      <span class="m"><i>R</i><sup>2</sup></span>, the standard error, the confidence interval, the
+      p-value &mdash; is bookkeeping on those two pieces.</p>
+    <p>Notice what is <em>not</em> being assumed here. This is an identity, not a modeling choice. Any
+      line drawn through the data would split the deviations this way. What makes the regression line
+      special is that it is the line that makes the unexplained piece as small as possible.</p>
+    <blockquote>
+      <p>Worth knowing if a student asks why <span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span>
+        holds <em>exactly</em> rather than approximately: when you square the sum of the two pieces,
+        the cross-product term sums to zero, because least squares forces the residuals to be
+        uncorrelated with the fitted values. The slides do not derive this &mdash; they present the
+        partition as a given &mdash; but that orthogonality is what makes it clean.</p>
+    </blockquote>
+
+    <h3>Three pictures of the same partition</h3>
+    <p>The deck shows the split three different ways, and the exercise is to be able to move between
+      them:</p>
+    <ul>
+      <li><strong>The scatterplot.</strong> For one point, a bracket from the mean line up to the
+        regression line (explained) and another from the line to the point (unexplained). The most
+        literal picture.</li>
+      <li><strong>The stacked bar.</strong> Total variance of Y as a single column, cut into an orange
+        explained portion and a blue unexplained portion. This is the picture that makes
+        <span class="m"><i>R</i><sup>2</sup></span> obvious &mdash; it is just the orange fraction.</li>
+      <li><strong>The Venn diagram.</strong> A circle for Y, a circle for X, and their overlap. The
+        overlap is <span class="m">cov(<i>x</i>,&thinsp;<i>y</i>)</span>, and it <em>is</em> the
+        explained portion.</li>
+    </ul>
+    <p>If you can look at a scatterplot and sketch its bar and its Venn diagram, you have the
+      lecture.</p>
+
+    <h3>The Venn diagram connects this lecture back to p-01</h3>
+    <p>The overlap region is labelled <span class="m">cov(<i>x</i>,&thinsp;<i>y</i>)</span>, and that
+      is not decoration. In p-01 the slope was
+      <span class="m">cov(<i>x</i>,&thinsp;<i>y</i>) / var(<i>x</i>)</span>. Here the same covariance
+      is the part of Y that X can account for.</p>
+    <p>So covariance is doing two jobs at once: it sets the <em>size of the slope</em> and it sets the
+      <em>share of variance explained</em>. When the circles barely overlap you get a small
+      <span class="m"><i>b</i><sub>1</sub></span> and a small <span class="m"><i>R</i><sup>2</sup></span>
+      together. When they overlap a lot you get both large. That is why &ldquo;more correlation&rdquo;
+      and &ldquo;better fit&rdquo; feel like the same thing &mdash; in simple regression with one X,
+      they are.</p>
+
+    <h3><span class="m"><i>R</i><sup>2</sup></span> and the standard error read the same split in opposite directions</h3>
+    <p>This is the relationship worth carrying forward. One partition, two consumers:</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr><th scope="col"></th><th scope="col">Uses</th><th scope="col">Reports</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><span class="m"><i>R</i><sup>2</sup> = <i>RSS</i>/<i>TSS</i></span></th>
+            <td>the <strong>explained</strong> piece</td><td>how well the model fits</td></tr>
+          <tr><th scope="row"><span class="m">SE<sub><i>b</i><sub>1</sub></sub></span></th>
+            <td>the <strong>unexplained</strong> piece</td><td>how precise the estimate is</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>They are complements, not competitors: <span class="m"><i>R</i><sup>2</sup></span> goes up
+      exactly when the residual goes down, which is exactly when the standard error shrinks. A model
+      that explains more of Y produces a tighter estimate of the slope. Fit and precision are two
+      readings of the same number.</p>
+    <p>This is also the honest answer to &ldquo;why do we care about
+      <span class="m"><i>R</i><sup>2</sup></span>?&rdquo; On its own it is a description. What matters
+      is that the <em>other</em> half of the same split is what determines whether your finding is
+      statistically significant.</p>
+
+    <h3>Where the standard error gets its three levers</h3>
+    <p>Writing the standard error with <span class="m">(<i>n</i> &minus; 1) &middot; var(<i>x</i>)</span>
+      in the denominator makes visible what the compact
+      <span class="m"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span>
+      version hides. Three things, and only three, move it:</p>
+    <ul>
+      <li><strong>The residual</strong> (numerator) &mdash; unexplained variance in Y.</li>
+      <li><strong>The sample size</strong> (denominator) &mdash; more cases, more precision.</li>
+      <li><strong>The variance of X</strong> (denominator) &mdash; a treatment that barely varies
+        cannot produce a precise estimate of its effect.</li>
+    </ul>
+    <p>Contrast the standard error of the <em>mean</em>,
+      <span class="m"><i>s<sub>x</sub></i>/<span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><i>n</i></span></span></span>,
+      which has only the first two. The third lever is new, and it is the one with consequences for
+      research design: how you <em>assign</em> or <em>sample</em> your explanatory variable matters as
+      much as how many cases you collect.</p>
+
+    <h3>Where this sits in the sequence</h3>
+    <p>p-01 produced the slope out of covariance and variance. This lecture takes the variance of Y
+      apart and finds the standard error inside the leftover piece. p-03 and p-04 take that standard
+      error and turn it into a confidence interval and a significance test. The road map slide near the
+      end is the same one from p-01, and by now three of its four rungs are built.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>1&ndash;2</td><td>Variance recap</td><td>Squared distances from the mean, divided by <span class="m"><i>n</i> &minus; 1</span>. Nothing new yet.</td></tr>
+          <tr><td>3&ndash;7</td><td>The partition and <span class="m"><i>R</i><sup>2</sup></span></td><td><span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span>. This is the core.</td></tr>
+          <tr><td>8, 14</td><td>One point, close up</td><td>The bracket picture. Explained is mean-to-line; unexplained is line-to-point.</td></tr>
+          <tr><td>9&ndash;10</td><td>The two extremes</td><td>Perfect fit explains everything; the typical case explains some.</td></tr>
+          <tr><td>11&ndash;12</td><td>The stacked-bar version</td><td><span class="m"><i>R</i><sup>2</sup></span> as the orange fraction of the column.</td></tr>
+          <tr><td>13, 15&ndash;17</td><td>The Venn version</td><td>Overlap = <span class="m">cov(<i>x</i>,&thinsp;<i>y</i>)</span> = explained. Note the RSS/ESS footnote on slide 15.</td></tr>
+          <tr><td>18&ndash;21</td><td>Standard error of the slope</td><td>Built from the residual; three levers.</td></tr>
+          <tr><td>22</td><td>The road map</td><td>Same map as p-01. Rung three is now in place.</td></tr>
+          <tr><td>23</td><td>The checklist</td><td>Two items, both about the split.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p>The repetition across slides 4, 6, 11, and 12 is not padding &mdash; the same diagram is being
+        re-shown with a different annotation layered on each time. Read them as one slide seen four
+        ways.</p>
+    </div>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">The two things this deck exists to settle.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>We split the variance of Y into explained and unexplained portions with a trick
+        &mdash; inserting the regression line <span class="m"><i>&#375;</i></span>.</strong> The
+        distance from a point to the mean becomes the distance from the mean to the line, plus the
+        distance from the line to the point. Square and sum, and
+        <span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span>.</li>
+      <li><strong>The standard error of the slope is derived from the unexplained portion of Y, the
+        residual.</strong> Everything the model failed to explain becomes uncertainty about the slope.
+        Improving fit and tightening your estimate are the same act.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>The partition is an identity, not an assumption.</strong> Adding and subtracting
+        <span class="m"><i>&#375;<sub>i</sub></i></span> always works; least squares just makes the
+        leftover piece as small as it can be.</li>
+      <li><strong>Three sums of squares, one equation.</strong>
+        <span class="m"><i>TSS</i> = <i>RSS</i> + <i>ESS</i></span> &mdash; total, explained, error.</li>
+      <li><strong><span class="m"><i>R</i><sup>2</sup></span> is the explained share</strong>,
+        <span class="m"><i>RSS</i>/<i>TSS</i></span>, and equivalently
+        <span class="m">1 &minus; <i>ESS</i>/<i>TSS</i></span>.</li>
+      <li><strong>The Venn overlap is the covariance.</strong> The same quantity that set the slope in
+        p-01 sets the explained share here.</li>
+      <li><strong><span class="m"><i>R</i><sup>2</sup></span> and
+        <span class="m">SE<sub><i>b</i><sub>1</sub></sub></span> come from opposite halves of one
+        split.</strong> Better fit means a smaller residual means a smaller standard error.</li>
+      <li><strong>The slope has three levers, the mean has two.</strong> Residual, sample size, and
+        &mdash; new in regression &mdash; the variance of X.</li>
+      <li><strong>Watch the abbreviations.</strong> These slides use RSS = Regression SS and ESS =
+        Error SS; many textbooks reverse both.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">p-02-partitioning-variance</span>. Source file lives alongside
+      this page as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>

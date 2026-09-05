@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Difference in Difference</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="assets/custom.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Difference in Difference</h1>
+
+</div>
+
+
+<p><strong>Packages</strong></p>
+<p>Here are the packages we will use in this lecture. If you don’t remember how to install them, you can have a look at the code.</p>
+<ul>
+<li><strong>stargazer</strong> for nice regression tables</li>
+<li><strong>pander</strong> for nice data tables</li>
+<li><strong>dplyr</strong> for data manipulation</li>
+<li><strong>scales</strong> to adjust values in simulated data</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( stargazer )</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( pander )</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( dplyr )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( scales )</span></code></pre></div>
+<p><strong>Learning objectives</strong></p>
+<ul>
+<li>What is the scope of a difference-in-difference model?</li>
+<li>What is the right design to apply a difference-in-difference model?</li>
+<li>How should you organize your data before using a difference-in-difference model?</li>
+<li>What are the key coefficients of a difference-in-difference model? How do you interpret each of them?</li>
+<li>What is the parallel trend assumption?</li>
+<li>Applying a difference-in-difference model to data in R</li>
+</ul>
+<div id="the-key-concept" class="section level1">
+<h1>The key concept</h1>
+<p>The difference-in-difference (diff-in-diff) is a powerful model which allows us to look at the effect of a policy intervention by taking into consideration:</p>
+<ol style="list-style-type: decimal">
+<li>how a group mean changes <strong>before and after a policy intervention</strong> (treatment group) AND</li>
+<li>compare this change with the mean over time of a similar group <strong>which did not undergo the treatment</strong> (control group).</li>
+</ol>
+<p>We can see a representation of the model in figure 1. We have two groups, one which underwent the treatment and one which did not undergo the treatment (control group). For both groups we observe the <strong>average outcome</strong> before and after the intervention.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/diffindiff-1.png" alt="Figure 1. Difference in difference model" width="960" />
+<p class="caption">
+Figure 1. Difference in difference model
+</p>
+</div>
+<p>As suggested by the name, the diff-in-diff estimator is the <strong>difference of their mean differences</strong>. More clearly, the diff-in-diff estimator takes</p>
+<ul>
+<li>the difference in the treatment group before and after the treatment (the <em>treatment effect</em>)</li>
+</ul>
+<p>and substracts:</p>
+<ul>
+<li>the difference in the control group before and after the treatment (the <em>trend</em> over time)</li>
+</ul>
+<p>as in the following formula:</p>
+<p><span class="math display">\[\begin{equation} 
+\text{(Treatment_post - Treatment_pre) - (Control_post - Control_pre) = Diff-in-Diff estimate}
+  \tag{1}
+\end{equation}\]</span></p>
+<p>We can calculate the difference-in-difference based on graph 1, as below:</p>
+<p><span class="math display">\[\begin{equation*} 
+\text{(85 - 50) - (55 - 35) = 15}
+\end{equation*}\]</span> <br> A more detailed calculation can be seen in table 2, the red number in the right down corner is the diff-in-diff estimator - the key parameter we will estimate in our model. When the difference-in-difference estimate is different from 0, then the treatment has had an effect.</p>
+<div class="figure">
+<img src="FIGURE/DiffInDiff/Picture1.1.png" alt="Figure 2. Difference in difference, an example" width="60%" />
+<p class="caption">
+Figure 2. Difference in difference, an example
+</p>
+</div>
+<p>It is important to note that in a diff-in-diff model:</p>
+<blockquote>
+<ul>
+<li><p>We are going to look at grouped data, as we will always compare a treatment and a control group.</p></li>
+<li><p>The coefficients will represent group means and their differences. The diff-in-diff model does not include a slope.</p></li>
+</ul>
+</blockquote>
+<div id="the-statistical-model" class="section level2">
+<h2>The statistical model</h2>
+<p>In mathematical terms, we are interested in estimating 3 coefficients, as in the following equation:</p>
+<p><span class="math display">\[\begin{equation} 
+\text{Y} = \beta_0 + \beta_1*Treatment + \beta_2*Post + \beta_3 * Treatment * Post + \text{e}
+  \tag{2}
+\end{equation}\]</span></p>
+<p>Where: <br> <br> <span class="math inline">\(\text{Y}\)</span> is our outcome variable; <br> <br> <span class="math inline">\(\text{Treatment}\)</span> is a dummy variable indicating the treatment (=1) and control (=0) group; <br> <br> <span class="math inline">\(\text{Post}\)</span> is a dummy variable indicating pre (=0) and post (=1) treatment; <br> <br> <span class="math inline">\(\text{Treatment * Post}\)</span> is a dummy variable indicating whether the outcome was observed in the treatment group AND it was observed after the intervention (=1), or any other case (=0).</p>
+<p>Our dataset will look like this, where two subjects undergo the treatment and two subjects did not undergo the treatment. For each subject we registered post and pre treatment outcomes, such that we have two observations for each subject:</p>
+<div class="figure">
+<img src="FIGURE/DiffInDiff/Picture3.1.png" alt="Figure 3. Diff-in-Diff dataset" width="60%" />
+<p class="caption">
+Figure 3. Diff-in-Diff dataset
+</p>
+</div>
+<p>To recap, we have two group - a treatment and a control group - and half of the observations in each group will be before the treatment and half of them after the treatment.</p>
+<div id="the-coefficients" class="section level3">
+<h3>The coefficients</h3>
+<p>We can estimate a simple diff-in-diff model based on figure 1 to look at the various coefficients.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">=</span> <span class="fu">lm</span>(Y <span class="sc">~</span> T <span class="sc">+</span> P <span class="sc">+</span> T<span class="sc">*</span>P)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( reg, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">dep.var.labels =</span> (<span class="st">&quot;Outcome&quot;</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Intercept (B0)&quot;</span>, </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Treatment (B1)&quot;</span>, </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Post-treatment (B2)&quot;</span>, </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Diff in Diff (B3)&quot;</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="st">&quot;all&quot;</span>, </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span>, </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">intercept.bottom =</span> <span class="cn">FALSE</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="1" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Outcome
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Intercept (B0)
+</td>
+<td>
+35.00<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.00)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Treatment (B1)
+</td>
+<td>
+15.00<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.00)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Post-treatment (B2)
+</td>
+<td>
+20.00<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.00)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Diff in Diff (B3)
+</td>
+<td>
+15.00<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.00)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>Each coefficient represents a group mean or a difference between two means. To facilitate the understanding of each coefficient, we can use the following graphs of our equation (2) and look at each coefficient individually (you can see the values of the coefficients on the left side of the graph).</p>
+<p><span class="math inline">\(\beta_0\)</span> represents the average outcome of the control group before the treatment.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/beta0-1.png" alt="Figure 4. Difference in difference, beta 0" width="960" />
+<p class="caption">
+Figure 4. Difference in difference, beta 0
+</p>
+</div>
+<p><span class="math inline">\(\beta_1\)</span> represents the difference between the treatment and the control group before the treatment In this case, <span class="math inline">\(\beta_1\)</span> is be equal to 15, such that <span class="math inline">\(\beta_0\)</span> + <span class="math inline">\(\beta_1\)</span> = 50, the average outcome of the treatment group before the treatment.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/beta1-1.png" alt="Figure 5. Difference in difference, beta 1" width="960" />
+<p class="caption">
+Figure 5. Difference in difference, beta 1
+</p>
+</div>
+<p><span class="math inline">\(\beta_2\)</span> represents how much the average outcome of the control group has changed in the post-treatment period. The average outcome of the control group in the post-treatment period will be equal to the initial (pre-treatment) mean - <span class="math inline">\(\beta_0\)</span> in figure4 - plus <span class="math inline">\(\beta_2\)</span>.</p>
+<p>Note that <span class="math inline">\(beta_2\)</span> represent the trend over time, or the gains that occur over time <em>independent from the treatment</em>.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/beta2-1.png" alt="Figure 6. Difference in difference, beta 2" width="960" />
+<p class="caption">
+Figure 6. Difference in difference, beta 2
+</p>
+</div>
+<p>Finally, <span class="math inline">\(\beta_3\)</span> is the key parameter that we are interested in estimating. It represents how much the average outcome of the treatment group has changed in the period after the treatment, compared to what it would happened to the same group had the intervention not occurred. If <span class="math inline">\(beta_3\)</span> = 0, we can conclude that the treatment had no effect.</p>
+<p>Note that <span class="math inline">\(\beta_3\)</span> represents the difference; to calculate the average outcome of the treatment group after the treatment, we need to add the initial average outcome (<span class="math inline">\(beta_0\)</span> + <span class="math inline">\(beta_1\)</span>), the gains over time independent from the treatment (<span class="math inline">\(beta_2\)</span>) and the gains because of the treatment (<span class="math inline">\(beta_3\)</span>).</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/beta3-1.png" alt="Figure 7. Diff-in-Diff, beta 3" width="960" />
+<p class="caption">
+Figure 7. Diff-in-Diff, beta 3
+</p>
+</div>
+<p>Note that each of the coefficient tests a different hypothesis - it tells us something fundamentally different about the model.</p>
+<table>
+<colgroup>
+<col width="13%" />
+<col width="10%" />
+<col width="75%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Graph</th>
+<th align="left"><span class="math inline">\(\beta\)</span></th>
+<th>HYPOTHESES</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Graph 4</td>
+<td align="left"><span class="math inline">\(b_0\)</span></td>
+<td>Is the average outcome of the control group before the treatment <span class="math inline">\(\ne\)</span> 0?</td>
+</tr>
+<tr class="even">
+<td>Graph 5</td>
+<td align="left"><span class="math inline">\(b_1\)</span></td>
+<td>Is the difference between the control and treatment group before the treatment <span class="math inline">\(\ne\)</span> 0?</td>
+</tr>
+<tr class="odd">
+<td>Graph 6</td>
+<td align="left"><span class="math inline">\(b_2\)</span></td>
+<td>Is the difference between the average outcome of the control group before and after the treatment <span class="math inline">\(\ne\)</span> 0?</td>
+</tr>
+<tr class="even">
+<td>Graph 7</td>
+<td align="left"><span class="math inline">\(b_3\)</span></td>
+<td>Difference in difference estimator. Does the treatment have an impact?</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="the-counterfactual" class="section level2">
+<h2>The counterfactual</h2>
+<p>To better understand <span class="math inline">\(beta_3\)</span> represented in graph 7, we need to give a better look at the counterfactual. The counterfactual <em>what it would have occured to Y, had the policy intervention not happened</em>; in the diff-in-diff model, the counterfactual is the outcome of the intervention group, had the intervention not occured. <span class="math inline">\(beta_3\)</span> represents the difference between the counterfactual and the average outcome of the treatment group in the period after the treatment.</p>
+<p>You can see it in figure 8.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/counterfactual-1.png" alt="Figure 8. DID counterfactual" width="960" />
+<p class="caption">
+Figure 8. DID counterfactual
+</p>
+</div>
+<p>We can find the value of the counterfactual using the equation (1).</p>
+<p><span class="math display">\[\begin{equation} 
+\text{(Treatment_post - Treatment_pre) = (Control_post - Control_pre)}
+  \tag{3}
+\end{equation}\]</span></p>
+<p><span class="math display">\[\begin{equation*} 
+\text{(X - 50) = (55 - 35)}
+\end{equation*}\]</span></p>
+<p><span class="math display">\[\begin{equation*} 
+\text{(X - 50) = 20}
+\end{equation*}\]</span></p>
+<p><span class="math display">\[\begin{equation*} 
+\text{ X = 20 + 50 = 70}
+\end{equation*}\]</span></p>
+<p><br></p>
+<p>We can also calculate the counterfactual using the coefficients estimated from our statistical model.</p>
+<p><span class="math display">\[\begin{equation} 
+\text{Counterfactual} = \beta_0 + \beta_1 + \beta_2
+  \tag{4}
+\end{equation}\]</span></p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/CF-1.png" alt="Figure 9. Counterfactual, betas" width="960" />
+<p class="caption">
+Figure 9. Counterfactual, betas
+</p>
+</div>
+</div>
+</div>
+<div id="a-difference-in-difference-model" class="section level1">
+<h1>A Difference-in-Difference model</h1>
+<div class="figure">
+<img src="FIGURE/DiffInDiff/Housing.png" alt="Figure 10. A housing project in [New York](https://www1.nyc.gov/site/nycha/about/100-percent-affordable-housing.page)" width="60%" />
+<p class="caption">
+Figure 10. A housing project in <a href="https://www1.nyc.gov/site/nycha/about/100-percent-affordable-housing.page">New York</a>
+</p>
+</div>
+<p>The U.S. Dept. of Housing and Urban Development, along with state and local governments, <a href="https://homeguides.sfgate.com/subsidized-housing-mean-55552.html">subsidize several housing projects to create affordable living spaces</a>. This policy has become increasingly important in the past yeas, as <a href="https://www.nytimes.com/2018/07/27/us/politics/hud-affordable-housing-crisis.html">rent and housing costs increase in several US cities</a>.</p>
+<p>However, there are several critics to housing programs, including the belief that the development of affordable housing might cause a <a href="http://furmancenter.org/files/media/Dont_Put_It_Here.pdf">decline in housing value in nearby neighborhoods</a>. There are several theories behind this idea, including:</p>
+<ul>
+<li>individuals prefer living close to high-income families, so affordble housing projects make the neighborhood less attractive;</li>
+<li>with housing projects there is an increase in the neighborhood population which might lead to congestion that negatively affect house prices;</li>
+<li>new housing projects do not fit the neighborhood landscape, and reduced its attractiveness; and so on.</li>
+</ul>
+<p>We can test the hypothesis that <strong>housing projects reduce housing value</strong> using a difference-in-difference model (you can see a great example in this work conducted by <a href="https://onlinelibrary.wiley.com/doi/epdf/10.1002/pam.20247">Ellen and colleagues in 2007</a>).</p>
+<p>We are going to simulate some housing prices data for 2 groups of houses: houses that are located close to a subsized housing site (treatment group) and houses that are far away from a subsized housing site (control group). We are going to look at whether prices have changed before and after the creation of the subsized housing site.</p>
+<blockquote>
+<p><strong>Research question</strong>: Do affordable housing projects reduce prices of nearby houses?</p>
+<p><strong>Hypothesis</strong>: Houses nearby affordable housing projects will report a greater decrease in price over time.</p>
+</blockquote>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>We can have a look at the data:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>URL <span class="ot">&lt;-</span> <span class="st">&quot;https://raw.githubusercontent.com/DS4PS/pe4ps-textbook/master/data/diff-in-diff-housing-example.csv&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>( URL, <span class="at">stringsAsFactors=</span><span class="cn">FALSE</span> )</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>( data, <span class="dv">10</span> ) <span class="sc">%&gt;%</span> <span class="fu">pander</span>()</span></code></pre></div>
+<table style="width:54%;">
+<colgroup>
+<col width="19%" />
+<col width="11%" />
+<col width="23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">House_Price</th>
+<th align="center">Group</th>
+<th align="center">Post_Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">213680</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">229355</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">190580</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">188669</td>
+<td align="center">1</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">253574</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">320094</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">188526</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">282998</td>
+<td align="center">1</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">184424</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">290409</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+</tbody>
+</table>
+<p>The dataset contains three variables:</p>
+<table>
+<colgroup>
+<col width="20%" />
+<col width="79%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Variable name </strong></th>
+<th><strong>Description </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\text{House Price}\)</span></td>
+<td>House pricing</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\text{Group}\)</span></td>
+<td>Houses close to a subsized housing site (=1) and houses far from a subsized housing site (=0)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\text{Post_Treatment}\)</span></td>
+<td>Prior to construction of new site (=0) or after subsized housing is built (=1)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<p>Our model is based on the equation (2):</p>
+<center>
+<span class="math inline">\(\text{Y} = \beta_0 + \beta_1*Group + \beta_2*Treatment + \beta_3 * Group * Treatment + \text{e}\)</span>
+</center>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">lm</span>( House_Price <span class="sc">~</span> Group <span class="sc">+</span> Post_Treatment <span class="sc">+</span> Group <span class="sc">*</span> Post_Treatment )</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( reg, </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">dep.var.labels =</span> (<span class="st">&quot;Housing prices&quot;</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Intercept (B0)&quot;</span>, </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Treatment group (B1)&quot;</span>, </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Post-treatment (B2)&quot;</span>, </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Diff in Diff (B3)&quot;</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="st">&quot;all&quot;</span>, </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">0</span>, </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">intercept.bottom =</span> <span class="cn">FALSE</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="1" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Housing prices
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Intercept (B0)
+</td>
+<td>
+216,673<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(3,742)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Treatment group (B1)
+</td>
+<td>
+16,461<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(5,292)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Post-treatment (B2)
+</td>
+<td>
+35,231<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(5,292)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Diff in Diff (B3)
+</td>
+<td>
+34,066<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(7,484)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+</div>
+<div id="discussion-of-the-results" class="section level2">
+<h2>Discussion of the results</h2>
+<p>As we discussed in our section “The statistical model” each coefficient tests a different hypothesis. By looking at the results we should be able to answer the following questions:</p>
+<ol style="list-style-type: decimal">
+<li>Is the comparison group in Time = 1 different from zero?</li>
+<li>Did the treatment and comparison groups differ significantly in the first time period? In other words, do houses in the treatment group cost more than houses in the control group?</li>
+<li>Did the comparison group change significantly between the first and second time periods? In other words, do the prices of houses in the control group increase over time?</li>
+<li>Is the treatment group in Time = 2 different from the counterfactual? In other words, does the construction of an affordable housing site change the price of the nearby houses? If our hypothesis is confirmed we would expect a negative and significant coefficient.</li>
+</ol>
+<p>Answers:</p>
+<ol style="list-style-type: decimal">
+<li><p>The coefficient <span class="math inline">\(\beta_0\)</span> (the constant) is significant and different from zero. Houses in the control group have an average price of $216,672 in time = 1.</p></li>
+<li><p>The coefficient <span class="math inline">\(\beta_1\)</span> (Treatment group) is also significant and different from zero, telling us that at time = 1, houses in the treatment and control group had a different average price. Specifically, houses in the treatment group cost $16,461 more than houses in the control group prior to the new projects. The average price of houses in the treatment group is 216,672 + 16,461 = $233,133.</p></li>
+<li><p>The coefficient <span class="math inline">\(\beta_2\)</span> (Post-treatment) is significant and different from zero. We can conclude that the price of houses in the control group increased from time = 1 to time = 2. The average price of houses in the control group increases of $35,230 at time = 2. The average price of houses in the control group at time = 2 is 216,672 + 35,230 = $251,903</p></li>
+<li><p>Finally, the coefficient <span class="math inline">\(\beta_3\)</span> (Diff-in-Diff) is significant and different from zero, which means that the construction of an affordable housing site change the price of nearby houses. Particularly, the price increases of $34,066 more than it would have without the construction of the housing site.</p></li>
+</ol>
+<p><strong>Notes on hypothesis-testing in the Diff-in-Diff Model:</strong></p>
+<p>Recall that the regression output by default always reports the statistical significance for the hypothesis:</p>
+<blockquote>
+<p>B = 0 (the slope is zero)</p>
+</blockquote>
+<p>If we are looking at the relationship between milligrams of a drug (like caffeine) and heart rate then the test will tell us if the drug has any measurable impact on heart rate (slope=0 means no impact).</p>
+<p>In some cases the default hypothesis test is not very meaningful. For example, in this model <strong>B0</strong> is statistically significant, which means the average value of a home is different than zero. Is this a useful test? Not really. There would be no reason to assume homes have no value.</p>
+<p>The difference-in-difference model can be a little disorienting at first because the coefficients represent group averages, and not slopes. Even more confusing, most groups are constructed from several coefficients. If the comparison group in the post-treatment period is comprised of <strong>B0 + B2</strong> then is the test <strong>B2=0</strong> meaningful? Actually, it is.</p>
+<p>Note that for each question above we would formulate a contrast. Do the houses in the treatment and control groups cost the same before new public housing is built?</p>
+<p>B0 = cost of houses in control group prior to construction = $216,672</p>
+<p>B0 + B1 = cost of hosues in treatment goup prior to construction = 216,672 + 16,461 = $233,133</p>
+<p><em>Do the houses in the treatment and control groups cost the same before new construction?</em></p>
+<p>B0 + B1 = B0<br />
+B1 = 0</p>
+<p>So the test of B1=0 is actually the test for pre-treatment differences.</p>
+<p>Similarly, do we observe a significant secular trend in the data?</p>
+<p>B0 = control group in time=1<br />
+B0 + B2 = control group in time=2</p>
+<p>Trend = C2 - C1 = (B2 + B0) - B0 = B2</p>
+<p>So the test B2=0 is a test of whether we see any secular trends in the data: Trend=0.</p>
+<p>Does the program have an impact? Or stated differently, after the treatment does the outcome of the treatment group depart from our counterfactual expectations?</p>
+<p>We construct the counterfactual by looking at the average level of the treatment group before the intervention and adjusting for the secular trend to predict where we expect the group to be in the second time period if the program has no impact.</p>
+<p>T1 + trend = (B0 + B1) + B2 = counterfactual<br />
+B0 + B1 + B2 + B3 = actual observed treatment group outcome</p>
+<p>The contrast for comparing the treated group to its counterfactual is:</p>
+<p>B0 + B1 + B2 + B3 = B0 + B1 + B2<br />
+B3 = 0 (after simplification)</p>
+<p>Which is the significance test associated with B3=0 that is reported in the model.</p>
+<p>So the coefficients on B1, B2, and B3 all represent meaningful contrasts that map onto useful hypotheses.</p>
+</div>
+<div id="the-counterfactual-1" class="section level2">
+<h2>The counterfactual</h2>
+<p>Based on our results, we can calculate the counterfactual using the formula (4):</p>
+<p><span class="math display">\[\begin{equation} 
+\text{Counterfactual} = \beta_0 + \beta_1 + \beta_2
+  \tag{2}
+\end{equation}\]</span></p>
+<p>The counterfactual represents the price of the houses in the treatment group, had the construction of the housing site never happend. It is equal to 268,364. But because the intervention did occur the price of the houses is equal to 302,430 (the counterfactual + the diff-in-diff).</p>
+<p>We can map all these numbers in a graph:</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/Example-1.png" alt="Figure 11. Results from the working example" width="960" />
+<p class="caption">
+Figure 11. Results from the working example
+</p>
+</div>
+</div>
+</div>
+<div id="replication-of-a-study" class="section level1">
+<h1>Replication of a study</h1>
+<div class="figure">
+<img src="FIGURE/DiffInDiff/Minimum%20Wage.png" alt="Figure 12. Source: http://factsmaps.com/minimum-wage-us-states-july-2018/" width="60%" />
+<p class="caption">
+Figure 12. Source: <a href="http://factsmaps.com/minimum-wage-us-states-july-2018/" class="uri">http://factsmaps.com/minimum-wage-us-states-july-2018/</a>
+</p>
+</div>
+<p>We are going to replicate a study conducted by <a href="http://davidcard.berkeley.edu/papers/njmin-aer.pdf">Card and Krueger in 1994</a> that investigate the relationship between a rise in minimum wage and employment.</p>
+<p><a href="https://www.frbsf.org/economic-research/publications/economic-letter/2015/december/effects-of-minimum-wage-on-employment/">Economic theories</a> have long suggested that increases in the minimum wage lead to a reduction in the employment for at least two reasons:</p>
+<ul>
+<li>Businesses are less likely to hire and will rather invest in other resources that are now cheaper because of wage increase</li>
+<li>Higher salaries will induce businesses to raise their prices to compensate their greater costs; as prices increase, we expect fewer buyers, which will lead to lower demand and employment.</li>
+</ul>
+<p>These theories have found mixed <a href="https://www.nber.org/papers/w12663">support</a> but the discussion is still very much open within the policy world, as states discuss the opportunity to rise their minimum wage to help local populations to face increasing living costs. Discussions are currently occuring in <a href="https://www.nytimes.com/2019/01/17/nyregion/nj-minimum-wage.html">New Jersey</a> and <a href="https://kmox.radio.com/articles/discussions-underway-raise-illinois-minimum-wage-15hour">Illinois</a> to raise the minimum wage to 15$/hour (<a href="https://www.nytimes.com/2018/12/31/nyregion/15-minimum-wage-new-york.html?module=inline">New york</a> has successfully passed this same raise in 2018).</p>
+<p>One of the first study looking at this policy problem was Card and Krueger’s. They applied a difference-in-difference the design to look at two groups of fast-food restaurants:</p>
+<ul>
+<li>fast-food restaurants in New Jersey where the minimum wage increased from 4.25$ to 5.05$ per hour (treatment group) AND</li>
+<li>fast-food restaurants in Pennsylvania where the minimum wage did not increase (control group).</li>
+</ul>
+<p>They collected employment data before and after the minimum wage was approved.</p>
+<blockquote>
+<p><strong>Research question:</strong> Do increases in the minimum wage affect employment?</p>
+<p><strong>Hypothesis:</strong> An increase in the minimum wage is negatively correlated with employment.</p>
+</blockquote>
+<div id="replication-data" class="section level2">
+<h2>Replication Data</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>URL <span class="ot">&lt;-</span> <span class="st">&quot;https://raw.githubusercontent.com/DS4PS/pe4ps-textbook/master/data/DID_Example.csv&quot;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>( URL, <span class="at">stringsAsFactors=</span>F )</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>( data ) <span class="sc">%&gt;%</span> <span class="fu">pander</span>()</span></code></pre></div>
+<table style="width:100%;">
+<caption>Table continues below</caption>
+<colgroup>
+<col width="7%" />
+<col width="10%" />
+<col width="11%" />
+<col width="13%" />
+<col width="11%" />
+<col width="7%" />
+<col width="7%" />
+<col width="10%" />
+<col width="10%" />
+<col width="10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">ID</th>
+<th align="center">Chain</th>
+<th align="center">SouthJ</th>
+<th align="center">CentralJ</th>
+<th align="center">NorthJ</th>
+<th align="center">PA1</th>
+<th align="center">PA2</th>
+<th align="center">Shore</th>
+<th align="center">Group</th>
+<th align="center">Empl</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">46</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">30</td>
+</tr>
+<tr class="even">
+<td align="center">49</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">6.5</td>
+</tr>
+<tr class="odd">
+<td align="center">506</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">56</td>
+<td align="center">4</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">20</td>
+</tr>
+<tr class="odd">
+<td align="center">61</td>
+<td align="center">4</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">6</td>
+</tr>
+<tr class="even">
+<td align="center">62</td>
+<td align="center">4</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<table style="width:74%;">
+<colgroup>
+<col width="13%" />
+<col width="22%" />
+<col width="9%" />
+<col width="11%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">C.Owned</th>
+<th align="center">Hours.Opening</th>
+<th align="center">Soda</th>
+<th align="center">Fries</th>
+<th align="center">Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">16.5</td>
+<td align="center">1.03</td>
+<td align="center">1.03</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">0</td>
+<td align="center">13</td>
+<td align="center">1.01</td>
+<td align="center">0.9</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="center">10</td>
+<td align="center">0.95</td>
+<td align="center">0.74</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="center">12</td>
+<td align="center">0.87</td>
+<td align="center">0.82</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="center">12</td>
+<td align="center">0.87</td>
+<td align="center">0.77</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="center">12</td>
+<td align="center">0.87</td>
+<td align="center">0.77</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<p>These are the variables contained in the dataset.</p>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Variable name </strong></th>
+<th><strong>Description </strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ID</td>
+<td>Unique identifier for fast food</td>
+</tr>
+<tr class="even">
+<td>Treatment</td>
+<td>Pre-treatment (=0) and post-treatment (=1)</td>
+</tr>
+<tr class="odd">
+<td>Group</td>
+<td>1 if NJ (treatment); 0 if PA (Control)</td>
+</tr>
+<tr class="even">
+<td>Empl</td>
+<td># of full time employees</td>
+</tr>
+<tr class="odd">
+<td>C.Owned</td>
+<td>If owned by a company (=1) or not (=0)</td>
+</tr>
+<tr class="even">
+<td>Hours.Opening</td>
+<td>Number hours open per day</td>
+</tr>
+<tr class="odd">
+<td>Soda</td>
+<td>Price of medium soda, including tax</td>
+</tr>
+<tr class="even">
+<td>Fries</td>
+<td>price of small fries, including tax</td>
+</tr>
+<tr class="odd">
+<td>Chain</td>
+<td>1 = BK, 2 = KFC, 3 = Roys, 4 = Wendys</td>
+</tr>
+<tr class="even">
+<td>SouthJ</td>
+<td>South New Jersey</td>
+</tr>
+<tr class="odd">
+<td>CentralJ</td>
+<td>Central New Jersey</td>
+</tr>
+<tr class="even">
+<td>NorthJ</td>
+<td>North New Jersey</td>
+</tr>
+<tr class="odd">
+<td>PA1</td>
+<td>Northeast suburbs of Philadelphia</td>
+</tr>
+<tr class="even">
+<td>PA2</td>
+<td>Easton and other PA areas</td>
+</tr>
+<tr class="odd">
+<td>Shore</td>
+<td>New Jersey Shore</td>
+</tr>
+</tbody>
+</table>
+<p>Here are some basic statistics.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( data,  </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.summary.stat =</span> <span class="fu">c</span>(<span class="st">&quot;p25&quot;</span>, <span class="st">&quot;p75&quot;</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span> )</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+<td>
+Min
+</td>
+<td>
+Max
+</td>
+</tr>
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+ID
+</td>
+<td>
+820
+</td>
+<td>
+246.51
+</td>
+<td>
+148.14
+</td>
+<td>
+1
+</td>
+<td>
+522
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Chain
+</td>
+<td>
+820
+</td>
+<td>
+2.12
+</td>
+<td>
+1.11
+</td>
+<td>
+1
+</td>
+<td>
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+SouthJ
+</td>
+<td>
+820
+</td>
+<td>
+0.23
+</td>
+<td>
+0.42
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+CentralJ
+</td>
+<td>
+820
+</td>
+<td>
+0.15
+</td>
+<td>
+0.36
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+NorthJ
+</td>
+<td>
+820
+</td>
+<td>
+0.43
+</td>
+<td>
+0.49
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+PA1
+</td>
+<td>
+820
+</td>
+<td>
+0.09
+</td>
+<td>
+0.28
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+PA2
+</td>
+<td>
+820
+</td>
+<td>
+0.10
+</td>
+<td>
+0.31
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Shore
+</td>
+<td>
+820
+</td>
+<td>
+0.09
+</td>
+<td>
+0.28
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Group
+</td>
+<td>
+820
+</td>
+<td>
+0.81
+</td>
+<td>
+0.39
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Empl
+</td>
+<td>
+802
+</td>
+<td>
+8.24
+</td>
+<td>
+8.30
+</td>
+<td>
+0.00
+</td>
+<td>
+60.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+C.Owned
+</td>
+<td>
+820
+</td>
+<td>
+0.34
+</td>
+<td>
+0.48
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Hours.Opening
+</td>
+<td>
+820
+</td>
+<td>
+12.65
+</td>
+<td>
+4.76
+</td>
+<td>
+1.00
+</td>
+<td>
+24.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Soda
+</td>
+<td>
+790
+</td>
+<td>
+1.04
+</td>
+<td>
+0.09
+</td>
+<td>
+0.41
+</td>
+<td>
+1.49
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Fries
+</td>
+<td>
+775
+</td>
+<td>
+0.93
+</td>
+<td>
+0.11
+</td>
+<td>
+0.67
+</td>
+<td>
+1.37
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Treatment
+</td>
+<td>
+820
+</td>
+<td>
+0.50
+</td>
+<td>
+0.50
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td colspan="6" style="border-bottom: 1px solid black">
+</td>
+</tr>
+</table>
+<p>From the descriptive statistics table, you can see that the fast-food restaurants in our data have, on average, 8 employees. Moreover, 80% of the fast-food restaurants are part of the intervention group (see the Group variable).</p>
+</div>
+<div id="analysis-1" class="section level2">
+<h2>Analysis</h2>
+<p>We now estimate the difference-in-difference model based on the equation (2); note that along with the Group and Treatment variables, we also include a set of control variables to account for differences across restaurants. For instance, we include the variable “opening hours” (if fast food restaurants are open more hours they might need more employees) or prices for fries and sodas (more expensive fast food might have more money to hire more employees).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">lm</span>( Empl <span class="sc">~</span> Group <span class="sc">+</span> Treatment <span class="sc">+</span> Treatment <span class="sc">*</span> Group <span class="sc">+</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>            C.Owned <span class="sc">+</span> Hours.Opening <span class="sc">+</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>            Soda <span class="sc">+</span> Fries <span class="sc">+</span>  <span class="fu">as.factor</span>(Chain) <span class="sc">+</span>  </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            SouthJ <span class="sc">+</span>  CentralJ <span class="sc">+</span>  NorthJ <span class="sc">+</span>  </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            PA1 <span class="sc">+</span>  PA2 <span class="sc">+</span>  Shore, <span class="at">data =</span> data)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>( reg, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;html&quot;</span>, </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">dep.var.labels =</span> (<span class="st">&quot;Full-time Employees&quot;</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit =</span> <span class="fu">c</span>(<span class="st">&quot;PA2&quot;</span>, <span class="st">&quot;NorthJ&quot;</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">column.labels =</span> (<span class="st">&quot;Model results&quot;</span>), </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">intercept.bottom =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Constant (b0)&quot;</span>, </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Treatment (b1)&quot;</span>, </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Post-treatment (b2)&quot;</span>, </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;C.Owned&quot;</span>,<span class="st">&quot;Hours.Opening&quot;</span>, </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Soda&quot;</span>,<span class="st">&quot;Fries&quot;</span>, </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Burger King&quot;</span>,<span class="st">&quot;Roys&quot;</span>, <span class="st">&quot;Wendy&#39;s&quot;</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;SouthJ&quot;</span>, <span class="st">&quot;CentralJ&quot;</span>,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;PA1&quot;</span>, <span class="st">&quot;Shore&quot;</span>,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;Diff-in-Diff estimator (b3)&quot;</span>),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">omit.stat =</span> <span class="st">&quot;all&quot;</span>, </span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">digits =</span> <span class="dv">2</span>)</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="1" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Full-time Employees
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Model results
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant (b0)
+</td>
+<td>
+1.62
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(4.66)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Treatment (b1)
+</td>
+<td>
+-3.07<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.29)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Post-treatment (b2)
+</td>
+<td>
+-1.32
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.29)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+C.Owned
+</td>
+<td>
+-0.13
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.68)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Hours.Opening
+</td>
+<td>
+0.55<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.10)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Soda
+</td>
+<td>
+2.73
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(4.26)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Fries
+</td>
+<td>
+-0.65
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(4.07)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Burger King
+</td>
+<td>
+-0.60
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.09)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Roys
+</td>
+<td>
+-1.80<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.91)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Wendy’s
+</td>
+<td>
+2.23<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+SouthJ
+</td>
+<td>
+-2.46<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.83)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+CentralJ
+</td>
+<td>
+-1.37
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.86)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+PA1
+</td>
+<td>
+-2.41<sup>*</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.31)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Shore
+</td>
+<td>
+0.84
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Diff-in-Diff estimator (b3)
+</td>
+<td>
+4.12<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.41)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<p>Note that two variables were omitted because of collinearity.</p>
+</div>
+<div id="discussion-of-the-results-1" class="section level2">
+<h2>Discussion of the results</h2>
+<p>As before, test your knowledge with the following questions:</p>
+<ol style="list-style-type: decimal">
+<li>Is the control group in Time=1 different from zero?</li>
+<li>Did the treatment and comparison groups differ significantly in the first time period?</li>
+<li>Did the comparison group change significantly between the first and second time periods?</li>
+<li>Is the treatment Group in Time=2 different from the counterfactual? In other words, does the program have impact?</li>
+</ol>
+<p>You can see the correct answers in the code.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. No. The coefficient b0 is not statistically significant suggesting that the mean of the control group is not statistically different from zero (see the variable &quot;Constant&quot;).</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Yes, the treatment group has, on average, 3 employees less than the control group. Beta1 is statistically significant (see the variable &quot;Group&quot;).</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. No. Despite the coefficient b2 = -1.32, suggesting a decrease in the number of employees, it is not statistically significant - therefore, we can conclude that there was no change in the control group.</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Yes. The difference-in-difference estimator is equal to 4, suggesting that after the treatment, employment for restaurant in New Jersey (our treatment group) saw an increase in employment equal to an average of 4 employees.</span></span></code></pre></div>
+</div>
+</div>
+<div id="additional-resources" class="section level1">
+<h1>Additional resources</h1>
+<p>In this section we are going to look at some more cases of difference-in-difference as well as a key assumption that you need to consider.</p>
+<div id="cases-in-difference-in-difference" class="section level2">
+<h2>Cases in difference-in-difference</h2>
+<p>We can look at some specific cases of difference-in-difference models in the following pictures. This will help you thinking about the different coefficients in the model.</p>
+<p>In the first picture, the control group does not increase over time, such that <span class="math inline">\(\beta_1\)</span> = 0 and the control group outcome is equal to <span class="math inline">\(\beta_0\)</span> both before and after the treatment.</p>
+<p>In the second picture, there is no difference between the control and the treatment group before the treatment. In this case, <span class="math inline">\(\beta_0\)</span> = <span class="math inline">\(\beta_2\)</span>.</p>
+<p>In the last picture, the program has no effect and we would expect <span class="math inline">\(\beta_3\)</span> = 0 as both groups have increases at the same ration.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/cases-1.png" alt="Figure 13. Multiple cases in a DID model" width="960" />
+<p class="caption">
+Figure 13. Multiple cases in a DID model
+</p>
+</div>
+<p>Statistically, you can see each case represented in the following table.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>T1 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">20</span>,<span class="dv">40</span>)</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+moxy
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+Outcome
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+<td>
+(3)
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Intercept (A)
+</td>
+<td>
+20.0<sup>***</sup>
+</td>
+<td>
+20.0<sup>***</sup>
+</td>
+<td>
+20.0<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.4)
+</td>
+<td>
+(1.4)
+</td>
+<td>
+(1.4)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Treatment Group (B)
+</td>
+<td>
+10.0<sup>***</sup>
+</td>
+<td>
+-0.0
+</td>
+<td>
+10.0<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.9)
+</td>
+<td>
+(1.9)
+</td>
+<td>
+(1.9)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Post-Period (C)
+</td>
+<td>
+-0.0
+</td>
+<td>
+5.0<sup>**</sup>
+</td>
+<td>
+10.0<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1.9)
+</td>
+<td>
+(1.9)
+</td>
+<td>
+(1.9)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Treat x Post (D)
+</td>
+<td>
+10.0<sup>***</sup>
+</td>
+<td>
+15.0<sup>***</sup>
+</td>
+<td>
+0.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(2.7)
+</td>
+<td>
+(2.7)
+</td>
+<td>
+(2.7)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+84
+</td>
+<td>
+84
+</td>
+<td>
+84
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="3" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+</div>
+<div id="parallel-trend-assumption" class="section level2">
+<h2>Parallel trend assumption</h2>
+<p>The difference-in-difference model assumes that - in the absence of treatment - the treatment and control group have a similar trend over time, so as we can calculate the counterfactual based on the changes in the control group (remember that the counterfactual is calculated by summing<span class="math inline">\(beta_0\)</span>, <span class="math inline">\(beta_1\)</span>, and <span class="math inline">\(beta_2\)</span> as in equation (4). This is called the <em>parallel trend assumption</em>.</p>
+<p>You can see what happens when the assumption is met or not met in the following pictures, where we assume that no treatment has occured.</p>
+<p>In the first picture, the two groups have the same growth over time.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/pline-1.png" alt="Figure 14. Parallel trend assumption: met" width="960" />
+<p class="caption">
+Figure 14. Parallel trend assumption: met
+</p>
+</div>
+<p>In a difference-in-difference model we would be able to correctly calculate the counterfactual based on the trend observed in the control group and we could obtain our diff-in-diff estimator.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/pline2-1.png" alt="Figure 15. Parallel trend assumption: counterfactual" width="960" />
+<p class="caption">
+Figure 15. Parallel trend assumption: counterfactual
+</p>
+</div>
+<p>In this second graph, the two groups have a different trend, with the first group growing more than the second group.</p>
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/pline3-1.png" alt="Figure 16. Parallel trend assumption: unmet" width="960" />
+<p class="caption">
+Figure 16. Parallel trend assumption: unmet
+</p>
+</div>
+If we were to calculate the counterfactual based on the control group, we would misscalculate it and attribute a greater effect to the treatment. This could happen if we compare salary at T=0 and T=10 among individuals in different professions; or the likelihood to go to college between high and low achieving students. You need to pay attention to the selection of the control group.
+<div class="figure">
+<img src="p-030-diff-in-diff_files/figure-html/pline4-1.png" alt="Figure 17. Parallel trend assumption: wrong counterfactual" width="960" />
+<p class="caption">
+Figure 17. Parallel trend assumption: wrong counterfactual
+</p>
+</div>
+<p>There is no easy way to test the parallel line assumption. You can (1) use theory to make and argument or (2) if you have longitudinal data compare the trend of the control and treatment group before the intervention to see if they are similar.</p>
+</div>
+</div>
+
+
+<div class="footer">
+<div class="row"  align="center">
+
+  <br>
+  Written by <a href=http://fusifederica.weebly.com/ target="_blank">Federica Fusi</a> & <a href=http://lecy.info target="_blank">Jesse Lecy</a><br>
+  Content licensed under Creative Commons: <a href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target="_blank"> (CC BY-NC-SA 4.0)</a><br>
+  Source code is available on <a href=https://github.com/DS4PS/cpp-523-spr-2020/tree/master/labs target="_blank">GitHub</a><br>
+  <br>
+  CPP 525 <a href="https://ds4ps.org/cpp-525-spr-2020/" target="_blank">Foundations of Prog Eval III</a><br>
+  Part of the <a href=http://ds4ps.org/ms-prog-eval-data-analytics/ target="_blank">MS in Evaluation and Analytics</a><br>
+  @ <a href=https://asuonline.asu.edu/online-degree-programs/graduate/program-evaluation-and-data-analytics-ms/ target="_blank">Arizona State University</a><br>
+  <br>
+  Copyright &copy; 2020
+
+<br>
+<br>
+<br>
+<br>
+
+</div>
+</div>
+
+
+
+
+<style>
+
+blockquote {
+    padding: 11px 22px;
+    margin: 0 0 22px;
+    font-size: 18px;
+    border-left: 5px solid lightgray;
+}
+
+.footer {
+  color:white;
+  min-height: 450px !important;
+  background-color: #696969;
+  padding-bottom: 3em;
+  padding-top: 3em;
+  margin: auto;
+}
+
+.footer a {
+  color: orange;
+}
+
+.footer body{
+     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     font-size:calc(1.5em + 0.25vw);
+     font-weight:300;line-height:1.65;
+     -webkit-font-smoothing:antialiased;
+     -moz-osx-font-smoothing:grayscale;
+     margin-left:20%;
+     margin-right:20%
+}
+
+footer.body{
+     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     font-size:calc(1.5em + 0.25vw);
+     font-weight:300;line-height:1.65;
+     -webkit-font-smoothing:antialiased;
+     -moz-osx-font-smoothing:grayscale;
+     margin-left:20%;
+     margin-right:20%
+}
+
+.footerFloatOuter {
+	width: 25%;
+	float: left;
+}
+
+.footerFloatInner1 {
+	width: 20%;
+	float: left;
+	align: left;
+	margin-left: 0px;
+}
+
+.footerFloatInner2 {
+	width: 50%;
+	float: left;
+	text-align: left;
+}
+
+
+
+.footer ul li {
+	font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:calc(0.55em + 0.25vw) !important;
+  font-weight:300;
+  line-height:1.2 !important;
+  color: #FFF;
+	text-transform: uppercase;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+</style>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

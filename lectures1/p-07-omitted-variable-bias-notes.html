@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Omitted Variable Bias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Omitted Variable Bias</h1>
+    <p class="dek">A reading guide for lecture <span class="m">p-07</span> &mdash; the two conditions
+      bias requires, and why no amount of data fixes it.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The models, the formula, and the two cases, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Greek letters mean the truth; Latin letters mean your best guess.</p>
+      <ul>
+        <li><strong>Full model</strong> &mdash; every relevant variable is included, so the slopes are
+          correct: <span class="m"><i>&beta;</i><sub>1</sub></span></li>
+        <li><strong>Naïve model</strong> &mdash; variables are missing, so the slopes may be biased:
+          <span class="m"><i>b</i><sub>1</sub></span></li>
+      </ul>
+      <p>Note the mapping the deck makes explicit: <em>full model</em> plays the role of a population
+        statistic and <em>naïve model</em> the role of a sample statistic. But this is not sampling
+        error &mdash; you can have the entire population and still be wrong if a variable is
+        missing.</p>
+
+      <p class="claim">The main question.</p>
+      <blockquote>
+        <p>If we have an omitted variable, will our estimate of program impact
+          (<span class="m"><i>b</i><sub>1</sub></span>) sufficiently represent the true program impact
+          (<span class="m"><i>&beta;</i><sub>1</sub></span>)?</p>
+        <p>We will ALWAYS have omitted variables in observational studies. The real question is not
+          whether it is there, but how much will it affect our estimates?</p>
+      </blockquote>
+
+      <p class="claim">The three models.</p>
+      <div class="eq">
+        <span class="m"><i>Y</i> = <i>&beta;</i><sub>0</sub> + <i>&beta;</i><sub>1</sub><i>X</i><sub>1</sub>
+          + <i>&beta;</i><sub>2</sub><i>X</i><sub>2</sub> + <i>&epsilon;</i><sub>1</sub></span>
+      </div>
+      <div class="eq">
+        <span class="m"><i>Y</i> = <i>b</i><sub>0</sub> + <i>b</i><sub>1</sub><i>X</i><sub>1</sub> + <i>e</i></span>
+      </div>
+      <div class="eq">
+        <span class="m"><i>X</i><sub>2</sub> = <i>&alpha;</i><sub>0</sub> + <i>&alpha;</i><sub>1</sub><i>X</i><sub>1</sub>
+          + <i>&epsilon;</i><sub>2</sub></span>
+      </div>
+      <p>The auxiliary regression puts the <strong>omitted variable on the left-hand side</strong>.</p>
+
+      <p class="claim">The take-away, in three lines.</p>
+      <ol>
+        <li><span class="m">bias = <i>&beta;</i><sub>2</sub><i>&alpha;</i><sub>1</sub></span> &mdash;
+          the product of two slopes: <span class="m"><i>X</i><sub>1</sub> &rarr; <i>X</i><sub>2</sub></span>
+          and <span class="m"><i>X</i><sub>2</sub> &rarr; <i>Y</i></span></li>
+        <li><span class="m"><i>b</i><sub>1</sub> = <i>&beta;</i><sub>1</sub> + bias</span> &mdash; the
+          naïve slope is the true slope plus bias</li>
+        <li><span class="m">slope = cov(<i>x</i>,&thinsp;<i>y</i>) / var(<i>x</i>)</span> &mdash; the
+          sign of a slope always follows the sign of the covariance</li>
+      </ol>
+
+      <p class="claim">Bias is the indirect effect.</p>
+      <ul>
+        <li><span class="m"><i>b</i><sub>1</sub></span> = direct effect <strong>+</strong> indirect effect</li>
+        <li><span class="m"><i>&beta;</i><sub>1</sub></span> = direct effect</li>
+        <li><span class="m">bias = <i>b</i><sub>1</sub> &minus; <i>&beta;</i><sub>1</sub></span> = indirect effect</li>
+      </ul>
+      <p>The naïve slope absorbs everything that reaches Y <em>through</em>
+        <span class="m"><i>X</i><sub>1</sub></span>, including the part that really belongs to
+        <span class="m"><i>X</i><sub>2</sub></span>.</p>
+
+      <p class="claim">Two cases.</p>
+      <ul>
+        <li><strong>Case 1 &mdash; omitted variable correlated with the policy variable.</strong> The
+          circles overlap; the shared region is discarded by the regression.
+          <span class="m"><i>b</i><sub>1</sub> &asymp; <i>A</i>+<i>B</i></span>,
+          <span class="m"><i>&beta;</i><sub>1</sub> &asymp; <i>A</i></span>, so
+          <span class="m">bias &asymp; <i>B</i></span>. <strong>Biased.</strong></li>
+        <li><strong>Case 2 &mdash; omitted variable uncorrelated with the policy variable.</strong> No
+          overlap. <span class="m"><i>b</i><sub>1</sub> &asymp; <i>A</i></span> and
+          <span class="m"><i>&beta;</i><sub>1</sub> &asymp; <i>A</i></span>, so bias
+          <span class="m">= 0 &middot; <i>&beta;</i><sub>2</sub> = 0</span>.
+          <strong>Unbiased.</strong></li>
+      </ul>
+
+      <p class="claim">A worked example.</p>
+      <ul>
+        <li>naïve: <span class="m"><i>b</i><sub>1</sub> = &minus;0.433</span></li>
+        <li>full: <span class="m"><i>&beta;</i><sub>1</sub> = &minus;0.377</span></li>
+        <li>auxiliary: <span class="m"><i>&alpha;</i><sub>1</sub> = &minus;0.0099</span>, and
+          <span class="m"><i>&beta;</i><sub>2</sub> = 5.65</span></li>
+      </ul>
+      <p><span class="m">5.65 &middot; &minus;0.0099 = &minus;0.056</span>, and
+        <span class="m">&minus;0.433 &minus; (&minus;0.377) = &minus;0.056</span>. The two routes
+        agree. In the multi-model table the bias reaches <strong>51%</strong> &mdash; the naïve model
+        overestimates program impact by half.</p>
+    </div>
+  </section>
+
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>Bias needs two things to be true at once</h3>
+    <p>This is the whole lecture compressed into one line:</p>
+    <div class="eq center">
+      <span class="m">bias = <i>&alpha;</i><sub>1</sub> &middot; <i>&beta;</i><sub>2</sub></span>
+    </div>
+    <p>A product is zero if either factor is zero, so omitted variable bias requires
+      <strong>both</strong>:</p>
+    <ul>
+      <li><span class="m"><i>&alpha;</i><sub>1</sub> &ne; 0</span> &mdash; the omitted variable is
+        <strong>correlated with your policy variable</strong></li>
+      <li><span class="m"><i>&beta;</i><sub>2</sub> &ne; 0</span> &mdash; the omitted variable
+        <strong>actually affects Y</strong></li>
+    </ul>
+    <p>Fail either condition and the omission is harmless. This is why the deck can be relaxed about the
+      fact that observational studies always omit something: most omitted variables are irrelevant on at
+      least one of the two channels.</p>
+    <p>It also tells you what to worry about. The dangerous omitted variable is not the one most strongly
+      related to your outcome &mdash; it is the one related to your outcome <em>and</em> to your
+      treatment.</p>
+
+    <h3>You can sign the bias without measuring anything</h3>
+    <p>Because bias is a product of two slopes, its <strong>direction</strong> is the product of two
+      signs. That is a genuinely useful skill, and it works even when the omitted variable is
+      unmeasurable:</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr>
+          <th scope="col"><span class="m"><i>&alpha;</i><sub>1</sub></span> (<span class="m"><i>X</i><sub>1</sub>&rarr;<i>X</i><sub>2</sub></span>)</th>
+          <th scope="col"><span class="m"><i>&beta;</i><sub>2</sub></span> (<span class="m"><i>X</i><sub>2</sub>&rarr;<i>Y</i></span>)</th>
+          <th scope="col">Bias</th><th scope="col">Naïve slope is</th></tr></thead>
+        <tbody>
+          <tr><td>+</td><td>+</td><td>+</td><td>too large</td></tr>
+          <tr><td>&minus;</td><td>&minus;</td><td>+</td><td>too large</td></tr>
+          <tr><td>+</td><td>&minus;</td><td>&minus;</td><td>too small</td></tr>
+          <tr><td>&minus;</td><td>+</td><td>&minus;</td><td>too small</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>So even if you cannot fix the problem, you can often say which way your estimate is wrong &mdash;
+      and therefore whether your finding survives. If you estimate a positive effect and reason that the
+      bias is positive, your true effect is <em>smaller</em> than reported.</p>
+    <p>The deck&rsquo;s warning attaches here: <em>if the naïve slope is too large it can make it look
+      significant when it&rsquo;s not.</em></p>
+
+    <h3>This is the mirror image of p-06</h3>
+    <p>Put the two lectures side by side and they are the same diagram read in opposite directions:</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr><th scope="col"></th><th scope="col">p-06: adding a control</th><th scope="col">p-07: omitting a variable</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Uncorrelated with <span class="m"><i>X</i><sub>1</sub></span></th>
+            <td>shrinks residual, slope unchanged, SE smaller</td><td>no bias</td></tr>
+          <tr><th scope="row">Correlated with <span class="m"><i>X</i><sub>1</sub></span></th>
+            <td>eats the overlap, slope changes, SE larger</td><td>bias</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Notice that the <em>same</em> variable is harmless in both directions or harmful in both
+      directions. A control uncorrelated with your policy variable neither biases you when omitted nor
+      distorts you when added &mdash; it only ever affects precision. A correlated one always does
+      both.</p>
+    <p>That gives you the decision rule the two lectures jointly imply:</p>
+    <ul>
+      <li><strong>Correlated with <span class="m"><i>X</i><sub>1</sub></span> and affects Y</strong>
+        &rarr; you must include it, and you will pay in standard errors.</li>
+      <li><strong>Uncorrelated with <span class="m"><i>X</i><sub>1</sub></span> but affects Y</strong>
+        &rarr; include it if you can; it is free precision.</li>
+      <li><strong>Does not affect Y</strong> &rarr; it does not matter either way.</li>
+    </ul>
+    <p>p-06 showed the cost. p-07 shows the reason to pay it. Together they are the accuracy-versus-
+      precision trade from p-05, made concrete.</p>
+
+    <h3>Why bias is not the same as sampling error</h3>
+    <p>Slide 2 makes a point worth dwelling on. You are used to Greek-versus-Latin meaning
+      population-versus-sample, and here it means full-model-versus-naïve. The analogy is deliberate but
+      the mechanism is completely different.</p>
+    <p>Sampling error shrinks as <span class="m"><i>n</i></span> grows. <strong>Omitted variable bias
+      does not.</strong> You can have census data on every unit in the population and still get the
+      wrong slope, because the problem is not that you have too few rows &mdash; it is that you have too
+      few columns.</p>
+    <div class="callout">
+      <p>This is the clearest illustration of the p-05 distinction: more data buys you efficiency, never
+        unbiasedness. No sample size fixes a missing variable.</p>
+    </div>
+
+    <h3>The formula that cannot be used, and the one that can</h3>
+    <p>Slide 13 is honest about something most treatments gloss over:
+      <span class="m">bias = <i>b</i><sub>1</sub> &minus; <i>&beta;</i><sub>1</sub></span> is the
+      definition, and it is useless in practice &mdash; if you knew
+      <span class="m"><i>&beta;</i><sub>1</sub></span> you would not be estimating it.</p>
+    <p>What makes the lecture practical is the <em>other</em> route,
+      <span class="m">bias = <i>&alpha;</i><sub>1</sub><i>&beta;</i><sub>2</sub></span>, because both of
+      those can sometimes be reasoned about from theory, prior studies, or partial data even when the
+      full model cannot be run. That is the difference between a definition and a tool.</p>
+
+    <h3>The path diagram is the thing to remember</h3>
+    <p>If you keep one image from this deck, keep the triangle:</p>
+    <ul>
+      <li><span class="m"><i>X</i><sub>1</sub> &rarr; <i>Y</i></span> is the <strong>direct
+        effect</strong>, <span class="m"><i>&beta;</i><sub>1</sub></span></li>
+      <li><span class="m"><i>X</i><sub>1</sub> &rarr; <i>X</i><sub>2</sub> &rarr; <i>Y</i></span> is the
+        <strong>indirect path</strong>, <span class="m"><i>&alpha;</i><sub>1</sub></span> then
+        <span class="m"><i>&beta;</i><sub>2</sub></span></li>
+      <li>the naïve regression cannot tell the two routes apart, so it reports their sum</li>
+    </ul>
+    <p>Every question about omitted variable bias reduces to: <em>is there a second route from my
+      treatment to my outcome, and how strong is it?</em></p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>Notation</td><td>Greek = truth, Latin = best guess. Bias is not sampling error.</td></tr>
+          <tr><td>3&ndash;4</td><td>The main question</td><td>Omission is universal; magnitude is the real question.</td></tr>
+          <tr><td>5&ndash;8</td><td>p-06 recapped</td><td>The two control types, restated as a setup.</td></tr>
+          <tr><td>9&ndash;11</td><td>The two cases</td><td>Correlated &rarr; bias. Uncorrelated &rarr; none.</td></tr>
+          <tr><td>12</td><td>The multi-model table</td><td>Bias of 51% in the worked example.</td></tr>
+          <tr><td>13</td><td>The definition</td><td><span class="m"><i>b</i><sub>1</sub> &minus; <i>&beta;</i><sub>1</sub></span>. True, and unusable.</td></tr>
+          <tr><td>14&ndash;17</td><td>Direct and indirect effects</td><td>The path diagram. <span class="m"><i>X</i><sub>2</sub></span> goes on the left in the auxiliary regression.</td></tr>
+          <tr><td>19</td><td>Worked calculation</td><td>Both routes give <span class="m">&minus;0.056</span>. Check the arithmetic yourself.</td></tr>
+          <tr><td>20</td><td><strong>The take-away</strong></td><td>Three numbered lines. If you memorise one slide, this one.</td></tr>
+          <tr><td>21</td><td>Why it matters</td><td>Case 1 too large, Case 2 too small; significance can be manufactured.</td></tr>
+          <tr><td>22&ndash;26</td><td>When does OVB occur?</td><td>The two Venn cases, with the algebra beside each.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>This deck has no closing checklist. Slide 20 is the summary.</p>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">The deck ends on its take-away rather than a question list.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>What omitted variable bias is.</strong> The naïve slope absorbs the indirect effect of
+        the omitted variable, so
+        <span class="m"><i>b</i><sub>1</sub> = <i>&beta;</i><sub>1</sub> + bias</span>.</li>
+      <li><strong>The two conditions.</strong> Bias requires the omitted variable to be correlated with
+        the policy variable <em>and</em> to affect the outcome. Either alone is harmless.</li>
+      <li><strong>How to compute it two ways.</strong>
+        <span class="m"><i>b</i><sub>1</sub> &minus; <i>&beta;</i><sub>1</sub></span> (definition, needs
+        the truth) or <span class="m"><i>&alpha;</i><sub>1</sub><i>&beta;</i><sub>2</sub></span>
+        (product of two estimable slopes).</li>
+      <li><strong>How to sign it.</strong> Multiply the signs of the two paths to know whether your
+        naïve estimate is too large or too small.</li>
+      <li><strong>Why more data does not help.</strong> Bias is a specification problem, not a sampling
+        problem.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong><span class="m">bias = <i>&alpha;</i><sub>1</sub><i>&beta;</i><sub>2</sub></span>.</strong>
+        Two slopes multiplied &mdash; the effect of your treatment on the omitted variable, times the
+        effect of the omitted variable on the outcome.</li>
+      <li><strong>Both channels must be open.</strong> Zero on either one means zero bias.</li>
+      <li><strong>The naïve slope is direct plus indirect effect.</strong> Regression cannot separate
+        routes it cannot see.</li>
+      <li><strong>You can often sign the bias without measuring the variable</strong>, which tells you
+        whether your result would survive correction.</li>
+      <li><strong>Bias does not shrink with sample size.</strong> It is a missing-column problem, not a
+        missing-row problem.</li>
+      <li><strong>The dangerous omitted variable is correlated with your treatment</strong>, not merely
+        predictive of your outcome.</li>
+      <li><strong>p-06 and p-07 are one decision.</strong> Correlated controls cost precision; omitting
+        them costs accuracy. The choice is about the world, not the data.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">p-07-omitted-variable-bias</span>. Source file lives alongside
+      this page as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>
