@@ -391,6 +391,53 @@
   .btn--rmd:hover{background:var(--navy);border-color:var(--accent);color:#fff;}
   .btn--data,.btn--pptx,.btn--docx{font-weight:400;color:var(--ink-soft);}
 
+  /* animation panel */
+  .anims{
+    margin-top:.7rem;
+    border:1px solid var(--rule);
+    border-radius:2px;
+    background:var(--surface);
+  }
+  .anims > summary{
+    cursor:pointer;
+    list-style:none;
+    padding:.45rem .72rem;
+    font-size:var(--step--1);
+    font-weight:600;
+    color:var(--ink-mid);
+  }
+  .anims > summary::-webkit-details-marker{display:none;}
+  .anims > summary::before{
+    content:"\25B8";
+    display:inline-block;
+    width:.9em;
+    color:var(--ink-soft);
+  }
+  .anims[open] > summary::before{content:"\25BE";}
+  .anims > summary:hover{color:var(--accent-ink);}
+  .anims .count{font-weight:400;color:var(--ink-soft);}
+  .anim-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));
+    gap:1rem;
+    padding:.15rem .72rem .85rem;
+  }
+  .anim{margin:0;}
+  .anim a{
+    display:block;
+    border:1px solid var(--rule);
+    background:#fff;
+    transition:border-color .15s ease;
+  }
+  .anim a:hover{border-color:var(--accent);}
+  .anim img{display:block;width:100%;height:auto;}
+  .anim figcaption{
+    margin-top:.4rem;
+    font-size:var(--step--2);
+    line-height:1.45;
+    color:var(--ink-soft);
+  }
+
   /* ---------- reference shelf ---------- */
   .shelf{border-top:1px solid var(--rule);padding:3.5rem 0 1rem;}
   .shelf > .shelf-head{max-width:var(--measure);margin-bottom:2rem;}
@@ -565,6 +612,21 @@
                 <a class="btn btn--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{% if l.download or l.raw %}<span class="ico">&#8595;</span>{% endif %}{{ l.label }}</a>
                 {% endfor %}
               </div>
+              {% if item.animations %}
+              <details class="anims">
+                <summary>Animations <span class="count">({{ item.animations | size }})</span></summary>
+                <div class="anim-grid">
+                  {% for a in item.animations %}
+                  <figure class="anim">
+                    <a href="{{ a.url | relative_url }}" target="_blank" rel="noopener">
+                      <img src="{{ a.url | relative_url }}" alt="{{ a.caption }}" loading="lazy" decoding="async">
+                    </a>
+                    <figcaption>{{ a.caption }}</figcaption>
+                  </figure>
+                  {% endfor %}
+                </div>
+              </details>
+              {% endif %}
             </div>
             {% endfor %}
           </div>

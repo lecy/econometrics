@@ -13,6 +13,8 @@ fine: >
   Notes are reading guides for the corresponding slide deck. Slide, worksheet, and
   data buttons save the file; RMD buttons open the original on GitHub, where
   "Download raw file" saves it unchanged.
+  Lectures built on simulations carry an Animations panel under the buttons, so the
+  GIFs from those slides can be watched on their own.
 ---
 
 Course material by Jesse Lecy. Source and file history at

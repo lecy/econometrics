@@ -117,24 +117,46 @@
         - { label: Notes, url: lectures1/p-03-standard-errors-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/p-03-standard-errors.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/p-03-standard-errors.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/sampling-process-n10.gif
+          caption: "Repeated samples of 10 drawn from the same population — the raw material of a sampling distribution."
+        - url: assets/animations/sampling-distribution-n10.gif
+          caption: "One thousand slope estimates from samples of 10. The spread of the pile is the standard error."
+        - url: assets/animations/sampling-distribution-n50.gif
+          caption: "The same simulation at n = 50 — same true slope, a visibly tighter sampling distribution."
     - title: Confidence Intervals
       blurb: Turning a standard error into a range of plausible values for the true slope.
       links:
         - { label: Notes, url: lectures1/p-04-confidence-intervals-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/p-04-confidence-intervals.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/p-04-confidence-intervals.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/confidence-interval-coverage.gif
+          caption: "One hundred trials of the same regression, each with a 95% interval around its estimated slope."
     - title: Interpreting Program Impact
       blurb: Effect size, practical versus statistical significance, and coefficient plots.
       links:
         - { label: Notes, url: lectures1/p-05-program-impact-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/p-05-program-impact.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/p-05-program-impact.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/statistical-power-low.gif
+          caption: "Low power — estimates cluster on the true slope, but the intervals keep including zero."
+        - url: assets/animations/statistical-power-high.gif
+          caption: "High power — the same true slope, with intervals narrow enough to rule out zero."
     - title: Sample vs. Sampling Distribution
       blurb: A short reading guide on the distinction students most often collapse.
       links:
         - { label: Notes, url: lectures1/sample-vs-sampling-distribution-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/sample-vs-sampling-distribution.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/sample-vs-sampling-distribution.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/repeated-samples-sampling-distribution.gif
+          caption: "Each new sample gives a new slope, and the estimates pile up around the true value."
+        - url: assets/animations/sampling-variance-1000-trials.gif
+          caption: "One thousand trials of the same regression — the spread of the estimates is sampling variance."
+        - url: assets/animations/confidence-interval-true-slope.gif
+          caption: "The true slope against each sample's best guess, with the 95% interval around the estimate."
   labs:
     - title: Lab P102 — Class Size and Confidence Intervals
       blurb: >
@@ -357,6 +379,13 @@
         - { label: Notes, url: lectures1/p-09-specification-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/p-09-specification.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/p-09-specification.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/measurement-error-dependent-variable.gif
+          caption: "Measurement error in Y widens the intervals and raises Type II risk, without biasing the slope."
+        - url: assets/animations/attenuation-bias-positive-slope.gif
+          caption: "Measurement error in X pulls a positive slope toward zero."
+        - url: assets/animations/attenuation-bias-negative-slope.gif
+          caption: "The same attenuation on a negative slope — again toward zero, not simply smaller."
   labs:
     - title: Lab P106 — Non-linear Models
       blurb: >
@@ -404,6 +433,13 @@
         - { label: Notes, url: lectures1/p-11-statistical-power-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/p-11-statistical-power.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/p-11-statistical-power.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/sampling-process-n10.gif
+          caption: "Repeated samples of 10 drawn from the same population — the raw material of a sampling distribution."
+        - url: assets/animations/sampling-distribution-n10.gif
+          caption: "One thousand slope estimates from samples of 10. The spread of the pile is the standard error."
+        - url: assets/animations/sampling-distribution-n50.gif
+          caption: "The same simulation at n = 50 — same true slope, a visibly tighter sampling distribution."
 
 # ===========================================================================
 # PART 2 — Research Design and Counterfactuals   (schedule2 / lectures2 / labs2)
@@ -513,6 +549,13 @@
       links:
         - { label: Notes, url: lectures2/p-04-effect-size-notes.html, kind: notes }
         - { label: PPTX, url: lectures2/p-04-effect-size.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/sampling-process-n10.gif
+          caption: "Repeated samples of 10 drawn from the same population — the raw material of a sampling distribution."
+        - url: assets/animations/sampling-distribution-n10.gif
+          caption: "One thousand slope estimates from samples of 10. The spread of the pile is the standard error."
+        - url: assets/animations/sampling-distribution-n50.gif
+          caption: "The same simulation at n = 50 — same true slope, a visibly tighter sampling distribution."
     - title: Happy Randomization
       blurb: Short companion piece on why balance fails 5% of the time by construction.
       links:
