@@ -133,6 +133,8 @@
       blurb: A short reading guide on the distinction students most often collapse.
       links:
         - { label: Notes, url: lectures1/sample-vs-sampling-distribution-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/sample-vs-sampling-distribution.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/sample-vs-sampling-distribution.pptx, kind: pptx, download: true }
   labs:
     - title: Lab P102 — Class Size and Confidence Intervals
       blurb: >
@@ -297,6 +299,11 @@
         - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/hypotheses-tests-with-dummy-variables.pptx, kind: pptx, download: true }
+    - title: Three Counterfactual Estimators
+      blurb: Pre-post, post-only, and difference-in-difference — each written as a dummy variable regression.
+      links:
+        - { label: Slides (PDF), url: lectures1/three-counterfactual-estimators.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/three-counterfactual-estimators.pptx, kind: pptx, download: true }
     - title: Groups in Regression Models
       blurb: The R-side treatment — building dummies, setting factor levels, reading output.
       links:
