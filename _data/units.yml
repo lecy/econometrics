@@ -556,6 +556,18 @@
           caption: "One thousand slope estimates from samples of 10. The spread of the pile is the standard error."
         - url: assets/animations/sampling-distribution-n50.gif
           caption: "The same simulation at n = 50 — same true slope, a visibly tighter sampling distribution."
+    - title: Statistical Power and Research Design
+      blurb: A consolidated design deck that closes on power — what shrinks a confidence interval, and why both sample size and effect size move it.
+      links:
+        - { label: Slides (PDF), url: lectures2/p-05-statistical-power.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-05-statistical-power.pptx, kind: pptx, download: true }
+      animations:
+        - url: assets/animations/sampling-process-n10.gif
+          caption: "Repeated samples of 10 drawn from the same population — the raw material of a sampling distribution."
+        - url: assets/animations/sampling-distribution-n10.gif
+          caption: "One thousand slope estimates from samples of 10. The spread of the pile is the standard error."
+        - url: assets/animations/sampling-distribution-n50.gif
+          caption: "The same simulation at n = 50 — same true slope, a visibly tighter sampling distribution."
     - title: Happy Randomization
       blurb: Short companion piece on why balance fails 5% of the time by construction.
       links:
