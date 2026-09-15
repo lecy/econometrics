@@ -582,9 +582,71 @@
         - { label: RMD Template, url: labs2/lab-02-template.rmd, kind: rmd, raw: true }
         - { label: Data (CSV), url: labs2/data/counterfactuals.csv, kind: data }
 
-- id: campbell-scores
+- id: measurement
   part: "Part 2 — Research Design and Counterfactuals"
   number: "10"
+  title: Measurement Theory
+  tagline: Before you estimate an effect, make sure the number measures the thing you care about.
+  overview: |
+    Every estimator in this course takes the outcome variable on faith. Measurement theory is
+    where that faith gets checked. Two Manhattan neighborhoods can post the same poverty rate
+    while one is trapped in inter-generational poverty and the other is a way station for
+    upwardly mobile immigrant families — same number, different construct.
+
+    Some things can be counted directly. Most of what public programs care about — health,
+    happiness, depression, social capital — are *latent constructs* that can only be measured
+    through an instrument: a survey scale, a coding protocol, a standardized exam. An
+    instrument is **valid** if it measures the construct it claims to, and **reliable** if its
+    items measure that construct consistently. Cronbach's alpha is the workhorse statistic for
+    the second question, and a scale can often be improved by dropping the item that does not
+    belong.
+
+    The unit closes with the politics of measurement: once a metric is tied to rewards and
+    penalties, people start managing the metric instead of the outcome.
+  objectives:
+    - Distinguish direct measures, markers or proxies, and latent constructs.
+    - Explain the difference between measurement validity and measurement reliability.
+    - Calculate and interpret Cronbach's alpha, and use item correlations to improve a scale.
+    - Identify the perverse incentives that performance metrics can create.
+  readings:
+    - title: Measurement Theory and Practice
+      cite: "Aparasu, R. R. (2011). Research Methods for Pharmaceutical Practice and Policy, Ch. 4. Levels of measurement, reliability, and validity."
+      url: pubs/measurement/measurement-theory-and-practice.pdf
+    - title: Construct Measurement and Validation Procedures in MIS and Behavioral Research
+      cite: "MacKenzie, Podsakoff & Podsakoff (2011). MIS Quarterly, 35(2). The full scale-development process, from conceptual definition to validation."
+      url: pubs/measurement/construct-measurement-and-validation-in-behavioral-research.pdf
+    - title: Forget the Myers-Briggs, Use the Big Five
+      cite: Kelly (2019). HeadStuff. A popular instrument that fails the test-retest reliability standard.
+      url: pubs/measurement/forget-the-meyers-briggs.pdf
+    - title: Punishing and Toxic Neighborhood Environments Predict Social Mobility
+      cite: "Manduca & Sampson (2019). PNAS. What neighborhood measures add beyond the concentrated poverty rate."
+      url: pubs/measurement/toxic-neighborhoods-and-social-mobility.pdf
+    - title: Management Accounting & Control Scales Handbook
+      cite: Schäffer (2007). A reference catalogue of published multi-item scales — look here before writing your own.
+      url: pubs/measurement/Management-Accounting-and-Control-Scales-Handbook.pdf
+  lectures:
+    - title: Measurement Theory
+      blurb: What the poverty rate hides, the three types of measures, and Cronbach's alpha on the good-dancer and bro-culture scales.
+      links:
+        - { label: Notes, url: lectures2/p-06-measurement-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-06-measurement.pdf, kind: pdf }
+    - title: Signal, Noise, and Reliable Indices
+      blurb: "Short lecture note: M = T + e, reliability as a signal-to-noise ratio, and how experts build indices of neighborhood quality."
+      links:
+        - { label: Notes, url: lectures2/p-06.01-measurement-theory-notes.html, kind: notes }
+  labs:
+    - title: Measurement Lab — A Community Well-Being Index
+      blurb: >
+        Do the warm-up, then use Census data on the Index Design tab to pick 5 of 30 candidate
+        variables for an index of community well-being. The index must reach a Cronbach's
+        alpha of at least 0.70.
+      links:
+        - { label: Open the app, url: "https://jdlecy.shinyapps.io/measurement-lab/#section-warmup", kind: html }
+        - { label: Instructions, url: lectures2/p-06.01-measurement-theory-notes.html#practice, kind: notes }
+
+- id: campbell-scores
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "11"
   title: Campbell Scores
   tagline: Ten competing hypotheses that could explain your result instead of the program.
   overview: |
@@ -638,7 +700,7 @@
 
 - id: more-campbell-scores
   part: "Part 2 — Research Design and Counterfactuals"
-  number: "11"
+  number: "12"
   title: Two Studies, Same Data, Opposite Conclusions
   tagline: A riddle in two chapters, and the estimator choice that resolves it.
   overview: |
@@ -686,7 +748,7 @@
 
 - id: comparing-estimators
   part: "Part 2 — Research Design and Counterfactuals"
-  number: "12"
+  number: "13"
   title: Comparing the Three Estimators on One Dataset
   tagline: Run all three, test the assumptions, and defend the one you believe.
   overview: |
@@ -724,51 +786,6 @@
         - { label: Instructions, url: labs2/lab-05-diff-in-diff.html, kind: html }
         - { label: RMD Template, url: labs2/lab-05-template.rmd, kind: rmd, raw: true }
         - { label: Data (CSV), url: labs2/data/counterfactuals.csv, kind: data }
-
-- id: design-extras
-  part: "Part 2 — Research Design and Counterfactuals"
-  number: "13"
-  title: Extra Practice — Groups and the Gender Pay Gap
-  tagline: Optional labs for more work with dummy variables and a real diff-in-diff.
-  overview: |
-    Optional material. Lab P206 is additional practice with dummy-variable regression for
-    anyone who wants more repetitions or needs to recover points from an earlier lab.
-
-    Lab P207 is the gender wage gap study that lecture p-03 uses as its worked
-    difference-in-difference example: executive director salaries, where the counterfactual
-    is the salary a female ED would have received had she been given the same recruitment
-    premium as an incoming male ED. The comparison group is there to supply the trend, and
-    `C2` is never compared directly to `T2`.
-  objectives:
-    - Get further practice constructing and interpreting dummy-variable models.
-    - Build a counterfactual from a baseline plus a trend rather than from a second group's level.
-  readings:
-    - title: Why Struggling Companies Promote Women
-      cite: VOX. Background on selection into executive roles.
-      url: labs2/references/VOX-why-struggling-companies-promote-women.pdf
-    - title: Want to Invest Better? Act More Like a Woman
-      cite: Washington Post. Companion reading for the wage gap lab.
-      url: labs2/references/WashPost-want-to-invest-better-act-more-like-a-woman.pdf
-    - title: Specification and the Gender Pay Gap
-      cite: Lab handout on specification choices in pay gap studies.
-      url: labs2/specification-lab-gender-pay-gap.pdf
-  lectures:
-    - title: Hypothesis Testing with Dummy Variables
-      blurb: The reference deck for both optional labs, carried over from the first course.
-      links:
-        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
-        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
-  labs:
-    - title: Lab P206 — Dummy Variables (optional)
-      blurb: Extra practice with group indicators and interaction terms in regression.
-      links:
-        - { label: Instructions, url: labs2/lab-06-dummy-variables.html, kind: html }
-        - { label: RMD Template, url: labs2/lab-06-template.rmd, kind: rmd, raw: true }
-    - title: Lab P207 — Gender Wage Gap (optional)
-      blurb: A difference-in-difference estimate of the pay gap among incoming executive directors.
-      links:
-        - { label: Instructions, url: labs2/lab-07-gender-wage-gap.html, kind: html }
-        - { label: Data (CSV), url: labs2/data/female-np-entrepreneurs.csv, kind: data }
 
 # ===========================================================================
 # PART 3 — Regression Tools for Impact Analysis  (schedule3 / lectures3 / labs3)

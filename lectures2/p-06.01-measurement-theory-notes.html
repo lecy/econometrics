@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal, Noise, and Reliable Indices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Signal, Noise, and Reliable Indices</h1>
+  <p class="dek">A short lecture note on measurement theory — why every latent construct is measured with error, how multi-item indices reduce it, and how to build a reliable index of your own.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#instrument">Constructing an instrument</a>
+    <a href="#practice">Practice</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">Observed scores, true scores, and the signal-to-noise ratio called reliability.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Every measure of a latent construct is a true score plus error.</p>
+<p>Measurement theory defines a quantitative measure of a latent construct as:</p>
+
+<div class="eq center" role="math" aria-label="M equals T plus e">
+  <span class="m"><i>M</i></span><span class="op">=</span><span class="m"><i>T</i></span><span class="op">+</span><span class="m"><i>e</i></span>
+</div>
+
+<p>where <span class="m"><i>M</i></span> is the observed measurement (the recorded scores on an IQ test), <span class="m"><i>T</i></span> is the
+<strong>true</strong> score (each individual’s actual intelligence quotient relative to the population),
+and <span class="m"><i>e</i></span> is random error. <span class="m"><i>M</i></span>, <span class="m"><i>T</i></span>, and <span class="m"><i>e</i></span> are vectors of scores, one per person.</p>
+
+      <p class="claim">Reliability is a signal-to-noise ratio.</p>
+<p>Reliability is the ratio of the variance of the true scores to the variance of the true
+scores plus measurement error:</p>
+
+<div class="eq center" role="math" aria-label="alpha equals var of T divided by var of T plus e">
+  <span class="m"><i>α</i></span><span class="op">=</span>
+  <span class="frac">
+    <span class="num m">var(<i>T</i>)</span>
+    <span class="den m">var(<i>T</i> + <i>e</i>)</span>
+  </span>
+</div>
+
+<p>Alpha tells us how reliably our observed measure captures the true level of the latent
+construct. Cronbach’s alpha is the usual way to estimate this ratio from item-level data.</p>
+
+      <p class="claim">Instruments combine multiple items to triangulate the construct.</p>
+<p>Measures like weight or height only require one measurement. Instruments designed to
+measure latent constructs usually combine several. All of the verbal reasoning questions on
+an exam might be combined into a single reading comprehension score, and responses to
+several survey items might be combined into a single index.</p>
+
+<p>Each <strong>item</strong> can be decomposed into a component <span class="m"><i>X</i></span> that accurately captures the latent
+construct and a component <span class="m"><i>e</i></span> that is random noise:</p>
+
+<div class="eq center" role="math" aria-label="item 1 equals X 1 plus e 1">
+  <span class="m">item<sub>1</sub></span><span class="op">=</span><span class="m"><i>X</i><sub>1</sub></span><span class="op">+</span><span class="m"><i>e</i><sub>1</sub></span>
+</div>
+
+<p>An index built from three items combines them:</p>
+
+<div class="eq center" role="math" aria-label="index equals T plus e, where T equals X1 plus X2 plus X3 and e equals e1 plus e2 plus e3">
+  <span class="m">index</span><span class="op">=</span><span class="m"><i>T</i> + <i>e</i></span>
+  <span class="op">where</span>
+  <span class="m"><i>T</i> = <i>X</i><sub>1</sub> + <i>X</i><sub>2</sub> + <i>X</i><sub>3</sub></span><span class="op">,</span>
+  <span class="m"><i>e</i> = <i>e</i><sub>1</sub> + <i>e</i><sub>2</sub> + <i>e</i><sub>3</sub></span>
+</div>
+
+<p>Its reliability is measured in exactly the same way, as signal over signal plus noise:
+<span class="m"><i>α</i> = var(<i>T</i>) / var(<i>T</i> + <i>e</i>)</span>.</p>
+
+      <p class="claim">Summing and averaging give the same reliability.</p>
+<p>If three appraisers value a painting using slightly different methods, adding their three
+appraisals would not make sense. You would average them to preserve the scale:</p>
+
+<div class="eq center" role="math" aria-label="index equals T plus e, divided by 3">
+  <span class="m">index</span><span class="op">=</span>
+  <span class="frac">
+    <span class="num m"><i>T</i> + <i>e</i></span>
+    <span class="den m">3</span>
+  </span>
+</div>
+
+<p>Dividing by a constant rescales the signal and the noise by the same factor, so the alpha of
+an averaged index is the same as the alpha of a summed index.</p>
+
+      <p class="claim">The takeaways, if the math is not crystal clear</p>
+<ul>
+  <li>Assume that any latent construct in your analysis is measured with error.</li>
+  <li>Measurement instruments are indices created by averaging multiple items, usually survey
+responses.</li>
+  <li>Strong instruments reduce the amount of measurement error in the composite variable.</li>
+</ul>
+    </div>
+  </section>
+
+<section id="instrument">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>Constructing a new instrument</h2>
+    <p class="sub">How experts turn a fuzzy idea like neighborhood quality into a validated index.</p>
+  </div>
+
+<h3 id="experts-have-developed-many-ways-to-define-neighborhood-quality">Experts have developed many ways to define neighborhood quality</h3>
+
+<p><strong>The American Human Development Index.</strong> Measure of America’s index is modeled on the UN’s
+Human Development Index for nations. It measures well-being for America’s 435 congressional
+districts plus Washington, D.C., which shows how uneven socio-economic well-being is not just
+<em>between</em> but <em>within</em> many of the largest metros. It combines three dimensions:</p>
+
+<ol>
+  <li><strong>A long and healthy life,</strong> measured by life expectancy at birth.</li>
+  <li><strong>Access to knowledge,</strong> based on school enrollment for ages 3 to 24 (weighted one-third)
+and degree attainment for adults 25 and older (weighted two-thirds).</li>
+  <li><strong>Standard of living,</strong> based on median earnings for full- and part-time workers 16 and
+older.</li>
+</ol>
+
+<p>The overall index is graded on a one-to-ten scale, with ten the highest.</p>
+
+<p><strong>Toxic and punishing neighborhoods.</strong> Manduca and Sampson (2019) ask how social and physical
+environments <em>beyond concentrated poverty</em> predict children’s long-term well-being. They
+focus on neighborhoods that are harsh on child development: high violence, incarceration,
+and lead exposure. Their measures come from four sources:</p>
+
+<ul>
+  <li>a representative Chicago community survey on neighborhood social environments (1995 and
+2002, combined N of 12,000)</li>
+  <li>violent crime rates per 100,000 residents, 1995–2000, from offenses reported to police</li>
+  <li>incarceration rates, 1995–2000, from prison admission data</li>
+  <li>childhood lead exposure, 1995–1997, from more than 150,000 blood tests by Chicago’s health
+department</li>
+</ul>
+
+<h3 id="simple-proxies-are-often-too-simple">Simple proxies are often too simple</h3>
+
+<p>These are examples of how scholars operationalize neighborhood quality in order to
+understand how neighborhoods affect the people who live in them. The measurement is not
+always straightforward. When data are sparse or research is poorly implemented, neighborhood
+quality is often measured with a single proxy such as the poverty rate. Proxies like that
+can be overly simplistic, and as a result not very informative.</p>
+
+<h3 id="think-about-a-neighborhood-the-way-psychologists-think-about-personality">Think about a neighborhood the way psychologists think about personality</h3>
+
+<p>A better approach, from a measurement theory perspective, is to ask whether we can measure
+the <em>personality</em> of a neighborhood the same way psychologists measure personality types:
+identify the most salient dimensions, then develop reliable instruments to measure each one
+precisely.</p>
+
+<h3 id="for-reference">For reference</h3>
+
+<ul>
+  <li>Aparasu, R. R. (2011). Measurement theory and practice. In <em>Research Methods for
+Pharmaceutical Practice and Policy</em>, Ch. 4. Pharmaceutical Press.
+<a href="../pubs/measurement/measurement-theory-and-practice.pdf">PDF</a></li>
+  <li>Schäffer, U. (2007). <em>Management Accounting &amp; Control Scales Handbook.</em> Springer Science &amp;
+Business Media. <a href="../pubs/measurement/Management-Accounting-and-Control-Scales-Handbook.pdf">PDF</a></li>
+  <li>MacKenzie, S. B., Podsakoff, P. M., &amp; Podsakoff, N. P. (2011). Construct measurement and
+validation procedures in MIS and behavioral research: Integrating new and existing
+techniques. <em>MIS Quarterly, 35</em>(2), 293–334.
+<a href="../pubs/measurement/construct-measurement-and-validation-in-behavioral-research.pdf">PDF</a></li>
+  <li>Manduca, R., &amp; Sampson, R. J. (2019). Punishing and toxic neighborhood environments
+independently predict the intergenerational social mobility of black and white children.
+<em>Proceedings of the National Academy of Sciences, 116</em>(16), 7772–7777.
+<a href="../pubs/measurement/toxic-neighborhoods-and-social-mobility.pdf">PDF</a></li>
+</ul>
+
+  </section>
+
+<section id="practice">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>Practice</h2>
+    <p class="sub">Build a reliable index of community well-being in the measurement lab.</p>
+  </div>
+
+<h3 id="build-a-reliable-index-of-community-well-being">Build a reliable index of community well-being</h3>
+
+<p>A community is healthy if we expect its residents to achieve a good quality of life and high
+economic stability while living there. Your task is to create a reliable index that measures
+it.</p>
+
+<div class="callout">
+<p><strong><a href="https://jdlecy.shinyapps.io/measurement-lab/#section-warmup">Open the measurement lab →</a></strong></p>
+</div>
+
+<ul>
+  <li>Start with the <strong>warm-up</strong> exercise for practice.</li>
+  <li>Then use the Census data on the <strong>Index Design</strong> tab. Select <strong>5 variables</strong> from a list of
+30 candidates.</li>
+  <li>The app calculates Cronbach’s alpha for the variables you select. Your index must reach
+<strong>alpha ≥ 0.70.</strong></li>
+</ul>
+
+<h3 id="how-to-read-alpha">How to read alpha</h3>
+
+<p>Cronbach’s alpha runs from 0 (all noise) to 1 (an index that measures the construct very
+precisely). By convention an index needs alpha above 0.6 to be considered reliable, and
+above 0.8 it is considered highly reliable. Items on a well-designed index produce highly
+correlated responses because they measure the same construct. The higher the correlations,
+the higher the alpha.</p>
+
+<h3 id="a-tip-on-direction">A tip on direction</h3>
+
+<p>You can build an index where a high score means well-being, or one built from items that
+measure the <em>absence</em> of well-being. The high and low ends of a scale are easy to reverse.
+Either way, the goal is a reliable index.</p>
+
+  </section>
+
+</div>
+</body>
+</html>
