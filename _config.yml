@@ -119,6 +119,7 @@ plugins:
 exclude:
   - Gemfile
   - Gemfile.lock
+  - scripts
   - node_modules
   # Source files that begin with a YAML header. Jekyll would otherwise treat them
   # as pages, strip that header, and render them into _site:

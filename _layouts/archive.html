@@ -517,6 +517,7 @@
       {% assign nav_parts = site.data.units | group_by: "part" %}
       {% for g in nav_parts %}<a href="#{{ g.items.first.id }}">{{ g.name | split: " — " | first }}</a>{% endfor %}
       <a href="#reference">Reference</a>
+      <a href="{{ '/syllabus/' | relative_url }}">Syllabus</a>
     </nav>
   </div>
 </div>

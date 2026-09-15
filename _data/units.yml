@@ -5,6 +5,13 @@
 # the layout runs them through Jekyll's relative_url filter, so absolute URLs
 # (http://...) also work as-is.
 #
+# The same data also feeds the syllabus component (_includes/syllabus.html):
+#   summary:        two-sentence description of the unit, used only by the syllabus
+#   review: true    on a lecture item that points back to earlier decks rather than
+#                   a new lecture; the syllabus lists its links as review material
+# After editing this file, rebuild the standalone copy (handouts/syllabus.html) with:
+#   ruby scripts/build_syllabus.rb
+#
 # link kinds control button styling:
 #   notes  html  pdf  pptx  docx  data  rmd
 #
@@ -21,6 +28,11 @@
   part: "Part 1 — Regression Foundations"
   title: Nuts and Bolts of Regression
   tagline: Slopes, intercepts, residuals, and what a regression line actually claims.
+  summary: >
+    Builds a bivariate regression model from the ground up: sample variance, the slope and
+    intercept, residuals, and the decomposition of the total sum of squares. The running
+    example asks whether caffeine raises heart rate, a question that is easy to model and hard
+    to interpret.
   overview: |
     The building blocks of a bivariate regression model: sample variance and standard
     deviation, the slope, the intercept, the regression line, and the error term.
@@ -74,6 +86,10 @@
   part: "Part 1 — Regression Foundations"
   title: Variance, Standard Errors, and Confidence Intervals
   tagline: How much of your estimate is signal, and how far off is it likely to be?
+  summary: >
+    Traces a confidence interval back to its parts, from standard errors to the residuals and
+    model they are built from. The key distinction is between the spread of the data (standard
+    deviation) and the spread of estimates across repeated samples (standard error).
   overview: |
     Confidence intervals are built from standard errors, standard errors are built from
     residuals, and residuals come out of the regression model. This unit walks that chain
@@ -174,6 +190,10 @@
   part: "Part 1 — Regression Foundations"
   title: Control Variables
   tagline: Two kinds of control variable, and the two different things they do to a model.
+  summary: >
+    Moves from bivariate to multiple regression and shows the two different things a control
+    variable can do. Controls related only to the outcome shrink standard errors, while
+    controls related to both the treatment and the outcome change the slope.
   overview: |
     Moving from bivariate to multiple regression: `Y = b0 + b1*X1 + b2*X2 + e`, where X1 is
     always the policy variable and everything after it is a control.
@@ -216,6 +236,11 @@
   part: "Part 1 — Regression Foundations"
   title: Omitted Variable Bias
   tagline: The variable you left out is still in the model — it is hiding in your slope.
+  summary: >
+    A variable left out of a model does not disappear; its effect is absorbed into the slopes
+    of the variables that remain, by an amount you can calculate. The crack-baby research and
+    the doctor-patient racial concordance debate show how omitted variables produce confident
+    but wrong conclusions, and why randomization breaks the bias.
   overview: |
     When a variable that belongs in the model is left out, its effect does not disappear.
     It gets absorbed into the coefficients of the variables that remain, in an amount you
@@ -283,6 +308,10 @@
   part: "Part 1 — Regression Foundations"
   title: Dummy Variables and Interactions
   tagline: Modeling groups, and testing whether a program works differently for each of them.
+  summary: >
+    Dummy variables let a regression compare groups, and interaction terms let the effect of a
+    variable differ from one group to another. Together they turn a single model into a set of
+    hypothesis tests about differences in intercepts and slopes.
   overview: |
     Dummy variables are binary 0/1 indicators — one for each level of a categorical variable,
     minus the reference category:
@@ -350,6 +379,11 @@
   part: "Part 1 — Regression Foundations"
   title: Specification and Measurement Error
   tagline: What goes wrong when you run the regression without looking at the data.
+  summary: >
+    Covers the errors that come from fitting the wrong functional form, including non-linear
+    relationships and highly leveraged outliers, and the quadratic and log models that fix
+    them. Also shows the distinct signatures of measurement error: noise in Y widens
+    confidence intervals, while noise in X biases the slope toward zero.
   overview: |
     Specification bias is the error you get from fitting the wrong functional form — a
     straight line through a curved relationship, or a slope dragged around by a highly
@@ -406,6 +440,10 @@
   part: "Part 1 — Regression Foundations"
   title: Threats to Inference and Statistical Power
   tagline: The seven ways a regression lies to you, and whether your study could detect anything at all.
+  summary: >
+    Consolidates the seven main threats to regression inference, from selection and omitted
+    variables to multicollinearity and simultaneity. Statistical power asks the mirror-image
+    question: whether a study could have detected a real effect in the first place.
   overview: |
     A consolidated tour of the things that corrupt a regression inference: selection,
     omitted variable bias, measurement error, specification, group heterogeneity,
@@ -456,6 +494,11 @@
   number: "08"
   title: Counterfactual Analysis
   tagline: The world that did not happen, and why choosing it decides your answer.
+  summary: >
+    Every causal claim implies a counterfactual, the outcome that would have occurred without
+    the program, and research design is the work of building a credible stand-in for it. A
+    school district's suicide rate looks high, average, or low depending on which comparison
+    group is chosen.
   overview: |
     A causal claim is a counterfactual claim in disguise: to say the program caused the
     outcome is to say the outcome would not have occurred without it. Since we only get one
@@ -510,6 +553,11 @@
   number: "09"
   title: Testing and Varieties of the Counterfactual
   tagline: Selection, attrition, balance tests, and the three estimators you can build.
+  summary: >
+    Tests whether treatment and comparison groups are comparable, using balance tables,
+    attrition checks, and the Bonferroni correction. Introduces the three counterfactual
+    estimators and the assumption each requires, then defines effect sizes and statistical
+    power for research design.
   overview: |
     Two lectures that belong together. The first asks whether your groups are comparable at
     all — the selection problem, non-random attrition, and the balance table that every
@@ -593,6 +641,11 @@
   number: "10"
   title: Measurement Theory
   tagline: Before you estimate an effect, make sure the number measures the thing you care about.
+  summary: >
+    Most outcomes that public programs care about are latent constructs that can only be
+    measured through an instrument, so an estimate is only as good as its measures. Covers
+    validity, reliability, Cronbach's alpha, weighted indices built with factor analysis, and
+    the politics of performance metrics.
   overview: |
     Every estimator in this course takes the outcome variable on faith. Measurement theory is
     where that faith gets checked. Two Manhattan neighborhoods can post the same poverty rate
@@ -680,6 +733,10 @@
   number: "11"
   title: Campbell Scores
   tagline: Ten competing hypotheses that could explain your result instead of the program.
+  summary: >
+    Evaluates a study's internal validity as a structured search for competing explanations of
+    its results. Each of the ten Campbell Score items is a rival hypothesis that must be ruled
+    out, with selection and attrition treated as guilty until proven innocent.
   overview: |
     A framework for evaluating the internal validity of a study as a structured search for
     competing hypotheses. The program hypothesis says the change came from the program; each
@@ -734,6 +791,10 @@
   number: "12"
   title: Two Studies, Same Data, Opposite Conclusions
   tagline: A riddle in two chapters, and the estimator choice that resolves it.
+  summary: >
+    Two chapters evaluate the same school choice program with the same data and reach opposite
+    conclusions. Scoring both studies shows that the choice of comparison group and estimator,
+    not the data, drives the difference.
   overview: |
     Chapters 20 and 21 evaluate the same school choice program using the same data and reach
     opposite conclusions: Chapter 20 finds the program ineffective, Chapter 21 finds it
@@ -760,6 +821,7 @@
       url: pubs/evaluation-in-practice-CH5-pre-post-with-control.pdf
   lectures:
     - title: No new lectures this unit
+      review: true
       blurb: >
         The exercises draw on the counterfactual and Campbell Score material already covered.
         The four decks below are the ones you will need at hand.
@@ -782,6 +844,11 @@
   number: "13"
   title: Comparing the Three Estimators on One Dataset
   tagline: Run all three, test the assumptions, and defend the one you believe.
+  summary: >
+    A synthesis unit that estimates program impact three ways, reflexive, post-test only, and
+    difference-in-difference, on the same cognitive-ability study. The work is interpretation:
+    identify the counterfactual behind each model, test its assumptions, and defend the
+    estimate you believe.
   overview: |
     The synthesis lab. Return to the cognitive-ability study from Unit 08 and calculate
     program impact three ways — reflexive, post-test only, and difference-in-difference —
@@ -827,6 +894,11 @@
   number: "14"
   title: Interrupted Time Series
   tagline: One group, many time points, and a policy that lands in the middle of them.
+  summary: >
+    Models a single unit observed many times before and after an intervention, separating the
+    pre-existing trend from what the policy changed. The model distinguishes an immediate
+    change in level from a sustained change in slope, and checks the residuals for
+    autocorrelation.
   overview: |
     The reflexive counterfactual with enough time points to see a trend. A single unit is
     observed repeatedly before and after an intervention, and the model separates the
@@ -869,6 +941,10 @@
   number: "15"
   title: Difference-in-Difference Models
   tagline: The strong counterfactual, now as a regression rather than a table of four means.
+  summary: >
+    Recasts the difference-in-difference estimator as a regression, where the coefficient on a
+    group-by-period interaction is the program effect. The groups need not be equivalent at
+    baseline, but they must have been trending in parallel before the intervention.
   overview: |
     The estimator introduced in Unit 09 becomes a regression here. Two groups, two periods,
     and an interaction term whose coefficient is the program effect: the treated group's
@@ -915,6 +991,11 @@
   number: "16"
   title: Panel Data with Fixed Effects
   tagline: Let every unit keep its own intercept, and identify the effect from within-unit change.
+  summary: >
+    With repeated observations on the same units, fixed effects give each unit its own
+    intercept, so nothing stable about a unit can confound the estimate. Compares pooled,
+    random effects, and fixed effects specifications, and the tests that guide the choice
+    among them.
   overview: |
     With repeated observations on the same units, a fixed effects model gives each unit its
     own intercept and estimates the slope from variation *within* units over time. Anything
@@ -956,6 +1037,10 @@
   number: "17"
   title: Instrumental Variables
   tagline: Borrow the part of your treatment that is uncorrelated with the error.
+  summary: >
+    When the policy variable is correlated with the error term, OLS is biased no matter how
+    much data you have. An instrument that moves the treatment but affects the outcome only
+    through it recovers the effect, built step by step with two-stage least squares.
   overview: |
     When the policy variable is correlated with the error term — through omitted variables,
     measurement error, or simultaneity — OLS is biased and no amount of data fixes it. An
@@ -998,6 +1083,11 @@
   number: "18"
   title: Regression Discontinuity Design
   tagline: Near an arbitrary cutoff, who gets treated is almost random.
+  summary: >
+    When eligibility depends on crossing a cutoff, units just above and just below the
+    threshold are nearly comparable, and the jump in outcomes at the cutoff is the program
+    effect. The design is highly credible but local: it says little about units far from the
+    threshold.
   overview: |
     When eligibility is determined by whether a running variable crosses a threshold — a
     test score, an income line, a date of birth — the units just above and just below the
@@ -1032,6 +1122,10 @@
   number: "19"
   title: Logistic Regression
   tagline: Binary outcomes, log-odds, and why marginal effects depend on where you stand.
+  summary: >
+    For yes-or-no outcomes, logistic regression keeps predicted probabilities between 0 and 1,
+    at the cost of coefficients reported in log-odds. Converting to probabilities shows that
+    the same change in X is worth different amounts depending on the starting point.
   overview: |
     When the outcome is yes/no — admitted, employed, enrolled — the linear probability model
     can predict probabilities outside [0,1]. The logit link keeps predictions in range at the
@@ -1071,6 +1165,10 @@
   number: "20"
   title: Propensity Score Matching
   tagline: Manufacture a comparison group by pairing each treated unit with its nearest twin.
+  summary: >
+    Builds a comparison group from observational data by pairing each treated unit with
+    untreated units that had a similar probability of treatment. Matching can only balance
+    what was measured, so it addresses selection on observables alone.
   overview: |
     The post-test-only estimator needs equivalent groups, and observational data rarely
     supplies them. Matching builds them after the fact: model each unit's probability of
