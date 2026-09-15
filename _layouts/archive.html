@@ -632,6 +632,24 @@
           </div>
           {% endif %}
 
+          {% if u.walkthroughs %}
+          <div class="block">
+            <h3 class="block-title">R Walkthroughs</h3>
+            {% for item in u.walkthroughs %}
+            <div class="item">
+              <h4>{{ item.title }}</h4>
+              {% if item.blurb %}<p>{{ item.blurb }}</p>{% endif %}
+              <div class="btns">
+                {% for l in item.links %}
+                {% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}
+                <a class="btn btn--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{% if l.download or l.raw %}<span class="ico">&#8595;</span>{% endif %}{{ l.label }}</a>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
           {% if u.labs %}
           <div class="block">
             <h3 class="block-title">Lab &amp; Template</h3>

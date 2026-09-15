@@ -1,0 +1,905 @@
+---
+title: "Factor Analysis"
+subtitle: "Finding the handful of latent constructs hiding inside 30 correlated census variables."
+output:
+  html_document:
+    theme: null
+    highlight: tango
+    toc: true
+    toc_depth: 2
+    df_print: kable
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE,
+  fig.width = 9, fig.height = 6, dpi = 96
+)
+```
+
+<!-- Web fonts load at view time; data-external keeps them out of the self-contained file -->
+<link rel="stylesheet" data-external="1" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap">
+
+```{r helpers, echo=FALSE}
+# Plotting helpers for pairs() scatterplot matrices and small-multiple histograms.
+
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor) {
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- cor(x, y, use = "pairwise.complete.obs")
+  txt <- paste0(prefix, format(c(r, 0.123456789), digits = digits)[1])
+  test <- cor.test(x, y)
+  stars <- symnum(test$p.value, corr = FALSE, na = FALSE,
+                  cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                  symbols = c("***", "**", "*", ".", " "))
+  text(0.5, 0.5, txt, cex = 2)
+  text(0.7, 0.8, stars, cex = 3, col = "#bd5416")
+}
+
+panel.smooth <- function(x, y, span = 2/3, iter = 3, ...) {
+  points(x, y, pch = 19, col = gray(0.5, 0.4), cex = 0.7)
+  ok <- is.finite(x) & is.finite(y)
+  if (any(ok)) {
+    lines(stats::lowess(x[ok], y[ok], f = span, iter = iter),
+          col = "#bd5416", lwd = 2)
+  }
+}
+
+histx <- function(df, nrow = 2, ncol = 2) {
+  op <- par(mfrow = c(nrow, ncol), mar = c(4, 0, 4, 0)); on.exit(par(op))
+  for (i in names(df)) {
+    hist(df[[i]], breaks = 25, col = "#6d7681", border = "white",
+         main = i, yaxt = "n", xlab = "", ylab = "")
+  }
+}
+```
+
+## Purpose
+
+The data contain **30 census variables** for 1,000 neighborhoods (census tracts). Each one
+plausibly describes some part of neighborhood health, stability, or robustness, and many of
+them are highly correlated. Median household income, per capita income, and the share of
+adults with a college degree are not really three separate facts about a neighborhood.
+
+Factor analysis asks whether a **smaller number of latent constructs** could be generating
+the correlations we see. The goals of this walkthrough are to:
+
+1. **Check** that the variables share enough correlation to be worth factoring.
+2. **Choose the number of factors** with a scree plot and parallel analysis.
+3. **Interpret the factor loadings** and give each factor a name.
+4. **Extract factor scores**, the new composite measures, for use in later models or maps.
+
+### What factor analysis assumes
+
+Every observed variable is a weighted combination of a few shared latent factors, plus a
+part that is unique to that variable:
+
+$$
+X = \Lambda F + \epsilon
+$$
+
+- $X$: the observed variables (the 30 census measures, standardized)
+- $F$: the latent factors (the constructs we want to recover)
+- $\Lambda$: the **loadings**, how strongly each variable reflects each factor
+- $\epsilon$: the **uniqueness**, variance in each variable that the factors don't explain,
+  including measurement error
+
+This is the multi-item version of the measurement model $M = T + e$ from the lecture notes.
+The factor scores it produces are **weighted composites** that give more weight to the
+variables that measure a construct most cleanly. See
+[Weighted Composite Indices](p-06.02-weighted-composite-indices-notes.html) for why that
+beats a simple average.
+
+Three outputs matter most:
+
+- **Loadings:** which variables define each factor. This is how you interpret and name it.
+- **Communality ($h^2$):** the share of a variable's variance explained by all the factors.
+- **Factor scores:** each neighborhood's estimated value on each factor.
+
+## 1. Setup
+
+```{r packages}
+# Install once if needed:
+# install.packages(c("tidyverse", "psych", "GPArotation", "corrplot", "pander", "patchwork"))
+
+library(tidyverse)     # data import and wrangling
+library(psych)         # fa(), fa.parallel(), KMO(), cortest.bartlett(), alpha()
+library(GPArotation)   # rotation methods used by psych::fa()
+library(corrplot)      # correlation heat map
+library(pander)        # clean tables in the knitted report
+
+# Read local copies if they sit next to this file; otherwise read from the course repo.
+repo <- "https://raw.githubusercontent.com/lecy/econometrics/main/lectures2/data/"
+data_path <- if (file.exists("census-data.csv"))    "census-data.csv"    else paste0(repo, "census-data.csv")
+dd_path   <- if (file.exists("census-data-dd.csv")) "census-data-dd.csv" else paste0(repo, "census-data-dd.csv")
+
+out_dir <- "factor_analysis_outputs"
+dir.create(out_dir, showWarnings = FALSE)
+```
+
+`psych` does the heavy lifting:
+
+- `fa.parallel()` draws the scree plot and runs parallel analysis
+- `fa()` fits the factor model
+- `KMO()` and `cortest.bartlett()` check whether factoring is appropriate at all
+
+## 2. Read the data and the dictionary
+
+The data dictionary `census-data-dd.csv` has two columns: `LABEL`, the variable name in
+`census-data.csv`, and `VARIABLE`, a readable description.
+
+```{r read-data}
+dat <- readr::read_csv(data_path, show_col_types = FALSE)
+dd  <- readr::read_csv(dd_path,   show_col_types = FALSE)
+
+stopifnot(all(c("LABEL", "VARIABLE") %in% names(dd)))
+vars <- dd$LABEL
+
+missing_vars <- setdiff(vars, names(dat))
+if (length(missing_vars) > 0) {
+  stop("These dictionary variables are missing from census-data.csv: ",
+       paste(missing_vars, collapse = ", "))
+}
+
+X <- dat %>%
+  dplyr::select(all_of(vars)) %>%
+  mutate(across(everything(), as.numeric))
+
+dim(X)
+```
+
+```{r dictionary}
+pander(dd, justify = "left")
+```
+
+### The correlation structure
+
+Before fitting anything, look at the correlations. `order = "hclust"` reorders the variables
+so that clusters of highly correlated measures sit next to each other. Those blocks are the
+factors we expect to find.
+
+```{r corrplot, fig.width=10, fig.height=10}
+corr_matrix <- cor(X, use = "complete.obs")
+
+corrplot(
+  corr_matrix,
+  order = "hclust",    # group variables with similar correlation profiles
+  tl.col = "black",    # label color
+  tl.cex = 0.75        # label size
+)
+```
+
+## 3. Standardize the variables
+
+### Why standardize?
+
+Factor analysis is fit to the **correlation matrix**, which is the covariance matrix of
+z-scored variables. Standardizing puts median home value (in dollars) and percent unemployed
+(in percentage points) on the same scale, so each variable contributes through its
+relationships rather than its units.
+
+Here are four raw variables:
+
+```{r pairs-raw, fig.height=7}
+dsub <- X[c("pown12", "pvet12", "pnhwht12", "polang12")]
+pairs(dsub, lower.panel = panel.smooth, upper.panel = panel.cor)
+```
+
+### Missing values
+
+These data happen to be complete, but the code below is a safeguard for other versions of
+the file. It uses **median imputation** for each variable, a simple and transparent default
+for exploratory work. For published inference, consider multiple imputation or full
+information maximum likelihood instead.
+
+```{r prep-data}
+sum(is.na(X))   # number of missing values
+
+median_impute <- function(x) {
+  ifelse(is.na(x), median(x, na.rm = TRUE), x)
+}
+
+X_imp <- X %>% mutate(across(everything(), median_impute))
+
+# scale() subtracts each column's mean and divides by its standard deviation
+X_z <- as.data.frame(scale(X_imp))
+```
+
+The same four variables after standardizing:
+
+```{r pairs-z, fig.height=7}
+dsub2 <- X_z[c("pown12", "pvet12", "pnhwht12", "polang12")]
+histx(dsub2)
+pairs(dsub2, lower.panel = panel.smooth, upper.panel = panel.cor)
+```
+
+> Compare the two scatterplot matrices. The axes changed, but **every correlation is
+> identical**. Z-scoring is a linear rescaling, so it cannot change a correlation. That is
+> exactly why factor analysis on standardized data and factor analysis on the correlation
+> matrix are the same thing.
+
+### A sensitivity check for outliers
+
+Several of these variables are heavily skewed. When large outliers are present, analysts
+sometimes **winsorize**: pull every value below the 5th percentile up to the 5th percentile,
+and every value above the 95th down to the 95th. This limits the leverage of extreme tracts.
+It is usually run as a sensitivity analysis, to confirm the results are not driven by a few
+outliers, rather than as the main analysis.
+
+```{r winsorize, fig.height=7}
+winsorize_z <- function(x, lower = 0.05, upper = 0.95) {
+  x[is.na(x)] <- median(x, na.rm = TRUE)
+  lo <- quantile(x, lower)
+  hi <- quantile(x, upper)
+  x[x < lo] <- lo
+  x[x > hi] <- hi
+  as.numeric(scale(x))
+}
+
+dsub3 <- as.data.frame(lapply(dsub, winsorize_z))
+histx(dsub3)
+pairs(dsub3, lower.panel = panel.smooth, upper.panel = panel.cor)
+```
+
+Winsorizing does change the correlations, because it is not a linear transformation. The rest
+of this walkthrough uses the ordinary z-scores in `X_z`.
+
+## 4. Is the data factorable?
+
+Two standard checks:
+
+1. **Kaiser-Meyer-Olkin (KMO)** measures how much of the correlation between each pair of
+   variables is shared with the other variables. Values above 0.70 are generally good enough
+   for exploratory factor analysis. KMO is reported overall and for each variable.
+2. **Bartlett's test of sphericity** tests whether the correlation matrix is different from
+   an identity matrix, one where every variable is uncorrelated with every other. A small
+   p-value means there is shared correlation to factor.
+
+```{r factorability}
+R <- cor(X_z)
+
+kmo  <- psych::KMO(R)
+bart <- psych::cortest.bartlett(R, n = nrow(X_z))
+
+round(kmo$MSA, 3)             # overall KMO
+sort(round(kmo$MSAi, 2))[1:6] # the six lowest item-level values
+bart
+```
+
+The overall KMO of `r round(kmo$MSA, 2)` and Bartlett's p-value near zero both say the
+variables are suitable for factoring.
+
+> **Watch the item-level values.** Percent Native American (`pntv12`) has a KMO of just
+> `r round(kmo$MSAi["pntv12"], 2)`. Variables below 0.50 share very little with the rest of
+> the set and are candidates for removal. We keep all 30 here so the example matches the
+> measurement lab, but we will see this variable load on nothing.
+
+## 5. How many factors?
+
+### Scree plot
+
+A scree plot shows the eigenvalues in descending order. Each eigenvalue is the amount of
+variance a factor accounts for. Look for the **elbow**, the point where adding another factor
+buys much less than the one before.
+
+### Parallel analysis
+
+Parallel analysis makes the elbow less subjective. It simulates random data with the same
+number of rows and columns, computes the eigenvalues of that random data, and keeps the
+factors whose observed eigenvalues beat the random benchmark.
+
+`psych::fa.parallel()` arguments:
+
+- `X_z`: the standardized data
+- `fm = "pa"`: principal axis factoring, a robust default for exploratory factor analysis
+- `fa = "fa"`: report factor analysis eigenvalues only, not principal components
+- `n.iter = 100`: number of random data sets to simulate
+
+```{r parallel, fig.height=6, fig.width=8}
+set.seed(1234)  # parallel analysis uses random draws
+
+fa_par <- psych::fa.parallel(
+  X_z,
+  fm = "pa",
+  fa = "fa",
+  n.iter = 100,
+  show.legend = TRUE,
+  main = "Scree plot and parallel analysis"
+)
+
+fa_par$nfact                 # number of factors suggested by parallel analysis
+round(fa_par$fa.values[1:8], 2)
+```
+
+### Choose the number of factors
+
+Parallel analysis suggests **`r fa_par$nfact` factors**. With 1,000 observations, even small
+factors beat random noise, so parallel analysis tends to recommend more factors as samples
+grow. The scree plot tells a different story. The first four eigenvalues
+(`r paste(round(fa_par$fa.values[1:4], 1), collapse = ", ")`) are large, and after the fifth
+(`r round(fa_par$fa.values[5], 1)`) the curve is essentially flat.
+
+The number of factors is ultimately a **judgment call** that balances statistical evidence
+against interpretability. Here we use **four factors**. Each is large and each has a clear
+substantive meaning, and together they account for more than half of the variance in the 30
+variables. Try `n_factors <- 5` or `6` and see whether the extra factors are worth naming.
+
+```{r choose-nfactors}
+n_factors <- 4
+```
+
+## 6. Fit the factor model
+
+`psych::fa()` fits the model. The key arguments:
+
+- `nfactors = n_factors`: the number of factors chosen above
+- `fm = "pa"`: principal axis factoring, which makes fewer distributional assumptions than
+  maximum likelihood
+- `rotate = "varimax"`: an **orthogonal rotation**, which keeps the factors uncorrelated so
+  the scores work as independent features
+- `scores = "regression"`: estimate factor scores with the regression method
+
+> **Rotation** doesn't change how well the model fits. It spins the factors so that each
+> variable loads strongly on as few factors as possible, which makes the solution easier to
+> read. If you believe the constructs should be correlated, which is plausible for
+> neighborhoods, use an oblique rotation such as `rotate = "oblimin"` instead.
+
+```{r fit-fa, warning=TRUE}
+fa_fit <- psych::fa(
+  X_z,
+  nfactors = n_factors,
+  fm       = "pa",
+  rotate   = "varimax",
+  scores   = "regression"
+)
+```
+
+> **About that warning.** An *ultra-Heywood case* means at least one variable has an
+> estimated communality at or slightly above 1, which is impossible for a true variance
+> share. Two variables hit that ceiling here (look for `h2` values of 1.00 and negative `u2`
+> values in the printout below). Percent speaking another language at home (`polang12`) is
+> correlated `r round(R["polang12", "pfb12"], 2)` with percent foreign born, and percent 60
+> and older (`p60up12`) is correlated `r round(R["p60up12", "p75up12"], 2)` with percent 75
+> and older. When two indicators are nearly duplicates, a factor can be defined almost
+> entirely by them. The solution is still usable for exploration, and Section 8 checks that
+> it doesn't depend on the estimation method. For a final instrument, drop or combine
+> redundant indicators.
+>
+> The setup chunk hides warnings to keep the report tidy, which would have hidden this one.
+> This chunk turns warnings back on with `warning=TRUE`, because the warnings from a model
+> fit should always be read.
+
+```{r print-fit}
+print(fa_fit, digits = 2, cut = 0.30, sort = TRUE)
+```
+
+The bottom of the printout reports fit statistics. The Tucker-Lewis index of
+`r round(fa_fit$TLI, 2)` and RMSEA of `r round(fa_fit$RMSEA[1], 2)` show that four factors
+leave plenty of correlation unexplained. That is expected when 30 heterogeneous census
+variables are compressed into four dimensions. The goal here is interpretable constructs,
+not a close-fitting confirmatory model.
+
+## 7. Interpret the loadings
+
+Loadings describe how strongly each variable relates to each factor. Rules of thumb:
+
+- |loading| ≥ 0.30: potentially meaningful
+- |loading| ≥ 0.40: strong, in social science contexts
+- A variable with large loadings on more than one factor is **cross-loading**, which makes
+  interpretation harder.
+
+The sign matters. A negative loading means the variable moves in the opposite direction from
+the factor.
+
+```{r print-loadings}
+print(fa_fit$loadings, cutoff = 0.30, sort = TRUE)
+```
+
+### Name the factors
+
+Reading down each column gives the factors their names:
+
+- **PA1, Socioeconomic status:** college degrees, professional jobs, income, rents, and home
+  values load high; the share with a high school degree or less loads strongly negative.
+- **PA2, Household stability:** homeownership and marriage load high; multi-family housing,
+  female-headed families, and poverty load negative.
+- **PA4, Immigrant communities:** foreign born, speaking another language at home, and
+  Hispanic ethnicity.
+- **PA3, Aging population:** residents 60 and older, 75 and older, and widowed or divorced
+  load high; children and female labor force participation load negative.
+
+> **Names are claims, not facts.** Percent white loads positively on the stability factor and
+> percent Black loads negatively, and percent white also loads negatively on the immigrant
+> factor. A factor labeled "stability" is partly tracking racial composition. Whether that
+> reflects residential segregation, differences in access to homeownership, or something
+> else is a question about **validity** that the loadings alone cannot answer.
+
+`psych` numbers factors in the order they were extracted, and after rotation it sorts the
+columns by variance explained. That is why PA4 appears before PA3.
+
+```{r factor-names}
+factor_names <- c(
+  PA1 = "ses",
+  PA2 = "stability",
+  PA4 = "immigrant",
+  PA3 = "aging"
+)
+stopifnot(setequal(names(factor_names), colnames(fa_fit$loadings)))
+```
+
+### See the structure
+
+The printed table is precise but hard to scan. A **loadings heatmap** shows the same numbers
+as a picture. Each row is a variable and each column a factor. Blue cells load positively,
+orange cells load negatively, and pale cells are near zero. Rows are grouped by the factor
+each variable loads on most strongly, the same order as `sort = TRUE` above, except that
+variables with no loading of at least 0.30 are collected at the bottom. The bar chart
+on the right shows each variable's communality, how much of it the four factors explain.
+
+Three things jump out that are easy to miss in the printout:
+
+- **Clean blocks** down the diagonal are the four constructs.
+- **Cross-loadings** show up as a second colored cell in the same row, such as median
+  household income on both socioeconomic status and stability.
+- **Short communality bars** flag variables the factors barely explain, like percent Native
+  American and older housing stock.
+
+```{r loadings-heatmap, fig.width=10, fig.height=9.5}
+library(patchwork)   # combine two ggplots side by side
+
+L_long <- unclass(fa_fit$loadings)[, names(factor_names)] %>%
+  as.data.frame() %>%
+  setNames(factor_names) %>%
+  rownames_to_column("LABEL") %>%
+  left_join(dd, by = "LABEL") %>%
+  mutate(
+    communality = fa_fit$communality[LABEL],
+    # dominant factor = column with the largest absolute loading
+    primary = factor_names[apply(abs(unclass(fa_fit$loadings)[LABEL, names(factor_names)]), 1, which.max)],
+    peak = apply(abs(unclass(fa_fit$loadings)[LABEL, names(factor_names)]), 1, max),
+    # variables with no loading of at least 0.30 get their own group at the bottom
+    primary = ifelse(peak < 0.30, "none", primary),
+    primary = factor(primary, levels = c(factor_names, "none"))
+  ) %>%
+  arrange(primary, desc(peak)) %>%
+  mutate(VARIABLE = factor(VARIABLE, levels = rev(unique(VARIABLE))))
+
+heat_data <- L_long %>%
+  pivot_longer(all_of(unname(factor_names)), names_to = "factor", values_to = "loading") %>%
+  mutate(factor = factor(factor, levels = factor_names))
+
+# horizontal rules between the groups of variables
+breaks_y <- L_long %>% count(primary) %>% mutate(y = nrow(L_long) - cumsum(n) + 0.5) %>%
+  slice(-n())
+
+factor_labels <- c(ses = "Socioeconomic\nstatus", stability = "Household\nstability",
+                   immigrant = "Immigrant\ncommunities", aging = "Aging\npopulation")
+
+p_heat <- ggplot(heat_data, aes(x = factor, y = VARIABLE, fill = loading)) +
+  geom_tile(color = "white", linewidth = 0.8) +
+  geom_text(aes(label = ifelse(abs(loading) >= 0.30, sprintf("%.2f", loading), ""),
+                color = abs(loading) > 0.60),
+            size = 3.2, show.legend = FALSE) +
+  geom_hline(yintercept = breaks_y$y, color = "#4d565f", linewidth = 0.4) +
+  scale_fill_gradient2(low = "#bd5416", mid = "#f0efec", high = "#245b8a",
+                       midpoint = 0, limits = c(-1, 1),
+                       name = "Loading", breaks = c(-1, -0.5, 0, 0.5, 1)) +
+  scale_color_manual(values = c(`FALSE` = "#1f2429", `TRUE` = "white")) +
+  scale_x_discrete(position = "top", labels = factor_labels) +
+  labs(x = NULL, y = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(face = "bold", color = "#1f2429"),
+        axis.text.y = element_text(color = "#1f2429"),
+        legend.position = "bottom",
+        legend.key.width = unit(1.6, "cm"))
+
+p_comm <- ggplot(L_long, aes(x = pmin(communality, 1), y = VARIABLE)) +
+  geom_col(fill = "#6d7681", width = 0.7) +
+  scale_x_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1), position = "top",
+                     expand = expansion(mult = c(0, 0.02))) +
+  geom_hline(yintercept = breaks_y$y, color = "#4d565f", linewidth = 0.4) +
+  labs(x = "Communality", y = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text(color = "#4d565f", size = 10))
+
+p_heat + p_comm + plot_layout(widths = c(4, 1.3))
+```
+
+For a smaller set of variables, `psych::fa.diagram(fa_fit)` draws a path diagram from each
+factor to its indicators. It shows only each variable's largest loading, though, so it hides
+exactly the cross-loadings the heatmap reveals.
+
+### A clean loadings table
+
+Join the loadings back to the data dictionary, add the communality and uniqueness, and
+blank out loadings below 0.30 so the structure stands out.
+
+```{r loadings-table}
+L <- unclass(fa_fit$loadings)[, names(factor_names)]
+colnames(L) <- factor_names
+
+loadings_out <- as.data.frame(round(L, 2)) %>%
+  rownames_to_column("LABEL") %>%
+  mutate(
+    communality = round(fa_fit$communality[LABEL], 2),
+    uniqueness  = round(fa_fit$uniquenesses[LABEL], 2)
+  ) %>%
+  left_join(dd, by = "LABEL") %>%
+  relocate(LABEL, VARIABLE)
+
+readr::write_csv(loadings_out, file.path(out_dir, "factor_loadings.csv"))
+
+loadings_out %>%
+  mutate(across(all_of(unname(factor_names)),
+                ~ ifelse(abs(.x) < 0.30, "", sprintf("%.2f", .x)))) %>%
+  arrange(desc(communality)) %>%
+  pander(justify = "left", split.table = Inf)
+```
+
+The low end of the communality column is informative too. Percent Native American, percent
+of structures more than 30 years old, and percent manufacturing employees are barely
+explained by any of the four factors. They measure something else.
+
+### Top-loading variables for each factor
+
+```{r top-loadings, results="asis"}
+top_k <- 6
+
+top_by_factor <- loadings_out %>%
+  select(LABEL, VARIABLE, all_of(unname(factor_names))) %>%
+  pivot_longer(all_of(unname(factor_names)), names_to = "factor", values_to = "loading") %>%
+  group_by(factor) %>%
+  slice_max(abs(loading), n = top_k, with_ties = FALSE) %>%
+  ungroup() %>%
+  mutate(factor = factor(factor, levels = unname(factor_names))) %>%
+  arrange(factor, desc(abs(loading)))
+
+readr::write_csv(top_by_factor, file.path(out_dir, "top_loadings_by_factor.csv"))
+
+for (f in levels(top_by_factor$factor)) {
+  rows <- filter(top_by_factor, factor == f)
+  cat("\n#### ", f, "\n\n", sep = "")
+  cat(paste0("- ", rows$VARIABLE, " (", sprintf("%.2f", rows$loading), ")", collapse = "\n"), "\n")
+}
+```
+
+## 8. Does the solution depend on the estimator?
+
+Because of the Heywood warning, refit the model with **maximum likelihood** (`fm = "ml"`)
+and compare. `factor.congruence()` measures how similar two sets of loadings are. Values
+above 0.95 mean the factors are essentially the same.
+
+```{r estimator-check}
+fa_ml <- psych::fa(X_z, nfactors = n_factors, fm = "ml", rotate = "varimax")
+
+round(psych::factor.congruence(fa_fit, fa_ml), 2)
+```
+
+Each principal axis factor has a maximum likelihood twin with a congruence of about 0.99 or
+higher, so the four constructs are not an artifact of the estimator.
+
+## 9. Extract the new features
+
+Factor scores are the payoff: one score per factor for every neighborhood. They replace 30
+overlapping variables with four composite measures.
+
+```{r extract-scores}
+scores <- as.data.frame(fa_fit$scores)[, names(factor_names)]
+names(scores) <- paste0("factor_", factor_names)
+
+head(round(scores, 2))
+
+readr::write_csv(scores, file.path(out_dir, "factor_scores.csv"))
+
+dat_with_scores <- bind_cols(dat, scores)
+readr::write_csv(dat_with_scores, file.path(out_dir, "data_with_factor_scores.csv"))
+```
+
+Under varimax the underlying factors are uncorrelated. The *estimated* scores are close to
+uncorrelated but not exactly, because each score is an estimate that contains some error.
+
+```{r score-correlations}
+scores_cor <- round(cor(scores), 3)
+scores_cor
+
+readr::write_csv(
+  as.data.frame(scores_cor) %>% rownames_to_column("factor"),
+  file.path(out_dir, "factor_score_correlations.csv")
+)
+```
+
+## 10. Weighted scores versus a simple index
+
+How much does factoring buy you over the simple approach, averaging the z-scores of the
+items that define a construct? Take the socioeconomic status factor. Build a simple index
+from its six strongest variables, flipping the sign of the one that loads negatively, and
+compare it to the factor score.
+
+```{r simple-index}
+ses_items <- top_by_factor %>% filter(factor == "ses")
+ses_items %>% select(LABEL, VARIABLE, loading)
+
+# Reverse-code negatively loading items so every item points the same direction
+ses_z <- X_z[ses_items$LABEL]
+ses_z <- sweep(ses_z, 2, sign(ses_items$loading), `*`)
+
+ses_simple <- rowMeans(ses_z)
+
+# Cronbach's alpha for the unit-weighted scale
+ses_alpha <- psych::alpha(ses_z)
+round(ses_alpha$total$raw_alpha, 2)
+
+# How similar are the simple index and the weighted factor score?
+round(cor(ses_simple, scores$factor_ses), 3)
+```
+
+```{r simple-index-plot, fig.width=6, fig.height=6}
+plot(ses_simple, scores$factor_ses,
+     pch = 19, col = gray(0.5, 0.4), bty = "n",
+     xlab = "Simple index (mean of six z-scores)",
+     ylab = "Factor score (weighted)",
+     main = "Socioeconomic status: two ways to build the index")
+abline(lm(scores$factor_ses ~ ses_simple), col = "#bd5416", lwd = 2)
+```
+
+The six items are highly reliable as a scale (α = `r round(ses_alpha$total$raw_alpha, 2)`),
+and the simple index and the factor score are correlated
+`r round(cor(ses_simple, scores$factor_ses), 2)`. When items are strong and loadings are
+similar, a simple average and a weighted composite tell nearly the same story. Weighting
+matters most when some items are much noisier than others.
+
+## Outputs
+
+Knitting this file writes five files to `factor_analysis_outputs/`.
+
+To interpret and label each construct:
+
+- `factor_loadings.csv`: all loadings with communalities, uniquenesses, and descriptions
+- `top_loadings_by_factor.csv`: the six strongest variables for each factor
+
+The new composite measures:
+
+- `factor_scores.csv`: four factor scores for each neighborhood
+- `data_with_factor_scores.csv`: the original data with the scores appended
+
+A check on independence:
+
+- `factor_score_correlations.csv`
+
+## Notes on refinement
+
+This is a teaching example that uses a four-factor solution because the loadings are easy
+to interpret. For a real instrument:
+
+- **Drop weak indicators.** Remove variables with low item-level KMO or low communality, such
+  as `pntv12`, then refit.
+- **Resolve redundancy.** Pairs like percent foreign born and percent speaking another
+  language (r = `r round(R["pfb12", "polang12"], 2)`), or percent 60 and older and percent
+  75 and older (r = `r round(R["p60up12", "p75up12"], 2)`), carry nearly the same
+  information. Keep one of each pair, or combine them.
+- **Drop strong cross-loaders** if you want a cleaner simple structure. Median household
+  income and percent currently married both load on two factors.
+- **Consider an oblique rotation.** With `rotate = "oblimin"` the factors are allowed to
+  correlate, and the factor correlation matrix (`$Phi`) tells you whether independence was a
+  reasonable assumption.
+- **Use maximum likelihood** (`fm = "ml"`) when you want formal fit statistics. It assumes
+  approximate multivariate normality.
+- **Confirm the structure** on new data with a confirmatory factor analysis before treating
+  the factors as validated measures.
+
+
+```{css, echo=FALSE}
+/* Matches the course notes pages (lectures2/*-notes.html) */
+:root{
+  --ground:#ffffff;
+  --surface:#f3f4f6;
+  --ink:#1f2429;
+  --ink-mid:#4d565f;
+  --ink-soft:#6d7681;
+  --rule:#dcdfe4;
+  --rule-strong:#c3c8cf;
+  --accent:#bd5416;
+  --accent-ink:#8f3f10;
+  --accent-wash:#fbf0e7;
+  --navy:#153243;
+  --pumpkin:#dc965a;
+  --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+  --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --font-code:"Source Code Pro",Consolas,"Courier New",monospace;
+  --measure:40rem;
+}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:1.0625rem;
+  line-height:1.62;
+  max-width:52rem;
+  margin:0 auto;
+  padding:0 1.5rem 5rem;
+}
+
+/* ---------- masthead (theme: null renders a bare h1.title + h3.subtitle) ---------- */
+h1.title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:2.75rem;
+  line-height:1.06;
+  letter-spacing:-.015em;
+  margin:0;
+  padding-top:3.5rem;
+}
+h1.title::before{
+  content:"Measurement Theory · R walkthrough";
+  display:block;
+  font-family:var(--font-body);
+  font-size:.8125rem;
+  line-height:1.4;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--accent-ink);
+  margin-bottom:.9rem;
+}
+h3.subtitle{
+  font-family:var(--font-body);
+  font-weight:400;
+  font-size:1.25rem;
+  line-height:1.5;
+  color:var(--ink-mid);
+  margin:.9rem 0 0;
+  padding-bottom:2rem;
+  border-bottom:1px solid var(--rule);
+  max-width:none;
+}
+
+/* ---------- table of contents ---------- */
+#TOC{
+  background:var(--surface);
+  border-radius:10px;
+  padding:1.25rem 1.5rem;
+  margin:2rem 0 1rem;
+}
+#TOC::before{
+  content:"Contents";
+  display:block;
+  font-size:.8125rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:var(--ink-soft);
+  margin-bottom:.5rem;
+}
+#TOC ul{list-style:none;margin:0;padding:0;columns:2 16rem;column-gap:2rem;}
+#TOC li{margin:.2rem 0;break-inside:avoid;}
+#TOC ul ul{display:none;}
+#TOC a{color:var(--ink);text-decoration:none;font-weight:600;font-size:.95rem;}
+#TOC a:hover{color:var(--accent-ink);}
+
+/* ---------- headings ---------- */
+h2{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:2rem;
+  line-height:1.14;
+  margin:3.5rem 0 1rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--rule);
+}
+h3{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.45rem;
+  line-height:1.24;
+  margin:2.25rem 0 .75rem;
+}
+h4{font-family:var(--font-body);font-weight:700;font-size:1.05rem;margin:1.75rem 0 .5rem;}
+
+p,ul,ol{max-width:var(--measure);}
+p{margin:0 0 1.05rem;}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem;}
+li{margin-bottom:.4rem;}
+li::marker{color:var(--accent);font-weight:600;}
+strong{font-weight:700;color:var(--ink);}
+a{color:var(--accent-ink);text-underline-offset:2px;}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+hr{border:0;border-top:1px solid var(--rule);margin:2.5rem 0;}
+
+/* ---------- callouts (use > blockquotes) ---------- */
+blockquote{
+  background:var(--accent-wash);
+  border:0;
+  border-radius:3px;
+  padding:1.1rem 1.3rem;
+  margin:1.5rem 0;
+  max-width:var(--measure);
+  font-size:1rem;
+}
+blockquote p:last-child{margin-bottom:0;}
+
+/* ---------- key-idea panel: wrap in <div class="concepts"> ---------- */
+.concepts{
+  background:var(--navy);
+  color:#fff;
+  border-radius:10px;
+  padding:1.75rem 2rem 1.5rem;
+  margin:1.5rem 0 2rem;
+}
+.concepts p,.concepts li{color:rgba(255,255,255,.9);}
+.concepts strong{color:var(--pumpkin);}
+.concepts li::marker{color:var(--pumpkin);}
+.concepts code{background:rgba(255,255,255,.12);color:#fff;}
+
+/* ---------- code ---------- */
+code{font-family:var(--font-code);font-size:.88em;}
+p code,li code,td code{background:var(--surface);padding:.08em .32em;border-radius:3px;color:var(--accent-ink);}
+pre{
+  font-family:var(--font-code);
+  font-size:.85rem;
+  line-height:1.5;
+  background:var(--surface);
+  border:0;
+  border-radius:3px;
+  padding:.9rem 1.1rem;
+  margin:1rem 0 1.25rem;
+  overflow-x:auto;
+}
+pre code{background:none;padding:0;color:inherit;font-size:inherit;}
+pre.r{border-left:3px solid var(--accent);}
+pre:not(.r){background:var(--ground);border:1px solid var(--rule);color:var(--ink-mid);}
+
+/* ---------- math ---------- */
+.math.display{display:block;overflow-x:auto;margin:1rem 0;}
+
+/* ---------- tables ---------- */
+table{
+  border-collapse:collapse;
+  font-size:.9rem;
+  margin:1.25rem 0 1.75rem;
+  display:block;
+  max-width:100%;
+  overflow-x:auto;
+}
+th,td{text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+thead th{
+  font-size:.75rem;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:var(--ink-soft);
+  border-bottom:1.5px solid var(--rule-strong);
+  white-space:nowrap;
+}
+td{font-variant-numeric:tabular-nums;}
+caption{
+  caption-side:top;
+  text-align:left;
+  font-size:.8rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:var(--ink-soft);
+  padding-bottom:.6rem;
+}
+
+/* ---------- figures ---------- */
+img{max-width:100%;height:auto;display:block;margin:1.25rem auto;}
+p.caption{text-align:center;font-size:.9rem;color:var(--ink-soft);font-style:italic;}
+
+@media (max-width:640px){
+  h1.title{font-size:2.1rem;}
+  h2{font-size:1.65rem;}
+  h3{font-size:1.3rem;}
+  body{padding:0 1rem 3.5rem;}
+  .concepts{padding:1.35rem 1.25rem;}
+}
+```

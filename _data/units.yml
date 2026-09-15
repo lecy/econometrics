@@ -613,6 +613,7 @@
     - Distinguish direct measures, markers or proxies, and latent constructs.
     - Explain the difference between measurement validity and measurement reliability.
     - Calculate and interpret Cronbach's alpha, and use item correlations to improve a scale.
+    - Build weighted composite indices with factor analysis, and explain how it differs from PCA.
     - Identify the perverse incentives that performance metrics can create.
   readings:
     - title: Measurement Theory and Practice
@@ -640,6 +641,30 @@
       blurb: "Short lecture note: M = T + e, reliability as a signal-to-noise ratio, and how experts build indices of neighborhood quality."
       links:
         - { label: Notes, url: lectures2/p-06.01-measurement-theory-notes.html, kind: notes }
+    - title: Weighted Composite Indices
+      blurb: "More detail: why weighting items by loading and noise beats a simple average, with the optimal weights and a worked example."
+      links:
+        - { label: Notes, url: lectures2/p-06.02-weighted-composite-indices-notes.html, kind: notes }
+  walkthroughs:
+    - title: Factor Analysis
+      blurb: >
+        Reduce 30 census variables to four named neighborhood constructs: factorability checks,
+        parallel analysis, loadings, a Heywood case, and factor scores compared against a
+        simple index.
+      links:
+        - { label: Walkthrough, url: lectures2/measurement-factor-analysis.html, kind: html }
+        - { label: RMD Script, url: lectures2/measurement-factor-analysis.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: lectures2/data/census-data.csv, kind: data }
+        - { label: Data Dictionary (CSV), url: lectures2/data/census-data-dd.csv, kind: data }
+    - title: PCA versus Factor Analysis
+      blurb: >
+        Fit both methods to the same data, line up the dimensions, and compare loadings,
+        communalities, and scores to see where total variance and common variance part ways.
+      links:
+        - { label: Walkthrough, url: lectures2/measurement-pca-vs-factor-analysis.html, kind: html }
+        - { label: RMD Script, url: lectures2/measurement-pca-vs-factor-analysis.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: lectures2/data/census-data.csv, kind: data }
+        - { label: Data Dictionary (CSV), url: lectures2/data/census-data-dd.csv, kind: data }
   labs:
     - title: Measurement Lab — A Community Well-Being Index
       blurb: >
