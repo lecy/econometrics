@@ -585,20 +585,6 @@
           </ul>
           {% endif %}
 
-          {% if u.readings %}
-          <div class="block">
-            <h3 class="block-title">Readings</h3>
-            <ul class="readings">
-              {% for r in u.readings %}
-              <li>
-                <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
-                {% if r.cite %}<span class="cite">{{ r.cite }}</span>{% endif %}
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endif %}
-
           {% if u.lectures %}
           <div class="block">
             <h3 class="block-title">Lectures &amp; Notes</h3>
@@ -665,6 +651,20 @@
               </div>
             </div>
             {% endfor %}
+          </div>
+          {% endif %}
+
+          {% if u.readings %}
+          <div class="block">
+            <h3 class="block-title">Reference Material</h3>
+            <ul class="readings">
+              {% for r in u.readings %}
+              <li>
+                <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
+                {% if r.cite %}<span class="cite">{{ r.cite }}</span>{% endif %}
+              </li>
+              {% endfor %}
+            </ul>
           </div>
           {% endif %}
 
