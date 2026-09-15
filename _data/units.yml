@@ -309,6 +309,12 @@
     - title: Interaction Effects in Research
       cite: Background on why interactions are so often misread.
       url: pubs/interaction-effects-in-research.pdf
+    - title: Visualizing a 2 × 2 × 2 Interaction
+      cite: One-page graphic. Fertilizer, water, and sunlight as cell tables, interaction plots, and a fully interacted regression.
+      url: handouts/dummy_variable_interactions.png
+    - title: "The 2 × 2 × 2 Model: From Main Effects to the Three-Way Interaction"
+      cite: One-page graphic. Maps every coefficient to a corner of the cube and the hypothesis test it answers.
+      url: handouts/dummy_variable_interactions_3way.png
   lectures:
     - title: Interactions in Regression Models
       blurb: How a single interaction term changes the meaning of every other coefficient.
