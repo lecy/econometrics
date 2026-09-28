@@ -199,7 +199,7 @@
   <header class="masthead">
     <p class="eyebrow">Syllabus</p>
     <h1>Applied Econometrics</h1>
-    <p class="dek">Twenty units across three parts: regression foundations, research design and counterfactual reasoning, and quasi-experimental estimators. Each unit lists its lectures and the reference material that goes with them.</p>
+    <p class="dek">Twenty-one units across three parts: regression foundations, research design and counterfactual reasoning, and quasi-experimental estimators. Each unit lists its lectures and the reference material that goes with them.</p>
   </header>
 
 <div class="syl">
@@ -551,10 +551,37 @@
     </div>
   </div>
 </article>
+<article class="syl-unit" id="syllabus-dummy-variable-specifications">
+  <div class="syl-head">
+    <span class="syl-num">Unit 14</span>
+    <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#dummy-variable-specifications">Practicing Dummy Variable Specifications</a></h3>
+  </div>
+  <p class="syl-summary">Thirteen exercises that start from a picture of group means and a research question, and ask for the regression whose coefficient tests it. They cover t-tests as regressions, reference categories, interactions, difference-in-differences, dosage, interrupted time series, regression discontinuity, and structural breaks.
+</p>
+  <div class="syl-cols">
+    <div>
+      <p class="syl-label">Lectures</p>
+      <ul class="syl-list">
+<li><a href="https://lecy.github.io/econometrics/lectures2/dummy-variable-specification-exercises.html">Build the Model from the Hypothesis</a></li>
+<li><a href="https://lecy.github.io/econometrics/lectures1/hypotheses-tests-with-dummy-variables-notes.html">Hypothesis testing with dummies</a><span class="syl-tag">Review</span></li>
+<li><a href="https://lecy.github.io/econometrics/lectures1/p-08-dummy-variables-notes.html">Interactions</a><span class="syl-tag">Review</span></li>
+<li><a href="https://lecy.github.io/econometrics/lectures2/p-03-varieties-of-counterfactuals-notes.html">Three estimators</a><span class="syl-tag">Review</span></li>
+      </ul>
+    </div>
+    <div>
+      <p class="syl-label">Reference material</p>
+      <ul class="syl-list">
+<li><a href="https://lecy.github.io/econometrics/handouts/Regression%20with%20Interaction%20Effects.pdf">Regression with Interaction Effects — practice questions</a><span class="syl-cite">The Unit 05 practice set, for a second pass at intercept and slope shifts.</span></li>
+<li><a href="https://lecy.github.io/econometrics/handouts/Regression-with-Interaction-Effects-SOLUTIONS.pdf">Regression with Interaction Effects — solutions</a><span class="syl-cite">Check your answers here.</span></li>
+<li><a href="https://lecy.github.io/econometrics/handouts/Difference-in-Difference-Models.pdf">Difference-in-Difference Models</a><span class="syl-cite">Handout. The 2 × 2 design written as an interaction, as in exercises 6 and 13.</span></li>
+      </ul>
+    </div>
+  </div>
+</article>
 <h2 class="syl-part" id="syllabus-part-3">Part 3 — Regression Tools for Impact Analysis</h2>
 <article class="syl-unit" id="syllabus-interrupted-time-series">
   <div class="syl-head">
-    <span class="syl-num">Unit 14</span>
+    <span class="syl-num">Unit 15</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#interrupted-time-series">Interrupted Time Series</a></h3>
   </div>
   <p class="syl-summary">Models a single unit observed many times before and after an intervention, separating the pre-existing trend from what the policy changed. The model distinguishes an immediate change in level from a sustained change in slope, and checks the residuals for autocorrelation.
@@ -577,7 +604,7 @@
 </article>
 <article class="syl-unit" id="syllabus-diff-in-diff">
   <div class="syl-head">
-    <span class="syl-num">Unit 15</span>
+    <span class="syl-num">Unit 16</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#diff-in-diff">Difference-in-Difference Models</a></h3>
   </div>
   <p class="syl-summary">Recasts the difference-in-difference estimator as a regression, where the coefficient on a group-by-period interaction is the program effect. The groups need not be equivalent at baseline, but they must have been trending in parallel before the intervention.
@@ -602,7 +629,7 @@
 </article>
 <article class="syl-unit" id="syllabus-fixed-effects">
   <div class="syl-head">
-    <span class="syl-num">Unit 16</span>
+    <span class="syl-num">Unit 17</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#fixed-effects">Panel Data with Fixed Effects</a></h3>
   </div>
   <p class="syl-summary">With repeated observations on the same units, fixed effects give each unit its own intercept, so nothing stable about a unit can confound the estimate. Compares pooled, random effects, and fixed effects specifications, and the tests that guide the choice among them.
@@ -625,7 +652,7 @@
 </article>
 <article class="syl-unit" id="syllabus-instrumental-variables">
   <div class="syl-head">
-    <span class="syl-num">Unit 17</span>
+    <span class="syl-num">Unit 18</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#instrumental-variables">Instrumental Variables</a></h3>
   </div>
   <p class="syl-summary">When the policy variable is correlated with the error term, OLS is biased no matter how much data you have. An instrument that moves the treatment but affects the outcome only through it recovers the effect, built step by step with two-stage least squares.
@@ -647,7 +674,7 @@
 </article>
 <article class="syl-unit" id="syllabus-regression-discontinuity">
   <div class="syl-head">
-    <span class="syl-num">Unit 18</span>
+    <span class="syl-num">Unit 19</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#regression-discontinuity">Regression Discontinuity Design</a></h3>
   </div>
   <p class="syl-summary">When eligibility depends on crossing a cutoff, units just above and just below the threshold are nearly comparable, and the jump in outcomes at the cutoff is the program effect. The design is highly credible but local: it says little about units far from the threshold.
@@ -669,7 +696,7 @@
 </article>
 <article class="syl-unit" id="syllabus-logistic-regression">
   <div class="syl-head">
-    <span class="syl-num">Unit 19</span>
+    <span class="syl-num">Unit 20</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#logistic-regression">Logistic Regression</a></h3>
   </div>
   <p class="syl-summary">For yes-or-no outcomes, logistic regression keeps predicted probabilities between 0 and 1, at the cost of coefficients reported in log-odds. Converting to probabilities shows that the same change in X is worth different amounts depending on the starting point.
@@ -692,7 +719,7 @@
 </article>
 <article class="syl-unit" id="syllabus-matching">
   <div class="syl-head">
-    <span class="syl-num">Unit 20</span>
+    <span class="syl-num">Unit 21</span>
     <h3 class="syl-title"><a href="https://lecy.github.io/econometrics/#matching">Propensity Score Matching</a></h3>
   </div>
   <p class="syl-summary">Builds a comparison group from observational data by pairing each treated unit with untreated units that had a similar probability of treatment. Matching can only balance what was measured, so it addresses selection on observables alone.

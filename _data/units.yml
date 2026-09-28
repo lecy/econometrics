@@ -885,13 +885,71 @@
         - { label: RMD Template, url: labs2/lab-05-template.rmd, kind: rmd, raw: true }
         - { label: Data (CSV), url: labs2/data/counterfactuals.csv, kind: data }
 
+- id: dummy-variable-specifications
+  part: "Part 2 — Research Design and Counterfactuals"
+  number: "14"
+  title: Practicing Dummy Variable Specifications
+  tagline: Start from the hypothesis, then choose the coding that puts it on a single coefficient.
+  summary: >
+    Thirteen exercises that start from a picture of group means and a research question, and
+    ask for the regression whose coefficient tests it. They cover t-tests as regressions,
+    reference categories, interactions, difference-in-differences, dosage, interrupted time
+    series, regression discontinuity, and structural breaks.
+  overview: |
+    Every regression tests each coefficient against zero, so the specification decides which
+    questions get answered. A dummy variable's coefficient is the gap between its category
+    and the omitted one, measured where every other predictor equals zero. The two coding
+    decisions that matter are therefore the **reference category** and the **zero point** of
+    any continuous variable.
+
+    The exercises apply that one rule to thirteen designs, each a figure and a question. The
+    work is to define the indicators, write the equation, state the null hypothesis as a
+    coefficient restriction, and read every coefficient back off the picture. The designs run
+    from one- and two-sample t-tests through 2 × 2 interactions and difference-in-differences
+    to interrupted time series, regression discontinuity, a pile-up of cases at zero, and
+    COVID-era anomalies followed by a new regime. Worked solutions follow the questions, with
+    the design matrix, every coefficient's meaning, and the most common wrong specification.
+  objectives:
+    - Translate a research question into a restriction on a single regression coefficient.
+    - Choose the reference category and centering point that make that restriction the default test.
+    - Recover every group mean, intercept, and slope from a fitted model by adding coefficients.
+    - Tell apart a restriction the model imposes from one it tests, and spot collinear codings before fitting.
+  readings:
+    - title: Regression with Interaction Effects — practice questions
+      cite: The Unit 05 practice set, for a second pass at intercept and slope shifts.
+      url: handouts/Regression%20with%20Interaction%20Effects.pdf
+    - title: Regression with Interaction Effects — solutions
+      cite: Check your answers here.
+      url: handouts/Regression-with-Interaction-Effects-SOLUTIONS.pdf
+    - title: Difference-in-Difference Models
+      cite: Handout. The 2 × 2 design written as an interaction, as in exercises 6 and 13.
+      url: handouts/Difference-in-Difference-Models.pdf
+  lectures:
+    - title: Build the Model from the Hypothesis
+      blurb: >
+        Thirteen exercises with worked solutions: reference choices, interactions, paired
+        designs, dosage, interrupted time series, regression discontinuity, and structural
+        breaks, each ending in a single coefficient test.
+      links:
+        - { label: Exercises, url: lectures2/dummy-variable-specification-exercises.html, kind: html }
+        - { label: RMD Source, url: lectures2/dummy-variable-specification-exercises.rmd, kind: rmd, raw: true }
+    - title: Review from Unit 05
+      review: true
+      blurb: >
+        The exercises build on the dummy variable decks from Part 1. These are the ones to
+        have at hand.
+      links:
+        - { label: Hypothesis testing with dummies, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Interactions, url: lectures1/p-08-dummy-variables-notes.html, kind: notes }
+        - { label: Three estimators, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+
 # ===========================================================================
 # PART 3 — Regression Tools for Impact Analysis  (schedule3 / lectures3 / labs3)
 # ===========================================================================
 
 - id: interrupted-time-series
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "14"
+  number: "15"
   title: Interrupted Time Series
   tagline: One group, many time points, and a policy that lands in the middle of them.
   summary: >
@@ -938,7 +996,7 @@
 
 - id: diff-in-diff
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "15"
+  number: "16"
   title: Difference-in-Difference Models
   tagline: The strong counterfactual, now as a regression rather than a table of four means.
   summary: >
@@ -988,7 +1046,7 @@
 
 - id: fixed-effects
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "16"
+  number: "17"
   title: Panel Data with Fixed Effects
   tagline: Let every unit keep its own intercept, and identify the effect from within-unit change.
   summary: >
@@ -1034,7 +1092,7 @@
 
 - id: instrumental-variables
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "17"
+  number: "18"
   title: Instrumental Variables
   tagline: Borrow the part of your treatment that is uncorrelated with the error.
   summary: >
@@ -1080,7 +1138,7 @@
 
 - id: regression-discontinuity
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "18"
+  number: "19"
   title: Regression Discontinuity Design
   tagline: Near an arbitrary cutoff, who gets treated is almost random.
   summary: >
@@ -1119,7 +1177,7 @@
 
 - id: logistic-regression
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "19"
+  number: "20"
   title: Logistic Regression
   tagline: Binary outcomes, log-odds, and why marginal effects depend on where you stand.
   summary: >
@@ -1162,7 +1220,7 @@
 
 - id: matching
   part: "Part 3 — Regression Tools for Impact Analysis"
-  number: "20"
+  number: "21"
   title: Propensity Score Matching
   tagline: Manufacture a comparison group by pairing each treated unit with its nearest twin.
   summary: >
