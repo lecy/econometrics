@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Is Meta-Analysis?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .num-col td:not(:first-child){font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>What Is Meta-Analysis?</h1>
+    <p class="dek">A reading guide for the opening lecture of Unit 23 &mdash; why counting significant
+      studies is the wrong way to summarize a literature, how effect sizes put every study on one scale,
+      and how a meta-analysis weights, pools, and interrogates them.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#synthesis">Why synthesize</a>
+      <a href="#effect-sizes">Effect sizes</a>
+      <a href="#pooling">Pooling and diagnostics</a>
+      <a href="#clear">What should be clear</a>
+      <a href="#next">Where this goes next</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The ideas the rest of the unit rests on, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Meta-analysis is the quantitative synthesis of research results.</p>
+      <p>A <strong>systematic review</strong> finds, screens, and appraises every relevant study under a
+        written protocol. A <strong>meta-analysis</strong> is the statistical step that follows when the
+        studies report enough quantitative information: extract an effect size from each study, then
+        combine them in a model.</p>
+
+      <p class="claim">A single study is one contribution to a body of evidence, not the final answer.</p>
+      <p>Individual estimates are noisy. The question &ldquo;does reducing class size raise
+        achievement?&rdquo; is answered by the distribution of estimates across studies, not by whichever
+        study happened to be published most recently or most loudly.</p>
+
+      <p class="claim">Vote counting is not meta-analysis.</p>
+      <ul>
+        <li><strong>Vote counting</strong> tallies how many studies were significant versus not.</li>
+        <li>It throws away magnitude, ignores precision, and says nothing about heterogeneity.</li>
+        <li>When individual studies are underpowered, it will declare &ldquo;no effect&rdquo; even when
+          every study is estimating a real one.</li>
+      </ul>
+
+      <p class="claim">Effect sizes are the common currency.</p>
+      <p>Studies measure outcomes on different scales &mdash; different tests, different units. A
+        standardized effect size such as Cohen&rsquo;s <span class="m"><i>d</i></span> expresses each
+        result in standard-deviation units so the results can be compared and combined.</p>
+      <ul>
+        <li>A <span class="m"><i>t</i></span>-statistic answers <em>is there a difference?</em> It grows
+          with sample size.</li>
+        <li>An effect size answers <em>how big is the difference?</em> It does not.</li>
+      </ul>
+
+      <p class="claim">Pooling is a weighted average, and the weights are precision.</p>
+      <p>Each study is weighted by the inverse of its sampling variance, so large, precise studies count
+        for more than small, noisy ones.</p>
+
+      <p class="claim">Common-effect and random-effects models make different claims about the world.</p>
+      <ul>
+        <li><strong>Common (fixed) effect:</strong> every study estimates the same true effect; all
+          spread is sampling error.</li>
+        <li><strong>Random effects:</strong> true effects differ across studies; the pooled estimate is
+          the mean of a distribution of effects, and there is an extra between-study variance
+          component, <span class="m"><i>&tau;</i><sup>2</sup></span>.</li>
+      </ul>
+
+      <p class="claim">Heterogeneity is information, not a nuisance.</p>
+      <p>Moderator analysis and meta-regression ask <em>why</em> effects differ &mdash; by design, by
+        population, by the size of the class-size reduction. In a contested literature, the moderators
+        are often the answer.</p>
+
+      <p class="claim">A synthesis is only as good as the literature it synthesizes.</p>
+      <p>If non-significant results go unpublished, the pooled estimate inherits that bias. Funnel plots
+        and trim-and-fill can detect and estimate it; they cannot fully repair it.</p>
+    </div>
+  </section>
+
+  <section id="synthesis">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Why synthesize at all?</h2>
+      <p class="sub">From narrative reviews and vote counts to formal research synthesis.</p>
+    </div>
+
+    <h3>The problem meta-analysis was invented to solve</h3>
+    <p>For most of the twentieth century, a literature was summarized by a <strong>narrative
+      review</strong>: an expert read the studies they could find and wrote an informed opinion.
+      Gurevitch, Koricheva, Nakagawa and Stewart (2018) explain why this breaks down. When there are
+      hundreds of studies on one question, no reviewer can summarize them transparently or reproducibly,
+      and the choice of which studies to read and how to weigh them is invisible to the reader.</p>
+    <p>Class size is the textbook case. Studies go back to the early 1900s, and by the 1970s reviews
+      kept concluding that the evidence was contradictory. Glass and Smith (1979) described the topic as
+      having dissolved into &ldquo;cynical despair or epistemological confusion.&rdquo; Their response
+      &mdash; and Glass&rsquo;s broader insight, with Smith, that outcomes from different experiments
+      could be standardized and put on the same scale &mdash; is what launched modern meta-analysis in
+      the social sciences.</p>
+
+    <h3>Why counting votes gives the wrong answer</h3>
+    <p>The tempting shortcut is to count: twelve studies found a significant effect of small classes,
+      fifteen did not, so the evidence is &ldquo;mixed.&rdquo; Gurevitch et al. call vote counting a
+      discredited procedure that nonetheless keeps coming back, and it is worth being precise about why
+      it fails.</p>
+    <ul>
+      <li><strong>It confuses power with effect.</strong> Whether a study is significant depends on its
+        sample size as much as on the true effect. A literature of small studies can produce mostly
+        non-significant results even when the true effect is the same, and positive, in every study.</li>
+      <li><strong>It gets worse with more data.</strong> If each study has less than a 50% chance of
+        detecting the effect, the majority of studies will be non-significant, and adding more studies
+        only makes the wrong majority verdict look more secure.</li>
+      <li><strong>It discards magnitude.</strong> A study estimating 0.03 and one estimating 1.06 each
+        cast one vote.</li>
+      <li><strong>It ignores precision.</strong> A study of 40 students and a study of 6,000 students
+        count equally.</li>
+    </ul>
+
+    <h3>Reading the forest plot on slide 2</h3>
+    <p>The slide shows a random-effects meta-analysis of 27 studies from chapter 16 of
+      <em>Experimentology</em>. Each row is one study: the square is its standardized mean difference,
+      the whiskers are its 95% confidence interval, and the size of the square reflects the study&rsquo;s
+      weight. The diamond at the bottom is the pooled estimate: <strong>SMD = 0.40, 95% CI [0.20,
+      0.61]</strong>.</p>
+    <p>Now run the vote count on the same picture:</p>
+    <div class="table-scroll">
+      <table class="split num-col">
+        <thead><tr><th scope="col">Individual 95% interval</th><th scope="col">Studies</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Entirely above zero</th><td>10</td></tr>
+          <tr><th scope="row">Lower bound exactly 0.00</th><td>2</td></tr>
+          <tr><th scope="row">Crosses zero</th><td>15</td></tr>
+          <tr><th scope="row">Total</th><td>27</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>A vote counter would report that most studies found nothing. The meta-analysis reports a pooled
+      effect of 0.40 standard deviations whose interval sits well clear of zero. Both summaries use the
+      same 27 studies; only one of them uses the information the studies contain.</p>
+    <p>Two other features of the plot are worth noticing before moving on:</p>
+    <ul>
+      <li><strong>The spread is far larger than sampling error.</strong> Estimates run from &minus;0.06
+        to 2.60, and many intervals do not overlap each other. That is the visual signature of
+        heterogeneity, and it is why the slide uses a random-effects model.</li>
+      <li><strong>The biggest effects come from the smallest studies.</strong> The heavily weighted
+        studies near the top of the plot sit close to zero, while the largest estimates (2.60 and 1.37)
+        come from studies with small squares and wide intervals. That pattern &mdash; a
+        <em>small-study effect</em> &mdash; is exactly what a funnel plot is designed to diagnose, and it
+        can be a symptom of publication bias.</li>
+    </ul>
+
+    <h3>Two goals of research synthesis</h3>
+    <p>Gurevitch et al. distinguish two purposes that shape every downstream choice:</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col"></th><th scope="col">Evaluate a specific intervention</th><th scope="col">Reach a broad generalization</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Typical size</th><td>Relatively few studies (fewer than about 25)</td><td>Dozens to hundreds of outcomes</td></tr>
+          <tr><th scope="row">Main target</th><td>An accurate overall mean effect</td><td>Sources of heterogeneity</td></tr>
+          <tr><th scope="row">Question framing</th><td>PICO: population, intervention, comparator, outcome</td><td>Deliberately heterogeneous populations and settings</td></tr>
+          <tr><th scope="row">Risk</th><td>Conclusions may apply only to a narrow population</td><td>Heterogeneity hard to account for; fishing among moderators</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The class size debate sits between the two. The intervention sounds specific, but the studies
+      span tutoring-sized groups and small reductions in large classes, different grades, and designs
+      ranging from cross-sectional correlations to randomized experiments. That is why the moderators
+      &mdash; especially study design &mdash; end up doing so much work later in the unit.</p>
+  </section>
+
+  <section id="effect-sizes">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Effect sizes: the common currency</h2>
+      <p class="sub">What gets extracted from each study before anything is pooled.</p>
+    </div>
+
+    <h3>A <span class="m"><i>t</i></span>-score is not an effect size</h3>
+    <p>A <span class="m"><i>t</i></span>-statistic is a signal-to-noise ratio: the difference between
+      groups divided by its standard error. Because the standard error shrinks with sample size, the same
+      underlying difference produces a larger <span class="m"><i>t</i></span> in a larger study. That is
+      what makes <span class="m"><i>t</i></span> useful for testing and useless for comparing studies of
+      different sizes.</p>
+    <p>An effect size divides the difference by the standard deviation of the outcome instead &mdash; a
+      feature of the population, not of the sample size. It tells you <em>how big</em> the difference is
+      in standardized units, which is the quantity a meta-analysis combines.</p>
+
+    <h3>Cohen&rsquo;s <span class="m"><i>d</i></span></h3>
+    <p>The workhorse standardized mean difference (SMD):</p>
+    <div class="eq">
+      <span class="m"><i>d</i></span><span class="op">=</span>
+      <span class="frac"><span class="num"><span class="m"><i>M</i><sub>1</sub> &minus; <i>M</i><sub>2</sub></span></span><span class="den"><span class="m"><i>SD</i><sub>pooled</sub></span></span></span>
+    </div>
+    <p>where <span class="m"><i>M</i><sub>1</sub></span> is the treatment mean and
+      <span class="m"><i>M</i><sub>2</sub></span> the control mean. The general pooled SD weights each
+      group&rsquo;s variance by its degrees of freedom:</p>
+    <div class="eq">
+      <span class="m"><i>SD</i><sub>pooled</sub></span><span class="op">=</span>
+      <span class="sqrt tall"><span class="radical">&radic;</span><span class="radicand"><span class="frac"><span class="num"><span class="m">(<i>n</i><sub>1</sub> &minus; 1)<i>SD</i><sub>1</sub><sup>2</sup> + (<i>n</i><sub>2</sub> &minus; 1)<i>SD</i><sub>2</sub><sup>2</sup></span></span><span class="den"><span class="m"><i>n</i><sub>1</sub> + <i>n</i><sub>2</sub> &minus; 2</span></span></span></span></span>
+    </div>
+    <p>When the groups are the same size this reduces to the simple average of the two variances,
+      <span class="m">&radic;[(<i>SD</i><sub>1</sub><sup>2</sup> + <i>SD</i><sub>2</sub><sup>2</sup>)/2]</span>,
+      which is the version the handout uses.</p>
+
+    <h3>A worked example: <span class="m"><i>d</i></span>, <span class="m"><i>g</i></span>, and <span class="m">&Delta;</span></h3>
+    <p>Treatment: <span class="m"><i>M</i><sub>1</sub> = 80, <i>SD</i><sub>1</sub> = 10,
+      <i>n</i><sub>1</sub> = 25</span>. Control: <span class="m"><i>M</i><sub>2</sub> = 70,
+      <i>SD</i><sub>2</sub> = 12, <i>n</i><sub>2</sub> = 25</span>.</p>
+    <ol>
+      <li><strong>Pooled SD.</strong> <span class="m">&radic;[(100 + 144)/2] = &radic;122 = 11.05</span>.</li>
+      <li><strong>Cohen&rsquo;s <span class="m"><i>d</i></span>.</strong>
+        <span class="m">(80 &minus; 70)/11.05 = 0.905</span>. By Cohen&rsquo;s conventional
+        benchmarks (0.2 small, 0.5 medium, 0.8 large) this is a large effect.</li>
+      <li><strong>Hedges&rsquo; <span class="m"><i>g</i></span>.</strong> <span class="m"><i>d</i></span>
+        is biased upward in small samples. Hedges&rsquo; correction multiplies it by
+        <span class="m"><i>J</i> = 1 &minus; 3/(4<i>N</i> &minus; 9)</span>, where
+        <span class="m"><i>N</i> = <i>n</i><sub>1</sub> + <i>n</i><sub>2</sub></span>. Here
+        <span class="m"><i>J</i> = 1 &minus; 3/191 = 0.984</span> and
+        <span class="m"><i>g</i> = 0.984 &times; 0.905 = 0.89</span>.</li>
+      <li><strong>Glass&rsquo;s <span class="m">&Delta;</span>.</strong> Standardize by the control
+        group&rsquo;s SD alone, on the logic that treatment may change the spread as well as the mean:
+        <span class="m">&Delta; = 10/12 = 0.83</span>. It is smaller here because the control group
+        happens to be the more variable one.</li>
+    </ol>
+    <div class="eq">
+      <span class="m"><i>g</i></span><span class="op">=</span><span class="m"><i>J</i> &times; <i>d</i></span>,
+      <span class="op"></span>
+      <span class="m"><i>J</i></span><span class="op">=</span><span class="m">1 &minus;</span>
+      <span class="frac"><span class="num"><span class="m">3</span></span><span class="den"><span class="m">4<i>N</i> &minus; 9</span></span></span>
+    </div>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Estimator</th><th scope="col">Formula</th><th scope="col">Use it when</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Cohen&rsquo;s <span class="m"><i>d</i></span></th><td><span class="m">(<i>M</i><sub>1</sub> &minus; <i>M</i><sub>2</sub>) / <i>SD</i><sub>pooled</sub></span></td><td>Default SMD</td><td>0.91</td></tr>
+          <tr><th scope="row">Hedges&rsquo; <span class="m"><i>g</i></span></th><td><span class="m"><i>J</i> &times; <i>d</i></span></td><td>Small samples; the usual choice in meta-analysis</td><td>0.89</td></tr>
+          <tr><th scope="row">Glass&rsquo;s <span class="m">&Delta;</span></th><td><span class="m">(<i>M</i><sub>1</sub> &minus; <i>M</i><sub>2</sub>) / <i>SD</i><sub>control</sub></span></td><td>Treatment plausibly changes the variance</td><td>0.83</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p>With 50 students the correction barely matters (0.905 versus 0.89). With 10 students,
+        <span class="m"><i>J</i> = 1 &minus; 3/31 = 0.90</span> &mdash; a 10% haircut. Many early class
+        size studies were small, which is one reason meta-analysts report <span class="m"><i>g</i></span>
+        rather than <span class="m"><i>d</i></span>.</p>
+    </div>
+
+    <h3>Difference between groups versus change within a group</h3>
+    <p>The same &ldquo;standardized&rdquo; language covers two different quantities, and mixing them in
+      one analysis is a classic coding error.</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col"></th><th scope="col">Standardized mean difference (SMD)</th><th scope="col">Standardized mean change (SMC)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Design</th><td>Between subjects: treatment vs. control</td><td>Within subjects: pre vs. post, same people</td></tr>
+          <tr><th scope="row">Question</th><td>How different are the two groups?</td><td>How much did the group change?</td></tr>
+          <tr><th scope="row">Formula</th><td><span class="m">(<i>M</i><sub>1</sub> &minus; <i>M</i><sub>2</sub>) / <i>SD</i><sub>pooled</sub></span></td><td><span class="m">(<i>M</i><sub>post</sub> &minus; <i>M</i><sub>pre</sub>) / <i>SD</i></span>, where the SD is the pre-test SD or the SD of change scores</td></tr>
+          <tr><th scope="row">Dependence</th><td>Groups independent</td><td>Pre and post scores correlated; the correlation <span class="m"><i>r</i></span> enters the variance</td></tr>
+          <tr><th scope="row">Estimators</th><td>Cohen&rsquo;s <span class="m"><i>d</i></span>, Hedges&rsquo; <span class="m"><i>g</i></span>, Glass&rsquo;s <span class="m">&Delta;</span></td><td>Morris &amp; DeShon (2002) variants: <span class="m"><i>d</i><sub>pre</sub></span>, <span class="m"><i>d</i><sub>change</sub></span>, correlation-adjusted versions</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Two quick examples, with the numbers corrected from the source handout:</p>
+    <ul>
+      <li><strong>SMD.</strong> Treatment mean 80, control mean 70, <span class="m"><i>SD</i><sub>pooled</sub> = 10</span>:
+        <span class="m">SMD = (80 &minus; 70)/10 = 1.00</span>.</li>
+      <li><strong>SMC.</strong> Pre 70, post 80, <span class="m"><i>SD</i><sub>change</sub> = 15</span>:
+        <span class="m">SMC = (80 &minus; 70)/15 = 0.67</span>.</li>
+    </ul>
+    <div class="callout">
+      <p><strong>Correction note.</strong> The <span class="m">SMD_vs_SMC.docx</span> handout divides the
+        SMD example by 30 instead of the stated pooled SD of 10 and reports 0.33; the correct value is
+        1.00. It also rounds 10/15 to 0.66; the correct rounding is 0.67. The conceptual point survives:
+        a 10-point gain is a different effect size depending on whether it is a gap between groups or a
+        change within one group, and on which SD you divide by.</p>
+    </div>
+    <p>The reason this matters: the SD of change scores shrinks as the pre&ndash;post correlation rises,
+      so a change-score effect size can look much larger than a between-group
+      <span class="m"><i>d</i></span> for the very same raw gain. Put them on a common metric before
+      pooling. The companion page on effect-size conversions works through how.</p>
+  </section>
+
+  <section id="pooling">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Pooling, heterogeneity, and bias</h2>
+      <p class="sub">The six panels of Gurevitch et al.&rsquo;s Figure 1, read as the steps of a meta-analysis.</p>
+    </div>
+
+    <h3>Step 1: find the studies systematically (panel a)</h3>
+    <p>The PRISMA flow diagram records how many records were identified, screened, assessed in full
+      text, and finally included &mdash; first in the qualitative systematic review, then in the
+      quantitative meta-analysis. Its job is transparency: a reader can see how a thousand search hits
+      became thirty studies, and could repeat the process. PRISMA itself is a 27-item reporting checklist
+      plus this template diagram.</p>
+
+    <h3>Step 2: weight by precision and pool (panel b)</h3>
+    <p>Each study contributes an effect size <span class="m"><i>y</i><sub><i>i</i></sub></span> and its
+      sampling variance <span class="m"><i>v</i><sub><i>i</i></sub></span>. The pooled estimate is an
+      inverse-variance weighted average:</p>
+    <div class="eq">
+      <span class="m"><i>&theta;&#770;</i></span><span class="op">=</span>
+      <span class="frac"><span class="num"><span class="m"><span class="sum">&sum;</span><i>w</i><sub><i>i</i></sub><i>y</i><sub><i>i</i></sub></span></span><span class="den"><span class="m"><span class="sum">&sum;</span><i>w</i><sub><i>i</i></sub></span></span></span>
+      <span class="op">,</span>
+      <span class="m"><i>w</i><sub><i>i</i></sub></span><span class="op">=</span>
+      <span class="frac"><span class="num"><span class="m">1</span></span><span class="den"><span class="m"><i>v</i><sub><i>i</i></sub></span></span></span>
+    </div>
+    <p>This is the same logic as weighted least squares: observations measured more precisely deserve
+      more influence. Gurevitch et al. are pointed about the alternatives. Unweighted averages can be
+      unbiased, but they cannot separate within-study from between-study variation, so neither
+      common- nor random-effects models can be fit, and they give small, noisy studies &mdash; which tend
+      to report larger and more variable effects &mdash; too much influence.</p>
+
+    <h3>Common effect versus random effects</h3>
+    <p>Panel b shows two diamonds for the same five studies. They differ because the models answer
+      different questions.</p>
+    <ul>
+      <li><strong>Common-effect (fixed-effect) model.</strong> Assumes one true effect shared by every
+        study; all dispersion is sampling error. Weights are
+        <span class="m">1/<i>v</i><sub><i>i</i></sub></span>. Its conclusions apply to this set of
+        studies.</li>
+      <li><strong>Random-effects model.</strong> Assumes each study has its own true effect, drawn from a
+        distribution with mean <span class="m"><i>&mu;</i></span> and variance
+        <span class="m"><i>&tau;</i><sup>2</sup></span>. Weights become
+        <span class="m">1/(<i>v</i><sub><i>i</i></sub> + <i>&tau;</i><sup>2</sup>)</span>. Its conclusions
+        generalize to the wider population of possible studies.</li>
+    </ul>
+    <p>Adding <span class="m"><i>&tau;</i><sup>2</sup></span> to every weight has two visible consequences:
+      the weights become more equal (large studies dominate less), and the pooled interval gets wider.
+      That is why the purple random-effects diamond in panel b is wider than the brown common-effect one.
+      For a literature like class size &mdash; different countries, grades, tests, and size reductions
+      &mdash; assuming a single true effect is hard to defend, so random effects is the usual default.</p>
+
+    <h3>Step 3: quantify and explain heterogeneity (panels c and d)</h3>
+    <p>Gurevitch et al. call quantifying heterogeneity &ldquo;universally important,&rdquo; whatever the
+      goal of the synthesis. The standard summaries (Borenstein et al., 2009) are Cochran&rsquo;s
+      <span class="m"><i>Q</i></span>, a test of whether dispersion exceeds what sampling error would
+      produce; <span class="m"><i>&tau;</i><sup>2</sup></span>, the variance of true effects; and
+      <span class="m"><i>I</i><sup>2</sup></span>, the share of observed dispersion that reflects real
+      differences rather than noise.</p>
+    <p>Explaining the heterogeneity is where the substance lives:</p>
+    <ul>
+      <li><strong>Categorical moderators (panel c).</strong> Pool separately by subgroup &mdash; for class
+        size, randomized experiments versus quasi-experiments versus cross-sectional studies &mdash; and
+        compare the subgroup means and intervals.</li>
+      <li><strong>Continuous moderators (panel d).</strong> A meta-regression regresses effect sizes on
+        study characteristics, weighting each study by its precision; the bubble sizes show the weights.
+        For class size, the obvious continuous moderator is <em>how many</em> students the reduction
+        removes.</li>
+    </ul>
+    <p>A meta-regression is an ordinary regression whose unit of analysis is the study. Everything you
+      learned about confounding applies: moderators are not randomly assigned, so a design moderator
+      that &ldquo;explains&rdquo; heterogeneity may be proxying for grade level, era, or country.</p>
+
+    <h3>Step 4: check for publication bias (panel e)</h3>
+    <p>A funnel plot puts effect size on the horizontal axis and precision on the vertical axis. Without
+      bias, the points form a symmetric funnel: precise studies cluster tightly around the true effect,
+      imprecise ones scatter widely on <em>both</em> sides. If small studies with small or negative
+      effects never got published, the lower-left of the funnel is empty. Panel e shows exactly that
+      asymmetry; the open circles are studies imputed by <strong>trim-and-fill</strong>, a sensitivity
+      analysis that estimates what the pooled effect would be if the missing studies were present.</p>
+    <div class="callout">
+      <p>Gurevitch et al. are clear about the limit: the magnitude of publication bias can sometimes be
+        estimated, but it cannot truly be corrected. Meta-analysis can reveal that evidence is
+        deficient; it cannot manufacture the evidence that is missing. That is the bridge back to Unit 22
+        &mdash; pre-registration and registered reports attack the problem at its source.</p>
+    </div>
+
+    <h3>Step 5: watch the evidence accumulate (panel f)</h3>
+    <p>A cumulative meta-analysis re-pools the evidence each time a study is added in chronological
+      order. The interval narrows as studies accumulate and the estimate settles down. It also shows
+      <em>when</em> the evidence became sufficient to answer the question &mdash; and whether early
+      estimates were systematically larger than later ones, a common pattern when first studies are
+      small and later studies are large and better designed.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Title slide</td><td>No content; the deck is two figures meant to be talked through.</td></tr>
+          <tr><td>2</td><td>Forest plot of 27 studies (Experimentology, ch. 16)</td><td>Read rows as study estimates with intervals, square size as weight, and the diamond as the random-effects pool: SMD 0.40 [0.20, 0.61]. Most individual intervals cross zero; the pooled one does not. Note that the largest estimates come from the least precise studies.</td></tr>
+          <tr><td>3a</td><td>PRISMA flow diagram</td><td>A synthesis starts with a documented, reproducible search and screening process.</td></tr>
+          <tr><td>3b</td><td>Forest plot with two diamonds</td><td>Inverse-variance weighting; the random-effects diamond is wider than the common-effect one because it adds between-study variance.</td></tr>
+          <tr><td>3c</td><td>Categorical moderator</td><td>Subgroup analysis: does the effect differ by type of study or setting?</td></tr>
+          <tr><td>3d</td><td>Continuous moderator (bubble plot)</td><td>Meta-regression: effect size as a function of a study characteristic, bubbles sized by weight.</td></tr>
+          <tr><td>3e</td><td>Funnel plot with imputed studies</td><td>Asymmetry suggests publication bias; trim-and-fill is a sensitivity analysis, not a cure.</td></tr>
+          <tr><td>3f</td><td>Cumulative meta-analysis</td><td>Precision grows and the estimate converges as studies are added over time.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">Check yourself against this list before moving to the class size studies.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>A systematic review is the search and appraisal; a meta-analysis is the statistical
+        synthesis of effect sizes that can follow it.</strong></li>
+      <li><strong>Vote counting fails because significance depends on sample size.</strong> A literature
+        of underpowered studies can look &ldquo;mixed&rdquo; while every study estimates the same real
+        effect.</li>
+      <li><strong>A <span class="m"><i>t</i></span>-score measures evidence against the null; an effect
+        size measures magnitude.</strong> Only the second is comparable across studies of different
+        sizes.</li>
+      <li><strong>I can compute <span class="m"><i>d</i></span>, <span class="m"><i>g</i></span>, and
+        <span class="m">&Delta;</span> from group means and SDs</strong>, and explain when each is
+        preferred.</li>
+      <li><strong>SMD and SMC are different quantities.</strong> A between-group difference and a
+        within-group change must be put on a common metric before they are pooled.</li>
+      <li><strong>Pooling is inverse-variance weighting.</strong> Precise studies count more.</li>
+      <li><strong>Common-effect and random-effects models make different assumptions</strong>, and the
+        random-effects interval is wider because it includes between-study variance.</li>
+      <li><strong>Heterogeneity is explained with moderators and meta-regression</strong>, which are
+        observational analyses at the study level.</li>
+      <li><strong>Funnel plots and trim-and-fill diagnose publication bias; they cannot undo
+        it.</strong></li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Meta-analysis replaces opinion with a documented, weighted synthesis</strong> of every
+        study that meets pre-stated criteria.</li>
+      <li><strong>The forest plot on slide 2 is the whole argument in one picture</strong>: most studies
+        are individually inconclusive, and the pooled estimate is not.</li>
+      <li><strong>Effect sizes are only comparable if they measure the same thing</strong> &mdash; the
+        same contrast, standardized by the same kind of SD.</li>
+      <li><strong>Hedges&rsquo; <span class="m"><i>g</i></span> is <span class="m"><i>d</i></span> with a
+        small-sample correction</strong>; it matters most for small studies.</li>
+      <li><strong>The random-effects mean is the average of a distribution of true effects</strong>, not
+        a single universal effect.</li>
+      <li><strong>In a contested literature, the moderators are usually more informative than the grand
+        mean.</strong></li>
+      <li><strong>A biased literature produces a biased synthesis.</strong> Research integrity and
+        research synthesis are the same problem viewed from two ends.</li>
+    </ul>
+  </section>
+
+  <section id="next">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>Where this unit goes next</h2>
+      <p class="sub">From the logic of synthesis to a real, fifty-year argument.</p>
+    </div>
+    <p>The rest of Unit 23 applies these tools to one of the most contested questions in education
+      policy: <strong>does reducing class size improve student achievement?</strong> The case study
+      follows the literature from Glass and Smith&rsquo;s (1979) pioneering meta-analysis, through
+      Hanushek&rsquo;s challenge that well-identified studies show small and inconsistent effects, to
+      later syntheses using modern methods.</p>
+    <p>Everything on this page becomes concrete there. Vote counting versus effect-size synthesis is
+      part of the historical dispute itself. Study design is the key moderator: cross-sectional
+      correlations, fixed-effects and value-added models, and randomized experiments do not give the
+      same answer. And before any of it can be pooled, each study&rsquo;s estimate &mdash; often a
+      regression coefficient on class size rather than a difference in means &mdash; has to be converted
+      into a comparable effect size. That translation step is the subject of the companion page,
+      <a href="effect-size-conversions-notes.html">Putting Every Study on One Scale</a>.</p>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>References</h2>
+    </div>
+    <ul>
+      <li>Borenstein, M., Hedges, L. V., Higgins, J. P. T., &amp; Rothstein, H. R. (2009).
+        <em>Introduction to meta-analysis</em>. Wiley.</li>
+      <li>Cohen, J. (1988). <em>Statistical power analysis for the behavioral sciences</em> (2nd ed.).
+        Lawrence Erlbaum Associates.</li>
+      <li>Frank, M. C., Braginsky, M., Cachia, J., Coles, N. A., Hardwicke, T. E., Hawkins, R. D.,
+        Mathur, M. B., &amp; Williams, R. (2025). Meta-analysis. In <em>Experimentology: An open science
+        approach to experimental psychology methods</em> (ch. 16). MIT Press.
+        <a href="https://experimentology.io/016-meta.html">https://experimentology.io/016-meta.html</a></li>
+      <li>Glass, G. V., McGaw, B., &amp; Smith, M. L. (1981). <em>Meta-analysis in social research</em>.
+        Sage.</li>
+      <li>Glass, G. V., &amp; Smith, M. L. (1979).
+        <a href="class_size/1979-Glass-and-Smith-Class-Size.pdf">Meta-analysis of research on class size
+        and achievement</a>. <em>Educational Evaluation and Policy Analysis, 1</em>(1), 2&ndash;16.</li>
+      <li>Gurevitch, J., Koricheva, J., Nakagawa, S., &amp; Stewart, G. (2018).
+        <a href="class_size/science-of-research-synthesis.pdf">Meta-analysis and the science of research
+        synthesis</a>. <em>Nature, 555</em>, 175&ndash;182.
+        <a href="https://doi.org/10.1038/nature25753">https://doi.org/10.1038/nature25753</a></li>
+      <li>Hedges, L. V. (1981). Distribution theory for Glass&rsquo;s estimator of effect size and related
+        estimators. <em>Journal of Educational Statistics, 6</em>(2), 107&ndash;128.</li>
+      <li>Lipsey, M. W., &amp; Wilson, D. B. (2001). <em>Practical meta-analysis</em>. Sage.</li>
+      <li>Morris, S. B., &amp; DeShon, R. P. (2002). Combining effect size estimates in meta-analysis with
+        repeated measures and independent-groups designs. <em>Psychological Methods, 7</em>(1),
+        105&ndash;125.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">meta-analysis-overview</span>. Converted from the Word sources
+      <span class="m">Applied_Meta_Analysis_Intro.docx</span> and <span class="m">SMD_vs_SMC.docx</span>
+      and the slide deck <span class="m">meta-analysis-overview.pptx</span> in this folder.</p>
+  </footer>
+
+</div>
+</body>
+</html>

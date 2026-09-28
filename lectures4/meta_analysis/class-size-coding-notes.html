@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coding Class Size Studies for Meta-Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .codesheet{min-width:46rem;}
+  .codesheet td{vertical-align:top;}
+  .codesheet td:first-child{
+    font-family:var(--font-math);
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+  }
+  .codesheet td:last-child{color:var(--ink-mid);}
+  .codesheet tr.group td{
+    font-family:var(--font-body);
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    background:var(--surface);
+    padding:.45rem .85rem;
+  }
+  .designs{min-width:48rem;}
+  .designs td{vertical-align:top;}
+  .designs td:first-child{font-weight:600;color:var(--ink);}
+  .designs td:nth-child(3){font-family:var(--font-math);white-space:nowrap;}
+  .designs td:last-child{font-family:var(--font-math);font-size:.78rem;color:var(--ink-mid);}
+  .worked{
+    border-left:3px solid var(--accent);
+    padding:.2rem 0 .2rem 1.2rem;
+    margin:1.6rem 0 2rem;
+    max-width:40rem;
+  }
+  .worked .tag{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--accent-ink);
+    margin:0 0 .5rem;
+  }
+  .coded{min-width:30rem;max-width:40rem;}
+  .coded td:first-child{font-family:var(--font-math);color:var(--accent-ink);font-weight:600;white-space:nowrap;width:1%;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Coding Class Size Studies for Meta-Analysis</h1>
+    <p class="dek">The last step of the Unit 23 case study. Fifty years of arguing about class size came down to
+      coding decisions: what counts as &ldquo;class size,&rdquo; which comparison counts, and how many votes each
+      study gets. This guide turns that history into a coding sheet you can use to pull effect sizes out of
+      class size studies. Read <a href="class-size-debate-notes.html">The Class Size Debate</a> first.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#framework">Design framework</a>
+      <a href="#sheet">The coding sheet</a>
+      <a href="#effect-sizes">From estimate to effect size</a>
+      <a href="#decisions">Coding decisions</a>
+      <a href="#clear">What should be clear</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">Why a coding template is the right way to finish the class size case, stated as claims.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">The class size debate continued because people read the evidence differently, not because the evidence was thin.</p>
+      <p>By 2009 there were hundreds of estimates. Coleman (1966) found little relationship between school
+        resources and achievement. Glass and Smith (1979) found a consistent benefit of smaller classes. Hanushek
+        (2002) found the econometric estimates inconsistent. Shin and Chung (2009) found about
+        <span class="m">0.20</span> SD. Each of these conclusions depends on how the studies were
+        <strong>coded</strong>.</p>
+
+      <p class="claim">A meta-analysis is only as good as its coding sheet.</p>
+      <ul>
+        <li>A vote count tallies signs. A meta-analysis averages <strong>standardized effect sizes</strong>
+          and weights them by precision.</li>
+        <li>That average means something only if every effect size measures the same contrast, on the same
+          scale, with the same sign convention.</li>
+        <li>The coding sheet enforces this. Every field is a decision that someone in the debate got wrong
+          or argued about.</li>
+      </ul>
+
+      <p class="claim">Record the class sizes being compared, not just the label on the treatment.</p>
+      <p>&ldquo;Small versus regular&rdquo; could mean 15 versus 23, 1 versus 25, or 25 versus 30. Glass and
+        Smith kept the actual sizes <span class="m"><i>S</i></span> and <span class="m"><i>L</i></span> as part
+        of every effect size. Without them you cannot tell a tutoring study from a policy study.</p>
+
+      <p class="claim">Class size and pupil&ndash;teacher ratio are different treatments.</p>
+      <ul>
+        <li><strong>Class size</strong> = students actually in the room with one teacher.</li>
+        <li><strong>Pupil&ndash;teacher ratio (PTR)</strong> = enrolled students &divide; teachers at the school
+          or district level. Aides and specialists lower it without shrinking any class.</li>
+      </ul>
+
+      <p class="claim">Every estimate must end up as a <i>d</i> where positive means smaller classes did better.</p>
+      <div class="chain">reported statistic &rarr; choose the right SD &rarr; scale to a common contrast &rarr; fix the sign &rarr; <span class="m"><i>d</i></span> and its variance</div>
+      <p>Regression slopes on class size are negative when smaller is better. If you forget to flip them, they
+        cancel the positive effects from experiments.</p>
+
+      <p class="claim">The unit of analysis is a coding choice with a big effect on the answer.</p>
+      <p>Hanushek counted each <em>estimate</em> as a vote; Krueger counted each <em>study</em>. With the same 59
+        studies and 277 estimates, they reached opposite conclusions. Shin and Chung&rsquo;s overall effect is
+        <span class="m">0.20</span> when each effect size counts once, <span class="m">0.17</span> when each
+        study counts once, and <span class="m">0.08</span> when each state counts once.</p>
+    </div>
+  </section>
+
+  <section id="framework">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The design framework: what a class size study looks like</h2>
+      <p class="sub">Before designing a coding sheet, know what the literature typically measures and where the variation comes from.</p>
+    </div>
+
+    <h3>Why the coding matters for the verdict</h3>
+    <p>The sources on this page all make the same point. The disagreement is mostly about <em>which estimates
+      deserve weight</em>, and that comes down to study features someone had to record:</p>
+    <ul>
+      <li><strong>Glass and Smith (1979)</strong> coded 725 comparisons from 77 studies, covering about 900,000
+        pupils over 70 years. Only 60% of those comparisons favored the smaller class, and the average,
+        ignoring which sizes were compared, was about a tenth of an SD. Once they modeled the actual sizes
+        compared, a clear relationship appeared. It was clearest in well-controlled studies where pupils
+        were randomly assigned.</li>
+      <li><strong>Hanushek (2002)</strong> argued that estimates from weak designs, like simple
+        cross-sections without controls for family background, should not be treated the same as estimates
+        from value-added models that look only at achievement growth over a limited period.</li>
+      <li><strong>Shin and Chung (2009)</strong> used one definition of class size (not PTR) and computed 120
+        standardized mean differences from 17 U.S. studies. Their random-effects mean was about
+        <span class="m">0.20</span> SD in favor of small classes. The effect sizes were strongly heterogeneous
+        (<span class="m"><i>Q</i> = 719.4, <i>df</i> = 119</span>), so the moderators matter.</li>
+    </ul>
+
+    <h3>Six dimensions to design the sheet around</h3>
+    <p>The policy overview in this folder lays out a design framework for coding. Each row below is one
+      dimension. The right-hand column says what the dimension requires of the coder.</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Dimension</th><th scope="col">What the literature shows</th><th scope="col">What it means for coding</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Outcomes</th>
+            <td>Standardized reading and math scores dominate. Some studies use writing, science, social
+              studies, ACT/SAT, retention, graduation, or adult earnings. Glass and Smith also included ad hoc
+              tests and teacher ratings.</td>
+            <td>Code subject and test type separately. Math and reading run near 0.20 in Shin and Chung
+              (0.20 and 0.19). Other subjects have too few effect sizes to trust on their own.</td></tr>
+          <tr><th scope="row">Intervention</th>
+            <td>Class size (students per class) is not the same as PTR. Some studies use a binary contrast
+              (small vs. regular), others a continuous count.</td>
+            <td>Record the operational definition <em>and</em> its scale: the sizes compared for binary designs,
+              the unit and range of <span class="m"><i>X</i></span> for continuous ones.</td></tr>
+          <tr><th scope="row">Magnitude</th>
+            <td>Project STAR reduced K&ndash;3 classes from about 22&ndash;25 to 13&ndash;17 and found roughly
+              0.20&ndash;0.25 SD. The overview adds that small reductions, such as 30 to 25, show negligible
+              effects.</td>
+            <td>Reference point: about <span class="m">0.20</span> SD for a reduction of 7&ndash;9 students in
+              the early grades. Code the size of the reduction so it can be used as a moderator.</td></tr>
+          <tr><th scope="row">Timing</th>
+            <td>Most outcomes are measured at the end of the year or the next year. STAR gains show up mainly
+              in the first year of small-class exposure and then persist through grade 3. Shin and Chung
+              flag the lack of long-term follow-up as a limitation.</td>
+            <td>Code timing as same-year, next-year, or long-run, plus years of exposure.</td></tr>
+          <tr><th scope="row">Controls</th>
+            <td>Pretests, SES, teacher experience and credentials, school resources, and student demographics.
+              Leaving them out tends to bias the estimates.</td>
+            <td>Code whether each is included, and whether the design is randomized, matched, or
+              uncontrolled.</td></tr>
+          <tr><th scope="row">Context</th>
+            <td>Shin and Chung find larger effects in elementary school than in secondary school (0.20 vs.
+              &minus;0.05). Several syntheses find larger benefits for minority and disadvantaged students.</td>
+            <td>Code grade, subgroup, and state or country. These are the main moderator variables.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>Not every source agrees on grade level.</strong> The overview credits the finding that
+        effects are strongest in the early grades partly to Glass and Smith (1979). In fact, Glass and Smith
+        found the relationship <em>slightly stronger at the secondary level</em> than the elementary level. The
+        early-grade pattern comes from STAR and from Shin and Chung (2009). So code grade level, and do not
+        assume its direction.</p>
+    </div>
+  </section>
+
+  <section id="sheet">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>The coding sheet</h2>
+      <p class="sub">One row per effect size, not one row per study. Each field below says what to record and which source showed it matters.</p>
+    </div>
+
+    <p>Glass and Smith described the approach in 1979: &ldquo;A single study might fill several coding
+      sheets&rdquo;, one for each pair of class sizes, each test, and each age or IQ group reported. That is
+      still the right structure. You code one row per effect size and use a study ID to group rows from the
+      same study. The ID lets you handle dependence later.</p>
+
+    <div class="table-scroll">
+      <table class="codesheet">
+        <caption>Coding template: class size studies</caption>
+        <thead><tr><th scope="col">Field</th><th scope="col">What to record</th><th scope="col">Why it matters (source)</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="3">Identification</td></tr>
+          <tr><td>study_id</td><td>One ID per report. Rows from the same report share it.</td>
+            <td>Needed to model within-study dependence. Shin and Chung average about 7 effect sizes per
+              study.</td></tr>
+          <tr><td>es_id</td><td>A unique ID for this effect size.</td>
+            <td>Needed to switch between effect size, study, and data source as the unit of analysis.</td></tr>
+          <tr><td>data_source</td><td>The dataset the estimate comes from, such as STAR, SAGE, Prime Time, or a
+              state administrative file.</td>
+            <td>8 of Shin and Chung&rsquo;s 17 studies and 78 of their 120 effect sizes came from STAR. That is
+              dependence <em>between</em> studies (Shin &amp; Chung, 2009).</td></tr>
+          <tr><td>year, pub_status</td><td>Publication year; whether it is a journal article, book, dissertation,
+              report, or conference paper.</td>
+            <td>Published studies averaged 0.21 and unpublished ones 0.15 in Shin and Chung. Glass and Smith
+              also coded the source.</td></tr>
+
+          <tr class="group"><td colspan="3">Design</td></tr>
+          <tr><td>design</td><td>RCT / matched / repeated measures / cross-sectional / value-added / DiD / fixed
+              effects / RDD / uncontrolled.</td>
+            <td>Glass and Smith found that the assignment method mattered more than any other study feature.
+              Hanushek (2002) doubts estimates without prior achievement. In Shin and Chung, randomized effect
+              sizes averaged 0.20 and nonrandomized ones 0.11.</td></tr>
+          <tr><td>assign_unit</td><td>What was assigned or compared: students, classes, schools, or
+              districts.</td>
+            <td>Determines which variance formula applies. Clustering in classrooms makes student-level
+              formulas too optimistic.</td></tr>
+
+          <tr class="group"><td colspan="3">Treatment</td></tr>
+          <tr><td>measure</td><td>Class size or pupil&ndash;teacher ratio. Record it exactly as the study defines
+              it.</td>
+            <td>PTR is not class size. Aides and specialists lower PTR without shrinking classes (Shin &amp;
+              Chung, 2009; Hanushek, 2002).</td></tr>
+          <tr><td>size_S, size_L</td><td>Actual sizes of the smaller and larger classes compared, such as 15 and
+              23.</td>
+            <td>Glass and Smith treated <span class="m"><i>S</i></span> and <span class="m"><i>L</i></span> as
+              part of the effect size itself. Shin and Chung also required exact sizes.</td></tr>
+          <tr><td>delta</td><td>The size of the reduction, <span class="m"><i>L</i> &minus; <i>S</i></span>, or the
+              number of students used to rescale a slope.</td>
+            <td>A 0.20 effect from cutting 8 students and one from cutting 2 are different findings.</td></tr>
+          <tr><td>scale</td><td>Binary or continuous. If continuous: the units, the range observed, and whether
+              the model has a squared term.</td>
+            <td>Needed to choose the effect size formula (Section four).</td></tr>
+          <tr><td>exposure</td><td>Years in the smaller class.</td>
+            <td>STAR gains are concentrated in the first year (Hanushek, 2002).</td></tr>
+
+          <tr class="group"><td colspan="3">Outcome and sample</td></tr>
+          <tr><td>subject, test_type</td><td>Reading, math, science, or other; standardized, ad hoc, or teacher
+              rating.</td>
+            <td>Glass and Smith coded both. Shin and Chung found that only reading and math had enough effect sizes
+              to draw conclusions.</td></tr>
+          <tr><td>grade</td><td>Grade level of the students (K&ndash;12).</td>
+            <td>Shin and Chung: elementary 0.20, secondary &minus;0.05, grade 10 negative.</td></tr>
+          <tr><td>subgroup</td><td>Full sample, or the subgroup reported (minority, low-income, by race, by
+              IQ).</td>
+            <td>Needed to test moderators. Also, estimates from many small subgroups multiply the rows from a
+              study (see Section five).</td></tr>
+          <tr><td>timing</td><td>Same-year, next-year, or long-run, with the follow-up length.</td>
+            <td>Most studies are short-term. Shin and Chung flag the lack of long-run data.</td></tr>
+
+          <tr class="group"><td colspan="3">Controls</td></tr>
+          <tr><td>pretest</td><td>Pretest adjustment: ANCOVA, gain score, value-added, or none.</td>
+            <td>Glass and Smith coded this as a form of experimental control. Hanushek treats prior achievement
+              as central.</td></tr>
+          <tr><td>ses, teacher, school</td><td>Whether the model includes family SES, teacher experience or
+              credentials, and school resources.</td>
+            <td>Leaving them out tends to bias estimates upward (Hanushek, 2002; Shin &amp; Chung, 2009).</td></tr>
+
+          <tr class="group"><td colspan="3">Statistics for the effect size</td></tr>
+          <tr><td>stats_reported</td><td>Everything needed to compute <span class="m"><i>d</i></span>: means, SDs,
+              and <span class="m"><i>n</i></span> by group; or <span class="m"><i>t</i></span>/<span class="m"><i>F</i></span>
+              and <span class="m"><i>df</i></span>; or <span class="m"><i>b</i></span>, its SE, and
+              <span class="m"><i>s<sub>Y</sub></i></span>; or the SD of change scores and the pre&ndash;post
+              <span class="m"><i>r</i></span>.</td>
+            <td>Reports often leave out means and SDs. Glass and Smith converted <span class="m"><i>t</i></span>,
+              <span class="m"><i>F</i></span>, and correlations instead of dropping the study.</td></tr>
+          <tr><td>sd_type</td><td>Which SD you standardized by: pooled posttest, total <span class="m"><i>Y</i></span>,
+              within-unit, or change score.</td>
+            <td>The same estimate can give <span class="m"><i>d</i></span> = 0.10 or 0.20 depending on the SD
+              (Example C).</td></tr>
+          <tr><td>direction</td><td>+1 or &minus;1, the sign applied so that positive means smaller classes did
+              better.</td>
+            <td>Hanushek had to correct a reversed sign on four PTR estimates after Krueger found it.</td></tr>
+          <tr><td>d, var_d</td><td>The effect size and its sampling variance.</td>
+            <td>Inputs to the weighted model (Borenstein et al., 2009).</td></tr>
+          <tr><td>notes</td><td>Free text: judgment calls, imputed values, and any contact with the
+              authors.</td>
+            <td>Makes the coding reproducible.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>Code the analysis model even if you use only part of it.</strong> Recording design, controls,
+        and SD type costs little. Leaving them out makes it impossible to test later whether weaker designs
+        produce different effects. That was the central empirical question in the Hanushek&ndash;Krueger
+        exchange.</p>
+    </div>
+  </section>
+
+  <section id="effect-sizes">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>From a reported estimate to an effect size</h2>
+      <p class="sub">Three hypothetical studies coded with the formulas in <a href="effect_size_calculation_templates.R">effect_size_calculation_templates.R</a>, plus the variables to code for each design.</p>
+    </div>
+
+    <h3>Which formula goes with which design</h3>
+    <p>The model-comparison table in this folder lists, for each research design, the effect size metric and
+      the variables a coder must record. The rows below are the ones you will meet in class size research.
+      In the formulas, <span class="m"><i>D</i></span> is the treatment and <span class="m"><i>s</i></span>
+      is the SD used to standardize.</p>
+    <div class="table-scroll">
+      <table class="designs">
+        <thead><tr><th scope="col">Design</th><th scope="col">Class size example</th><th scope="col">Effect size</th><th scope="col">Key variables to code</th></tr></thead>
+        <tbody>
+          <tr><td>t-test / RCT (between)</td><td>STAR-style random assignment to small or regular classes</td>
+            <td><i>d</i> = (<i>Y&#772;</i><sub>1</sub> &minus; <i>Y&#772;</i><sub>0</sub>)/<i>s<sub>p</sub></i> or 2<i>t</i>/&radic;<i>df</i></td>
+            <td>design_type='between'; controls_included; control_vars; adjusted</td></tr>
+          <tr><td>Regression with dummy</td><td>&ldquo;Small class&rdquo; indicator with covariates</td>
+            <td><i>d</i> = <i>&beta;</i>/<i>s<sub>Y</sub></i></td>
+            <td>design_type='between'; controls_included; control_vars; outcome_sd</td></tr>
+          <tr><td>Within subjects (pre/post)</td><td>Same pupils before and after a size change</td>
+            <td><i>d</i> = (<i>Y&#772;</i><sub>post</sub> &minus; <i>Y&#772;</i><sub>pre</sub>)/<i>s<sub>d</sub></i></td>
+            <td>design_type='within'; paired=TRUE; pre_post_corr=r; followup_period</td></tr>
+          <tr><td>Interrupted time series</td><td>A state cap on class size, with scores tracked before and after</td>
+            <td><i>d</i> = <i>&beta;</i><sub>2</sub>/<i>s<sub>Y</sub></i></td>
+            <td>design_type='within-time-series'; autocorr_adj; pretrend_included; n_pre; n_post</td></tr>
+          <tr><td>Difference-in-differences</td><td>A district that reduced class sizes vs. one that did not</td>
+            <td><i>d</i> = <i>&beta;</i><sub>3</sub>/<i>s<sub>p</sub></i></td>
+            <td>design_type='did'; controls_included; time_FE; unit_FE; parallel_trends_test; n_pre; n_post</td></tr>
+          <tr><td>Fixed effects (panel)</td><td>Year-to-year changes in class size within a school</td>
+            <td><i>d</i> = <i>&beta;</i>/<i>s</i><sub>within</sub></td>
+            <td>design_type='within'; unit_FE; time_FE; within_var</td></tr>
+          <tr><td>Regression discontinuity</td><td>An enrollment cap that splits a grade into two classes</td>
+            <td><i>d</i> = <i>&tau;</i>/<i>s</i><sub>local</sub></td>
+            <td>design_type='rdd'; cutoff_value; bandwidth; functional_form; covariates_included</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>For class size you also need a continuous-dosage row, which the R templates provide. When a study
+      regresses <span class="m"><i>Y</i></span> on the number of students, the slope is &ldquo;points per
+      student.&rdquo; To compare it with an experiment, you scale it up to a realistic reduction and flip the
+      sign.</p>
+
+    <h3>Example A: an RCT that reports group means and SDs</h3>
+    <div class="worked">
+      <p class="tag">Reported</p>
+      <p>Grade 1 students randomly assigned within schools to small classes (15 students; 8 classes,
+        <span class="m"><i>n<sub>T</sub></i> = 120</span>) or regular classes (23 students; 6 classes,
+        <span class="m"><i>n<sub>C</sub></i> = 138</span>). End-of-year reading scale score: small classes mean
+        520 (SD 38), regular classes mean 512 (SD 42).</p>
+    </div>
+    <p>This fits template 1 (between-subjects SMD, Hedges&rsquo; <span class="m"><i>g</i></span>). Start with
+      the pooled SD:</p>
+    <div class="eq">
+      <span class="m"><i>s<sub>p</sub></i></span><span class="op">=</span>
+      <span class="sqrt tall"><span class="radical">&radic;</span><span class="radicand"><span class="frac"><span class="num">(119)(38<sup>2</sup>) + (137)(42<sup>2</sup>)</span><span class="den">120 + 138 &minus; 2</span></span></span></span>
+      <span class="op">=</span>
+      <span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><span class="frac"><span class="num">171,836 + 241,668</span><span class="den">256</span></span></span></span>
+      <span class="op">=</span><span class="m">&radic;1615.25 = 40.19</span>
+    </div>
+    <p>Then the standardized difference, the small-sample correction with
+      <span class="m"><i>df</i> = 256</span>, and Hedges&rsquo; <span class="m"><i>g</i></span>:</p>
+    <div class="eq">
+      <span class="m"><i>d</i></span><span class="op">=</span>
+      <span class="frac"><span class="num">520 &minus; 512</span><span class="den">40.19</span></span>
+      <span class="op">=</span><span class="m">0.199</span>
+      <span class="op">&nbsp;&nbsp;</span>
+      <span class="m"><i>J</i> = 1 &minus; </span><span class="frac"><span class="num">3</span><span class="den">4(256) &minus; 1</span></span>
+      <span class="op">=</span><span class="m">0.9971</span>
+      <span class="op">&nbsp;&nbsp;</span>
+      <span class="m"><i>g</i> = 0.199 &times; 0.9971 = 0.198</span>
+    </div>
+    <p>The variance comes from the template formula:</p>
+    <div class="eq">
+      <span class="m"><i>v</i></span><span class="op">=</span>
+      <span class="frac"><span class="num">120 + 138</span><span class="den">(120)(138)</span></span>
+      <span class="op">+</span>
+      <span class="frac"><span class="num">0.198<sup>2</sup></span><span class="den">2(258)</span></span>
+      <span class="op">=</span><span class="m">0.01558 + 0.00008 = 0.01566</span>
+      <span class="op">&nbsp;&nbsp;</span>
+      <span class="m">SE = 0.125</span>
+    </div>
+    <div class="table-scroll">
+      <table class="coded">
+        <thead><tr><th scope="col">Field</th><th scope="col">Coded value</th></tr></thead>
+        <tbody>
+          <tr><td>design / assign_unit</td><td>RCT / students within schools</td></tr>
+          <tr><td>measure, size_S, size_L, delta</td><td>class size, 15, 23, 8</td></tr>
+          <tr><td>subject, grade, timing</td><td>reading, 1, same-year</td></tr>
+          <tr><td>sd_type, direction</td><td>pooled posttest SD, +1 (small minus regular already favors small)</td></tr>
+          <tr><td>d, var_d</td><td>0.198, 0.0157 (95% CI &minus;0.047 to 0.444)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Two lessons from this example. First, the estimate is near STAR&rsquo;s benchmark, but the interval
+      includes zero. In a vote count this study would be a &ldquo;no effect.&rdquo; In a meta-analysis it adds
+      to the precision of the pooled estimate. Second, the variance formula treats all 258 students as
+      independent, but they were taught in 14 classrooms. Note the clustering in the <code>notes</code>
+      field. The true sampling variance is larger than 0.0157.</p>
+
+    <h3>Example B: an OLS study with a continuous class size slope</h3>
+    <div class="worked">
+      <p class="tag">Reported</p>
+      <p>A value-added regression across grade 4 classrooms. Reading score on students per class (observed
+        range 16&ndash;30), controlling for prior-year score and free-lunch eligibility.
+        <span class="m"><i>b</i> = &minus;0.9</span> points per additional student (SE 0.35). SD of reading
+        scores: <span class="m"><i>s<sub>Y</sub></i> = 40</span>.</p>
+    </div>
+    <p>This fits template 4 (continuous dosage). A slope of one student is too small to compare with an
+      experiment, so rescale it to a reduction of <span class="m"><i>&delta;</i> = 8</span> students, about the
+      size of STAR&rsquo;s contrast. Because a <em>smaller</em> <span class="m"><i>X</i></span> is the
+      treatment, use <span class="m">direction = &minus;1</span>:</p>
+    <div class="eq">
+      <span class="m"><i>d</i> = direction &times; </span>
+      <span class="frac"><span class="num"><i>b</i> &times; <i>&delta;</i></span><span class="den"><i>s<sub>Y</sub></i></span></span>
+      <span class="op">=</span><span class="m">(&minus;1) &times; </span>
+      <span class="frac"><span class="num">(&minus;0.9)(8)</span><span class="den">40</span></span>
+      <span class="op">=</span><span class="m">(&minus;1)(&minus;0.18) = +0.18</span>
+    </div>
+    <p>The R template does not compute a variance for this case. Because <span class="m"><i>d</i></span> is
+      the slope times a constant, the standard error scales the same way:</p>
+    <div class="eq">
+      <span class="m">SE<sub><i>d</i></sub></span><span class="op">=</span>
+      <span class="frac"><span class="num"><i>&delta;</i> &times; SE<sub><i>b</i></sub></span><span class="den"><i>s<sub>Y</sub></i></span></span>
+      <span class="op">=</span>
+      <span class="frac"><span class="num">8 &times; 0.35</span><span class="den">40</span></span>
+      <span class="op">=</span><span class="m">0.07</span>
+      <span class="op">&nbsp;&nbsp;</span>
+      <span class="m"><i>v</i> = 0.07<sup>2</sup> = 0.0049</span>
+    </div>
+    <p>Things to check before accepting 0.18:</p>
+    <ul>
+      <li><strong>The sign.</strong> Without the direction flip you would record &minus;0.18, a harmful effect,
+        from a study that found smaller classes did better. If the study had regressed scores on
+        <em>teacher&ndash;pupil</em> ratio (teachers per student), the slope would be positive and the
+        direction would be +1. Read the variable definition, not just the sign of the coefficient.</li>
+      <li><strong>The support.</strong> An 8-student change (say, 26 to 18) falls inside the observed range of
+        16&ndash;30. Rescaling to a 20-student change would extrapolate beyond the data.</li>
+      <li><strong>The SD.</strong> Use the raw SD of <span class="m"><i>Y</i></span>, not the residual SD
+        from the regression. The raw SD puts the result on the same scale as Example A.</li>
+      <li><strong>Nonlinear specifications.</strong> If the model includes class size squared, there is no
+        single slope to rescale. Compute the predicted difference between two specific sizes and code those
+        sizes as <code>size_S</code> and <code>size_L</code>.</li>
+    </ul>
+    <p>This is the same approach Glass and Smith used in 1979 for correlational studies such as Coleman&rsquo;s.
+      They turned the slope into a comparison between the 25th- and 75th-percentile class sizes and coded
+      those as the &ldquo;smaller&rdquo; and &ldquo;larger&rdquo; classes.</p>
+
+    <h3>Example C: a difference-in-differences estimate</h3>
+    <div class="worked">
+      <p class="tag">Reported</p>
+      <p>A district cut grade 3 classes from 24 to 17 students; a neighboring district did not. Two years of
+        pre-period and two years of post-period math scores.
+        <span class="m"><i>&beta;</i><sub>3</sub> = 4.0</span> points (SE 1.5). Reported SDs: the SD of math
+        scores is 40; the SD of student change scores is 20.</p>
+    </div>
+    <p>Here the choice of SD is the key decision. The R template (template 5) divides by the SD of change
+      scores. The design table divides by the pooled SD of the outcome. They give different answers:</p>
+    <div class="eq">
+      <span class="m"><i>d</i><sub>change</sub></span><span class="op">=</span>
+      <span class="frac"><span class="num">4.0</span><span class="den">20</span></span>
+      <span class="op">=</span><span class="m">0.20</span>
+      <span class="op">&nbsp;&nbsp;&nbsp;</span>
+      <span class="m"><i>d</i><sub>levels</sub></span><span class="op">=</span>
+      <span class="frac"><span class="num">4.0</span><span class="den">40</span></span>
+      <span class="op">=</span><span class="m">0.10</span>
+    </div>
+    <p>They differ because the SD of change scores depends on how strongly scores correlate across time:</p>
+    <div class="eq">
+      <span class="m"><i>s</i><sub>change</sub></span><span class="op">=</span>
+      <span class="m"><i>s</i></span>
+      <span class="sqrt"><span class="radical">&radic;</span><span class="radicand">2(1 &minus; <i>r</i>)</span></span>
+      <span class="op">=</span><span class="m">40</span>
+      <span class="sqrt"><span class="radical">&radic;</span><span class="radicand">2(1 &minus; 0.875)</span></span>
+      <span class="op">=</span><span class="m">40 &times; 0.5 = 20</span>
+    </div>
+    <p>So a pre&ndash;post correlation of 0.875, which is typical for achievement tests a year apart, cuts the
+      SD in half and doubles the effect size. Nothing about the effect of class size changed. Examples A and B
+      are in units of the SD of achievement <em>levels</em>, so code
+      <span class="m"><i>d</i> = 0.10</span> (SE <span class="m">1.5/40 = 0.0375</span>) as the comparable
+      value. Record <span class="m"><i>d</i><sub>change</sub> = 0.20</span> in the notes, and set
+      <code>sd_type</code> to &ldquo;pooled levels.&rdquo;</p>
+    <p>Code the size of the reduction as it happened: <code>size_S</code> = 17, <code>size_L</code> = 24,
+      <code>delta</code> = 7. Don&rsquo;t rescale it. A binary policy contrast is not a slope, and scaling it
+      to 8 students (<span class="m">0.10 &times; 8/7 &asymp; 0.11</span>) assumes a linear dose&ndash;response.
+      Let a meta-regression on <code>delta</code> test that assumption.</p>
+
+    <div class="callout">
+      <p><strong>The fixed-effects version of the same problem.</strong> Suppose a school fixed-effects panel
+        reports <span class="m"><i>&beta;</i><sub>within</sub> = &minus;0.6</span> points per student, with a
+        within-school SD of 25 and a total SD of 40. Template 6 divides by the within-unit SD but has no
+        <span class="m"><i>&delta;</i></span> or direction argument. Add both, as in Example B. Scaled to 8
+        students, the result is <span class="m">(&minus;1)(&minus;0.6 &times; 8)/25 = 0.192</span> using the
+        within SD, or <span class="m">0.6 &times; 8/40 = 0.12</span> using the total SD. The within-unit SD is
+        smaller than the pooled SD, so it inflates <span class="m"><i>d</i></span> relative to an RCT. Code the
+        SD type so the difference can be checked.</p>
+    </div>
+  </section>
+
+  <section id="decisions">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>The coding decisions that decide the answer</h2>
+      <p class="sub">Each of these has changed a published conclusion about class size. Make each decision explicitly and in writing before you start coding.</p>
+    </div>
+
+    <h3>1. Pupil&ndash;teacher ratio versus class size</h3>
+    <p>PTR is easy to get from administrative data, which is why much of the production-function literature
+      uses it. The estimates Hanushek tabulates are estimates of teacher&ndash;pupil ratio effects. Hanushek
+      himself notes that PTR differs from class size because of specialist teachers and how classes are
+      scheduled. He sets the distinction aside because the two move together over time. Shin and Chung made the
+      opposite choice: class size only, because a school with many aides can have a low PTR and large classes.
+      Glass and Smith counted instructors in the room: two teachers with 30 pupils counts as 15.</p>
+    <p><strong>Decision:</strong> Code <code>measure</code> for every row. Then either restrict the sample to
+      class size or keep PTR studies and test <code>measure</code> as a moderator. Do not mix them without
+      recording which is which.</p>
+
+    <h3>2. Tutoring-level contrasts</h3>
+    <p>Glass and Smith included the whole range from one-on-one tutoring to large lectures. A typical small-group
+      experiment compared individual tutoring with a class of 25 and found about half an SD. Comparisons like
+      that are real, but they measure a different treatment from reducing 23 to 15. Averaged with policy-range
+      comparisons, they raise the mean. Glass and Smith responded to this concern. Dropping the
+      <span class="m"><i>S</i> = 1</span> comparisons actually made their curve steeper. Dropping all
+      comparisons with <span class="m"><i>S</i> &lt; 6</span> made it flatter, but it still rose from the 50th
+      percentile at 40 students to the 60th at 10.</p>
+    <p><strong>Decision:</strong> Because you coded <code>size_S</code> and <code>size_L</code>, you can define
+      the policy-relevant range (for example, <span class="m"><i>S</i> &ge; 13</span>) and report the pooled
+      estimate with and without the tutoring-level rows.</p>
+
+    <h3>3. One estimate, one vote or one study, one vote</h3>
+    <p>This was the center of the Hanushek&ndash;Krueger exchange. Hanushek&rsquo;s summary gives equal weight
+      to each of 277 estimates from 59 studies. Krueger showed that 44% of those estimates came from 15% of
+      the studies. Studies that split their data into many subsamples (by grade, race, subject) contributed many
+      small, imprecise estimates, and those estimates were less likely to be significant. When Krueger weighted
+      each study equally, studies with positive effects were 57% more common than studies with negative ones.
+      Hanushek replied that the study-level weighting favored low-quality estimates.</p>
+    <p>Both approaches are vote counts. A modern meta-analysis weights by inverse variance, so an imprecise
+      subsample estimate already counts for less. The dependence problem remains, though. Twenty-four estimates
+      from one dataset are not 24 independent pieces of evidence.</p>
+    <p><strong>Decision:</strong> Code every estimate with its <code>study_id</code>. Then report the result
+      under more than one unit of analysis, as Shin and Chung did following Cooper&rsquo;s &ldquo;shifting unit
+      of analysis&rdquo;: effect sizes for subgroup analyses, averaged to the study level for the overall
+      mean.</p>
+
+    <h3>4. Dependence when STAR dominates</h3>
+    <p>STAR is the best-designed class size study, so it appears everywhere. In Shin and Chung, 8 of 17 studies
+      and 78 of 120 effect sizes come from Tennessee. Those studies are not independent. Many reanalyze the same
+      cohort of children. Changing the unit of analysis showed how much this matters:</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr><th scope="col">Unit of analysis</th><th scope="col">Overall effect (random effects)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Effect size</th><td>0.20</td></tr>
+          <tr><th scope="row">Study</th><td>0.17</td></tr>
+          <tr><th scope="row">State</th><td>0.08</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Decision:</strong> Code <code>data_source</code> separately from <code>study_id</code>. At a
+      minimum, report the estimate with STAR collapsed to a single unit, and with STAR excluded.</p>
+
+    <h3>5. Publication status as a moderator</h3>
+    <p>Shin and Chung found larger effects in published studies (0.21) than in unpublished ones (0.15) and read
+      the gap as evidence of publication bias. Hanushek gives a concrete example: Kiesling&rsquo;s
+      teacher&ndash;pupil ratio results appeared in his thesis but were left out of the journal article based on
+      it. Hanushek&rsquo;s own rule counted only studies published in a book or journal, which is the kind of rule
+      that lets this bias in.</p>
+    <p><strong>Decision:</strong> Search dissertations and reports (Glass and Smith searched Dissertation
+      Abstracts), code <code>pub_status</code>, and test it as a moderator. It connects this unit to the
+      publication bias tools from Unit 22.</p>
+
+    <h3>6. Sign conventions</h3>
+    <p>&ldquo;Smaller is better&rdquo; is written into the effect size. Glass and Smith defined
+      <span class="m">&Delta;<sub><i>S</i>&minus;<i>L</i></sub> = (<i>X&#772;<sub>S</sub></i> &minus;
+      <i>X&#772;<sub>L</sub></i>)/<i>&sigma;</i></span>, so positive always means the smaller class did better.
+      Regression studies do not do this. A slope on class size is negative when small classes help. A slope on
+      teacher&ndash;pupil ratio is positive. A slope on &ldquo;reduction in class size&rdquo; is positive.
+      Hanushek&rsquo;s own tabulation had reversed the sign on four teacher&ndash;pupil ratio estimates from one
+      study until the error was caught in correspondence with Krueger.</p>
+    <p><strong>Decision:</strong> Fix the convention (positive = benefit of smaller classes), code
+      <code>direction</code> explicitly, and have a second coder independently check a random sample of rows,
+      especially the regression-based ones.</p>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">What you should be able to do after this page.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>The class size debate was a disagreement about coding and weighting, not about whether evidence
+        existed.</strong> Glass and Smith, Hanushek, Krueger, and Shin and Chung reached different conclusions
+        from overlapping sets of studies.</li>
+      <li><strong>The coding sheet has one row per effect size, linked by a study ID and a data-source
+        ID.</strong> That structure makes dependence visible and lets you change the unit of analysis.</li>
+      <li><strong>Always record the actual class sizes compared and the definition used (class size or
+        PTR).</strong> The treatment label alone is not enough.</li>
+      <li><strong>I can convert group means and SDs to Hedges&rsquo; <span class="m"><i>g</i></span> with its
+        variance</strong>, and I know the student-level variance understates uncertainty when classrooms are
+        the unit that was treated.</li>
+      <li><strong>I can convert a class size slope to a dosage <span class="m"><i>d</i></span></strong> by
+        multiplying by a realistic reduction (8 students), dividing by the SD of <span class="m"><i>Y</i></span>,
+        and applying direction = &minus;1.</li>
+      <li><strong>The SD you divide by is a choice that can double the effect size.</strong> Change-score and
+        within-unit SDs are smaller than the SD of levels. Pick one scale, use it for every row, and code which
+        SD you used.</li>
+      <li><strong>Tutoring-level contrasts, PTR studies, STAR reanalyses, and unpublished studies are decisions
+        to make, not noise to average over.</strong> Code them so their influence can be tested.</li>
+      <li><strong>The benchmark to compare against is about 0.20 SD for a reduction of 7&ndash;9 students in the
+        early grades.</strong> An estimate far from that should prompt a check of the coding before it becomes a
+        finding.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Meta-analysis replaced vote counting</strong>, but it only works if every effect size measures
+        the same contrast on the same scale.</li>
+      <li><strong>Glass and Smith&rsquo;s 1979 coding sheet still holds up</strong>: several rows per study,
+        exact sizes <span class="m"><i>S</i></span> and <span class="m"><i>L</i></span>, how pupils were assigned,
+        subject, age, and whether there was a pretest.</li>
+      <li><strong>Class size is not PTR.</strong> Code which one each study measured.</li>
+      <li><strong>Standardize slopes to a realistic reduction and fix the sign</strong> so that positive always
+        means smaller classes did better.</li>
+      <li><strong>Choose the SD deliberately</strong>. The same DiD estimate is 0.10 in level SDs and 0.20 in
+        change-score SDs.</li>
+      <li><strong>The unit of analysis moves the answer</strong>: 0.20, 0.17, or 0.08 in Shin and Chung
+        depending on whether effect sizes, studies, or states count once.</li>
+      <li><strong>Publication status and study design are moderators to test.</strong> Published studies and
+        randomized designs both show larger effects in Shin and Chung.</li>
+    </ul>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>References</h2>
+      <p class="sub">PDFs in the <span class="m">class_size</span> folder are linked where available.</p>
+    </div>
+    <ul>
+      <li>Borenstein, M., Hedges, L. V., Higgins, J. P. T., &amp; Rothstein, H. R. (2009). <em>Introduction to
+        meta-analysis</em>. Wiley.</li>
+      <li>Coleman, J. S. (1966). <em>Equality of educational opportunity</em>. U.S. Department of Health,
+        Education, and Welfare.</li>
+      <li>Finn, J. D., &amp; Achilles, C. M. (1990). Answers and questions about class size: A statewide
+        experiment. <em>American Educational Research Journal, 27</em>(3), 557&ndash;577.</li>
+      <li>Glass, G. V., &amp; Smith, M. L. (1979). <a href="class_size/1979-Glass-and-Smith-Class-Size.pdf">Meta-analysis
+        of research on class size and achievement</a>. <em>Educational Evaluation and Policy Analysis, 1</em>(1),
+        2&ndash;16. <a href="http://www.jstor.org/stable/1164099">http://www.jstor.org/stable/1164099</a></li>
+      <li>Hanushek, E. A. (2002). <a href="class_size/Hanushek%202002%20ClassSizeDebate.pdf">Evidence, politics,
+        and the class size debate</a>. In L. Mishel &amp; R. Rothstein (Eds.), <em>The class size debate</em>
+        (pp. 37&ndash;65). Economic Policy Institute.</li>
+      <li>Krueger, A. B. (2002). Understanding the magnitude and effect of class size on student achievement. In
+        L. Mishel &amp; R. Rothstein (Eds.), <em>The class size debate</em> (pp. 7&ndash;35). Economic Policy
+        Institute. (Chapter 1 of the <a href="class_size/Hanushek%202002%20ClassSizeDebate.pdf">same volume</a>.)</li>
+      <li>Lipsey, M. W., &amp; Wilson, D. B. (2001). <em>Practical meta-analysis</em>. Sage.</li>
+      <li>Shin, I.-S., &amp; Chung, J. Y. (2009). <a href="class_size/2009-classsize-metaanalysis.pdf">Class size
+        and student achievement in the United States: A meta-analysis</a>. <em>KEDI Journal of Educational
+        Policy, 6</em>(2), 3&ndash;19.</li>
+    </ul>
+    <div class="callout">
+      <p><strong>Citation note.</strong> These citations follow the PDFs in this folder. The Word source cites
+        Shin and Chung as appearing in <em>School Effectiveness and School Improvement</em>, 20(6), 695&ndash;710,
+        and cites Hanushek&rsquo;s chapter as appearing in a Hoover Institution volume titled <em>Understanding the
+        magnitude and effect of class size on student achievement</em>. That title is actually Krueger&rsquo;s
+        chapter in the EPI volume. The PDF of Shin and Chung is also inconsistent about its own sample: 8
+        published and 9 unpublished studies in the abstract, 6 and 11 in the methods; 120 effect sizes in most
+        places, 121 in one; 7.1 or 6.4 effect sizes per study. 120 effect sizes from 17 studies is about 7.1
+        per study. Recording the counts correctly is also part of coding.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">Unit 23: Coding class size studies</span>. Converted from the Word
+      source <span class="m">Class_Size_Policy_Overview.docx</span> in this folder, with worked examples built on
+      <span class="m">effect_size_calculation_templates.R</span> and the model-comparison table
+      (<span class="m">MetaAnalysis_EffectSize_ModelComparison.xlsx</span>).</p>
+  </footer>
+
+</div>
+</body>
+</html>

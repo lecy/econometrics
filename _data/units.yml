@@ -1260,3 +1260,202 @@
       links:
         - { label: Instructions, url: labs3/matching-lab.html, kind: html }
         - { label: RMD Template, url: labs3/matching-lab.rmd, kind: rmd, raw: true }
+
+- id: research-integrity
+  part: "Part 4 — Research Integrity and Evidence Synthesis"
+  number: "22"
+  title: Research Integrity and Open Science
+  tagline: How published findings go wrong, and the tools any reader can use to check them.
+  summary: >
+    Surveys the ways a published literature can mislead, from individual fabrication and coding
+    errors to p-hacking, publication bias, paper mills, and incentives that reward volume over
+    verification. Pairs each problem with the evidence of its scale, the tools that detect it,
+    and the open-science practices that prevent it.
+  overview: |
+    Every estimator in this course assumes the numbers going into it are honest and the numbers
+    coming out are reported faithfully. This unit asks what happens when they are not. Retractions
+    are growing several times faster than publications; large replication projects in psychology
+    and economics recover roughly half of published findings, at about half the original effect
+    size; and many teams given the same data reach different conclusions.
+
+    The problems are sorted by unit of analysis: the **individual** (fabrication, image
+    manipulation, plagiarism, honest coding errors), the **team** (p-hacking, HARKing, fragile
+    specifications, the file drawer), the **group** (citation rings, fake peer review, paper mills),
+    and the **field** (publication bias, incentives, the missing culture of replication, lost data).
+    Many of the detection tools — GRIM, SPRITE, statcheck, p-curve, funnel plots, specification
+    curves — need nothing more than what is printed in a paper, which means any careful reader can
+    use them.
+  objectives:
+    - Distinguish fabrication, questionable research practices, and honest error, and explain why each calls for different tools.
+    - Apply simple consistency checks (GRIM, statcheck) to reported statistics.
+    - Explain how p-hacking, the garden of forking paths, and publication bias inflate published effect sizes.
+    - Describe the open-science practices — preregistration, registered reports, open data and code — that prevent each problem.
+  lectures:
+    - title: Research Fraud and the Reproducibility Crisis
+      blurb: Retraction trends, a timeline of high-profile cases, the new forensic tools, paper mills and pay-to-publish economics, and the incentives that make misconduct rational.
+      links:
+        - { label: Notes, url: lectures4/open-science/research-fraud-trends-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures4/open-science/trends_in_research_fraud.pdf, kind: pdf }
+        - { label: PPTX, url: lectures4/open-science/trends_in_research_fraud.pptx, kind: pptx, download: true }
+    - title: A Research Integrity Toolkit
+      blurb: >
+        Seventeen problems organized from the individual to the field, each with its evidence of
+        scope, detection tools, and remedies. The framework table condenses the whole deck onto a
+        few pages.
+      links:
+        - { label: Notes, url: lectures4/open-science/research-integrity-toolkit-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures4/open-science/research_integrity_slides.pdf, kind: pdf }
+        - { label: PPTX, url: lectures4/open-science/research_integrity_slides.pptx, kind: pptx, download: true }
+        - { label: Framework table (PDF), url: lectures4/open-science/research_integrity_framework.pdf, kind: pdf }
+        - { label: Framework (DOCX), url: lectures4/open-science/research_integrity_framework.docx, kind: docx, download: true }
+    - title: "Toolkit Guides: Checking Reported Statistics"
+      blurb: >
+        GRIM asks whether a reported mean is possible given N; SPRITE reconstructs the raw data a
+        mean and SD imply; statcheck recomputes p-values from reported test statistics. None needs
+        the raw data. The short companion deck shows why summary statistics alone can hide almost
+        any distribution.
+      links:
+        - { label: GRIM (PDF), url: lectures4/open-science/guides/01_grim_guide.pdf, kind: pdf }
+        - { label: SPRITE (PDF), url: lectures4/open-science/guides/01_sprite.pdf, kind: pdf }
+        - { label: statcheck (PDF), url: lectures4/open-science/guides/01_statcheck.pdf, kind: pdf }
+        - { label: Companion slides (PDF), url: lectures4/open-science/data/SPRITE.pdf, kind: pdf }
+    - title: "Toolkit Guides: Detecting p-Hacking"
+      blurb: >
+        Four tools that read the distribution of test statistics across a literature: p-curve,
+        p-uniform, the caliper test around p = .05, and z-curve's estimated replication rate.
+      links:
+        - { label: p-curve (PDF), url: lectures4/open-science/guides/02a1_pcurve_guide.pdf, kind: pdf }
+        - { label: p-uniform (PDF), url: lectures4/open-science/guides/02a1_puniform_guide.pdf, kind: pdf }
+        - { label: Caliper test (PDF), url: lectures4/open-science/guides/02a1_caliper_guide.pdf, kind: pdf }
+        - { label: z-curve (PDF), url: lectures4/open-science/guides/02a1_zcurve_guide.pdf, kind: pdf }
+    - title: "Toolkit Guides: Forking Paths and the File Drawer"
+      blurb: >
+        Multiverse analysis, specification curves, and vibration of effects show how much a result
+        depends on defensible modeling choices; funnel plots, trim-and-fill, PET-PEESE, and the
+        excess-significance test estimate what the missing null results would have said.
+      links:
+        - { label: Forking paths (PDF), url: lectures4/open-science/guides/02a2_forking_paths.pdf, kind: pdf }
+        - { label: Publication bias (PDF), url: lectures4/open-science/guides/02a3_publication_bias_guide.pdf, kind: pdf }
+    - title: "Toolkit Guides: Networks, Data Stewardship, and What Comes Next"
+      blurb: >
+        Bibliometric tools for citation rings and editor networks, FAIR-compliance scoring for
+        shared data, and the open problems the toolkit does not yet solve. The compiled toolkit
+        collects every guide in one file.
+      links:
+        - { label: Bibliometrics (PDF), url: lectures4/open-science/guides/02b_bibliometric_guide.pdf, kind: pdf }
+        - { label: FAIR data (PDF), url: lectures4/open-science/guides/03_fair_data_guide.pdf, kind: pdf }
+        - { label: Future work (PDF), url: lectures4/open-science/guides/10_future_work.pdf, kind: pdf }
+        - { label: Toolkit contents (PDF), url: lectures4/open-science/guides/00_table_of_contents.pdf, kind: pdf }
+        - { label: Complete toolkit (PDF), url: lectures4/open-science/guides/RESEARCH-INTEGRITY-TOOLKIT.pdf, kind: pdf }
+        - { label: All guides (ZIP), url: lectures4/open-science/guides/research-integrity-methods.zip, kind: data, download: true }
+  readings:
+    - title: The Influence of Hidden Researcher Decisions in Applied Microeconomics
+      cite: "Huntington-Klein, N., et al. (2021). Economic Inquiry, 59(3), 944–960. Independent teams replicate published studies from the same data and get different answers."
+      url: lectures4/open-science/pubs/The%20influence%20of%20hidden%20researcher%20decisions%20in%20applied%20microeconomics.pdf
+    - title: Trouble at the Lab
+      cite: "The Economist (2013). Why so much published science is wrong, and the incentives that keep it that way."
+      url: lectures4/open-science/pubs/Trouble-at-the-lab-The-Economist.pdf
+    - title: Psychology's Replication Crisis Is Real
+      cite: "Yong, E. (2018). The Atlantic. The Many Labs 2 replication project and what it found."
+      url: lectures4/open-science/pubs/Psychology%27s%20Replication%20Crisis%20Is%20Real%20ATLANTIC.pdf
+    - title: When the Revolution Came for Amy Cuddy
+      cite: "Dominus, S. (2017). The New York Times Magazine. The power-posing study, its failed replications, and the human cost of the reform movement."
+      url: lectures4/open-science/pubs/When%20the%20Revolution%20Came%20for%20Amy%20Cuddy.pdf
+    - title: A Mysterious Company's Coronavirus Papers in Top Medical Journals May Be Unraveling
+      cite: "Science (2020). The Surgisphere case: a fabricated hospital database behind two retracted COVID-19 papers."
+      url: pubs/open-science/a-mysterious-companys-coronavirus-papers-in-top-medical-journals-may-be-unraveling.pdf
+    - title: "Reproducible Research in R: How to Do the Same Thing More Than Once"
+      cite: "Peikert, A., van Lissa, C. J., & Brandmaier, A. M. (2021). Psych, 3(4), 836–867. A tutorial on making your own analysis reproducible."
+      url: lectures4/open-science/pubs/reproducibility-guide-r.pdf
+
+- id: meta-analysis
+  part: "Part 4 — Research Integrity and Evidence Synthesis"
+  number: "23"
+  title: "Meta-Analysis: The Class Size Debate"
+  tagline: When dozens of studies disagree, put them on one scale and ask why.
+  summary: >
+    Introduces meta-analysis as the quantitative synthesis of effect sizes across studies, then
+    works through the class size literature as a case study: a century of contradictory findings,
+    Glass and Smith's first meta-analysis, the Hanushek–Krueger dispute over how to count
+    studies, and the modern consensus of roughly 0.20 SD in the early grades.
+  overview: |
+    A single study, however well designed, is one draw from a sampling distribution of studies.
+    Meta-analysis treats the literature itself as the data: convert every study's estimate to a
+    common effect size, weight each by its precision, and model why the estimates differ. The
+    first half of the unit covers the tools — standardized mean differences (Cohen's *d*, Hedges'
+    *g*, Glass's Δ), conversions from *t*, *F*, *r*, odds ratios, and regression coefficients, and
+    how to code an effect size from each of the designs in Part 3.
+
+    The second half applies them to a question you met in Lab P102: **does class size matter?**
+    For seventy years narrative reviews called the evidence hopelessly mixed, largely because
+    confounding by SES and teacher assignment pushed naive estimates in both directions. Glass and
+    Smith (1979) put 725 comparisons on one scale and found a clear, nonlinear benefit of small
+    classes. Hanushek counted estimates and saw no consistent effect; Krueger gave each study one
+    vote and saw a positive one. Tennessee's STAR experiment and Shin and Chung's (2009) synthesis
+    point to about 0.20 SD in grades K–3 — with the caveat that one experiment supplies most of
+    the evidence.
+  objectives:
+    - Compute and interpret Cohen's d, Hedges' g, and Glass's Δ, and distinguish a standardized mean difference from a standardized mean change.
+    - Convert reported statistics (t, F, r, odds ratios, regression and DiD coefficients) into a common effect size.
+    - Read a forest plot and a funnel plot, and explain the difference between common- and random-effects models.
+    - Explain how the unit of analysis, study quality, and dependence among effect sizes shape the conclusions of the class size literature.
+    - Build a coding template that extracts comparable effect sizes from class size studies.
+  lectures:
+    - title: What Is Meta-Analysis?
+      blurb: Research synthesis as a study of studies — forest plots, pooled estimates, moderators, funnel plots — and the standardized effect sizes that make it possible.
+      links:
+        - { label: Notes, url: lectures4/meta_analysis/meta-analysis-intro-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures4/meta_analysis/meta-analysis-overview.pdf, kind: pdf }
+        - { label: PPTX, url: lectures4/meta_analysis/meta-analysis-overview.pptx, kind: pptx, download: true }
+        - { label: Effect sizes handout (PDF), url: lectures4/meta_analysis/Applied_Meta_Analysis_Intro.pdf, kind: pdf }
+        - { label: SMD vs. SMC (PDF), url: lectures4/meta_analysis/SMD_vs_SMC.pdf, kind: pdf }
+    - title: Putting Every Study on One Scale
+      blurb: >
+        The common effect size metrics, the formulas that convert between them, and how to code an
+        effect size from a t-test, a regression, an interrupted time series, a DiD, a fixed-effects
+        model, or an RDD.
+      links:
+        - { label: Notes, url: lectures4/meta_analysis/effect-size-conversions-notes.html, kind: notes }
+        - { label: Conversions handout (PDF), url: lectures4/meta_analysis/Common_Effect_Sizes_and_Conversions.pdf, kind: pdf }
+        - { label: Design table (XLSX), url: lectures4/meta_analysis/MetaAnalysis_EffectSize_ModelComparison.xlsx, kind: data, download: true }
+        - { label: R Templates, url: lectures4/meta_analysis/effect_size_calculation_templates.R, kind: rmd, raw: true }
+    - title: "Case Study: Does Class Size Matter?"
+      blurb: >
+        A century of contested evidence as a worked example of research synthesis — confounding,
+        Glass and Smith's meta-analysis, the Hanushek–Krueger debate, STAR, and what the modern
+        consensus does and does not support.
+      links:
+        - { label: Notes, url: lectures4/meta_analysis/class-size-debate-notes.html, kind: notes }
+        - { label: Case study (PDF), url: lectures4/meta_analysis/overview_of_evidence_for_class_size.pdf, kind: pdf }
+        - { label: DOCX, url: lectures4/meta_analysis/overview_of_evidence_for_class_size.docx, kind: docx, download: true }
+    - title: "Case Study: Coding Class Size Studies"
+      blurb: >
+        Turning the literature into data: what to record about each study's design, treatment
+        contrast, outcome, timing, and controls, and how to convert its estimate into an effect
+        size.
+      links:
+        - { label: Notes, url: lectures4/meta_analysis/class-size-coding-notes.html, kind: notes }
+        - { label: Policy overview (PDF), url: lectures4/meta_analysis/Class_Size_Policy_Overview.pdf, kind: pdf }
+        - { label: DOCX, url: lectures4/meta_analysis/Class_Size_Policy_Overview.docx, kind: docx, download: true }
+  readings:
+    - title: Meta-Analysis and the Science of Research Synthesis
+      cite: "Gurevitch, J., Koricheva, J., Nakagawa, S., & Stewart, G. (2018). Nature, 555, 175–182. A short overview of the method and its history."
+      url: lectures4/meta_analysis/class_size/science-of-research-synthesis.pdf
+    - title: Meta-Analysis of Research on Class Size and Achievement
+      cite: "Glass, G. V., & Smith, M. L. (1979). Educational Evaluation and Policy Analysis, 1(1), 2–16. The first meta-analysis of the class size literature."
+      url: lectures4/meta_analysis/class_size/1979-Glass-and-Smith-Class-Size.pdf
+    - title: Evidence, Politics, and the Class Size Debate
+      cite: "Hanushek, E. A. (2002). In L. Mishel & R. Rothstein (Eds.), The Class Size Debate. Economic Policy Institute. The full volume, including Krueger's chapters and his reply."
+      url: lectures4/meta_analysis/class_size/Hanushek%202002%20ClassSizeDebate.pdf
+    - title: Class Size and Student Achievement in the United States — A Meta-Analysis
+      cite: "Shin, I.-S., & Chung, J. Y. (2009). KEDI Journal of Educational Policy, 6(2), 3–19. Updated synthesis of U.S. studies, 1989–2008."
+      url: lectures4/meta_analysis/class_size/2009-classsize-metaanalysis.pdf
+    - title: "Experimentology, Ch. 16 — Meta-Analysis"
+      cite: "Frank, M. C., et al. Open textbook chapter; source of the forest plot in the slides."
+      url: https://experimentology.io/016-meta.html
+    - title: Interpreting Effect Sizes of Education Interventions
+      cite: "Kraft, M. A. (2020). Educational Researcher. Benchmarks for what counts as a large effect in education."
+      url: pubs/effect-size/kraft_2019_effect_sizes.pdf
+    - title: "Class Size Reduction and Student Achievement: The Potential Tradeoff between Teacher Quality and Class Size"
+      cite: "Jepsen, C., & Rivkin, S. (2009). Journal of Human Resources, 44(1), 223–250. What California's 1996 reform did to teacher quality."
+      url: pubs/effect-size/Class-Size-Reduction-and-Student-Achievement.pdf
