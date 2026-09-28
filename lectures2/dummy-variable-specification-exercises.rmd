@@ -224,10 +224,54 @@ fig_11 <- function() {
             lty = c(1, 1, NA), lwd = c(3, 3, NA), pch = c(NA, NA, 16))
 }
 
+# One panel of the single-outlier figure: Y = t for 2010-2020 (t = 1..11), except
+# that `odd_year` is 10 units too high. The line is the OLS fit with no dummy.
+outlier_panel <- function(odd_year, label) {
+  year <- 2010:2020
+  y <- year - 2009
+  y[year == odd_year] <- y[year == odd_year] + 10
+  fig_frame(c(2009.3, 2020.7), c(-5, 25), "Year", "Outcome", yat = seq(-5, 25, 5),
+            xat = seq(2010, 2020, 2), xlabels = seq(2010, 2020, 2))
+  fit <- lm(y ~ year)
+  clip(2009.3, 2020.7, -5, 25)
+  abline(fit, col = orange, lwd = 2.5)
+  dot(year[year != odd_year], y[year != odd_year], blue, cex = 1.2)
+  dot(odd_year, y[year == odd_year], red, cex = 1.5)
+  mtext(label, side = 3, line = -1.1, adj = 0.04, cex = 0.72, font = 2, col = slate)
+}
+
+fig_12 <- function() {
+  op <- par(mfrow = c(1, 2)); on.exit(par(op))
+  outlier_panel(2015, "A: odd year 2015")
+  outlier_panel(2020, "B: odd year 2020")
+}
+
 covid_base <- function(ylim) {
   fig_frame(c(2013.5, 2027.8), ylim, "Year", "Outcome", yat = seq(ylim[1] + 5, ylim[2], 10),
             xat = seq(2014, 2026, 2), xlabels = seq(2014, 2026, 2))
   rect(2019.6, ylim[1], 2022.4, ylim[2], col = adjustcolor(slate, 0.1), border = NA)
+}
+
+covid_legend <- function(first = "Pre-COVID trend, extended", extra = NULL, extra_col = NULL) {
+  legend_tl(c(first, "Anomaly years", "Stable post period", extra),
+            c(blue, slate, orange, extra_col), lty = c(2, NA, 1, rep(1, length(extra))),
+            lwd = c(2, NA, 3, rep(3, length(extra))), pch = c(NA, 16, NA, rep(NA, length(extra))))
+}
+
+# 13A: flat before and after, no shift
+fig_13a <- function() {
+  covid_base(c(35, 80))
+  segments(2014, 60, 2027, 60, col = blue, lty = 2, lwd = 2)
+  dot(2014:2019, rep(60, 6), blue, cex = 1.2)
+  dot(2020:2022, c(44, 42, 53), slate, cex = 1.3)
+  lines(2023:2027, rep(60, 5), col = orange, lwd = 3)
+  dot(2023:2027, rep(60, 5), orange, cex = 1.2)
+  covid_legend("Pre-COVID level, extended")
+}
+
+# 13B and 13C: rising trend, post level 9 above it
+covid_trend <- function(ylim) {
+  covid_base(ylim)
   segments(2014, 50, 2027, 76, col = blue, lty = 2, lwd = 2)
   dot(2014:2019, 50 + 2 * (0:5), blue, cex = 1.2)
   dot(2020:2022, c(44, 42, 53), slate, cex = 1.3)
@@ -235,23 +279,18 @@ covid_base <- function(ylim) {
   dot(2023:2027, 77 + 2 * (0:4), orange, cex = 1.2)
 }
 
-fig_12 <- function() {
-  covid_base(c(35, 90))
-  legend_tl(c("Pre-COVID trend, extended", "Anomaly years", "Stable post period"),
-            c(blue, slate, orange), lty = c(2, NA, 1), lwd = c(2, NA, 3),
-            pch = c(NA, 16, NA))
+fig_13b <- function() {
+  covid_trend(c(35, 90))
+  covid_legend()
 }
 
-fig_12b <- function() {
-  covid_base(c(35, 100))
+fig_13c <- function() {
+  covid_trend(c(35, 100))
   lines(c(2023, 2027), c(77, 93), col = red, lwd = 3)
-  legend_tl(c("Pre-COVID trend, extended", "Anomaly years", "Stable post period",
-              "Alternative: steeper post slope"),
-            c(blue, slate, orange, red), lty = c(2, NA, 1, 1), lwd = c(2, NA, 3, 3),
-            pch = c(NA, 16, NA, NA))
+  covid_legend(extra = "Alternative: steeper post slope", extra_col = red)
 }
 
-fig_13 <- function() {
+fig_14 <- function() {
   two_by_two(c("Pre", "Post"), "Period", c(40, 80),
              list(A = c(50, 55), B = c(50, 70)), c(blue, orange))
 }
@@ -665,7 +704,7 @@ fig_13 <- function() {
   <header class="masthead">
     <p class="eyebrow">Unit 14 &middot; Practicing Dummy Variable Specifications</p>
     <h1>Build the Model from the Hypothesis</h1>
-    <p class="dek">Dummy variables, reference categories, interactions, and structural changes. Thirteen
+    <p class="dek">Dummy variables, reference categories, interactions, and structural changes. Fourteen
       exercises that start from a picture and a question, and end with a single coefficient that answers
       it.</p>
     <nav class="jump" aria-label="Sections">
@@ -745,7 +784,7 @@ fig_13 <- function() {
     <div class="sec-head">
       <p class="num">Section two</p>
       <h2>Questions</h2>
-      <p class="sub">Thirteen designs, roughly in order of difficulty. Each links to its solution.</p>
+      <p class="sub">Fourteen designs, roughly in order of difficulty. Each links to its solution.</p>
     </div>
 
     <h3>1. Two means: three t-test designs</h3>
@@ -981,12 +1020,36 @@ fig_11()
     </article>
 
     <article class="ex" id="q12">
-      <h3>12. COVID anomalies and a later regime</h3>
+      <h3>12. A single outlying year</h3>
       <figure class="fig wide">
 ```
 
-```{r q12, fig.width=7.5, fig.alt="A pre-COVID trend from 50 in 2014 rising 2 per year; anomalous low values in 2020 to 2022; a stable post period from 2023 that runs parallel to the extrapolated trend but 9 units above it."}
+```{r q12, fig.width=7.5, fig.alt="Two panels of eleven yearly observations from 2010 to 2020 that rise one unit per year. In panel A the 2015 value is 10 units too high and the OLS line is lifted but keeps its slope. In panel B the 2020 value is 10 units too high and the OLS line is tilted upward."}
 fig_12()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>An outcome rises exactly one unit per year from 2010 to 2020, so with
+        <span class="m"><i>t</i> = year &minus; 2009</span> it follows <span class="m"><i>Y</i> = <i>t</i></span>.
+        One year is 10 units too high: a reporting error, a strike, a one-off grant. In panel A the odd year is
+        2015, the middle of the series; in panel B it is 2020, the last year. The orange lines are OLS fits of
+        <span class="m"><i>Y</i></span> on <span class="m"><i>t</i></span> with no dummy. How does the odd year
+        distort each fit, and why differently? Add a <strong>single</strong> dummy that removes its influence.
+        What does the dummy&rsquo;s coefficient measure, and what happens to the trend estimates?</p></div>
+      <a class="to-sol" href="#s12">Solution &rarr;</a>
+    </article>
+
+    <h3>13. COVID anomalies and a later regime</h3>
+    <p>Exercise 12 with three odd years instead of one, and a question about what comes after them.</p>
+
+    <article class="ex" id="q13a">
+      <h3>13A. Flat before, flat after</h3>
+      <figure class="fig wide">
+```
+
+```{r q13a, fig.width=7.5, fig.alt="The outcome is flat at 60 from 2014 to 2019, falls to 44, 42, and 53 in 2020 to 2022, and is flat at 60 again from 2023 to 2027."}
+fig_13a()
 ```
 
 ```{=html}
@@ -994,21 +1057,41 @@ fig_12()
       <div class="prompt"><p>Let <span class="m"><i>d</i><sub>pre</sub></span> mark ordinary pre-COVID years
         (2014&ndash;2019); <span class="m"><i>d</i><sub>covid20</sub>, <i>d</i><sub>covid21</sub>,
         <i>d</i><sub>covid22</sub></span> mark 2020&ndash;2022; and <span class="m"><i>d</i><sub>post</sub></span>
-        marks the stable post-COVID years (2023&ndash;2027). The shaded observations are unusual; the later line
-        is parallel to the pretrend but 9 units above it. Build a model that (a) gives each anomalous year its
-        own deviation and (b) tests whether the later regime is at a new level relative to the pre-COVID trend
-        <strong>at the same calendar time</strong>. Which category is omitted? Is the
-        <span class="m"><i>d</i><sub>post</sub></span> coefficient an unadjusted difference in period means?</p></div>
-      <a class="to-sol" href="#s12">Solution &rarr;</a>
+        marks the stable post-COVID years (2023&ndash;2027). The outcome is flat at 60 before COVID, drops to
+        44, 42, and 53 in the shaded years, and is flat at 60 again afterwards. Build a model that (a) gives
+        each anomalous year its own deviation and (b) tests whether the post-COVID level differs from the
+        pre-COVID level. Which category is omitted, and what is the post contrast? What goes wrong if the COVID
+        years are left in the reference group instead?</p></div>
+      <a class="to-sol" href="#s13a">Solution &rarr;</a>
     </article>
 
-    <article class="ex" id="q12b">
-      <h3>12B. What if the post-COVID slope changed?</h3>
+    <article class="ex" id="q13b">
+      <h3>13B. Add a trend</h3>
       <figure class="fig wide">
 ```
 
-```{r q12b, fig.width=7.5, fig.alt="The same picture with an alternative red post-period line that starts at 77 in 2023 and rises 4 per year."}
-fig_12b()
+```{r q13b, fig.width=7.5, fig.alt="A pre-COVID trend from 50 in 2014 rising 2 per year; anomalous low values in 2020 to 2022; a stable post period from 2023 that runs parallel to the extrapolated trend but 9 units above it."}
+fig_13b()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Same indicators as 13A, but now the outcome rises 2 units per year before COVID,
+        and the later line is parallel to the pretrend but 9 units above it. Build a model that (a) gives each
+        anomalous year its own deviation and (b) tests whether the later regime is at a new level relative to
+        the pre-COVID trend <strong>at the same calendar time</strong>. Which category is omitted? Is the
+        <span class="m"><i>d</i><sub>post</sub></span> coefficient still an unadjusted difference in period
+        means, as it was in 13A?</p></div>
+      <a class="to-sol" href="#s13b">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q13c">
+      <h3>13C. What if the post-COVID slope changed?</h3>
+      <figure class="fig wide">
+```
+
+```{r q13c, fig.width=7.5, fig.alt="The same picture with an alternative red post-period line that starts at 77 in 2023 and rises 4 per year."}
+fig_13c()
 ```
 
 ```{=html}
@@ -1016,16 +1099,16 @@ fig_12b()
       <div class="prompt"><p>In the alternative red post period, the slope is 2 units per year steeper than
         before. Add one term that tests this change. Define time so that the post-level coefficient is still the
         vertical gap at the start of the stable post period. What is the post slope?</p></div>
-      <a class="to-sol" href="#s12b">Solution &rarr;</a>
+      <a class="to-sol" href="#s13c">Solution &rarr;</a>
     </article>
 
-    <article class="ex" id="q13">
-      <h3>13. Reverse-engineer the coding</h3>
+    <article class="ex" id="q14">
+      <h3>14. Reverse-engineer the coding</h3>
       <figure class="fig">
 ```
 
-```{r q13, fig.alt="Group A rises from 50 to 55; group B rises from 50 to 70."}
-fig_13()
+```{r q14, fig.alt="Group A rises from 50 to 55; group B rises from 50 to 70."}
+fig_14()
 ```
 
 ```{=html}
@@ -1035,7 +1118,7 @@ fig_13()
         each. (a) B versus A in the pre period; (b) B versus A in the post period; (c) B&rsquo;s own
         pre-to-post change; (d) the difference in changes. Are any of these impossible to isolate as one
         coefficient under a saturated 2 &times; 2 coding?</p></div>
-      <a class="to-sol" href="#s13">Solution &rarr;</a>
+      <a class="to-sol" href="#s14">Solution &rarr;</a>
     </article>
   </section>
 
@@ -1791,7 +1874,7 @@ fig_07()
         coding also lets you test whether each dose adds the same amount
         (<span class="m"><i>β</i><sub>1</sub> = <i>β</i><sub>2</sub></span>). That is exactly the assumption a
         linear dose term <span class="m"><i>β</i>&middot;doses</span> would impose without testing. The same
-        stacking idea reappears in exercises 8 and 12, where a post-period dummy is added on top of a trend.</p>
+        stacking idea reappears in exercises 8 and 13, where a post-period dummy is added on top of a trend.</p>
 
       <h4>Design matrix</h4>
       <p>The exact-group pair (<span class="m"><i>d</i><sub>one</sub>, <i>d</i><sub>two</sub></span>) and the
@@ -2197,42 +2280,262 @@ fig_11()
 
     <!-- 12 ------------------------------------------------------------ -->
     <article class="ex" id="s12">
-      <h3>12. COVID anomalies and a later regime</h3>
+      <h3>12. A single outlying year</h3>
       <figure class="fig wide">
 ```
 
-```{r s12, fig.width=7.5, fig.alt="A pre-COVID trend from 50 in 2014 rising 2 per year; anomalous low values in 2020 to 2022; a stable post period from 2023 that runs parallel to the extrapolated trend but 9 units above it."}
+```{r s12, fig.width=7.5, fig.alt="Two panels of eleven yearly observations from 2010 to 2020 that rise one unit per year. In panel A the 2015 value is 10 units too high and the OLS line is lifted but keeps its slope. In panel B the 2020 value is 10 units too high and the OLS line is tilted upward."}
 fig_12()
 ```
 
 ```{=html}
       </figure>
-      <div class="prompt"><p>Let <span class="m"><i>d</i><sub>pre</sub></span> mark ordinary pre-COVID years
-        (2014&ndash;2019); <span class="m"><i>d</i><sub>covid20</sub>, <i>d</i><sub>covid21</sub>,
-        <i>d</i><sub>covid22</sub></span> mark 2020&ndash;2022; and <span class="m"><i>d</i><sub>post</sub></span>
-        marks the stable post-COVID years (2023&ndash;2027). Build a model that (a) gives each anomalous year its
-        own deviation and (b) tests whether the later regime is at a new level relative to the pre-COVID trend
-        <strong>at the same calendar time</strong>. Which category is omitted? Is the
-        <span class="m"><i>d</i><sub>post</sub></span> coefficient an unadjusted difference in period means?</p></div>
+      <div class="prompt"><p>An outcome follows <span class="m"><i>Y</i> = <i>t</i></span>, with
+        <span class="m"><i>t</i> = year &minus; 2009</span>, except that one year is 10 units too high: 2015 in
+        panel A, 2020 in panel B. How does the odd year distort each OLS fit, and why differently? Add a
+        <strong>single</strong> dummy that removes its influence. What does the dummy&rsquo;s coefficient
+        measure, and what happens to the trend estimates?</p></div>
 
       <div class="callout">
         <span class="lbl">Short answer</span>
-        <p>Omit <span class="m"><i>d</i><sub>pre</sub></span> and include a calendar trend
-          <span class="m"><i>t</i> = year &minus; 2014</span>:</p>
+        <p>Without a dummy, the middle-year outlier (A) lifts the whole line but leaves the slope at 1.00. The
+          last-year outlier (B) tilts the line, raising the slope to 1.45. Add a dummy that equals 1 in the odd
+          year only, <span class="m"><i>d</i><sub>2015</sub></span> or <span class="m"><i>d</i><sub>2020</sub></span>:</p>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i><i>d</i><sub>odd</sub> + <i>ε</i></span></p>
+        <p>In both panels this gives <span class="m"><i>β</i><sub>0</sub> = 0</span>,
+          <span class="m"><i>β</i><sub>1</sub> = 1</span>, <span class="m"><i>δ</i> = 10</span>. The trend is
+          estimated from the ten ordinary years, and <span class="m"><i>δ</i></span> is how far the odd year sits
+          above that trend.</p>
+      </div>
+
+      <h4>How one point moves a line</h4>
+      <p>An outlier pulls on the fitted line in two ways. It always raises the mean of
+        <span class="m"><i>Y</i></span>, and the line must pass through
+        <span class="m">(<i>t̄</i>, <i>Ȳ</i>)</span>, so the whole line lifts. How much it also <em>tilts</em> the
+        line depends on its distance from the middle of the <span class="m"><i>t</i></span> values, its
+        <strong>leverage</strong>:</p>
+      <div class="eq"><span class="m">change in slope = 10 &times; (<i>t</i><sub>odd</sub> &minus; <i>t̄</i>) / &Sigma;(<i>t</i> &minus; <i>t̄</i>)<sup>2</sup> = 10 &times; (<i>t</i><sub>odd</sub> &minus; 6) / 110</span></div>
+      <ul>
+        <li><strong>Panel A, 2015</strong> (<span class="m"><i>t</i> = 6 = <i>t̄</i></span>): no leverage, so the
+          slope stays at 1.00. The intercept rises from 0 to <span class="m">10/11 &asymp; 0.91</span>. The
+          residuals balloon, so the slope&rsquo;s standard error jumps from about 0 to 0.30.</li>
+        <li><strong>Panel B, 2020</strong> (<span class="m"><i>t</i> = 11</span>): maximum leverage. The slope
+          rises by <span class="m">50/110 &asymp; 0.45</span> to 1.45, and the intercept falls to &minus;1.82 to
+          compensate. An odd <em>first</em> year would do the opposite: slope 0.55, intercept 3.64.</li>
+      </ul>
+      <p>So a single bad year at the end of a series can manufacture or hide a trend, which is exactly where
+        policy series tend to have their surprises.</p>
+
+      <h4>Why one dummy fixes it</h4>
+      <p>A dummy that is 1 for a single observation gives that observation its own intercept. The model can then
+        fit it exactly (<span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i> = <i>Y</i></span>),
+        so it has no residual left to pull the line with. The trend is estimated from the other ten years alone.
+        That gives the same slope and intercept as deleting the year, but the observation stays in the data and
+        you get a coefficient for it.</p>
+      <p><span class="m"><i>δ</i></span> is the gap between the odd year and the value the trend predicts for
+        it: <span class="m">16 &minus; 6 = 10</span> in panel A and <span class="m">21 &minus; 11 = 10</span> in
+        panel B. Its t-test is the standard regression test for an outlier: is this year further from the trend
+        than ordinary noise would put it?</p>
+
+      <h4>Design matrix</h4>
+      <p>Each panel uses only its own dummy.</p>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span> (A)</th><th scope="col"><span class="m"><i>Y</i></span> (B)</th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>t</i></span></th><th scope="col"><span class="m"><i>d</i><sub>2015</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>2020</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">2010</th><td class="y">1</td><td class="y">1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2014</th><td class="y">5</td><td class="y">5</td><td>1</td><td>5</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2015</th><td class="y">16</td><td class="y">6</td><td>1</td><td>6</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">2016</th><td class="y">7</td><td class="y">7</td><td>1</td><td>7</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2019</th><td class="y">10</td><td class="y">10</td><td>1</td><td>10</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2020</th><td class="y">11</td><td class="y">21</td><td>1</td><td>11</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">No dummy &middot; panel A / panel B</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>0.91 / &minus;1.82</td><td>Is the fitted line zero at <span class="m"><i>t</i> = 0</span>? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>1.00 / 1.45</td><td>Is there a trend? (A is right but noisy; B is biased by the endpoint)</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">With the odd-year dummy &middot; both panels</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>0</td><td>Is the trend zero at <span class="m"><i>t</i> = 0</span>? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>1</td><td>Is there a trend among the ordinary years?</td></tr>
+            <tr><td><i>δ</i></td><td>10</td><td>Does the odd year sit on the trend line?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Deleting the year without saying so.</strong> The line is the same, but readers cannot see
+            the decision and you lose the test of whether the year really was unusual.</li>
+          <li><strong>Adding a dummy for every point that does not fit.</strong> A dummy should have a reason
+            that exists before you look at the residuals: a known strike, a coding change, a pandemic. Give
+            enough points their own dummy and any line fits perfectly.</li>
+          <li><strong>Reading the dummy&rsquo;s p-value at face value after hunting for the biggest
+            residual.</strong> Picking the worst of eleven years and then testing it is eleven tests, not one. The
+            multiple-comparison logic of the Bonferroni correction (Unit 09) applies.</li>
+          <li><strong>Using a step dummy (1 from 2015 onward) for a one-year blip.</strong> That models a
+            permanent shift, not a single odd year.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q12">&larr; Back to question</a>
+    </article>
+
+    <!-- 13A ----------------------------------------------------------- -->
+    <article class="ex" id="s13a">
+      <h3>13A. Flat before, flat after</h3>
+      <figure class="fig wide">
+```
+
+```{r s13a, fig.width=7.5, fig.alt="The outcome is flat at 60 from 2014 to 2019, falls to 44, 42, and 53 in 2020 to 2022, and is flat at 60 again from 2023 to 2027."}
+fig_13a()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>The outcome is flat at 60 before COVID (2014&ndash;2019), drops to 44, 42, and 53 in
+        2020&ndash;2022, and is flat at 60 again afterwards (2023&ndash;2027). Build a model that (a) gives each
+        anomalous year its own deviation and (b) tests whether the post-COVID level differs from the pre-COVID
+        level. Which category is omitted, and what is the post contrast? What goes wrong if the COVID years are
+        left in the reference group instead?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Omit <span class="m"><i>d</i><sub>pre</sub></span>:</p>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>δ</i><sub>20</sub><i>d</i><sub>covid20</sub> + <i>δ</i><sub>21</sub><i>d</i><sub>covid21</sub> + <i>δ</i><sub>22</sub><i>d</i><sub>covid22</sub> + <i>δ</i><sub>P</sub><i>d</i><sub>post</sub> + <i>ε</i></span></p>
+        <p>This gives <span class="m"><i>β</i><sub>0</sub> = 60</span>, anomaly deviations
+          <span class="m">(&minus;16, &minus;18, &minus;7)</span>, and <span class="m"><i>δ</i><sub>P</sub> = 0</span>:
+          the outcome went back to exactly where it was. If the COVID years are left in the reference group, the
+          same data show a spurious post-COVID <em>gain</em> of about 4.6.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>This is exercise 12 three times over. Each anomaly year has its own dummy, so each is fit exactly and
+        cannot contaminate either the pre or the post level. With no trend in the model, every coefficient is a
+        plain difference in means from the pre-COVID years:</p>
+      <ul class="cells">
+        <li>Pre years: <span class="m"><i>β</i><sub>0</sub> = 60</span></li>
+        <li>2020: <span class="m">60 + <i>δ</i><sub>20</sub> = 44 &rarr; <i>δ</i><sub>20</sub> = &minus;16</span>;
+          2021: <span class="m"><i>δ</i><sub>21</sub> = &minus;18</span>; 2022: <span class="m"><i>δ</i><sub>22</sub> = &minus;7</span></li>
+        <li>Post years: <span class="m">60 + <i>δ</i><sub>P</sub> = 60 &rarr; <i>δ</i><sub>P</sub> = 0</span></li>
+      </ul>
+      <p>Because nothing else changes over time, <span class="m"><i>δ</i><sub>P</sub></span> here <em>is</em> the
+        raw difference between the post and pre means, and that is the right contrast. Keep this in mind for
+        13B, where adding a trend breaks that equivalence.</p>
+      <p>Two separate questions, two separate tests. Was there a temporary disruption? Test
+        <span class="m"><i>δ</i><sub>20</sub> = <i>δ</i><sub>21</sub> = <i>δ</i><sub>22</sub> = 0</span> jointly.
+        Is there a lasting change? Test <span class="m"><i>δ</i><sub>P</sub> = 0</span>. Here the answers are
+        yes and no.</p>
+
+      <h4>What goes wrong without the COVID dummies</h4>
+      <p>The anomaly years have to go <em>somewhere</em>. If you code only
+        <span class="m"><i>d</i><sub>post</sub></span>, they join whichever group is left:</p>
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">COVID years placed in&hellip;</th><th scope="col"><span class="m"><i>δ</i><sub>P</sub></span></th><th scope="col">What the model concludes</th></tr></thead>
+          <tbody>
+            <tr><td>their own dummies</td><td>0</td><td>No lasting change. Correct.</td></tr>
+            <tr><td>the reference (pre) group</td><td>+4.6</td><td>The pre mean drops to <span class="m">(6&middot;60 + 44 + 42 + 53)/9 &asymp; 55.4</span>, so post looks like a gain.</td></tr>
+            <tr><td>the post group</td><td>&minus;5.1</td><td>The post mean drops to <span class="m">(44 + 42 + 53 + 5&middot;60)/8 &asymp; 54.9</span>, so post looks like a loss.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The same three odd years produce a gain, a loss, or nothing, depending only on where they are filed.
+        That is exercise 12&rsquo;s lesson about a single outlier, in dummy-variable form.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid20</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid21</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid22</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Pre, 2014</th><td class="y">60</td><td>1</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Pre, 2019</th><td class="y">60</td><td>1</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2020</th><td class="y">44</td><td>1</td><td class="off">0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2021</th><td class="y">42</td><td>1</td><td class="off">0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2022</th><td class="y">53</td><td>1</td><td class="off">0</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Post, 2023</th><td class="y">60</td><td>1</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><th scope="row">Post, 2027</th><td class="y">60</td><td>1</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>In the shorthand <span class="m"><i>d</i><sub>0</sub>, &hellip;, <i>d</i><sub>4</sub></span>, these five
+        indicators are <span class="m"><i>d</i><sub>pre</sub>, <i>d</i><sub>covid20</sub>, <i>d</i><sub>covid21</sub>,
+        <i>d</i><sub>covid22</sub>, <i>d</i><sub>post</sub></span> in that order.</p>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Pre-COVID reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>60</td><td>Is the pre-COVID level zero? (descriptive only)</td></tr>
+            <tr><td><i>δ</i><sub>20</sub></td><td>&minus;16</td><td>Was 2020 at the pre-COVID level?</td></tr>
+            <tr><td><i>δ</i><sub>21</sub></td><td>&minus;18</td><td>Was 2021 at the pre-COVID level?</td></tr>
+            <tr><td><i>δ</i><sub>22</sub></td><td>&minus;7</td><td>Was 2022 at the pre-COVID level?</td></tr>
+            <tr><td><i>δ</i><sub>P</sub></td><td>0</td><td>Is the post-COVID level different from the pre-COVID level?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Coding only <span class="m"><i>d</i><sub>post</sub></span>.</strong> The COVID years land in
+            one of the comparison groups and create a shift that is not there (table above).</li>
+          <li><strong>Using one <span class="m"><i>d</i><sub>covid</sub></span> dummy for all three
+            years.</strong> That protects the pre and post levels, but forces 2020&ndash;2022 to share one mean
+            and hides the recovery path (&minus;16, &minus;18, &minus;7).</li>
+          <li><strong>Including all five period dummies with the intercept.</strong> They sum to one on every
+            row.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q13a">&larr; Back to question</a>
+    </article>
+
+    <!-- 13B ----------------------------------------------------------- -->
+    <article class="ex" id="s13b">
+      <h3>13B. Add a trend</h3>
+      <figure class="fig wide">
+```
+
+```{r s13b, fig.width=7.5, fig.alt="A pre-COVID trend from 50 in 2014 rising 2 per year; anomalous low values in 2020 to 2022; a stable post period from 2023 that runs parallel to the extrapolated trend but 9 units above it."}
+fig_13b()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Same indicators as 13A, but now the outcome rises 2 units per year before COVID, and
+        the later line is parallel to the pretrend but 9 units above it. Build a model that (a) gives each
+        anomalous year its own deviation and (b) tests whether the later regime is at a new level relative to
+        the pre-COVID trend <strong>at the same calendar time</strong>. Which category is omitted? Is the
+        <span class="m"><i>d</i><sub>post</sub></span> coefficient still an unadjusted difference in period
+        means, as it was in 13A?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Keep the 13A dummies, still omitting <span class="m"><i>d</i><sub>pre</sub></span>, and add a calendar
+          trend <span class="m"><i>t</i> = year &minus; 2014</span>:</p>
         <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i><sub>20</sub><i>d</i><sub>covid20</sub> + <i>δ</i><sub>21</sub><i>d</i><sub>covid21</sub> + <i>δ</i><sub>22</sub><i>d</i><sub>covid22</sub> + <i>δ</i><sub>P</sub><i>d</i><sub>post</sub> + <i>ε</i></span></p>
         <p>This gives a trend of <span class="m">50 + 2<i>t</i></span>, anomaly deviations
           <span class="m">(&minus;18, &minus;22, &minus;13)</span>, and <span class="m"><i>δ</i><sub>P</sub> = 9</span>.
-          <strong>No</strong>, <span class="m"><i>δ</i><sub>P</sub></span> is not the raw difference in period
-          means. That raw difference is 26, and 17 of it is just the old trend continuing.</p>
+          <strong>No</strong>, unlike 13A, <span class="m"><i>δ</i><sub>P</sub></span> is no longer the raw
+          difference in period means. That raw difference is 26, and 17 of it is just the old trend
+          continuing.</p>
       </div>
 
       <h4>Why this works</h4>
       <p>Because the trend term is in the model, every dummy coefficient is a <em>vertical</em> distance from the
         pre-COVID trend line, measured in the same year. Omitting <span class="m"><i>d</i><sub>pre</sub></span>
-        makes the ordinary pre years the reference, so the trend line is estimated from them.</p>
+        makes the ordinary pre years the reference, so the trend line is estimated from them. In 13A the
+        reference line was flat, so &ldquo;distance from the line&rdquo; and &ldquo;difference in means&rdquo;
+        were the same thing. Here they are not.</p>
       <ul>
-        <li><strong>Each anomaly year gets its own dummy.</strong> One dummy for a single year fits that year
-          exactly, so the three unusual points cannot pull the trend line around. Each
+        <li><strong>Each anomaly year gets its own dummy.</strong> As in exercise 12, one dummy for a single year
+          fits that year exactly, so the three unusual points cannot pull the trend line around. Each
           <span class="m"><i>δ</i></span> is that year&rsquo;s deviation from where the trend would have put it.
           For 2020, the trend predicts <span class="m">50 + 2&middot;6 = 62</span> and the observed value is 44,
           so <span class="m"><i>δ</i><sub>20</sub> = &minus;18</span>.</li>
@@ -2294,17 +2597,17 @@ fig_12()
             comparison series, a mechanism), not just the coefficient.</li>
         </ul>
       </div>
-      <a class="to-sol" href="#q12">&larr; Back to question</a>
+      <a class="to-sol" href="#q13b">&larr; Back to question</a>
     </article>
 
-    <!-- 12B ----------------------------------------------------------- -->
-    <article class="ex" id="s12b">
-      <h3>12B. What if the post-COVID slope changed?</h3>
+    <!-- 13C ----------------------------------------------------------- -->
+    <article class="ex" id="s13c">
+      <h3>13C. What if the post-COVID slope changed?</h3>
       <figure class="fig wide">
 ```
 
-```{r s12b, fig.width=7.5, fig.alt="The same picture with an alternative red post-period line that starts at 77 in 2023 and rises 4 per year."}
-fig_12b()
+```{r s13c, fig.width=7.5, fig.alt="The same picture with an alternative red post-period line that starts at 77 in 2023 and rises 4 per year."}
+fig_13c()
 ```
 
 ```{=html}
@@ -2315,7 +2618,7 @@ fig_12b()
 
       <div class="callout">
         <span class="lbl">Short answer</span>
-        <p>Keep the model from 12 and add
+        <p>Keep the model from 13B and add
           <span class="m"><i>t</i><sub>post</sub> = (year &minus; 2023)&middot;<i>d</i><sub>post</sub></span>,
           which is zero before 2023 <em>and</em> in 2023 itself. Its coefficient
           <span class="m"><i>θ</i> = 2</span> tests the slope change, <span class="m"><i>δ</i><sub>P</sub> = 9</span>
@@ -2324,7 +2627,7 @@ fig_12b()
       </div>
 
       <h4>Why this works</h4>
-      <p>This is the interrupted time series of exercise 8 on top of the anomaly dummies of exercise 12. The post
+      <p>This is the interrupted time series of exercise 8 on top of the anomaly dummies of exercise 13B. The post
         line is</p>
       <div class="eq"><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i><sub>P</sub> + <i>θ</i>(year &minus; 2023)</span></div>
       <p>In 2023 the last term vanishes, so the gap from the pretrend there is exactly
@@ -2381,17 +2684,17 @@ fig_12b()
             gap extrapolated to year zero of whatever clock you used. Center the post clock at 2023.</li>
         </ul>
       </div>
-      <a class="to-sol" href="#q12b">&larr; Back to question</a>
+      <a class="to-sol" href="#q13c">&larr; Back to question</a>
     </article>
 
-    <!-- 13 ------------------------------------------------------------ -->
-    <article class="ex" id="s13">
-      <h3>13. Reverse-engineer the coding</h3>
+    <!-- 14 ------------------------------------------------------------ -->
+    <article class="ex" id="s14">
+      <h3>14. Reverse-engineer the coding</h3>
       <figure class="fig">
 ```
 
-```{r s13, fig.alt="Group A rises from 50 to 55; group B rises from 50 to 70."}
-fig_13()
+```{r s14, fig.alt="Group A rises from 50 to 55; group B rises from 50 to 70."}
+fig_14()
 ```
 
 ```{=html}
@@ -2488,7 +2791,7 @@ fig_13()
             <em>difference</em> between B&rsquo;s change and A&rsquo;s.</li>
         </ul>
       </div>
-      <a class="to-sol" href="#q13">&larr; Back to question</a>
+      <a class="to-sol" href="#q14">&larr; Back to question</a>
     </article>
   </section>
 
@@ -2514,6 +2817,7 @@ fig_13()
           <tr><th scope="row">Increment from one more dose</th><td>Cumulative &ldquo;at least <span class="m"><i>k</i></span>&rdquo; dummies</td><td>Dose-<span class="m"><i>k</i></span> dummy = 0</td></tr>
           <tr><th scope="row">Immediate jump at a date or cutoff</th><td>Center the running variable there</td><td>Post / threshold dummy = 0</td></tr>
           <tr><th scope="row">Slope change at a date or cutoff</th><td>Centered running variable &times; post dummy</td><td>Interaction = 0</td></tr>
+          <tr><th scope="row">One outlying observation</th><td>A dummy equal to 1 for that observation only</td><td>That dummy = 0 (an outlier test)</td></tr>
           <tr><th scope="row">Temporary anomalous periods</th><td>One indicator per anomalous period</td><td>Joint F-test of those dummies</td></tr>
           <tr><th scope="row">New regime after anomalies</th><td>Pre regime omitted, calendar trend included</td><td>Post dummy = 0, at a common time</td></tr>
           <tr><th scope="row">Distinct group at predictor zero</th><td><span class="m">I(<i>X</i> = 0)</span></td><td>Zero dummy = 0, versus the extrapolated line</td></tr>

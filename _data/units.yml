@@ -891,10 +891,10 @@
   title: Practicing Dummy Variable Specifications
   tagline: Start from the hypothesis, then choose the coding that puts it on a single coefficient.
   summary: >
-    Thirteen exercises that start from a picture of group means and a research question, and
+    Fourteen exercises that start from a picture of group means and a research question, and
     ask for the regression whose coefficient tests it. They cover t-tests as regressions,
     reference categories, interactions, difference-in-differences, dosage, interrupted time
-    series, regression discontinuity, and structural breaks.
+    series, regression discontinuity, outliers, and structural breaks.
   overview: |
     Every regression tests each coefficient against zero, so the specification decides which
     questions get answered. A dummy variable's coefficient is the gap between its category
@@ -902,12 +902,12 @@
     decisions that matter are therefore the **reference category** and the **zero point** of
     any continuous variable.
 
-    The exercises apply that one rule to thirteen designs, each a figure and a question. The
+    The exercises apply that one rule to fourteen designs, each a figure and a question. The
     work is to define the indicators, write the equation, state the null hypothesis as a
     coefficient restriction, and read every coefficient back off the picture. The designs run
     from one- and two-sample t-tests through 2 × 2 interactions and difference-in-differences
-    to interrupted time series, regression discontinuity, a pile-up of cases at zero, and
-    COVID-era anomalies followed by a new regime. Worked solutions follow the questions, with
+    to interrupted time series, regression discontinuity, a pile-up of cases at zero, a single
+    outlying year absorbed by its own dummy, and COVID-era anomalies followed by a new regime. Worked solutions follow the questions, with
     the design matrix, every coefficient's meaning, and the most common wrong specification.
   objectives:
     - Translate a research question into a restriction on a single regression coefficient.
@@ -922,14 +922,14 @@
       cite: Check your answers here.
       url: handouts/Regression-with-Interaction-Effects-SOLUTIONS.pdf
     - title: Difference-in-Difference Models
-      cite: Handout. The 2 × 2 design written as an interaction, as in exercises 6 and 13.
+      cite: Handout. The 2 × 2 design written as an interaction, as in exercises 6 and 14.
       url: handouts/Difference-in-Difference-Models.pdf
   lectures:
     - title: Build the Model from the Hypothesis
       blurb: >
-        Thirteen exercises with worked solutions: reference choices, interactions, paired
-        designs, dosage, interrupted time series, regression discontinuity, and structural
-        breaks, each ending in a single coefficient test.
+        Fourteen exercises with worked solutions: reference choices, interactions, paired
+        designs, dosage, interrupted time series, regression discontinuity, outliers, and
+        structural breaks, each ending in a single coefficient test.
       links:
         - { label: Exercises, url: lectures2/dummy-variable-specification-exercises.html, kind: html }
         - { label: RMD Source, url: lectures2/dummy-variable-specification-exercises.rmd, kind: rmd, raw: true }
