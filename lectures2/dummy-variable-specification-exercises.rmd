@@ -185,11 +185,11 @@ fig_08 <- function() {
 }
 
 fig_09 <- function() {
-  fig_frame(c(-5, 5), c(25, 75), "Running variable minus cutoff", "Outcome",
-            yat = seq(30, 70, 10))
+  fig_frame(c(-5, 5), c(25, 65), "Running variable minus cutoff", "Outcome",
+            yat = seq(30, 60, 10))
   abline(v = 0, col = slate, lty = 2, lwd = 1.5)
   segments(-5, 30, 0, 40, col = blue, lwd = 3)
-  segments(0, 50, 5, 70, col = orange, lwd = 3)
+  segments(0, 50, 5, 60, col = orange, lwd = 3)
   dot(0, 40, blue)
   dot(0, 50, orange)
   legend_tl(c("Below", "Above"), c(blue, orange))
@@ -969,16 +969,17 @@ fig_08()
       <figure class="fig">
 ```
 
-```{r q09, fig.alt="Outcome against running variable minus cutoff: the line below reaches 40 at the cutoff, the line above starts at 50 and is steeper."}
+```{r q09, fig.alt="Outcome against running variable minus cutoff: the line below reaches 40 at the cutoff, the line above starts at 50, and both lines have the same slope."}
 fig_09()
 ```
 
 ```{=html}
       </figure>
       <div class="prompt"><p>An eligibility rule switches on at running-variable value
-        <span class="m"><i>X</i> = 50</span>. The expected outcome jumps by 10 at the cutoff, and the two local
-        slopes differ. Code the running variable and threshold dummy so the jump is one coefficient. Why
-        center at 50?</p></div>
+        <span class="m"><i>X</i> = 50</span>. The expected outcome rises 2 units per unit of
+        <span class="m"><i>X</i></span> on both sides of the cutoff and jumps by 10 at the cutoff. Code the
+        running variable and threshold dummy so the jump is one coefficient. Does centering the running
+        variable at 50 change the jump estimate? When would it?</p></div>
       <a class="to-sol" href="#s9">Solution &rarr;</a>
     </article>
 
@@ -2019,52 +2020,70 @@ fig_08()
       <figure class="fig">
 ```
 
-```{r s09, fig.alt="Outcome against running variable minus cutoff: the line below reaches 40 at the cutoff, the line above starts at 50 and is steeper."}
+```{r s09, fig.alt="Outcome against running variable minus cutoff: the line below reaches 40 at the cutoff, the line above starts at 50, and both lines have the same slope."}
 fig_09()
 ```
 
 ```{=html}
       </figure>
       <div class="prompt"><p>An eligibility rule switches on at running-variable value
-        <span class="m"><i>X</i> = 50</span>. The expected outcome jumps by 10 at the cutoff, and the two local
-        slopes differ. Code the running variable and threshold dummy so the jump is one coefficient. Why
-        center at 50?</p></div>
+        <span class="m"><i>X</i> = 50</span>. The expected outcome rises 2 units per unit of
+        <span class="m"><i>X</i></span> on both sides of the cutoff and jumps by 10 at the cutoff. Code the
+        running variable and threshold dummy so the jump is one coefficient. Does centering the running
+        variable at 50 change the jump estimate? When would it?</p></div>
 
       <div class="callout">
         <span class="lbl">Short answer</span>
         <p>Let <span class="m"><i>x</i><sub>c</sub> = <i>X</i> &minus; 50</span> and
           <span class="m"><i>d</i><sub>above</sub> = I(<i>X</i> &ge; 50)</span>. Then
-          <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> + <i>β</i><sub>2</sub><i>d</i><sub>above</sub> + <i>β</i><sub>3</sub>(<i>x</i><sub>c</sub><i>d</i><sub>above</sub>) + <i>ε</i></span>
-          gives <span class="m">(40, 2, 10, 2)</span>, and <span class="m"><i>β</i><sub>2</sub></span> is the jump
-          at the cutoff. Center at 50 because, in a model with an interaction, the dummy measures the gap where
-          the running variable equals zero. Centering puts zero at the cutoff.</p>
+          <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> + <i>β</i><sub>2</sub><i>d</i><sub>above</sub> + <i>ε</i></span>
+          gives <span class="m">(40, 2, 10)</span>, and <span class="m"><i>β</i><sub>2</sub></span> is the program
+          effect: the jump at the cutoff. The treatment shifts the intercept and leaves the slope alone, so both
+          sides share <span class="m"><i>β</i><sub>1</sub></span>. With parallel lines, centering does
+          <strong>not</strong> change the jump estimate. It makes the intercept meaningful, and it becomes
+          essential as soon as you add a slope interaction to check the common-slope assumption.</p>
       </div>
 
       <h4>Why this works</h4>
-      <p>This is exercise 8 again, with the running variable in place of time:</p>
+      <p>This is exercise 3, parallel lines, with the running variable as <span class="m"><i>X</i></span> and
+        eligibility as the group. It is also exercise 8 without the slope change:</p>
       <ul class="cells">
         <li>Below: <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> = 40 + 2<i>x</i><sub>c</sub></span></li>
-        <li>Above: <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub>) + (<i>β</i><sub>1</sub> + <i>β</i><sub>3</sub>)<i>x</i><sub>c</sub> = 50 + 4<i>x</i><sub>c</sub></span></li>
+        <li>Above: <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub>) + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> = 50 + 2<i>x</i><sub>c</sub></span></li>
       </ul>
-      <p>At the cutoff, <span class="m"><i>x</i><sub>c</sub> = 0</span> and the lines differ by
-        <span class="m"><i>β</i><sub>2</sub></span>. The value 40 is a <strong>left-hand limit</strong>: where the
-        untreated line would arrive at the cutoff. Nobody at <span class="m"><i>X</i> = 50</span> is untreated,
-        so it is never observed directly.</p>
-      <p>To see why centering matters, fit the same lines with raw <span class="m"><i>X</i></span>. The lines
-        become <span class="m">&minus;60 + 2<i>X</i></span> and <span class="m">&minus;150 + 4<i>X</i></span>, so the
-        dummy coefficient is <span class="m">&minus;90</span>: the gap between two lines extrapolated all the way
-        to <span class="m"><i>X</i> = 0</span>, far outside the data. The jump at 50 is still there, but only as
-        <span class="m"><i>β</i><sub>2</sub> + 50<i>β</i><sub>3</sub> = &minus;90 + 100 = 10</span>.</p>
+      <p>The logic of the design is that units just below and just above the cutoff are comparable, so the
+        only thing that changes as <span class="m"><i>X</i></span> crosses 50 is eligibility. The running
+        variable&rsquo;s relationship with the outcome carries straight through the cutoff, and the program
+        shows up as a <strong>shift in the intercept</strong> at that point. That is
+        <span class="m"><i>β</i><sub>2</sub></span>.</p>
+      <p>The value 40 is a <strong>left-hand limit</strong>: where the untreated line arrives at the cutoff.
+        Nobody at <span class="m"><i>X</i> = 50</span> is untreated, so it is never observed directly. It is the
+        counterfactual for the units just above the line.</p>
+
+      <h4>Does centering matter?</h4>
+      <p>Not for the jump, in this model. With raw <span class="m"><i>X</i></span> the lines are
+        <span class="m">&minus;60 + 2<i>X</i></span> and <span class="m">&minus;50 + 2<i>X</i></span>, so the
+        dummy coefficient is still 10. Parallel lines are the same distance apart everywhere, as in exercise 3.
+        Centering changes only the intercept: &minus;60 is the outcome extrapolated to
+        <span class="m"><i>X</i> = 0</span>, while 40 is the untreated level at the cutoff.</p>
+      <p>Centering <em>does</em> matter the moment you let the slopes differ, for example to check the common-slope
+        assumption by adding <span class="m"><i>x</i><sub>c</sub><i>d</i><sub>above</sub></span> and testing
+        whether its coefficient is zero. The dummy then measures the gap where the running variable equals
+        zero. With <span class="m"><i>x</i><sub>c</sub></span> that is still the cutoff. With raw
+        <span class="m"><i>X</i></span> it is <span class="m"><i>X</i> = 0</span>, far outside the data, where
+        even a slope difference of 0.2 would move the dummy coefficient by <span class="m">50 &times; 0.2 = 10</span>.
+        If the check shows clearly different slopes, the straight-line model near the cutoff deserves a closer
+        look before you trust the jump.</p>
 
       <h4>Design matrix</h4>
       <div class="table-scroll tight">
         <table class="dm">
-          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>X</i></span></th><th scope="col"><span class="m"><i>x</i><sub>c</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>below</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>above</sub></span></th><th scope="col"><span class="m"><i>x</i><sub>c</sub><i>d</i><sub>above</sub></span></th></tr></thead>
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>X</i></span></th><th scope="col"><span class="m"><i>x</i><sub>c</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>below</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>above</sub></span></th></tr></thead>
           <tbody>
-            <tr><th scope="row">Below, <span class="m"><i>X</i> = 48</span></th><td class="y">36</td><td>1</td><td class="off">48</td><td>&minus;2</td><td class="off">1</td><td>0</td><td>0</td></tr>
-            <tr><th scope="row">Below, <span class="m"><i>X</i> = 49</span></th><td class="y">38</td><td>1</td><td class="off">49</td><td>&minus;1</td><td class="off">1</td><td>0</td><td>0</td></tr>
-            <tr><th scope="row">Cutoff, <span class="m"><i>X</i> = 50</span></th><td class="y">50</td><td>1</td><td class="off">50</td><td>0</td><td class="off">0</td><td>1</td><td>0</td></tr>
-            <tr><th scope="row">Above, <span class="m"><i>X</i> = 51</span></th><td class="y">54</td><td>1</td><td class="off">51</td><td>1</td><td class="off">0</td><td>1</td><td>1</td></tr>
+            <tr><th scope="row">Below, <span class="m"><i>X</i> = 48</span></th><td class="y">36</td><td>1</td><td class="off">48</td><td>&minus;2</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">Below, <span class="m"><i>X</i> = 49</span></th><td class="y">38</td><td>1</td><td class="off">49</td><td>&minus;1</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">Cutoff, <span class="m"><i>X</i> = 50</span></th><td class="y">50</td><td>1</td><td class="off">50</td><td>0</td><td class="off">0</td><td>1</td></tr>
+            <tr><th scope="row">Above, <span class="m"><i>X</i> = 51</span></th><td class="y">52</td><td>1</td><td class="off">51</td><td>1</td><td class="off">0</td><td>1</td></tr>
           </tbody>
         </table>
       </div>
@@ -2079,9 +2098,8 @@ fig_09()
           <tbody>
             <tr class="grp"><th colspan="3" scope="rowgroup">Below-cutoff reference</th></tr>
             <tr><td><i>β</i><sub>0</sub></td><td>40</td><td>Is the left-hand limit at the cutoff zero? (descriptive only)</td></tr>
-            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Is there a slope below the cutoff?</td></tr>
-            <tr><td><i>β</i><sub>2</sub></td><td>10</td><td>Is there a jump at the cutoff?</td></tr>
-            <tr><td><i>β</i><sub>3</sub></td><td>2</td><td>Do the slopes differ above and below the cutoff?</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Is the outcome related to the running variable, on either side?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>10</td><td>Is there a jump at the cutoff, the program effect?</td></tr>
           </tbody>
         </table>
       </div>
@@ -2089,13 +2107,17 @@ fig_09()
       <div class="mistake">
         <span class="lbl">Common mistakes</span>
         <ul>
-          <li><strong>Interacting raw <span class="m"><i>X</i></span> with
-            <span class="m"><i>d</i><sub>above</sub></span> and calling the dummy coefficient the jump.</strong> As
-            shown above, that coefficient is the gap at <span class="m"><i>X</i> = 0</span> (&minus;90), not at
-            the cutoff.</li>
-          <li><strong>Fitting one global line to all the data.</strong> RD identifies an effect only near the
-            cutoff. Observations far from 50 say little about the jump, and a straight line through them can
-            invent or hide one.</li>
+          <li><strong>Leaving out the running variable.</strong> <code>Y ~ d_above</code> compares the average
+            outcome above the cutoff with the average below it. Because the outcome rises with
+            <span class="m"><i>X</i></span> anyway, that difference mixes the jump with the slope. With data from
+            <span class="m"><i>X</i> = 40</span> to 60 it reports 31, three times the true jump of 10. The
+            running variable is the control that makes the comparison local.</li>
+          <li><strong>Adding a slope interaction with raw <span class="m"><i>X</i></span> and calling the dummy
+            coefficient the jump.</strong> As shown above, the dummy then measures the gap at
+            <span class="m"><i>X</i> = 0</span>, not at the cutoff. Center first.</li>
+          <li><strong>Fitting one line through data far from the cutoff.</strong> RD identifies an effect only
+            near the threshold. Observations far from 50 say little about the jump, and a straight line through
+            them can invent or hide one.</li>
         </ul>
       </div>
       <a class="to-sol" href="#q9">&larr; Back to question</a>
@@ -2816,7 +2838,7 @@ fig_14()
           <tr><th scope="row">Difference in changes</th><td>Group &times; post</td><td>Interaction = 0</td></tr>
           <tr><th scope="row">Increment from one more dose</th><td>Cumulative &ldquo;at least <span class="m"><i>k</i></span>&rdquo; dummies</td><td>Dose-<span class="m"><i>k</i></span> dummy = 0</td></tr>
           <tr><th scope="row">Immediate jump at a date or cutoff</th><td>Center the running variable there</td><td>Post / threshold dummy = 0</td></tr>
-          <tr><th scope="row">Slope change at a date or cutoff</th><td>Centered running variable &times; post dummy</td><td>Interaction = 0</td></tr>
+          <tr><th scope="row">Slope change at an interruption date</th><td>Centered time &times; post dummy</td><td>Interaction = 0</td></tr>
           <tr><th scope="row">One outlying observation</th><td>A dummy equal to 1 for that observation only</td><td>That dummy = 0 (an outlier test)</td></tr>
           <tr><th scope="row">Temporary anomalous periods</th><td>One indicator per anomalous period</td><td>Joint F-test of those dummies</td></tr>
           <tr><th scope="row">New regime after anomalies</th><td>Pre regime omitted, calendar trend included</td><td>Post dummy = 0, at a common time</td></tr>
