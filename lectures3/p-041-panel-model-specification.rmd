@@ -1,64 +1,36 @@
 ---
-title: "Panel Model Selection"
+pagetitle: "Panel Model Specification"
 output:
   html_document:
-    theme: readable
-    highlight: haddock
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    number_sections: false
-    code_folding: show
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
     self_contained: false
     lib_dir: site_libs
-    css: 'assets/custom.css'
+    css: 'assets/lecture-notes.css'
     includes:
+      in_header: assets/lecture-head.html
       after_body: footer.html
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set( echo=T, fig.width=14, fig.height=5, warning=F, message=F)
 ```
 
-
-```{css, echo=F, eval=F}
-p {
-    color: black;
-    margin: 0 0 20px 0;
-}
-
-td {
-    padding: 10px 10px 3px 10px;
-    text-align: center;
-}
-
-table
-{ 
-    margin-left: auto;
-    margin-right: auto;
-    margin-top:80px;
-    margin-bottom:100px;
-}
-
-h1, h2{
-  margin-top:100px;
-  margin-bottom:20px;
-}
-
-H5{
-    text-align: center;
-    color: gray;
-    font-size:0.8em;
-}
-
-img {
-    max-width: 90%;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-    margin-top:30px;
-    margin-bottom:20px;
-}
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Unit 17 &middot; Panel Data with Fixed Effects</p>
+    <h1>Panel Model Specification</h1>
+    <p class="dek">Choosing between pooled, random, and fixed effects, and the kinds of bias that group structure creates.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#overview-of-panel-models">Overview of panel models</a>
+      <a href="#time-effects">Time effects</a>
+      <a href="#fixed-effects-by-de-meaning-data">Fixed effects by de-meaning data</a>
+      <a href="#taxonomy-of-bias-from-group-structure">Taxonomy of bias from group structure</a>
+    </nav>
+</header>
 ```
+
+
 
 ```{r}
 library( dplyr )
@@ -66,7 +38,7 @@ library( stargazer )
 ```
 
 
-# OVERVIEW OF PANEL MODELS
+# Overview of panel models
 
 
 
@@ -277,7 +249,7 @@ stargazer( m1, m2.ols, m2.re, m3.ols, m3.fe, m4,
 
 
 
-# TIME EFFECTS
+# Time effects
 
 
 ```{r}
@@ -478,7 +450,7 @@ title( main="Scenario 3: Management Varies", line=1, cex.main=2 )
 
 
 
-# FIXED EFFECTS BY DE-MEANING DATA
+# Fixed effects by de-meaning data
 
 ```{r}
 
@@ -619,7 +591,7 @@ text( -2.3, 1.5, expression( paste( "( ", x[ij] - bar( x )[j], " , ", y[ij] - ba
 ```
 
 
-# TAXONOMY OF BIAS FROM GROUP STRUCTURE
+# Taxonomy of bias from group structure
 
 ```{r}
 

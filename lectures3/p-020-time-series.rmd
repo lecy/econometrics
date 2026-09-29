@@ -1,25 +1,36 @@
 ---
-title: "Interrupted Time Series"
+pagetitle: "Interrupted Time Series"
 output:
   html_document:
-    theme: readable
-    highlight: haddock
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    number_sections: false
-    code_folding: show
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
     self_contained: false
     lib_dir: site_libs
-    css: 'assets/custom.css'
+    css: 'assets/lecture-notes.css'
     includes:
+      in_header: assets/lecture-head.html
       after_body: footer.html
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=F, warning=F, fig.width = 10)
 ```
 
-**Packages**
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Unit 15 &middot; Interrupted Time Series</p>
+    <h1>Interrupted Time Series</h1>
+    <p class="dek">One group, many time points, and a policy that lands in the middle of them.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#key-concepts">Key Concepts</a>
+      <a href="#a-time-series-model">A time series model</a>
+      <a href="#replication-of-a-study">Replication of a study</a>
+      <a href="#additional-notes">Additional notes</a>
+    </nav>
+</header>
+```
+
+#### Packages
 
 The following packages are used in this lecture. 
 
@@ -49,7 +60,7 @@ devtools::install_github( repo="OuhscBbmc/Wats" )
 # Key Concepts
 
 
-**What should be clear after this lecture**
+#### What should be clear after this lecture
 
 * When is our data suited to using an interrupted time series model? 
 * How should you organize your data before using an interrupted time series?
@@ -943,69 +954,5 @@ knitr::include_graphics( "FIGURE/TimeSeries/Picture10.2.png" )
 
 
 
-```{css, echo=F, eval=F}
-p {
-color: black;
-margin: 0 0 20px 0;
-}
-
-td {
-    padding: 3px 10px 3px 10px;
-    }
-
-table
-{ 
-    margin-left: auto;
-    margin-right: auto;
-    margin-top:80px;
-    margin-bottom:100px;
-}
-
-h1, h2{
-  margin-top:100px;
-  margin-bottom:20px;
-}
-
-H5{
-    text-align: center;
-    color: gray;
-    font-size:0.8em;
-}
-
-img {
-    max-width: 90%;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-    margin-top:30px;
-    margin-bottom:20px;
-}
-
-pre {
-  overflow-x: auto;
-}
-
-pre code {
-   display: block; 
-   padding: 0.5em;
-   margin-bottom:20px;
-}
-
-code {
-  font-size: 92%;
-  border: 10px solid #F8F8F8;
-  margin-bottom: 2px;
-}
-
-code[class] {
-  background-color: #F8F8F8;
-}
-
-
-caption {
-  font-style: bold;
-}
-
-```
 
 

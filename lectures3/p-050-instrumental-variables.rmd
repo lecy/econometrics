@@ -1,26 +1,37 @@
 ---
-title: "Instrumental variables"
+pagetitle: "Instrumental Variables"
 output:
   html_document:
-    theme: readable
-    highlight: haddock
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    number_sections: false
-    code_folding: show
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
     self_contained: false
     lib_dir: site_libs
-    css: 'assets/custom.css'
+    css: 'assets/lecture-notes.css'
     includes:
+      in_header: assets/lecture-head.html
       after_body: footer.html
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=F, warning=F, fig.width = 10)
 ```
 
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Unit 18 &middot; Instrumental Variables</p>
+    <h1>Instrumental Variables</h1>
+    <p class="dek">Borrow the part of your treatment that is uncorrelated with the error.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#the-key-concept">The key concept</a>
+      <a href="#an-instrumental-variable-model">An instrumental variable model</a>
+      <a href="#replication-of-a-study">Replication of a study</a>
+      <a href="#additional-notes">Additional notes</a>
+    </nav>
+</header>
+```
 
-**Packages**
+
+#### Packages
 
 Here are the packages we will use in this lecture. If you don't remember how to install them, you can have a look at the code. 
 
@@ -36,7 +47,7 @@ library( "stargazer" )
 
 ```
 
-**What you should know after this lecture**
+#### What you should know after this lecture
 
 * Under what circumstances do you need to use an instrumental variable? Why?
 * What are the main characteristics of a valid instrumental variable? 
@@ -638,67 +649,3 @@ Election outcomes    |Federal spending in a district|Political  vulnerability   
 Conflicts            |Economic growth               |Simultaneous causality           |Rainfall                   |
 
 
-```{css, echo=F}
-p {
-color: black;
-margin: 0 0 20px 0;
-}
-
-p.caption {
-    text-align: center;
-    font-style: italic;
-}
-
-td {
-    padding: 3px 10px 3px 10px;
-    }
-
-table
-{ 
-    margin-left: auto;
-    margin-right: auto;
-    margin-top:80px;
-    margin-bottom:100px;
-}
-
-h1, h2{
-  margin-top:100px;
-  margin-bottom:20px;
-}
-
-H5{
-    text-align: center;
-    color: gray;
-    font-size:0.8em;
-}
-
-img {
-    max-width: 90%;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-    margin-top:30px;
-    margin-bottom:20px;
-}
-
-pre {
-  overflow-x: auto;
-}
-
-pre code {
-   display: block; 
-   padding: 0.5em;
-   margin-bottom:20px;
-}
-
-code {
-  font-size: 92%;
-  border: 10px solid #F8F8F8;
-  margin-bottom: 2px;
-}
-
-code[class] {
-  background-color: #F8F8F8;
-}
-
-```

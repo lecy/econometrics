@@ -1,25 +1,37 @@
 ---
-title: "Regression Discontinuity Design"
+pagetitle: "Regression Discontinuity Design"
 output:
   html_document:
-    theme: readable
-    highlight: haddock
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    number_sections: false
-    code_folding: show
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
     self_contained: false
     lib_dir: site_libs
-    css: 'assets/custom.css'
+    css: 'assets/lecture-notes.css'
     includes:
+      in_header: assets/lecture-head.html
       after_body: footer.html
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=F, warning=F, fig.width = 10)
 ```
 
-**Packages**
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Unit 19 &middot; Regression Discontinuity Design</p>
+    <h1>Regression Discontinuity Design</h1>
+    <p class="dek">Near an arbitrary cutoff, who gets treated is almost random.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#the-key-concept">The key concept</a>
+      <a href="#a-regression-discontinuity-model">A regression-discontinuity model</a>
+      <a href="#replication-of-a-study">Replication of a study</a>
+      <a href="#additional-notes">Additional notes</a>
+      <a href="#additional-resources">Additional resources</a>
+    </nav>
+</header>
+```
+
+#### Packages
 
 For this lab we will use the following packages:
 
@@ -33,7 +45,7 @@ library( dplyr )
 library( pander )
 ```
 
-**Learning objectives** 
+#### Learning objectives
 
 * When is it appropriate to use a regression discontinuity design?
 * How should you organize your data before using a regression discontinuity design?
@@ -542,68 +554,4 @@ More on [nonlinear relationships](http://econ.lse.ac.uk/staff/spischke/mhe/ex_ch
 
 
 
-```{css, echo=F}
-p {
-color: black;
-margin: 0 0 20px 0;
-}
-
-td {
-    padding: 3px 10px 3px 10px;
-    }
-
-table
-{ 
-    margin-left: auto;
-    margin-right: auto;
-    margin-top:80px;
-    margin-bottom:100px;
-}
-
-h1, h2{
-  margin-top:100px;
-  margin-bottom:20px;
-}
-
-H5{
-    text-align: center;
-    color: gray;
-    font-size:0.8em;
-}
-
-img {
-    max-width: 90%;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-    margin-top:30px;
-    margin-bottom:20px;
-}
-
-pre {
-  overflow-x: auto;
-}
-
-pre code {
-   display: block; 
-   padding: 0.5em;
-   margin-bottom:20px;
-}
-
-code {
-  font-size: 92%;
-  border: 10px solid #F8F8F8;
-  margin-bottom: 2px;
-}
-
-code[class] {
-  background-color: #F8F8F8;
-}
-
-
-caption {
-  font-style: bold;
-}
-
-```
 

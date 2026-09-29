@@ -1,25 +1,36 @@
 ---
-title: "Logit model"
+pagetitle: "Logistic Regression"
 output:
   html_document:
-    theme: readable
-    highlight: haddock
-    toc: true
-    toc_depth: 3
-    toc_float: true
-    number_sections: false
-    code_folding: show
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
     self_contained: false
     lib_dir: site_libs
-    css: 'assets/custom.css'
+    css: 'assets/lecture-notes.css'
     includes:
+      in_header: assets/lecture-head.html
       after_body: footer.html
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=F, warning=F, fig.width = 10)
 ```
 
-**Packages**
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Unit 20 &middot; Logistic Regression</p>
+    <h1>Logistic Regression</h1>
+    <p class="dek">Binary outcomes, log-odds, and why marginal effects depend on where you stand.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#the-key-concept">The key concept</a>
+      <a href="#linear-probability-model-lpm">Linear probability model (LPM)</a>
+      <a href="#the-logit-model">The logit model</a>
+      <a href="#replication">Replication</a>
+    </nav>
+</header>
+```
+
+#### Packages
 
 The following packages will be used in the lecture: 
 
@@ -52,7 +63,7 @@ library( pander )
 ```
 
 
-**What you will learn**
+#### What you will learn
 
 * How do you build a regression model when your outcome is binary (yes/no or 1/0)? 
 * When is a linear probability model appropriate? 
@@ -940,72 +951,3 @@ There are several information online about logit models. These are two good reso
 
 
 
-```{css, echo=F}
-p {
-color: black;
-margin: 0 0 20px 0;
-}
-
-td {
-    padding: 3px 10px 3px 10px;
-}
-
-p.caption {
-    text-align: center;
-    font-style: italic;
-}
-
-table
-{ 
-    margin-left: auto;
-    margin-right: auto;
-    margin-top:80px;
-    margin-bottom:100px;
-}
-
-h1, h2{
-  margin-top:100px;
-  margin-bottom:20px;
-}
-
-H5{
-    text-align: center;
-    color: gray;
-    font-size:0.8em;
-}
-
-img {
-    max-width: 90%;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-    margin-top:30px;
-    margin-bottom:20px;
-}
-
-pre {
-  overflow-x: auto;
-}
-
-pre code {
-   display: block; 
-   padding: 0.5em;
-   margin-bottom:20px;
-}
-
-code {
-  font-size: 92%;
-  border: 10px solid #F8F8F8;
-  margin-bottom: 2px;
-}
-
-code[class] {
-  background-color: #F8F8F8;
-}
-
-
-caption {
-  font-style: bold;
-}
-
-```
