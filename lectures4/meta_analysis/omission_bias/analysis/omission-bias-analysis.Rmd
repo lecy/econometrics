@@ -1,0 +1,771 @@
+---
+title: "Replicating Yeung, Yay & Feldman (2022): The Analysis"
+subtitle: "An annotated version of the authors' omission-bias meta-analysis code"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: show
+    theme: cosmo
+    highlight: tango
+    df_print: kable
+---
+
+```{css, echo = FALSE}
+@import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+body { font-family: "Source Sans 3", "Segoe UI", Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.6; color: #1f2429; }
+h1, h2, h3, h4, .title { font-family: "Zilla Slab", Georgia, serif; font-weight: 700; color: #153243; }
+h1.title { font-size: 2.3rem; }
+h3.subtitle { font-family: "Source Sans 3", sans-serif; font-weight: 400; color: #4d565f; font-size: 1.2rem; }
+h2 { margin-top: 2.6rem; padding-top: .6rem; border-top: 1px solid #dcdfe4; }
+.main-container { max-width: 1100px; }
+a { color: #8f3f10; }
+.paper { background: #fbf0e7; border-left: 4px solid #bd5416; padding: .8rem 1.1rem; margin: 1.2rem 0; border-radius: 3px; }
+.paper::before { content: "What the paper reports"; display: block; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #8f3f10; margin-bottom: .35rem; }
+.goal { background: #f3f4f6; border-left: 4px solid #153243; padding: .8rem 1.1rem; margin: 1.2rem 0; border-radius: 3px; }
+.goal::before { content: "Goal of this section"; display: block; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #153243; margin-bottom: .35rem; }
+.read { background: #f3f4f6; border-left: 4px solid #6d7681; padding: .8rem 1.1rem; margin: 1.2rem 0; border-radius: 3px; }
+.read::before { content: "How to read the result"; display: block; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #4d565f; margin-bottom: .35rem; }
+.flag { background: #fff4d6; border-left: 4px solid #c28a00; padding: .8rem 1.1rem; margin: 1.2rem 0; border-radius: 3px; }
+.flag::before { content: "Replication note"; display: block; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #7a5600; margin-bottom: .35rem; }
+.paper p:last-child, .goal p:last-child, .read p:last-child, .flag p:last-child { margin-bottom: 0; }
+table { font-size: 15px; }
+pre, code { font-size: 14px; }
+```
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", comment = "#>")
+options(scipen = 999, digits = 3)
+```
+
+## About this document
+
+This is a revised version of `omission-bias-code-v12-G.Rmd`, the R Markdown file Yeung, Yay,
+and Feldman posted with their meta-analysis on the OSF (<https://osf.io/9fcqm/>). It runs the
+same analyses and reproduces the published numbers. Four things are different:
+
+1. **It reads the tidy tables built in the data prep stage** (`../data/ob_05`–`ob_07`), not the
+   155-column coding workbook. See the
+   [data prep guide](omission-bias-replication-data-prep.html) for how those tables were made.
+2. **Effect sizes and the forest plot come first.** Every later result is a weighted average of
+   the 49 numbers computed in Section 1, so it helps to see where each one comes from.
+3. **Repeated code is now a few functions.** The original copies the same 30-line block about
+   40 times, once per subgroup. That copying caused a bug, described in Section 7.
+4. **Each section says what it is for and how to read it**, and sets the result next to what
+   the paper reports. Quoted numbers are from the published version (*PSPB* 48(10), 2022).
+
+The paper's second pass, which drops Connolly and Reb (2003), is a one-line filter here
+(Section 4), not a second 2,000-line copy of the file.
+
+```{r packages}
+library(metafor)      # rma(), rma.mv(), escalc(), forest(), funnel(), and bias tests
+library(MAd)          # agg(): combine dependent effect sizes; d_to_g()
+library(compute.es)   # chies(): chi-square to d
+library(metaforest)   # random-forest moderator screening
+library(weightr)      # three-parameter selection model (masks funnel(), so we write metafor::funnel)
+library(puniform)     # p-uniform
+library(metaviz)      # funnel and sunset plots
+library(knitr)
+## Also used, called with pkg:: so they do not mask metafor's functions:
+## meta::metagen(), dmetar::pcurve() (install with remotes::install_github("MathiasHarrer/dmetar"))
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+ci  <- function(m) sprintf("g = %s, 95%% CI [%s, %s]", fmt(m$b[1]), fmt(m$ci.lb[1]), fmt(m$ci.ub[1]))
+```
+
+## 1. From reported statistics to effect sizes
+
+::: {.goal}
+Put all 49 comparisons on one scale. Each study reports its omission-commission difference in
+its own way: a table of means, a *t* test, or a chi-square on counts. The meta-analysis needs
+one number per comparison, Hedges' *g*, and its sampling variance. A positive *g* means harm
+through **action** was judged worse (less moral, more blameworthy, or less often chosen) than
+the same harm through **inaction**. That is the omission bias.
+:::
+
+### 1.1 The data
+
+The effect-coding tab is split into three tables that share the key `effect_id`: descriptors
+(sample and design), statistics (the numbers from each paper), and moderator codes.
+
+```{r read-data}
+desc  <- read.csv("../data/ob_05_effect_descriptors.csv", na.strings = c("", "NA"))
+stats <- read.csv("../data/ob_06_effect_statistics.csv",  na.strings = c("", "NA"))
+mods  <- read.csv("../data/ob_07_moderators.csv",        na.strings = c("", "NA"))
+
+es <- merge(desc[, c("effect_id", "article", "article_no", "published", "study", "sample",
+                     "dv_no", "design_type", "dv_group", "dv_title")],
+            stats, by = "effect_id")
+es <- merge(es, mods[, c("effect_id", "familiarity", "responsibility", "outcome",
+                         "self_other")], by = "effect_id")
+es <- es[order(es$effect_id), ]
+
+## The unit of analysis: one sample measured on one DV. The authors call it "articlestudy".
+es$unit <- with(es, paste0(article, " / S", study, " / Sample ", sample, " - DV", dv_no))
+
+c(effects = nrow(es), units = length(unique(es$unit)), articles = length(unique(es$article)))
+```
+
+Forty-nine effect sizes come from 25 sample-by-DV units in 13 articles. That nesting matters
+for everything that follows (Section 3).
+
+### 1.2 Three routes to an effect size
+
+The `es_input` column records which reported statistic the authors' code turns into *g* for
+each row.
+
+```{r routes}
+table(es$es_input, es$design_type)
+```
+
+The original code computed effect sizes with eight `for` loops, each of which could overwrite
+the one before. Reading it carefully, only three routes survive to the end, in this order of
+precedence:
+
+| Route | When it applies | Function | Variance |
+|---|---|---|---|
+| **Group means** | M, SD, and N reported for both conditions (29 rows) | `metafor::escalc("SMD")` | independent-groups formula |
+| **Chi-square** | a 2 × 2 table of choices (3 rows) | `compute.es::chies()` | from *r* |
+| **Hand-coded *d*** | everything else (17 rows): the coders' "Best effect estimate", computed from a *t*, an *F*, or a *d* printed in the paper | none; read from the sheet | 4/*N* + *d*²/(2*N*) |
+
+After that, rows flagged `reverse == "Yes"` change sign, and every *d* gets Hedges'
+small-sample correction, *g* = *J* · *d* with *J* = 1 − 3 / (4 df − 1).
+
+### 1.3 Worked examples: one row per route
+
+**Group means: Jamison et al. (2020), morality rating, row E39.** A between-subjects replication
+of Spranca et al. Participants rated the actor's morality after reading about either an
+action or an inaction.
+
+```{r ex-means}
+r <- es[es$effect_id == "E39", ]
+r[, c("m_action", "sd_action", "n_action", "m_inaction", "sd_inaction", "n_inaction", "reported_d")]
+
+sp <- with(r, sqrt(((n_action - 1) * sd_action^2 + (n_inaction - 1) * sd_inaction^2) /
+                   (n_action + n_inaction - 2)))
+d  <- with(r, (m_action - m_inaction) / sp)
+c(pooled_sd = sp, d_by_hand = d)
+escalc("SMD", m1i = m_action, sd1i = sd_action, n1i = n_action,
+       m2i = m_inaction, sd2i = sd_inaction, n2i = n_inaction, data = r)[, c("yi", "vi")]
+```
+
+The difference in means is 11 points on a 100-point immorality scale, and the pooled SD is about
+24, so *d* ≈ 0.45. That matches the *d* the paper printed. `escalc()` already applies the
+small-sample correction, so its `yi` is a *g*.
+
+**Hand-coded *d*: Spranca et al. (1991), Study 1, row E01.** A within-subjects study in which
+the same 38 students rated both the action and the inaction version of each story. The paper
+gives only a paired *t* test.
+
+```{r ex-t}
+r <- es[es$effect_id == "E01", ]
+r[, c("t", "t_df", "n", "best_estimate", "conversion")]
+c(d_z = r$t / sqrt(r$n))                # Lakens (2013), eq. 7: d for paired data
+c(variance_used = 4 / r$n + r$best_estimate^2 / (2 * r$n))
+```
+
+*t*(37) = 8.03 becomes *d* = *t* / √*N* = 1.30. The paper's Table 6 lists this study at
+*g* = 1.29, 95% CI [0.60, 1.98], which is what you get after the *J* correction and this
+variance.
+
+**Chi-square: Baron and Miller (2000), Sample 1, row E34.** A binary choice to act or not.
+
+```{r ex-chisq}
+r <- es[es$effect_id == "E34", ]
+r[, c("chisq", "n", "best_estimate", "conversion")]
+chies(r$chisq, r$n, dig = 2, verbose = FALSE)[c("r", "d", "var.d")]
+```
+
+χ²(1) = 8.53 with *N* = 50 gives *r* = √(χ²/*N*) and then *d* = 0.90. Two things to notice.
+The coding sheet's hand-computed value (1.26) used *N* = 30 instead of 50, and the code's
+value wins. And `dig = 2` rounds the *variance* to two decimals, too.
+
+**A reversal: Connolly and Reb (2003), row E49.** A chi-square has no sign. In this vaccination
+study most people chose to *act*, the opposite of an omission bias, so the coders flagged the
+row for reversal and it enters at *g* = −0.94.
+
+### 1.4 Compute all 49
+
+This function does what the original eight loops did, in one pass.
+
+```{r compute-es}
+compute_g <- function(dat) {
+  d <- v <- rep(NA_real_, nrow(dat))
+
+  ## Route 3 (the default): the coders' hand-computed d. Variance treats the sample as two
+  ## groups of N/2, even for within-subject designs, as the original code did.
+  d <- dat$best_estimate
+  v <- 4 / dat$n + d^2 / (2 * dat$n)
+
+  ## Route 2: chi-square overrides route 3
+  chi <- which(dat$es_input == "chi-square")
+  for (i in chi) {
+    x <- chies(dat$chisq[i], dat$n[i], dig = 2, verbose = FALSE)
+    d[i] <- x$d; v[i] <- x$var.d
+  }
+
+  ## Route 1: group means override everything
+  gm <- which(dat$es_input == "group means")
+  x  <- escalc("SMD", m1i = m_action, sd1i = sd_action, n1i = n_action,
+               m2i = m_inaction, sd2i = sd_inaction, n2i = n_inaction, data = dat[gm, ])
+  d[gm] <- x$yi; v[gm] <- x$vi
+
+  ## Reverse where the coders flagged it
+  d <- ifelse(dat$reverse == "Yes", -d, d)
+
+  ## Hedges' correction, applied to every row (including the escalc rows, which are
+  ## already g; the second correction changes them by less than 1%)
+  n1 <- ifelse(is.na(dat$n_action),   dat$n / 2, dat$n_action)
+  n2 <- ifelse(is.na(dat$n_inaction), dat$n / 2, dat$n_inaction)
+  g  <- d_to_g(d, v, n1, n2)            # a two-column matrix: g, var.g
+  data.frame(yi = g[, 1], vi = g[, 2])
+}
+
+es[, c("yi", "vi")] <- compute_g(es)
+es$sei <- sqrt(es$vi)
+```
+
+```{r es-table}
+kable(es[, c("effect_id", "article", "design_type", "dv_group", "es_input", "n",
+             "best_estimate", "yi", "sei")],
+      digits = 3, row.names = FALSE,
+      col.names = c("ID", "Article", "Design", "DV", "Route", "N",
+                    "Sheet's best estimate", "g used", "SE"))
+```
+
+::: {.flag}
+**The "best estimate" in the coding sheet is not always the number analyzed.** For the 29
+group-means rows, the code recomputes *d* from M and SD with an independent-groups formula and
+ignores the sheet's value. For the 12 DeScioli et al. (2012) rows, the sheet holds
+2*t*/√df (for example 1.31 for row E22), the paired-data *d* would be *t*/√*N* = 0.65, and the
+code uses the M/SD version, 0.38. All three are defensible definitions of a standardized
+difference for a within-subject comparison (*d*~av~, *d*~z~, *d*~rm~), but they differ by a
+factor of three. Section 1.6 shows how much this choice moves the pooled estimate.
+:::
+
+### 1.5 The graphic: all 49 effects
+
+Each row is one comparison. Color shows which reported statistic it was built from.
+
+```{r forest-49, fig.width = 11, fig.height = 15}
+ord <- order(factor(es$dv_group, levels = c("Morality", "Blame", "Decision")),
+             es$article, es$effect_id)
+f <- es[ord, ]
+grp <- factor(f$dv_group, levels = c("Morality", "Blame", "Decision"))
+
+## Leave two blank rows above each DV group for its label
+k <- nrow(f); ng <- table(grp)
+rows  <- integer(k); pos <- k + 3 * length(ng); heads <- integer(0)
+for (lv in levels(grp)) {
+  heads <- c(heads, pos); pos <- pos - 1
+  idx <- which(grp == lv)
+  rows[idx] <- pos:(pos - length(idx) + 1); pos <- pos - length(idx) - 2
+}
+cols <- c("group means" = "#1f77b4", "t statistic" = "#bd5416",
+          "F statistic" = "#bd5416", "chi-square" = "#2ca02c")
+
+metafor::forest(f$yi, f$vi, slab = paste0(f$effect_id, "  ", f$article, ", S", f$study, "/", f$sample),
+       rows = rows, ylim = c(-1, max(heads) + 3), xlim = c(-6, 5.2), alim = c(-2, 3),
+       at = -2:3, header = c("Effect / article / study", "g [95% CI]"),
+       xlab = "Hedges' g   (positive = harm through action judged worse)", cex = .72)
+## Redraw each interval and point in the color of its route
+lo <- f$yi - 1.96 * sqrt(f$vi); hi <- f$yi + 1.96 * sqrt(f$vi)
+segments(pmax(lo, -2), rows, pmin(hi, 3), rows, col = cols[f$es_input], lwd = 2)
+points(f$yi, rows, pch = 15, cex = 1.1, col = cols[f$es_input])
+text(-6, heads, paste0(levels(grp), " (k = ", ng, ")"), pos = 4, font = 2, cex = .8)
+legend(x = 1.4, y = heads[3] + 1, bty = "n", cex = .75, pch = 15, pt.cex = 1.3,
+       col = cols[c(1, 2, 4)], legend = c("Group means", "Hand-coded d (t, F, or reported d)", "Chi-square"))
+```
+
+::: {.read}
+Almost every point sits to the right of zero, and the spread is far wider than the confidence
+intervals. That spread is the heterogeneity the models in Sections 2–3 quantify. Four features
+stand out. Hayashi (2015) supplies the three largest effects (*g* = 1.5 to 2.3), all from paired
+*t* tests with Japanese second-graders, sixth-graders, and adults. The 12 DeScioli et al. (2012)
+rows are small and very precise, because the M/SD route was used and *N* ≈ 150. Three of the four
+Willemsen and Reuter (2016) blame rows are negative, as they argued in a paper titled "Is there
+really an omission effect?" And Connolly and Reb (2003), at the bottom, is the only large effect in the
+opposite direction: people chose to vaccinate.
+:::
+
+### 1.6 How much does the effect-size route matter?
+
+A sensitivity check the paper does not run: re-pool the 49 effects using the coding sheet's
+"best estimate" for every row, or using paired-data *d*~z~ = *t*/√*N* for every within-subject row
+that reports a *t*.
+
+```{r es-sensitivity}
+fit3 <- function(dat) rma.mv(yi, vi, random = ~ 1 | article / unit, data = dat)
+
+alt_best <- es
+alt_best$yi <- es$best_estimate          # already signed: Connolly and Reb is entered as -0.94
+alt_best$vi <- with(es, 4 / n + best_estimate^2 / (2 * n))
+
+alt_dz <- es
+w <- with(es, design_type == "Within-subject" & !is.na(t) & es_input != "chi-square")
+alt_dz$yi[w] <- with(es[w, ], t / sqrt(n))
+alt_dz$vi[w] <- with(es[w, ], 1 / n + (t / sqrt(n))^2 / (2 * n))
+
+sens <- lapply(list("Authors' routes (as published)" = es,
+                    "Sheet's best estimate for every row" = alt_best,
+                    "Paired d_z for within-subject rows with t" = alt_dz), fit3)
+kable(data.frame(Choice = names(sens),
+                 g = sapply(sens, function(m) m$b[1]),
+                 lower = sapply(sens, function(m) m$ci.lb), upper = sapply(sens, function(m) m$ci.ub)),
+      digits = 2, row.names = FALSE)
+```
+
+Using paired *d*~z~ barely moves the estimate (`r fmt(sens[[1]]$b)` to `r fmt(sens[[3]]$b)`).
+Using the sheet's own "best estimate" for every row raises it to `r fmt(sens[[2]]$b)`, mostly
+because the DeScioli et al. (2012) rows triple in size. The conclusion (a positive effect whose
+interval excludes zero) holds under all three, but how large the effect is depends partly on a
+coding decision that the paper never mentions.
+
+## 2. Dependent effect sizes: 49 effects, 25 units, 13 articles
+
+::: {.goal}
+Decide what counts as one observation. Several of the 49 effects share participants: DeScioli
+et al. (2012) contributes 12 ratings from one sample, and four samples were measured on two
+DVs. Treating them as 49 independent studies would overstate the precision of the pooled mean.
+:::
+
+The authors handle this two ways, and the paper reports both:
+
+* **Collapse, then pool (two-level model).** Average the effects within each sample-by-DV unit
+  with `MAd::agg()`, assuming the effects within a unit correlate at *r* = .5 (the
+  Borenstein et al., 2009, "BHHR" method). That leaves 25 independent units for an ordinary
+  random-effects model. This was the preregistered analysis.
+* **Model the nesting (three-level model).** Keep all 49 effects and give the model a random
+  effect for each unit *and* each article: `rma.mv(random = ~ 1 | article / unit)`. This was
+  added after open peer review and is the headline result.
+
+```{r collapse}
+collapse_units <- function(dat) {
+  a <- agg(id = unit, es = yi, var = vi, cor = .5, method = "BHHR", mod = NULL, data = dat)
+  names(a)[names(a) == "id"] <- "unit"
+  n <- aggregate(n ~ unit, data = dat, FUN = max)
+  merge(a, n, by = "unit")
+}
+fit2 <- function(dat) {
+  u <- collapse_units(dat)
+  rma(es, var, method = "REML", data = u, slab = unit)
+}
+
+units <- collapse_units(es)
+nrow(units)
+head(units[order(-units$es), ], 8)
+```
+
+## 3. The overall omission-bias effect
+
+::: {.goal}
+Estimate the average omission-commission difference across all studies, and how much the true
+effect varies from study to study.
+:::
+
+```{r main-2level}
+m2 <- fit2(es)
+m2
+```
+
+```{r main-3level}
+m3 <- fit3(es)
+m3
+
+icc  <- m3$sigma2[1] / sum(m3$sigma2)
+W    <- diag(1 / es$vi); X <- model.matrix(m3)
+P    <- W - W %*% X %*% solve(t(X) %*% W %*% X) %*% t(X) %*% W
+I2ml <- 100 * sum(m3$sigma2) / (sum(m3$sigma2) + (m3$k - m3$p) / sum(diag(P)))
+c(ICC_article = icc, I2_multilevel = I2ml)
+```
+
+::: {.paper}
+Main effect (p. 1505): 21 samples, 49 effect sizes, 13 articles, *g* = 0.45, 95% CI [0.14,
+0.77], "with very high heterogeneity." Heterogeneity (pp. 1505–1506): Q(48) = 271.22,
+*p* < .001, *I*² = 93.68%. The two-level results were moved to the Supplement and described
+as "very similar."
+:::
+
+::: {.read}
+The three-level model gives **`r ci(m3)`**, matching the paper. The two-level model on the 25
+collapsed units gives **`r ci(m2)`**: a larger mean and a much narrower interval.
+
+Why the gap? The three-level model finds that almost all of the true-effect variance sits
+*between articles* (article-level share = `r fmt(icc)`), not between samples within an article.
+In effect there are 13 independent pieces of evidence, not 25, so the interval widens. And
+because the model now weights by article, Hayashi (2015), whose six large effects came from
+three samples, carries less weight than before, so the mean falls. "Very similar" undersells
+the difference in precision: the lower bound drops from `r fmt(m2$ci.lb)` to `r fmt(m3$ci.lb)`.
+
+Q and its df match the paper exactly. Our multilevel *I*² is `r fmt(I2ml, 1)`%, not 93.68%;
+we could not find the formula that yields the published value. Either way, most of the
+variation in observed effects is real variation in the effect, not sampling error.
+:::
+
+A forest plot of the 25 collapsed units, as in the authors' file:
+
+```{r forest-25, fig.width = 11, fig.height = 9}
+metafor::forest(m2, xlim = c(-5, 5), alim = c(-2, 3), at = -2:3, ilab = units$n, ilab.xpos = -2,
+       header = c("Unit (article / study / sample - DV)", "g [95% CI]"),
+       xlab = "Hedges' g", cex = .75)
+text(-2, m2$k + 2, "N", font = 2, cex = .75)
+```
+
+## 4. Effects by DV type, and without Connolly and Reb
+
+::: {.goal}
+Test H1a and H1b separately. H1a says harm through action is judged less moral and more
+blameworthy. H1b says people *choose* inaction over action. Judgments about others and one's
+own decisions need not move together.
+:::
+
+```{r by-dv}
+dv_fits <- lapply(c(Morality = "Morality", Blame = "Blame", Decision = "Decision"),
+                  function(lv) fit2(es[es$dv_group == lv, ]))
+dv_tab <- data.frame(DV = names(dv_fits),
+                     k = sapply(dv_fits, `[[`, "k"),
+                     g = sapply(dv_fits, function(m) m$b[1]),
+                     lower = sapply(dv_fits, `[[`, "ci.lb"), upper = sapply(dv_fits, `[[`, "ci.ub"),
+                     Q = sapply(dv_fits, `[[`, "QE"), I2 = sapply(dv_fits, `[[`, "I2"))
+kable(dv_tab, digits = 2, row.names = FALSE)
+```
+
+::: {.paper}
+Table 2 and p. 1505: morality (*k* = 14) *g* = 0.71, 95% CI [0.47, 0.94]; blame (*k* = 7)
+*g* = 0.32, [0.01, 0.64]; decision (*k* = 4) *g* = 0.30, [−0.62, 1.21], "suggesting weak to no
+support for omission bias" in decisions. Table 5: H1a supported for morality and blame; H1b
+not supported.
+:::
+
+::: {.read}
+These are two-level models on collapsed units, so *k* counts units, not effects. The morality
+effect is about twice the blame effect. The decision interval is enormous because it rests on
+four units, one of which (Connolly and Reb) points the other way.
+
+The DV difference is not statistically significant, though. The moderator test in the
+three-level model:
+:::
+
+```{r dv-moderator}
+rma.mv(yi, vi, mods = ~ dv_group, random = ~ 1 | article / unit, data = es)
+```
+
+### Dropping the outlier
+
+The paper's second analysis removes Connolly and Reb (2003), which the influence diagnostics
+flag. The authors' file does this by re-running every chunk on a separate spreadsheet version.
+Here it is a filter.
+
+```{r influence, fig.width = 9, fig.height = 5}
+baujat(m2, symbol = "slab", cex = .6)
+```
+
+```{r no-connolly}
+es_nc <- es[es$article != "Connolly and Reb (2003)", ]
+m3_nc <- fit3(es_nc)
+m3_nc
+dec_nc <- fit2(es_nc[es_nc$dv_group == "Decision", ])
+c(decision_g = dec_nc$b[1], lower = dec_nc$ci.lb, upper = dec_nc$ci.ub)
+```
+
+::: {.paper}
+Excluding Connolly and Reb (p. 1505): overall *g* = 0.56, 95% CI [0.32, 0.80]; decision
+*g* = 0.71, [0.16, 1.25]; Q(47) = 180.04, *I*² = 84.24%. The authors label this an
+"unregistered exploratory analysis."
+:::
+
+::: {.read}
+Reproduced: `r ci(m3_nc)`. One article moves the overall estimate by a tenth of a standard
+deviation and turns the decision result from null to clearly positive. That is the fragility of
+a 13-article literature, and the reason this analysis should be read as exploratory. Connolly
+and Reb is not a coding error; it is a vaccination decision in which acting was the norm.
+:::
+
+## 5. Publication bias
+
+::: {.goal}
+Ask whether the studies we can see are a biased sample of those that were run. If small
+studies with null results went unpublished, the funnel plot will be lopsided and the pooled
+mean too high. Every method below makes a different assumption about *how* studies go missing,
+so the authors report many and look for agreement.
+:::
+
+::: {.flag}
+All of the tests in this section, in the authors' code and here, are run on the **two-level
+model of 25 collapsed units** (`g` = `r fmt(m2$b)`), not on the three-level model. The note to
+the paper's Table 3 says "analyses conducted on multivariate three-level model." The numbers in
+Tables 3 and 4 match the two-level input.
+:::
+
+```{r funnel, fig.width = 11, fig.height = 5}
+par(mfrow = c(1, 2))
+metafor::funnel(m2); title("Centered on the pooled estimate")
+metafor::funnel(m2, level = c(90, 95, 99), shade = c("white", "gray55", "gray75"),
+       refline = 0, legend = TRUE); title("Contour-enhanced, centered on 0")
+```
+
+```{r viz-funnel, fig.width = 10, fig.height = 5}
+viz_funnel(m2, y_axis = "se", contours = TRUE, trim_and_fill = TRUE,
+           trim_and_fill_side = "left", sig_contours = TRUE, egger = TRUE,
+           detail_level = 5, xlab = "Hedges' g")
+viz_sunset(m2, xlab = "Hedges' g", contours = TRUE)
+```
+
+The contour plot shades regions where a study would be significant at *p* < .10, .05, and .01.
+Bias from selective publication shows up as a cluster of studies just inside the shaded
+regions and a gap in the white region near zero. The sunset plot colors each study by its
+power to detect the pooled effect.
+
+```{r bias-tests}
+units$sei <- sqrt(units$var)
+
+taf  <- metafor::trimfill(m2)
+rank <- ranktest(m2)
+egg  <- regtest(m2)
+fsn_ <- fsn(es, var, data = units, type = "Rosenthal")
+pet   <- lm(es ~ sei, weights = 1 / var, data = units)
+peese <- lm(es ~ var, weights = 1 / var, data = units)
+pu   <- puniform(yi = units$es, vi = units$var, side = "right", method = "P", plot = FALSE)
+sel  <- weightfunct(units$es, units$var, steps = c(.025, 1))
+hc_  <- hc(m2)
+sel_est <- sel[[2]]$par[2]; sel_se <- sqrt(diag(solve(sel[[2]]$hessian)))[2]
+```
+
+```{r pcurve, results = "hide", fig.show = "hide"}
+pc <- dmetar::pcurve(meta::metagen(units$es, units$sei, studlab = units$unit),
+                     effect.estimation = TRUE, N = units$n, dmin = -3, dmax = 3)
+```
+
+```{r bias-table}
+bias <- rbind(
+  c("Unadjusted two-level model",          fmt(m2$b),          sprintf("[%s, %s]", fmt(m2$ci.lb), fmt(m2$ci.ub)), "0.53"),
+  c("Trim and fill (1 study imputed)",     fmt(taf$b),         sprintf("[%s, %s]", fmt(taf$ci.lb), fmt(taf$ci.ub)), "0.49 [0.26, 0.72]"),
+  c("Three-parameter selection model",     fmt(sel_est),       sprintf("[%s, %s]", fmt(sel_est - 1.96 * sel_se), fmt(sel_est + 1.96 * sel_se)), "0.34 [-0.03, 0.72]"),
+  c("Henmi and Copas",                     fmt(hc_$beta),      sprintf("[%s, %s]", fmt(hc_$ci.lb), fmt(hc_$ci.ub)), "0.41 [0.12, 0.70]"),
+  c("p-uniform",                           fmt(pu$est),        sprintf("[%s, %s]", fmt(pu$ci.lb), fmt(pu$ci.ub)), "0.74 [0.48, 1.00]"),
+  c("PET (intercept)",                     fmt(coef(pet)[1]),  sprintf("[%s, %s]", fmt(confint(pet)[1, 1]), fmt(confint(pet)[1, 2])), "0.04 [-0.49, 0.57]"),
+  c("PEESE (intercept)",                   fmt(coef(peese)[1]),sprintf("[%s, %s]", fmt(confint(peese)[1, 1]), fmt(confint(peese)[1, 2])), "0.21 [-0.11, 0.53]"),
+  c("p-curve estimate (d)",                fmt(pc$dEstimate),  "", "0.70"),
+  c("Rank correlation (Kendall's tau)",    fmt(rank$tau),      sprintf("p = %s", fmt(rank$pval, 3)), "0.20, p = .170"),
+  c("Egger regression (z)",                fmt(egg$zval),      sprintf("p = %s", fmt(egg$pval, 3)), "1.97, p = .048"),
+  c("Fail-safe N (Rosenthal)",             fsn_$fsnum,         "", "not reported"))
+kable(bias, col.names = c("Method", "Estimate", "95% CI / p", "Paper (Tables 3-4)"))
+```
+
+::: {.paper}
+p. 1506: p-uniform, p-curve, and Henmi and Copas "showed effects meaningfully different from
+the null," but the three-parameter selection model gave *g* = 0.34, [−0.03, 0.72], "with weak to
+no omission bias effects using PET and PEESE." Several asymmetry tests had *p* values near .05,
+"indicative of possible publication bias."
+:::
+
+::: {.read}
+Every number reproduces. Read them as a range, not a verdict. Methods that assume only
+significant results get published and correct for it (p-uniform, p-curve) *raise* the estimate
+here, which happens when heterogeneity is high (*I*² near 90%) and should not be trusted. Methods
+that model the relation between effect size and precision (PET, PEESE, the selection model)
+pull the estimate toward zero. Egger's test finds that less precise units report larger effects
+(*p* = `r fmt(egg$pval, 3)`). The fail-safe *N* of `r fsn_$fsnum` looks reassuring but assumes the
+missing studies average exactly zero, and is no longer recommended.
+
+The honest summary is the paper's: an effect that survives most corrections, with real
+signs of small-study bias, in a literature too small for any single method to settle it.
+:::
+
+## 6. Moderators
+
+::: {.goal}
+Explain the heterogeneity. If the omission bias is stronger in some kinds of studies, the
+average of 0.45 hides that structure. Six moderators were tested:
+
+* **Familiarity** with the target (H2a stronger for familiar targets, H2b for unfamiliar)
+* **Role responsibility** for the target, such as a parent or doctor (H3a stronger with
+  responsibility, H3b without)
+* **Outcome**: whether harm actually occurred (H4 effect even without a negative outcome; H5
+  stronger with one)
+* **Design**: within- vs. between-subject (H6a stronger within, H6b no difference)
+* **Target**: self vs. others (exploratory)
+* **Publication status** (a bias check; only one unpublished study)
+:::
+
+The authors use three tools, and each answers a slightly different question:
+
+1. **Subgroup analysis.** Fit a two-level model to each category separately, then test whether
+   the two estimates differ (a Wald test, written in the original as a fixed-effect
+   meta-regression on the two estimates).
+2. **Three-level meta-regression.** Add the moderator as a predictor in the three-level model on
+   all effects. This respects the nesting, but with 13 articles it has little power.
+3. **MetaForest.** A random-forest method that ranks moderators by how much they improve
+   out-of-sample prediction. The authors added it after review "to address the issue of limited
+   statistical power."
+
+### 6.1 Subgroup analyses
+
+```{r subgroup-fun}
+subgroup <- function(var, levels, data = es) {
+  fits <- lapply(levels, function(lv) fit2(data[!is.na(data[[var]]) & data[[var]] == lv, ]))
+  est  <- sapply(fits, function(m) m$b[1]); se <- sapply(fits, `[[`, "se")
+  z    <- (est[2] - est[1]) / sqrt(se[1]^2 + se[2]^2)
+  data.frame(moderator = var, level = levels, k = sapply(fits, `[[`, "k"),
+             g = est, lower = sapply(fits, `[[`, "ci.lb"), upper = sapply(fits, `[[`, "ci.ub"),
+             p_difference = c(2 * pnorm(-abs(z)), NA))
+}
+
+sub_tab <- rbind(
+  subgroup("familiarity",    c("familiar with target", "not familiar with target")),
+  subgroup("responsibility", c("responsibility over target", "unclear responsibility over target")),
+  subgroup("outcome",        c("negative outcome", "no clear negative outcome")),
+  subgroup("design_type",    c("Between-subject", "Within-subject")),
+  subgroup("self_other",     c("self", "other")),
+  subgroup("published",      c("Yes", "No")))
+kable(sub_tab, digits = 3, row.names = FALSE)
+```
+
+::: {.paper}
+pp. 1506–1507: familiar 12 studies, *g* = 0.58 [0.24, 0.91] vs. not familiar 6, *g* = 0.28 [0.14,
+0.41]; clear responsibility 7, *g* = −0.05 [−0.42, 0.32] vs. no clear responsibility 17,
+*g* = 0.60 [0.44, 0.76]; self 4, *g* = 1.42 [0.60, 2.24] vs. others 25, *g* = 0.46 [0.26, 0.65];
+negative outcome 13, *g* = 0.71 [0.42, 1.01] vs. no clear negative outcome 13, *g* = 0.30
+[0.02, 0.58]; between 9, *g* = 0.43 [0.17, 0.70] vs. within 16, *g* = 0.59 [0.28, 0.91].
+:::
+
+::: {.read}
+All subgroup estimates reproduce. Three contrasts reach *p* < .05: responsibility (the bias
+disappears when the decision maker has a clear role responsibility, as a parent or a doctor
+does), self vs. other (much larger when people decide about harm to themselves), and outcome
+(larger when harm actually occurs). Familiarity and design do not. Keep the counts in view:
+the "self" estimate rests on four units from two articles, and the published/unpublished
+contrast has one unpublished unit, so it tests nothing.
+
+These subgroup models also ignore that units from the same article are correlated, and each
+category is fit with its own heterogeneity. The next section addresses the first problem.
+:::
+
+### 6.2 Three-level meta-regressions, and a bug in the original
+
+::: {.flag}
+**In the authors' file, five of the six three-level moderator models are run on the wrong
+data.** Each moderator section begins with
+`rma.mv(yi, vi, mods = ~ Moderator, random = ~ 1 | Article.Name/articlestudy, data = dataset1)`.
+But `dataset1` is not the full data at that point. It still holds whatever subgroup the
+*previous* section created last. The study-design model is run on the 13 blame effects only,
+the responsibility model on within-subject effects only, and so on. Only the DV-type model sees
+all 49 effects. The Supplement reports these as the three-level moderator results, and the
+paper's Table 5 cites them ("not supported in three-level").
+:::
+
+The table re-runs each model two ways: on the subset the original code actually used, and on
+all 49 effects.
+
+```{r ml-moderators}
+## "undetermined" familiarity and responsibility codes were set to NA before these models
+## in the original; blank cells in the tidy data are already NA.
+ml_fit <- function(var, data) {
+  d <- data[!is.na(data[[var]]) & data[[var]] != "", ]
+  rma.mv(yi, vi, mods = as.formula(paste("~", var)), random = ~ 1 | article / unit, data = d)
+}
+
+## The data frame `dataset1` held at each point in the original file
+as_run <- list(
+  design_type    = es[es$dv_group == "Blame", ],
+  responsibility = es[es$design_type == "Within-subject", ],
+  familiarity    = es[es$responsibility %in% "unclear responsibility over target", ],
+  outcome        = es[es$familiarity %in% "not familiar with target", ],
+  self_other     = es[es$outcome == "no clear negative outcome", ],
+  published      = es[es$self_other == "other", ])
+subset_label <- c(design_type = "Blame DV only", responsibility = "Within-subject only",
+                  familiarity = "Unclear responsibility only", outcome = "Not familiar only",
+                  self_other = "No negative outcome only", published = "Other-target only")
+
+ml_tab <- do.call(rbind, lapply(names(as_run), function(v) {
+  a <- ml_fit(v, as_run[[v]]); b <- ml_fit(v, es)
+  data.frame(moderator = v,
+             original_data = subset_label[[v]], k_original = a$k,
+             b_original = a$b[2], p_original = a$QMp,
+             k_corrected = b$k, b_corrected = b$b[2], p_corrected = b$QMp)
+}))
+kable(ml_tab, digits = 3, row.names = FALSE)
+```
+
+::: {.read}
+The `k_original` column matches the *k* printed in the authors' output (13, 17, 15, 11, 28,
+43), which confirms the diagnosis. Fit to all effects, two conclusions change:
+
+* **Responsibility** goes from marginal (*p* = `r fmt(ml_tab$p_original[2], 3)`, within-subject
+  studies only) to clearly significant (*b* = `r fmt(ml_tab$b_corrected[2])`, *p* =
+  `r fmt(ml_tab$p_corrected[2], 3)`), agreeing with the subgroup result and MetaForest.
+* **Self vs. other** goes from essentially zero (*b* = `r fmt(ml_tab$b_original[5], 3)`), because
+  the original model saw only studies with no negative outcome, to *b* =
+  `r fmt(ml_tab$b_corrected[5])` (*p* = `r fmt(ml_tab$p_corrected[5], 3)`), in the same direction
+  as the subgroup result.
+
+Outcome, design, and familiarity stay null in the three-level model with or without the fix.
+With 13 articles these models have little power, so a non-significant *p* is not evidence of no
+moderation.
+
+This is a copy-and-paste bug, not a judgment call, and it is invisible when you read any single
+chunk. It is the strongest argument for the function-based structure used here: a model that
+takes `data` as an argument cannot silently inherit the last subset.
+:::
+
+### 6.3 MetaForest
+
+```{r metaforest, fig.width = 8, fig.height = 4}
+mf_dat <- data.frame(yi = es$yi, vi = es$vi,
+  Familiarity.with.target    = factor(ifelse(is.na(es$familiarity), "undetermined", es$familiarity)),
+  Responsibility.over.target = factor(ifelse(is.na(es$responsibility), "undetermined", es$responsibility)),
+  Outcome.valence = factor(es$outcome), Design.type = factor(es$design_type),
+  Self.other = factor(es$self_other))
+
+set.seed(42)
+mf <- MetaForest(yi ~ Familiarity.with.target + Responsibility.over.target + Outcome.valence +
+                   Design.type + Self.other,
+                 data = mf_dat, whichweights = "random", num.trees = 500, method = "REML")
+c(R2_oob = mf$forest$r.squared)
+VarImpPlot(mf)
+```
+
+::: {.paper}
+p. 1507 and Figure 4: R² (OOB) = .29; all five moderators had positive variable importance,
+ranked responsibility, outcome, self vs. other, familiarity, design. Table 5 concludes "likely
+moderation" for outcome and design based on MetaForest.
+:::
+
+::: {.read}
+Variable importance measures how much worse the forest predicts when a moderator's values are
+scrambled. Positive means the moderator helps predict effect sizes out of sample. The ranking
+here matches the paper's exactly. Our R² (OOB) of `r fmt(mf$forest$r.squared)` differs from .29,
+which is common for random forests: results depend on the seed *and* on the package version
+that consumes it. The authors used the same seed with 2020 versions of `metaforest` and `ranger`.
+
+Two cautions. MetaForest ignores the nesting of effects within articles. And with 49 effects,
+positive importance is a weak standard: it can say a moderator is worth studying, not that its
+effect is established. Using MetaForest to upgrade null meta-regressions to "likely moderation"
+leans on it harder than it can bear.
+:::
+
+## 7. Summary
+
+| Hypothesis | Paper's conclusion (Table 5) | This replication |
+|---|---|---|
+| H1a morality: action judged less moral | Supported, *g* = 0.71 | Reproduced |
+| H1a blame: action judged more blameworthy | Supported, *g* = 0.32 | Reproduced |
+| H1b decisions: inaction preferred | Not supported, *g* = 0.30 | Reproduced; becomes *g* = 0.71 without Connolly and Reb |
+| H2 familiarity | No evidence for H2b, weak for H2a | Null in subgroups (*p* = .11) and in the corrected three-level model |
+| H3b stronger without role responsibility | Supported | Reproduced in subgroups (*p* = .001); corrected three-level *p* = .003 (original, wrong subset: .065) |
+| Self vs. other (exploratory) | Support for moderation | Subgroup *p* = .03 (4 units); corrected three-level *p* = .06 (original, wrong subset: .95) |
+| H4 effect even without negative outcome | Supported | Reproduced, *g* = 0.30 [0.02, 0.58] |
+| H5 stronger with negative outcome | Mixed support, likely moderation | Subgroup *p* = .048; three-level null with or without the fix |
+| H6 design | Mixed support | Null in subgroups and in the three-level model |
+
+Every number in the published paper that comes from this code reproduces from the tidy data.
+The replication adds three things the paper does not show: the pooled estimate depends on how
+within-subject effects are standardized (Section 1.6); the publication-bias table uses the
+two-level model, not the three-level one its note names (Section 5); and the three-level
+moderator results in the Supplement were fit to the wrong subsets (Section 6.2).
+
+```{r session}
+sessionInfo()
+```

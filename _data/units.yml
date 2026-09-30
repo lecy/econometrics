@@ -1629,6 +1629,16 @@
         - { label: Notes, url: lectures4/meta_analysis/class-size-coding-notes.html, kind: notes }
         - { label: Policy overview (PDF), url: lectures4/meta_analysis/Class_Size_Policy_Overview.pdf, kind: pdf }
         - { label: DOCX, url: lectures4/meta_analysis/Class_Size_Policy_Overview.docx, kind: docx, download: true }
+    - title: "Replication: A Meta-Analysis of the Omission Bias"
+      blurb: >
+        Yeung, Yay, and Feldman (2022) posted their whole review on the OSF. Trace it from search terms
+        to 49 coded effect sizes, then rerun the analysis and find what the published code got wrong.
+      links:
+        - { label: "Notes: search to data", url: lectures4/meta_analysis/omission_bias/omission-bias-replication-data-prep.html, kind: notes }
+        - { label: "Notes: analysis", url: lectures4/meta_analysis/omission_bias/omission-bias-replication-analysis.html, kind: notes }
+        - { label: Paper (PDF), url: lectures4/meta_analysis/omission_bias/yeung-et-al-2021.pdf, kind: pdf }
+        - { label: Analysis (Rmd), url: lectures4/meta_analysis/omission_bias/analysis/omission-bias-analysis.Rmd, kind: rmd, raw: true }
+        - { label: Data prep (R), url: lectures4/meta_analysis/omission_bias/data/ob_data_prep.R, kind: rmd, raw: true }
   readings:
     - title: Meta-Analysis and the Science of Research Synthesis
       cite: "Gurevitch, J., Koricheva, J., Nakagawa, S., & Stewart, G. (2018). Nature, 555, 175–182. A short overview of the method and its history."

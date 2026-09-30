@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Omission Bias: Search to Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  blockquote,.paper{
+    margin:1.4rem 0;padding:1rem 1.25rem;background:var(--accent-wash);border-radius:3px;max-width:var(--measure);
+  }
+  .paper .lbl,.hl-note .lbl{
+    display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--accent-ink);margin-bottom:.3rem;
+  }
+  .paper p{max-width:none;margin-bottom:.5rem;}
+  .paper p:last-child{margin-bottom:0;}
+  .chain{
+    font-weight:600;font-size:1.02rem;color:var(--accent-ink);background:var(--surface);border-radius:3px;
+    padding:1rem 1.2rem;margin:1.3rem 0;max-width:46rem;line-height:1.9;
+  }
+  .concepts .chain{color:var(--pumpkin);background:rgba(255,255,255,.07);}
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88em;background:var(--surface);padding:.05em .3em;border-radius:2px;}
+  pre{background:var(--surface);border-radius:3px;padding:1rem 1.2rem;overflow-x:auto;max-width:46rem;font-size:.85rem;line-height:1.5;}
+  pre code{background:none;padding:0;}
+  .flow{min-width:44rem;}
+  .flow td{vertical-align:top;}
+  .flow td:first-child{font-weight:600;color:var(--ink);width:17%;}
+  .flow td:nth-child(3),.flow td:nth-child(4){font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.8rem;color:var(--accent-ink);}
+  .flow td:last-child{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;}
+  .small-t{min-width:30rem;max-width:44rem;}
+  .small-t td{vertical-align:top;}
+
+  /* ---------- data tables ---------- */
+  .dt{margin:1.3rem 0 1.8rem;}
+  .dt-bar{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-bottom:.55rem;font-size:var(--step--1);color:var(--ink-soft);}
+  .dt-bar .ttl{font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-right:auto;}
+  .dt-bar input[type=search]{
+    font:inherit;color:var(--ink);background:var(--ground);border:1px solid var(--rule-strong);border-radius:2px;padding:.3rem .55rem;width:12rem;max-width:100%;
+  }
+  .dt-bar label{display:inline-flex;gap:.35rem;align-items:center;cursor:pointer;}
+  .dt-bar a{color:var(--accent-ink);font-weight:600;}
+  .dt-scroll{max-height:27rem;overflow:auto;border:1px solid var(--rule);border-radius:3px;background:var(--ground);}
+  .dt table{font-size:.8rem;width:max-content;min-width:100%;}
+  .dt th,.dt td{padding:.45rem .6rem;vertical-align:top;border-bottom:1px solid var(--rule);}
+  .dt thead th{position:sticky;top:0;z-index:1;background:var(--surface);font-size:.68rem;white-space:nowrap;}
+  .dt td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .dt td.mid{min-width:10rem;max-width:16rem;}
+  .dt td.long{min-width:16rem;max-width:26rem;}
+  .dt td.long div{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;}
+  .dt td.long.open div{display:block;}
+  .dt td.na{color:var(--rule-strong);}
+  .dt tr.hl td{background:var(--accent-wash);}
+  .dt tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--accent);}
+  .mark{
+    display:inline-flex;align-items:center;justify-content:center;min-width:1.25rem;height:1.25rem;padding:0 .25rem;margin-right:.35rem;
+    border-radius:999px;background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;vertical-align:1px;
+  }
+  .hl-note{border-left:3px solid var(--accent);padding:.15rem 0 .15rem 1.1rem;margin:1rem 0 1.4rem;max-width:40rem;}
+  .hl-note p{margin-bottom:.6rem;}
+  .hl-note p:last-child{margin-bottom:0;}
+  @media (max-width:640px){ .dt-scroll{max-height:22rem;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Replicating Yeung, Yay, and Feldman: From Search to Data</h1>
+    <p class="dek">Yeung, Yay, and Feldman (2022) preregistered a meta-analysis of the omission bias and posted
+      everything on the OSF: the search terms, every article they read, every exclusion, and the coded
+      statistics. It all lives in one Excel workbook. This guide walks through that workbook tab by tab,
+      shows how each tab records one step of the review, and rebuilds it as eight tidy tables. The
+      <a href="omission-bias-replication-analysis.html">analysis guide</a> picks up where this one ends.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#map">The workflow</a>
+      <a href="#search">Search</a>
+      <a href="#screen">Article list</a>
+      <a href="#enumerate">Counting studies</a>
+      <a href="#decisions">Coding decisions</a>
+      <a href="#excluded">Excluded rows</a>
+      <a href="#coding">Effect coding</a>
+      <a href="#sanitize">Sanitizing</a>
+      <a href="#rebuild">Rebuild it</a>
+      <a href="#exercises">Exercises</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">What a reproducible literature review has to record.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">A meta-analysis is a funnel, and every step narrows it.</p>
+      <div class="chain">2,570 search hits + 14 from authors &rarr; 124 records &rarr; 76 full texts &rarr; 13 articles &rarr; 21 samples &rarr; 49 effect sizes</div>
+      <p>Each arrow is a set of decisions. A reader can only check the result if every decision is written down
+        where it can be found.</p>
+
+      <p class="claim">The unit of analysis changes as you go down the funnel.</p>
+      <ul>
+        <li>Search and screening work with <strong>articles</strong>.</li>
+        <li>Coding works with <strong>studies</strong> inside articles, then <strong>samples</strong> inside studies.</li>
+        <li>The analysis works with <strong>effect sizes</strong>: one comparison of action and inaction on one measure.</li>
+      </ul>
+      <p>A good workbook keeps one table per unit and a shared key that links them.</p>
+
+      <p class="claim">Excluded rows are data too.</p>
+      <p>The authors coded 80 effect rows that they later dropped, and kept them in their own tab with a reason
+        for each. That tab is what lets you disagree with a decision instead of just trusting it.</p>
+
+      <p class="claim">A 155-column coding sheet mixes three kinds of information.</p>
+      <p>Who was studied and how (descriptors), the numbers the paper reported (statistics), and the categories
+        used to explain variation (moderators). Splitting them makes each one readable and makes errors visible.</p>
+    </div>
+  </section>
+
+  <section id="map">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The workflow at a glance</h2>
+      <p class="sub">Each stage in the paper&rsquo;s flow diagram, the tab that records it, and the table we built from it.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="flow">
+        <thead><tr><th scope="col">Stage</th><th scope="col">What happens</th><th scope="col">Workbook tab</th><th scope="col">Tidy table</th><th scope="col">Rows</th></tr></thead>
+        <tbody>
+          <tr><td>1. Search</td><td>Google Scholar queries, reference lists, and calls to authors</td><td>Search terms</td><td>ob_01_search_terms</td><td>10</td></tr>
+          <tr><td>2. Screen</td><td>Read each article; decide whether it fits the criteria</td><td>Article list</td><td>ob_02_article_list</td><td>76</td></tr>
+          <tr><td>3. Enumerate</td><td>Count the experiments in each included article</td><td>Article list (Number of studies)</td><td>ob_02_article_list</td><td>&mdash;</td></tr>
+          <tr><td>4. Drop studies</td><td>Drop whole articles or single experiments, with a reason</td><td>Coding decisions</td><td>ob_03_coding_decisions</td><td>63</td></tr>
+          <tr><td>5. Drop coded rows</td><td>Effect rows coded in full, then excluded on closer reading</td><td>Excluded</td><td>ob_04_excluded_effects</td><td>80</td></tr>
+          <tr><td rowspan="3">6. Code effects</td><td>Sample, design, and DV for each effect</td><td rowspan="3">Study effect codings</td><td>ob_05_effect_descriptors</td><td>49</td></tr>
+          <tr><td>Reported statistics and the route to an effect size</td><td>ob_06_effect_statistics</td><td>49</td></tr>
+          <tr><td>Moderator codes and the reasons for them</td><td>ob_07_moderators</td><td>49</td></tr>
+          <tr><td>Author calls</td><td>Who was e-mailed and who answered</td><td>Authors</td><td>ob_08_author_contacts</td><td>44</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Two tabs are left out. <em>Protocol Email Link</em> holds only a Google Docs address, and
+      <em>Formularantworten 1</em> is an empty Google Forms response sheet. All eight tables are in
+      <a href="data/"><code>data/</code></a> and are built by
+      <a href="data/ob_data_prep.R"><code>ob_data_prep.R</code></a>. The paper is
+      <a href="yeung-et-al-2021.pdf">here</a>.</p>
+
+    <p>Every table below scrolls in both directions. Type in the search box to filter rows. Click a long text
+      cell to expand it. Rows with a numbered <span class="mark">A</span> marker are the ones discussed in the text;
+      tick <em>Marked rows only</em> to show just those.</p>
+  </section>
+
+  <section id="search">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Stage 1: The literature search</h2>
+      <p class="sub">How the authors found 2,584 candidate records.</p>
+    </div>
+
+    <p>The search ran in two rounds on Google Scholar. The first round used eight narrow queries, mostly
+      &ldquo;omission bias&rdquo; paired with one outcome term. Its purpose was to learn the vocabulary of the
+      field and the names of the people working in it. What it turned up shaped the final query, which ORs
+      together every label for the effect and every pair of names for the contrast (action/inaction,
+      doing/allowing, active/passive), ANDs that with the outcomes of interest, and removes trolley problems.</p>
+
+    <div class="dt" data-table="search" data-title="ob_01_search_terms"></div>
+
+    <div class="paper"><span class="lbl">What the paper reports</span>
+      <p>Method, pp. 1502&ndash;1503, and Figure 1: the final query returned 2,570 records. The authors also
+        scanned the reference lists of found articles, used Scholar&rsquo;s &ldquo;related articles&rdquo; and
+        &ldquo;cited by&rdquo; links, and asked for published and unpublished work by e-mail, on ResearchGate,
+        on Twitter, and on mailing lists, once in 2017 and again in 2020. That call produced 14 articles the
+        search had missed. After removing duplicates, 124 records remained.</p>
+    </div>
+
+    <p>Three things to notice. First, the hit counts from the first round do not add up to anything; they overlap
+      heavily and were never meant to be screened. Second, the tab records no search dates, and Google Scholar
+      results change over time, so the exact 2,570 cannot be reproduced today. The paper&rsquo;s preregistration and
+      the year of each call are the best time stamps available. Third, the step from 2,584 hits to 124 records
+      (and then the 48 abstracts excluded at the next step) is not in the workbook at all. The paper trail begins
+      at the full-text stage.</p>
+  </section>
+
+  <section id="screen">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Stage 2: Screening the article list</h2>
+      <p class="sub">76 full texts, one row each, judged against the inclusion criteria.</p>
+    </div>
+
+    <p>The <em>Article list</em> tab has one row per article that survived the abstract screen: 76 of them,
+      matching the &ldquo;full text articles evaluated for eligibility&rdquo; box in Figure 1. Each row has the
+      citation, the abstract, keywords, the number of studies, and the coder&rsquo;s decision in a column called
+      <code>Included?</code>. Four columns meant to record the search (serial number, date, search terms, and
+      database) were never filled in; we dropped them.</p>
+
+    <div class="paper"><span class="lbl">What the paper reports: the criteria</span>
+      <p>pp. 1503&ndash;1504. <strong>Include</strong> an article if the independent variable is a clear
+        experimental contrast between action and inaction with the same consequences (B1), and the dependent
+        variable is a judgment of morality or blame or a decision between them (B2). <strong>Exclude</strong>
+        correlational and one-sample designs (C1); studies of the action effect on regret, status quo bias, or
+        norm theory (C2); studies without the statistics needed for an effect size, after asking the authors (C3);
+        and trolley-style dilemmas that trade harm to one person against harm to several (C4).</p>
+    </div>
+
+    <p><code>Included?</code> records only this screen. Twenty articles passed it, but only 13 made it into the
+      analysis, and nothing in the tab says what happened to the other seven. We added a column,
+      <code>outcome</code>, by looking each article up in the later tabs. The table has four outcomes: 13 articles
+      included, 13 dropped after some of their effects were coded (the <em>Excluded</em> tab), 44 dropped at full
+      text with a written reason (<em>Coding decisions</em>), and 6 dropped at full text with no reason recorded
+      anywhere. Scroll right to see the abstracts the screeners read.</p>
+
+    <div class="dt" data-table="articles" data-title="ob_02_article_list"></div>
+
+    <div class="hl-note">
+      <p><span class="mark">A</span><strong>Spranca et al. (1991), article 4.</strong> The classic study.
+        <code>Included?</code> = Yes and <em>Number of studies</em> = 6. Only two of the six experiments
+        survive, and they contribute two effect sizes. The other four are dropped in the <em>Coding decisions</em>
+        tab.</p>
+      <p><span class="mark">B</span><strong>Haidt and Baron (1996), article 5.</strong> Relevant, and central
+        to two of the hypotheses, but <code>Included?</code> = No. Its reason is in <em>Coding decisions</em>: no
+        standard deviations, <i>t</i> values, or <i>d</i> for the action&ndash;inaction contrast. That is criterion C3.</p>
+      <p><span class="mark">C</span><strong>Brown et al. (2010), article 28.</strong> Passed the screen, and 22
+        effect rows were fully coded before the team decided the DV was a rating of disease and vaccine
+        characteristics, not a moral judgment. Look for it in the <em>Excluded</em> tab.</p>
+    </div>
+  </section>
+
+  <section id="enumerate">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>Stage 3: From articles to studies to effects</h2>
+      <p class="sub">The <em>Number of studies</em> column is where the unit of analysis changes.</p>
+    </div>
+
+    <p>An article can hold several experiments, an experiment can have several samples, and a sample can be
+      measured on several DVs or under several scenarios. The workbook identifies each effect by five keys:
+      article, study number, sample number, subgroup, and DV number. The authors&rsquo; R code builds its unit of
+      analysis, which it calls <code>articlestudy</code>, from four of them.</p>
+
+    <div class="table-scroll">
+      <table class="small-t">
+        <thead><tr><th scope="col">Article</th><th scope="col">Studies in article</th><th scope="col">Studies kept</th><th scope="col">Samples</th><th scope="col">Effect rows</th><th scope="col">Why so many rows</th></tr></thead>
+        <tbody>
+          <tr><td>Spranca et al. (1991)</td><td>6</td><td>2</td><td>2</td><td>2</td><td>One DV per study</td></tr>
+          <tr><td>Hayashi (2015)</td><td>1</td><td>1</td><td>3</td><td>6</td><td>Three age groups &times; two scenarios</td></tr>
+          <tr><td>DeScioli et al. (2012)</td><td>3</td><td>1</td><td>1</td><td>12</td><td>Twelve moral scenarios, from littering to cannibalism, rated by one sample</td></tr>
+          <tr><td>Jamison et al. (2020)</td><td>1</td><td>1</td><td>1</td><td>4</td><td>Two DVs &times; two ways of forming the comparison groups</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The last column is the key point for the analysis. Twelve DeScioli rows are not twelve studies; they are
+      twelve correlated measurements of one sample of about 150 people. The paper&rsquo;s count of 21 samples and 49 effects
+      exists because the workbook records both levels, and the analysis has to model them (see the
+      <a href="omission-bias-replication-analysis.html#dependent-effect-sizes-49-effects-25-units-13-articles">analysis guide, Section 2</a>).</p>
+  </section>
+
+  <section id="decisions">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>Stage 4: Coding decisions</h2>
+      <p class="sub">Whole articles and single experiments dropped at full text, each with a written reason.</p>
+    </div>
+
+    <p>The <em>Coding decisions</em> tab is a log. Each row names an article and says what was dropped and why.
+      Some rows drop a whole article (&ldquo;All experiments of this article refer to Trolley problem&rdquo;);
+      others drop one experiment from an article that stays in. The last twelve rows cover articles that came in
+      through the call to authors, which the workbook marks with a separator row; we turned that separator into
+      the <code>source</code> column.</p>
+
+    <div class="dt" data-table="decisions" data-title="ob_03_coding_decisions"></div>
+
+    <div class="hl-note">
+      <p><span class="mark">A</span><strong>Decisions 1&ndash;4: Spranca et al.</strong> Experiment 2 compares
+        intentions, Experiment 3 is a trolley problem, and Experiment 6 tests a mechanism, so all three are dropped.
+        Decision 3 is not an exclusion at all. It records a reading of the paper (&ldquo;they combined Case 1 and
+        Case 2&rdquo;) that explains how the kept study was coded. Logs like this mix exclusions with coding notes,
+        which is one reason a free-text reason column needs a reader.</p>
+      <p><span class="mark">B</span><strong>Decision 13: Haidt and Baron (1996).</strong> The whole article goes
+        for missing statistics. The paper uses this as its example of criterion C3 (p. 1504).</p>
+    </div>
+  </section>
+
+  <section id="excluded">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>Stage 5: Effect rows coded, then excluded</h2>
+      <p class="sub">80 rows from 17 articles that were fully coded before being dropped.</p>
+    </div>
+
+    <p>The <em>Excluded</em> tab uses nearly the same columns as the main coding tab, plus one at the front: the
+      reason for exclusion. These are effects that looked eligible until someone coded them in detail. Their
+      reasons are free text, so we added a <code>criterion</code> column that maps each reason onto the
+      paper&rsquo;s criteria. That mapping is ours, not the authors&rsquo;, and you should check it.</p>
+
+    <div class="table-scroll">
+      <table class="small-t">
+        <thead><tr><th scope="col">Criterion (our mapping)</th><th scope="col">Rows</th><th scope="col">Example reason</th></tr></thead>
+        <tbody>
+          <tr><td>B2 DV is not morality, blame, or decision</td><td>39</td><td>&ldquo;it&rsquo;s punishment, not judgment&rdquo;</td></tr>
+          <tr><td>B1 no clean action&ndash;inaction contrast</td><td>28</td><td>&ldquo;Not equal comission/omission&rdquo;</td></tr>
+          <tr><td>C1 not an experiment</td><td>7</td><td>&ldquo;Correlational study&rdquo;</td></tr>
+          <tr><td>C2 action effect / status quo / norm theory</td><td>4</td><td>&ldquo;Norm-theory/status-quo. Excluded.&rdquo;</td></tr>
+          <tr><td>C3 needed statistics not reported</td><td>2</td><td>&ldquo;the main effect isn&rsquo;t reported&rdquo;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dt" data-table="excluded" data-title="ob_04_excluded_effects"></div>
+
+    <div class="hl-note">
+      <p><span class="mark">C</span><strong>Brown et al. (2010), row X36.</strong> The first of 22 coded rows,
+        all dropped for the same reason. Coding first and deciding later costs time, but it leaves a record: a
+        reader who thinks vaccine-risk ratings <em>are</em> a decision measure can put these rows back and rerun
+        the analysis.</p>
+      <p><span class="mark">D</span><strong>DeScioli et al. (2011), row X03.</strong> The same article that
+        contributes four included effects also has eight excluded rows. Here the DV is punishment handed out in an
+        economic game, not a moral judgment. Punishment is related to blame, and the coders judged it a
+        different construct. This is a judgment call the tab makes visible.</p>
+    </div>
+
+    <p>Note that the Excluded tab counts rows, not articles. Figure 1 reports the 63 full-text exclusions by
+      article (C1: 2, C2: 31, C3: 7, C4: 8, B1&ndash;B2: 15), and the workbook has no column that reproduces
+      that tally. Our <code>outcome</code> column in the article list gets the total right (76 &minus; 13 = 63)
+      but not the breakdown.</p>
+  </section>
+
+  <section id="coding">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>Stage 6: Coding the effect sizes</h2>
+      <p class="sub">One 155-column tab, split into three tables that share the key <code>effect_id</code>.</p>
+    </div>
+
+    <p>The <em>Study effect codings</em> tab has 49 data rows below a three-row banner and a header. Its 155
+      columns fall into blocks: identifiers, sample demographics, design, independent variable, conditions,
+      dependent variable, then three blocks of statistics (one each for scale DVs, counts, and proportions), a
+      summary of conversions, and the moderator codes. The proportions block is completely empty. Many columns
+      were filled in only when they applied, so most cells in the statistics blocks are blank.</p>
+
+    <p>We gave each row an ID in sheet order (<code>E01</code>&ndash;<code>E49</code>) and split the tab three ways.</p>
+
+    <h3>Descriptors: who, where, and what design</h3>
+    <p>Everything that describes the sample and the measure rather than the result. We collapsed three yes/no
+      columns (<em>DV proportions?</em>, <em>DV count?</em>, <em>DV scale?</em>) into one <code>dv_format</code>
+      column, and dropped the coder names, coding dates, and the empty gender columns.</p>
+
+    <div class="dt" data-table="descriptors" data-title="ob_05_effect_descriptors"></div>
+
+    <div class="hl-note">
+      <p><span class="mark">1</span><strong>E01, Spranca et al. Study 1.</strong> Within-subject: 38 students
+        rated both versions of each story. The <em>action condition</em> column shows the original design had
+        two commission conditions (&ldquo;before&rdquo; and &ldquo;after&rdquo; the victim chooses) that the coders
+        collapsed into one; the <em>Collapse note</em> column says so.</p>
+      <p><span class="mark">2</span><strong>E39, Jamison et al. (2020).</strong> A between-subject replication
+        of the same story with 313 online participants. Same scenario, different design: the analysis guide
+        shows the effect is less than half the size.</p>
+    </div>
+
+    <h3>Statistics: the numbers each effect size is built from</h3>
+    <p>This is the table the analysis runs on. In place of the workbook's three statistics blocks it has one type column,
+      <code>dv_format</code> (scale, counts, or proportions, as the coders classified the DV). We added a second,
+      <code>es_input</code>, that records which statistic actually becomes the effect size. The authors&rsquo;
+      code takes group means and SDs when both conditions have them, a chi-square when there are counts, and
+      otherwise the coders&rsquo; hand-computed <code>best_estimate</code>. The two columns do not always agree:
+      Baron and Miller&rsquo;s choices are coded as a scale DV but analyzed from a chi-square.</p>
+
+    <div class="dt" data-table="statistics" data-title="ob_06_effect_statistics"></div>
+
+    <div class="hl-note">
+      <p><span class="mark">1</span><strong>E39: group means.</strong> M, SD, and n for both conditions. The code
+        computes a standardized mean difference directly, and it matches the <i>d</i> = 0.45 the paper printed.</p>
+      <p><span class="mark">2</span><strong>E01: a <i>t</i> statistic.</strong> Only <i>t</i>(37) = 8.03 is
+        reported. The coders divided by &radic;<i>N</i> (the paired-data formula) and wrote 1.30 in
+        <code>best_estimate</code>; the <code>conversion</code> column shows the arithmetic.</p>
+      <p><span class="mark">3</span><strong>E34: a chi-square.</strong> &chi;&sup2;(1) = 8.53. The coders&rsquo;
+        note says &ldquo;sample size 30,&rdquo; but <code>n</code> is 50, and the code uses 50. The
+        <code>best_estimate</code> of 1.26 and the value analyzed (0.89) disagree for that reason.</p>
+      <p><span class="mark">4</span><strong>E22: one comparison, three candidate effect sizes.</strong>
+        DeScioli et al. (2012) report means, SDs, and a paired <i>t</i>(142) = 7.81 for the same comparison.
+        The sheet&rsquo;s <code>best_estimate</code> is 2<i>t</i>/&radic;df = 1.31; the paired formula
+        <i>t</i>/&radic;<i>N</i> would give 0.65; and because means and SDs are present, the code uses them and
+        gets 0.38. The analysis guide shows what this choice does to the pooled estimate.</p>
+      <p><span class="mark">5</span><strong>E49: a reversal.</strong> Connolly and Reb&rsquo;s parents mostly
+        chose to vaccinate, the opposite of an omission bias. A chi-square carries no sign, so the coders set
+        <code>reverse</code> = Yes and the effect enters as negative.</p>
+    </div>
+
+    <h3>Moderators: the codes that explain variation</h3>
+    <p>Each moderator code sits next to a free-text explanation, which is what makes the coding auditable. Blank
+      familiarity and responsibility codes mean &ldquo;undetermined&rdquo;; the analysis treats them as missing,
+      except in MetaForest, which needs a value and gets the label &ldquo;undetermined.&rdquo;</p>
+
+    <div class="dt" data-table="moderators" data-title="ob_07_moderators"></div>
+
+    <div class="hl-note">
+      <p><span class="mark">1</span><strong>E49, Connolly and Reb.</strong> Parents deciding for their own child:
+        familiar with the target <em>and</em> responsible for it. Only seven units carry the role-responsibility
+        code, and this one is both the largest (<i>N</i> = 293) and the only strongly negative effect. When the
+        analysis finds that the bias vanishes under role responsibility, this row carries much of that result.</p>
+      <p><span class="mark">2</span><strong>E46, Hayashi (2015).</strong> The &ldquo;selfish&rdquo; scenario, in
+        which the actor gains. It is coded <em>self</em> as target, and it is one of only four self-target
+        units in the whole meta-analysis, which is why the paper treats the self-vs.-other result as exploratory.</p>
+    </div>
+  </section>
+
+  <section id="sanitize">
+    <div class="sec-head">
+      <p class="num">Section nine</p>
+      <h2>Sanitizing</h2>
+      <p class="sub">What we removed from the public workbook, and why.</p>
+    </div>
+
+    <p>The OSF workbook is public, but it was built as a working file, not a data release. Before putting a copy
+      on a course site we removed anything a replication does not need:</p>
+    <ul>
+      <li><strong>Contact details.</strong> The <em>Authors</em> tab lists the name, e-mail addresses, affiliation,
+        and personal web page of 91 researchers, with the dates they were written to. We kept only counts
+        per article: authors in the log, how many had an address on file, and how many replies were logged.
+        Personal pages and ResearchGate profiles were also removed from the article list&rsquo;s link column.</li>
+      <li><strong>Coder names and dates.</strong> Who coded and verified each row, and when. Useful inside a team,
+        not needed to rerun anything.</li>
+      <li><strong>The protocol link and the empty form tab.</strong></li>
+      <li><strong>Empty structure.</strong> Unused search-log columns, the empty proportions block, and empty
+        gender columns.</li>
+      <li><strong>Values Excel corrupted.</strong> Five rows had a mean age of about 42,900. Those are Excel date
+        serials (42967 is 20 August 2017): whatever was typed in the cell was turned into a date. We blanked them.</li>
+    </ul>
+
+    <div class="dt" data-table="contacts" data-title="ob_08_author_contacts"></div>
+  </section>
+
+  <section id="rebuild">
+    <div class="sec-head">
+      <p class="num">Section ten</p>
+      <h2>Rebuild the tables yourself</h2>
+      <p class="sub">One script, one input file, eight outputs, and a check against the paper.</p>
+    </div>
+
+    <p>Download the OSF archive (<a href="https://osf.io/9fcqm/">osf.io/9fcqm</a>, &ldquo;Download as zip&rdquo;)
+      and save it as <code>omission_bias/original/9fcqm-osfstorage-archive.zip</code>. The script pulls the
+      coding sheet out of the zip itself. Then, from the <code>omission_bias/data</code> folder:</p>
+<pre><code>source("ob_data_prep.R")
+#> ob_01_search_terms.csv          10 rows x  5 cols
+#> ...
+#> All checks passed: 76 articles -&gt; 13 included, 21 samples, 49 effects.</code></pre>
+
+    <p>The script reads each tab with no header, so row and column numbers in R match what you see in Excel,
+      and it selects columns by their Excel letter (<code>"BO"</code> is the <i>t</i> statistic). That makes each
+      line easy to check against the workbook. It ends by testing the counts the paper reports, so if a later
+      version of the workbook changes, the script fails loudly instead of quietly producing different data.</p>
+  </section>
+
+  <section id="exercises">
+    <div class="sec-head">
+      <p class="num">Section eleven</p>
+      <h2>Exercises</h2>
+    </div>
+    <ol class="checklist">
+      <li>Filter the article list to <em>Dropped at full text</em> (no reason recorded). For each of the six,
+        read the abstract and decide which criterion excludes it. Would you have included any of them?</li>
+      <li>Our <code>criterion</code> column maps free-text reasons to the paper&rsquo;s criteria. Find two rows in
+        the Excluded table where you would map the reason differently.</li>
+      <li>The paper counts 63 full-text exclusions by criterion (C1: 2, C2: 31, C3: 7, C4: 8, B1&ndash;B2: 15).
+        Try to reproduce that tally from the <em>Coding decisions</em> table. Where do you get stuck?</li>
+      <li>Pick one included article and one excluded article from the call to authors. Would a reviewer be able to
+        tell from the workbook how each one was found?</li>
+      <li>In the statistics table, find every row where <code>best_estimate</code> differs from
+        <code>calc_d</code> by more than 0.1. What explains each gap?</li>
+    </ol>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">References</p>
+    </div>
+    <ul>
+      <li>Yeung, S. K., Yay, T., &amp; Feldman, G. (2022). Action and inaction in moral judgments and decisions:
+        Meta-analysis of omission bias omission-commission asymmetries. <i>Personality and Social Psychology
+        Bulletin, 48</i>(10), 1499&ndash;1515. Materials: <a href="https://osf.io/9fcqm/">osf.io/9fcqm</a>.</li>
+      <li>Lakens, D. (2013). Calculating and reporting effect sizes to facilitate cumulative science. <i>Frontiers
+        in Psychology, 4</i>, 863.</li>
+      <li>Moreau, D., &amp; Gamble, B. (2022). Conducting a meta-analysis in the age of open science. <i>Psychological
+        Methods, 27</i>(3), 426&ndash;432.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Tables built from the authors&rsquo; OSF coding sheet (v6) by <code>data/ob_data_prep.R</code>; this page is built by <code>analysis/build-data-prep-page.R</code>.
+      Next: <a href="omission-bias-replication-analysis.html">the analysis</a>.</p>
+  </footer>
+</div>
+
+<script>
+/*__DATA__*/
+(function () {
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function fmt(v) {
+    if (v === null || v === undefined || v === "") return null;
+    return String(v);
+  }
+  document.querySelectorAll(".dt").forEach(function (box) {
+    var spec = DATA[box.dataset.table];
+    var marks = spec.marks || {};
+    var hasMarks = Object.keys(marks).length > 0;
+    var bar = '<div class="dt-bar"><span class="ttl">' + esc(box.dataset.title) + "</span>" +
+      '<input type="search" placeholder="Filter rows" aria-label="Filter rows">' +
+      (hasMarks ? '<label><input type="checkbox"> Marked rows only</label>' : "") +
+      '<span class="count"></span>' +
+      '<a href="data/' + esc(box.dataset.title) + '.csv" download>CSV</a></div>';
+    var head = "<thead><tr>" + spec.cols.map(function (c) {
+      return '<th scope="col">' + esc(c.l) + "</th>";
+    }).join("") + "</tr></thead>";
+    var body = spec.rows.map(function (r) {
+      var id = spec.key ? String(r[spec.key]) : null;
+      var m = id !== null && marks[id] ? marks[id] : null;
+      var cells = spec.cols.map(function (c, j) {
+        var v = fmt(r[c.k]);
+        var cls = c.c || "";
+        if (v === null) return '<td class="' + cls + ' na">&mdash;</td>';
+        var inner = cls === "long" ? "<div>" + esc(v) + "</div>" : esc(v);
+        if (j === 0 && m) inner = '<span class="mark">' + esc(m) + "</span>" + inner;
+        return '<td class="' + cls + '">' + inner + "</td>";
+      }).join("");
+      return "<tr" + (m ? ' class="hl"' : "") + ' data-text="' + esc(Object.values(r).join(" ").toLowerCase()) + '">' + cells + "</tr>";
+    }).join("");
+    box.innerHTML = bar + '<div class="dt-scroll" tabindex="0"><table>' + head + "<tbody>" + body + "</tbody></table></div>";
+
+    var rows = Array.prototype.slice.call(box.querySelectorAll("tbody tr"));
+    var q = box.querySelector("input[type=search]");
+    var only = box.querySelector("input[type=checkbox]");
+    var count = box.querySelector(".count");
+    function apply() {
+      var s = q.value.trim().toLowerCase(), n = 0;
+      rows.forEach(function (tr) {
+        var show = (!s || tr.dataset.text.indexOf(s) >= 0) && (!only || !only.checked || tr.classList.contains("hl"));
+        tr.style.display = show ? "" : "none";
+        if (show) n++;
+      });
+      count.textContent = n + " of " + rows.length + " rows";
+    }
+    q.addEventListener("input", apply);
+    if (only) only.addEventListener("change", apply);
+    box.addEventListener("click", function (e) {
+      var td = e.target.closest("td.long");
+      if (td) td.classList.toggle("open");
+    });
+    apply();
+  });
+})();
+</script>
+</body>
+</html>
