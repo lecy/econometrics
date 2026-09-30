@@ -4,7 +4,7 @@ title: Applied Econometrics
 heading: Applied Econometrics
 description: An archive of lectures, reading guides, labs, and R Markdown templates from a graduate regression sequence.
 dek: >
-  Twenty-three units of lecture slides, reading guides, labs, and R Markdown templates,
+  Twenty-five units of lecture slides, reading guides, labs, and R Markdown templates,
   spanning a four-part graduate sequence on regression and the estimation of
   program impact.
 fine: >
