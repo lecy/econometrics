@@ -596,6 +596,11 @@
       blurb: Three estimators, the parallel-lines assumption, and the gender pay gap worked example.
       links:
         - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
         - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
         - { label: PPTX, url: lectures2/p-03-varieties-of-counterfactuals.pptx, kind: pptx, download: true }
     - title: "Effect Size: ATE, ITT, and TOT"
@@ -829,6 +834,11 @@
         - { label: Counterfactuals, url: lectures2/p-01-intro-to-counterfactuals-notes.html, kind: notes }
         - { label: CF validity, url: lectures2/p-02-tests-for-cf-validity-notes.html, kind: notes }
         - { label: Three estimators, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
         - { label: Campbell Scores, url: lectures2/p-07-campbell-scores-v2-notes.html, kind: notes }
   labs:
     - title: Lab P204 — Campbell Scores on Competing Studies
@@ -874,6 +884,11 @@
       blurb: The reference for this lab — formulas, assumptions, and the parallel-lines test.
       links:
         - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
         - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
   labs:
     - title: Lab P205 — Difference-in-Difference
@@ -942,6 +957,11 @@
         - { label: Hypothesis testing with dummies, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
         - { label: Interactions, url: lectures1/p-08-dummy-variables-notes.html, kind: notes }
         - { label: Three estimators, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
 
 # ===========================================================================
 # PART 3 — Regression Tools for Impact Analysis  (schedule3 / lectures3 / labs3)
@@ -979,12 +999,28 @@
     - title: NYC Robberies Occur as School Gets Out
       cite: A seasonality and cycle example worth reading alongside the lecture.
       url: pubs/nyc-robberies-occur-as-school-gets-out.pdf
+    - title: Interrupted Time Series Regression for the Evaluation of Public Health Interventions
+      cite: "Bernal, Cummins & Gasparrini (2017), International Journal of Epidemiology. A step-by-step tutorial."
+      url: http://www.ag-myresearch.com/uploads/1/3/8/6/13864925/2016_lopezbernal_ije.pdf
+    - title: Interrupted Time Series Designs
+      cite: "Shadish, Cook & Campbell (2002), Experimental and Quasi-Experimental Designs, ch. 6."
+      url: pubs/cook-campbell-shadish-interrupted-time-series.pdf
   lectures:
     - title: Interrupted Time Series
       blurb: Tobacco taxes, the Oklahoma City birth-rate series, counterfactual prediction at each time point, and the Durbin-Watson test.
       links:
         - { label: Lecture, url: lectures3/p-020-time-series.html, kind: html }
         - { label: RMD Source, url: lectures3/p-020-time-series.rmd, kind: rmd, raw: true }
+    - title: Interrupted Time Series Specification
+      blurb: "Slides: the three time variables, relative time, and how to define an effect size in the short run and the long run."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/p-21-interrupted-time-series-specification.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/p-21-interrupted-time-series-specification.pptx, kind: pptx, download: true }
+    - title: Interrupted Time Series with a Comparison Group
+      blurb: "Slides: abbreviated time series, history as the main threat to validity, and adding a control series to strengthen the counterfactual."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/interrupted-time-series-w-comparison.pdf, kind: pdf }
+        - { label: PPT, url: lectures3/slides/interrupted-time-series-w-comparison.ppt, kind: pptx, download: true }
   labs:
     - title: Lab P301 — Interrupted Time Series
       blurb: Build the three time variables, fit the model, and plot predicted outcomes against their counterfactuals.
@@ -1036,6 +1072,11 @@
       blurb: Review — where diff-in-diff sits among the three estimators.
       links:
         - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+    - title: Hypothesis Testing with Dummy Variables
+      blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
+      links:
+        - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
   labs:
     - title: Lab P302 — Difference-in-Difference
       blurb: Fit the interaction model, interpret the effect, and check the pre-treatment trends.
@@ -1071,6 +1112,15 @@
     - title: "Impact Evaluation in Practice (World Bank)"
       cite: Reference text for panel designs.
       url: pubs/Impact_Evaluation_in_Practice%20WB%20full%20text%20second%20edition.pdf
+    - title: Panel Data Analysis, Fixed and Random Effects
+      cite: "Torres-Reyna, Princeton. Notes on reading fixed and random effects output in practice."
+      url: https://www.princeton.edu/~otorres/Panel101.pdf
+    - title: Why I Don't Use the Term "Fixed and Random Effects"
+      cite: "Gelman (2005). The terms mean different things in different disciplines."
+      url: https://statmodeling.stat.columbia.edu/2005/01/25/why_i_dont_use/
+    - title: Fixed, Mixed, and Random Effects
+      cite: "Stoudt (2017), Practical Statistics blog. How the models are estimated."
+      url: https://rlbarter.github.io/Practical-Statistics/2017/03/03/fixed-mixed-and-random-effects/
   lectures:
     - title: Fixed Effect Models
       blurb: Corn and fertilizer, company R&D investment, pooled vs. grouped intercepts, and the plm package.
@@ -1082,6 +1132,21 @@
       links:
         - { label: Lecture, url: lectures3/p-041-panel-model-specification.html, kind: html }
         - { label: RMD Source, url: lectures3/p-041-panel-model-specification.rmd, kind: rmd, raw: true }
+    - title: Correcting Bias with Panel Data
+      blurb: "Slides: management bias (Mundlak, 1965), within-group variation, and the fixed effects regression model."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/p-23-fixed-effects.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/p-23-fixed-effects.pptx, kind: pptx, download: true }
+    - title: Random Effects Example
+      blurb: Mileage and used-car prices. Car make is correlated with price but not with mileage, so a random intercept adds efficiency without fixing bias.
+      links:
+        - { label: R Script, url: lectures3/examples/random-effects.R, kind: rmd, raw: true }
+        - { label: Data (CSV), url: lectures3/data/car-prices-sub.csv, kind: data }
+    - title: Taxonomy of Control Variables
+      blurb: Review — random effects behave like Type A controls, fixed effects like Type B controls.
+      links:
+        - { label: Notes, url: lectures1/taxonomy-of-control-variables-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures1/taxonomy-of-control-variables.pdf, kind: pdf }
   labs:
     - title: Lab P303 — Fixed Effects
       blurb: Estimate the same relationship pooled and with fixed effects, and account for the difference.
@@ -1128,6 +1193,22 @@
       links:
         - { label: Lecture, url: lectures3/p-050-instrumental-variables.html, kind: html }
         - { label: RMD Source, url: lectures3/p-050-instrumental-variables.rmd, kind: rmd, raw: true }
+    - title: Bias Correction through Instrumental Variables
+      blurb: "Slides: a three-minute version, then the full treatment of omitted variable bias, causal models, and two-stage estimation."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/p-24-instrumental-variables.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/p-24-instrumental-variables.pptx, kind: pptx, download: true }
+    - title: Partitioned Regression and IV Regression
+      blurb: "Slides: partitioning the variance of Y, auxiliary regressions, what control variables do to slopes and standard errors, and how that logic leads to IV."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/partitioned-regression-and-iv-reg.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/partitioned-regression-and-iv-reg.pptx, kind: pptx, download: true }
+    - title: Instrumental Variables Example
+      blurb: A simulated dataset with a known omitted variable. Compare the full, naive, and two-stage models, then see what a weak instrument does.
+      links:
+        - { label: Lecture, url: lectures3/p-25-iv-example.html, kind: html }
+        - { label: RMD Source, url: lectures3/p-25-iv-example.rmd, kind: rmd, raw: true }
+        - { label: Data (CSV), url: lectures3/data/iv-reg-example.csv, kind: data }
   labs:
     - title: Lab P304 — Instrumental Variables
       blurb: Estimate a naive model, build the first stage, and show what the instrument recovers.
@@ -1167,6 +1248,11 @@
       links:
         - { label: Lecture, url: lectures3/p-060-reg-discontinuity.html, kind: html }
         - { label: RMD Source, url: lectures3/p-060-reg-discontinuity.rmd, kind: rmd, raw: true }
+    - title: Regression Discontinuity Design (Slides)
+      blurb: "Slides: the selection problem when participation requires qualifying, and eligibility criteria as a source of a valid counterfactual."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/regression-discontinuity-design.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/regression-discontinuity-design.pptx, kind: pptx, download: true }
   labs:
     - title: Lab P305 — Regression Discontinuity
       blurb: Fit the discontinuity, vary the bandwidth, and report how sensitive the estimate is.
@@ -1210,6 +1296,12 @@
       links:
         - { label: Lecture, url: lectures3/p-070-logistic-regression.html, kind: html }
         - { label: RMD Source, url: lectures3/p-070-logistic-regression.rmd, kind: rmd, raw: true }
+    - title: Logistic Regression (Slides)
+      blurb: "Slides: predicting law school admissions with a linear probability model and a logit model, and where their predictions differ."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/logistic-regression.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/logistic-regression.pptx, kind: pptx, download: true }
+        - { label: R Example, url: lectures3/examples/logistic-regression-example.R, kind: rmd, raw: true }
   labs:
     - title: Lab P306 — Logistic Regression
       blurb: Fit a logit model, convert coefficients to probabilities, and compare marginal effects at different baselines.
@@ -1254,6 +1346,11 @@
       links:
         - { label: Lecture, url: lectures3/p-080-matching.html, kind: html }
         - { label: RMD Source, url: lectures3/p-080-matching.rmd, kind: rmd, raw: true }
+    - title: Bias from Selection and Corrections Using Matching
+      blurb: "Slides: the selection problem in microfinance and charter school examples, probability models, and propensity score matching."
+      links:
+        - { label: Slides (PDF), url: lectures3/slides/Matching.pdf, kind: pdf }
+        - { label: PPTX, url: lectures3/slides/Matching.pptx, kind: pptx, download: true }
   labs:
     - title: Lab P307 — Propensity Score Matching
       blurb: Build matching scores, construct a matched comparison group, and re-estimate the program effect.
