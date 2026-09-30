@@ -1,0 +1,127 @@
+---
+title: "Dummy Variable Model"
+output:
+  html_document:
+    theme: readable
+    highlight: tango
+    toc: true
+    self_contained: true
+    number_sections: false
+    css: textbook.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=T, fig.width=9, fig.height=6, warning=F, message=F )
+```
+
+
+
+```{r}
+library( dplyr )       # data wrangling
+library( scales )      # alpha in plot
+library( stargazer )   # nice regressions
+library( pander )      # nice tables
+```
+
+
+
+```{r}
+set.seed(1235)
+N <- 10
+x <- rnorm(12*N,200,20)
+treat_d <- rep( c(0,1), each=6*N )
+control_d <- rep( c(1, 0), each=6*N )
+time1_d <- rep( c(1,0,1,0), each=3*N )
+time2_d <- rep( c(0,1,0,1), each=3*N )
+
+y <- 200 + 25*treat_d - 50*time1_d + 2*x + 20*treat_d*time2_d + rnorm(12*N,0,20)
+
+group <- ifelse( treat_d==1, "treatment", "control" ) |> factor()
+time  <- ifelse( time1_d==1, "pre", "post" ) |> factor( levels=c("pre","post") )
+labels <- c("control-pre","control-post","treatment-pre","treatment-post")
+group_time <- paste0(group,"-",time) |> factor( levels=labels ) 
+
+
+df <- data.frame(y,x,group,time,treat_d,control_d,time1_d,time2_d)
+```
+
+
+```{r, eval=F}
+df_preview <- df[ rep(c(T,F),c(1,(N-1))), ]
+row.names(df_preview) <- NULL
+pander( df_preview )
+```
+
+
+```
+
+----------------------------------------------------------------------------
+   y       x       group     time   treat_d   control_d   time1_d   time2_d 
+------- ------- ----------- ------ --------- ----------- --------- ---------
+ 517.3    186     control    pre       0          1          1         0    
+
+ 561.8   181.2    control    pre       0          1          1         0    
+
+ 550.5    200     control    pre       0          1          1         0    
+------- ------- ----------- ------ --------- ----------- --------- ---------
+  555    173.9    control    post      0          1          0         1    
+
+ 592.8   203.3    control    post      0          1          0         1    
+
+ 624.5   206.3    control    post      0          1          0         1    
+------- ------- ----------- ------ --------- ----------- --------- ---------
+ 584.2   215.3   treatment   pre       1          0          1         0    
+
+  578    203.3   treatment   pre       1          0          1         0    
+
+ 590.3   205.7   treatment   pre       1          0          1         0    
+------- ------- ----------- ------ --------- ----------- --------- ---------
+ 572.1   165.2   treatment   post      1          0          0         1    
+
+ 748.7    253    treatment   post      1          0          0         1    
+
+ 612.5   191.7   treatment   post      1          0          0         1   
+------- ------- ----------- ------ --------- ----------- --------- ---------
+   y       x       group     time   treat_d   control_d   time1_d   time2_d 
+----------------------------------------------------------------------------
+```
+
+
+```{r, fig.height=10}
+par( mfrow=c(2,1) )
+color_g <- ifelse( treat_d, "firebrick","steelblue" )
+color_t <- ifelse( time1_d, "orange4","violet" )
+plot( x, y, bty="n", pch=19, cex=3, col=alpha(color_g,0.5), main="Treatment and Control Groups" )
+plot( x, y, bty="n", pch=19, cex=3, col=alpha(color_t,0.5), main="Time Periods" )
+```
+
+
+```{r, fig.height=10}
+par( mfrow=c(2,1) )
+plot( y ~  group_time )
+plot( x ~  group_time )
+```
+
+
+```{r}
+df %>% 
+  group_by( group, time ) %>% 
+  summarize( ave=mean(y) ) %>%
+  pander( digits=3 )
+```
+
+
+```{r, results="asis"}
+m1 <- lm( y ~ treat_d*time2_d, data=df ) 
+m2 <- lm( y ~ treat_d*time2_d + x, data=df ) 
+
+vars <- c("Constant","treat_d", "time2_d", "treat_d:time2_d","x")
+stargazer( m1,m2,type="html", order=vars, 
+           intercept.bottom=FALSE )
+```
+
+<br>
+<br>
+
+
+

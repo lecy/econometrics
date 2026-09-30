@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seven Sins of Regression</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Seven Sins of Regression</h1>
+    <p class="dek">A reading guide for lecture <span class="m">p-10</span> &mdash; seven failure modes,
+      and why most of them are the same one.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The seven sins, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">(1) Omitted variable bias.</p>
+      <p>A variable Z related to both X and Y is left out.</p>
+      <ul>
+        <li><strong>When it matters:</strong> spurious correlations
+          (<span class="m"><i>Z</i> &rarr; <i>X</i></span> and
+          <span class="m"><i>Z</i> &rarr; <i>Y</i></span>) and indirect effects
+          (<span class="m"><i>X</i> &rarr; <i>Z</i> &rarr; <i>Y</i></span>)</li>
+        <li><strong>When it doesn&rsquo;t:</strong> Z unrelated to X</li>
+      </ul>
+
+      <p class="claim">(2) Multicollinearity.</p>
+      <p>Two explanatory variables are highly correlated with each other.</p>
+      <ul>
+        <li>You <strong>cannot tell the independent effects</strong> of either variable</li>
+        <li>The standard errors of <strong>both</strong> slopes are inflated</li>
+        <li>The higher the collinearity, the smaller the independent region, the larger the standard
+          errors, the less likely significance</li>
+      </ul>
+
+      <p class="claim">(3) Measurement bias.</p>
+      <ul>
+        <li>Measurement error is <strong>random</strong> error</li>
+        <li>In the <strong>dependent</strong> variable &rarr; affects <strong>standard errors
+          only</strong></li>
+        <li>In an <strong>independent</strong> variable &rarr; causes <strong>attenuation</strong></li>
+        <li>Attenuation <strong>always pushes the slope toward zero</strong>, whether the relationship is
+          positive or negative</li>
+        <li><strong>Systematic</strong> mis-measurement (adding the same amount to each observation) is a
+          linear transformation, and changes nothing but the intercept</li>
+      </ul>
+
+      <p class="claim">(4) Misspecification bias.</p>
+      <p>The functional form is wrong &mdash; a straight line fitted to a curved relationship.</p>
+
+      <p class="claim">(5) Group differences (heterogeneity bias).</p>
+      <blockquote>
+        <p>If you have natural group structures in your data and there are innate differences in the
+          groups that are correlated with your study variable, then you will likely end up with
+          heterogeneity bias if you do not include the groups in your model.</p>
+      </blockquote>
+      <p>A &ldquo;group&rdquo; can be many individuals over one or more periods &mdash; <strong>or one
+        individual measured over time</strong>.</p>
+      <div class="table-scroll">
+        <table class="split">
+          <thead><tr><th scope="col">Scenario</th><th scope="col">Pooled model is</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td>unbiased + efficient</td></tr>
+            <tr><th scope="row">2</th><td>unbiased + inefficient</td></tr>
+            <tr><th scope="row">3</th><td>biased + inefficient</td></tr>
+            <tr><th scope="row">Matthew effect</th><td>program impact over-stated</td></tr>
+            <tr><th scope="row">Artificial program impact</th><td>program impact over-stated</td></tr>
+            <tr><th scope="row">Simpson&rsquo;s paradox</th><td><strong>impact has the wrong sign</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="claim">(6) Bias via selection.</p>
+      <p>When people choose whether to participate, the treatment group differs from the control group on
+        whatever drove that choice &mdash; e.g. <em>propensity to succeed</em>. Self-selected groups and
+        randomly assigned groups can produce opposite slopes from the same underlying process.</p>
+
+      <p class="claim">(7) Simultaneity bias.</p>
+      <p>The causal structure is a feedback loop:
+        <span class="m"><i>X</i><sub>1</sub> &rarr; <i>Y</i> &rarr; <i>X</i><sub>2</sub> &rarr; <i>X</i><sub>1</sub></span>.
+        Independent effects cannot be separated. Monetary policy is the standard example.</p>
+    </div>
+  </section>
+
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>Five of the seven are the same sin wearing different clothes</h3>
+    <p>The deck presents seven items. They are not seven independent topics. Look at what is actually
+      missing from the model in each case:</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr><th scope="col">Sin</th><th scope="col">What is omitted</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">(1) Omitted variable bias</th><td>a confounder Z</td></tr>
+          <tr><th scope="row">(5) Heterogeneity bias</th><td><strong>group membership</strong></td></tr>
+          <tr><th scope="row">(6) Selection bias</th><td><strong>whatever drove the decision to participate</strong></td></tr>
+          <tr><th scope="row">(7) Simultaneity</th><td>the reverse-causal path</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>All four are the same diagnosis: <strong>something correlated with X is not in the model</strong>,
+      so <span class="m"><i>b</i><sub>1</sub></span> absorbs its effect. Run each through
+      <span class="m">bias = <i>&alpha;</i><sub>1</sub><i>&beta;</i><sub>2</sub></span> from p-07 and the
+      arithmetic is identical. Only the name of the missing thing changes.</p>
+    <p>Sin (2), multicollinearity, is the <em>cost of the cure</em> &mdash; what happens when the variable
+      you added to fix the problem is too closely tied to your treatment. Sins (3) and (4) are the
+      measurement and functional-form problems from p-09.</p>
+    <div class="callout">
+      <p>So the deck is really: one disease with four presentations, one expensive treatment, and two
+        unrelated ailments. Learning it as seven separate facts is much harder than learning it as
+        that.</p>
+    </div>
+
+    <h3>Multicollinearity and omitted variable bias are the two ends of one dial</h3>
+    <p>This is the tension p-06 introduced, now named on both ends.</p>
+    <ul>
+      <li>Leave the correlated variable <strong>out</strong> &rarr; omitted variable bias. Your estimate
+        is wrong.</li>
+      <li>Put it <strong>in</strong> &rarr; multicollinearity. Your estimate is right on average but the
+        standard errors balloon, because there is little independent variation left in X to estimate
+        from.</li>
+    </ul>
+    <p>Notice that these are not two different problems to be avoided separately. They are two readings
+      of the same fact: <em>your treatment and your confounder move together</em>. There is no
+      specification that escapes both. What you choose is which cost to pay.</p>
+    <p>And there is no statistical test that resolves it, because the question is whether the variable
+      belongs in the model &mdash; a claim about the world.</p>
+
+    <h3>Heterogeneity bias is the most under-appreciated sin</h3>
+    <p>The blood pressure example is the one to remember, because the numbers reverse.</p>
+    <p>Pooled across everyone, the regression of blood pressure on dosage gives a <strong>positive</strong>
+      slope of <span class="m">+3.664</span>, highly significant, with
+      <span class="m"><i>R</i><sup>2</sup> = 0.73</span>. Every diagnostic looks excellent.</p>
+    <p>Split by individual, <strong>every within-person slope is negative</strong>. Higher doses lower
+      blood pressure &mdash; for each person.</p>
+    <p>Both results are correct descriptions of different comparisons. The pooled slope is comparing
+      <em>across</em> people: sicker people take more medication and have higher blood pressure. The
+      within-person slope compares each person to themselves. Only the second answers &ldquo;what does
+      the drug do?&rdquo;</p>
+    <p>This is Simpson&rsquo;s paradox, and the deck&rsquo;s six-scenario slide shows that it is the
+      extreme case of a continuum &mdash; the pooled model can be fine, merely inefficient, over-stated,
+      or sign-flipped, depending on how the group intercepts line up with X.</p>
+    <div class="callout">
+      <p><strong>The practical rule:</strong> if your data have a natural group structure &mdash; people
+        over time, students in schools, firms in industries &mdash; the pooled slope is answering a
+        different question from the within-group slope, and you have to decide which one you meant.</p>
+    </div>
+
+    <h3>Cross-section variation versus within-group variation</h3>
+    <p>The two slides with those titles are the whole idea, and it is worth naming the distinction as a
+      habit:</p>
+    <ul>
+      <li><strong>Cross-section (between-group) variation</strong> compares different units to each
+        other. It is contaminated by everything those units differ on.</li>
+      <li><strong>Within-group variation</strong> compares a unit to itself. Everything fixed about that
+        unit &mdash; measured or not &mdash; cancels.</li>
+    </ul>
+    <p>Including group dummies (fixed effects) forces the model to use only the second. That is why the
+      technique is so powerful: it removes <em>all</em> time-invariant confounders at once without
+      measuring any of them, which is the same trick DiD plays in p-08 and the same ambition
+      randomization achieves in a different way.</p>
+
+    <h3>Selection bias is heterogeneity bias you caused by asking</h3>
+    <p>The office-hours example is neat because both panels show real data from the same underlying
+      process, and the slopes point in opposite directions.</p>
+    <p>When students <strong>choose</strong> whether to attend office hours, attendance is correlated
+      with an unmeasured propensity &mdash; and if weaker students seek help, the raw comparison makes
+      tutoring look harmful. When students are <strong>assigned</strong>, that correlation is broken and
+      the true positive effect appears.</p>
+    <p>The Venn version makes the mechanism explicit: in the self-selected panel the &ldquo;propensity to
+      succeed&rdquo; circle overlaps both office hours and test scores. That is precisely
+      <span class="m"><i>&alpha;</i><sub>1</sub> &ne; 0</span> and
+      <span class="m"><i>&beta;</i><sub>2</sub> &ne; 0</span> &mdash; the two conditions for bias from
+      p-07.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>2&ndash;4</td><td>Sin 1: omitted variables</td><td>Spurious vs. indirect; when Z is harmless.</td></tr>
+          <tr><td>5&ndash;6</td><td>Sin 2: multicollinearity</td><td>The independent region shrinks; standard errors inflate.</td></tr>
+          <tr><td>7&ndash;11</td><td>Sin 3: measurement</td><td>Random vs. systematic. Attenuation always toward zero.</td></tr>
+          <tr><td>12</td><td>Sin 4: misspecification</td><td>Cross-reference p-09.</td></tr>
+          <tr><td>13&ndash;14</td><td>Sin 5 introduced</td><td><strong>The six-scenario slide.</strong> Pooled vs. fixed-effect slopes.</td></tr>
+          <tr><td>15&ndash;17</td><td>Cross-section vs within-group</td><td>The blood-pressure reversal. Pooled <span class="m">+3.66</span>, within-person all negative.</td></tr>
+          <tr><td>18&ndash;20</td><td>Heterogeneity in Venn form</td><td>Used cars: if car type is uncorrelated with mileage, <span class="m"><i>&alpha;</i><sub>1</sub> = 0</span> and there is no bias.</td></tr>
+          <tr><td>21&ndash;23</td><td>Sin 6: selection</td><td>Self-selected vs assigned. Propensity to succeed is the omitted variable.</td></tr>
+          <tr><td>24</td><td>Sin 7: simultaneity</td><td>Feedback loops. Flagged as not covered further.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">This deck has no closing checklist. These are the things to be able to do.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>Name all seven and say what each does to the slope and the standard error.</strong> Most
+        bias the slope; multicollinearity inflates standard errors; measurement error in Y does only the
+        latter.</li>
+      <li><strong>Recognise that sins 1, 5, 6, and 7 share a mechanism.</strong> Something correlated
+        with X is missing, so <span class="m"><i>b</i><sub>1</sub></span> absorbs it.</li>
+      <li><strong>Explain the multicollinearity/OVB trade-off</strong> and why no test settles it.</li>
+      <li><strong>Reproduce the blood-pressure reversal</strong> and say which slope answers the causal
+        question.</li>
+      <li><strong>Explain why fixed effects work</strong> &mdash; they use within-group variation only,
+        which cancels every time-invariant difference.</li>
+      <li><strong>Spot selection bias in a study design</strong> by asking what determined who ended up
+        in the treatment group.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Seven sins, but mostly one mechanism.</strong> OVB, heterogeneity, selection, and
+        simultaneity all reduce to something correlated with X being outside the model.</li>
+      <li><strong>Multicollinearity is the price of fixing OVB</strong>, not a separate hazard to dodge.
+        You choose which cost to pay.</li>
+      <li><strong>Attenuation always runs toward zero</strong>; systematic mis-measurement moves only the
+        intercept.</li>
+      <li><strong>A &ldquo;group&rdquo; can be one person measured repeatedly.</strong> Panel data is
+        group data.</li>
+      <li><strong>Pooled and within-group slopes answer different questions</strong> and can have
+        opposite signs.</li>
+      <li><strong>Simpson&rsquo;s paradox is the extreme end of heterogeneity bias</strong>, not a
+        curiosity.</li>
+      <li><strong>Fixed effects remove all time-invariant confounders without measuring any of
+        them.</strong></li>
+      <li><strong>Selection bias is created by who chose to participate.</strong> Ask what drove the
+        choice; that is your omitted variable.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">p-10-seven-sins-of-regression</span>. Source file lives alongside
+      this page as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>

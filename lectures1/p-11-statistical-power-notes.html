@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistical Power</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Statistical Power</h1>
+    <p class="dek">A reading guide for lecture <span class="m">p-11</span> &mdash; why a study can have
+      perfect coverage and still be unable to find anything.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The definitions the deck turns on, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Statistical power is not the level of confidence.</p>
+      <blockquote>
+        <p>Power determines how often we <strong>reject the null</strong> (the CI does not contain
+          ZERO). Level of confidence is how often a confidence interval drawn from a random sample will
+          contain the <strong>TRUE SLOPE</strong>.</p>
+      </blockquote>
+      <p>Two different reference points, two different questions. A study can be performing exactly as
+        designed on one and failing badly on the other.</p>
+
+      <p class="claim">Statistical power, defined.</p>
+      <blockquote>
+        <p>The probability of identifying a specific program effect (slope or effect size) using a
+          specific sampling framework.</p>
+      </blockquote>
+      <p>Note the two qualifiers: power is always power <em>for a particular effect size</em> under
+        <em>a particular design</em>. It is not a property of a method.</p>
+
+      <p class="claim">&ldquo;Type I error&rdquo; is used in two distinct ways.</p>
+      <div class="table-scroll">
+        <table class="split">
+          <thead><tr><th scope="col"></th><th scope="col">Null is</th><th scope="col">A false positive means</th><th scope="col">Measured by</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Sampling version</th><td>the true slope</td><td>the CI misses the true value</td><td>alpha</td></tr>
+            <tr><th scope="row">Program evaluation version</th><td>slope <span class="m">= 0</span></td><td>concluding a program worked when it did not</td><td>the regression p-value</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The p-value your software reports corresponds to the <strong>second</strong>.</p>
+
+      <p class="claim">The worked example.</p>
+      <p>True slope <span class="m">= 1</span>, <span class="m"><i>n</i> = 10</span>, alpha
+        <span class="m">= 0.05</span>, 100 simulated samples:</p>
+      <ul>
+        <li><strong>7 of 100</strong> confidence intervals fail to contain the true slope &mdash; about
+          what alpha predicts. Confidence is working.</li>
+        <li><strong>More than half</strong> of the samples fail to reject the null. Power is
+          terrible.</li>
+        <li>The p-value would be around 0.50</li>
+      </ul>
+
+      <p class="claim">Three ways to increase power.</p>
+      <ol>
+        <li><strong>Increase the sample size.</strong> <span class="m"><i>n</i> = 10 &rarr; 50</span>:
+          failure to reject drops from about a half to about a third. At
+          <span class="m"><i>n</i> = 75</span>, only 5&ndash;10%.</li>
+        <li><strong>Add control variables.</strong> Same mechanism &mdash; a smaller residual means a
+          smaller standard error means a narrower interval.</li>
+        <li><strong>Have a bigger effect to find.</strong> With <span class="m"><i>n</i> = 10</span> but
+          a true slope of 4 instead of 1, power is high. <em>It is easier to detect large changes than
+          small ones.</em></li>
+      </ol>
+
+      <p class="claim">Leverage can bias estimates systematically across random samples.</p>
+      <p>If the sampling frame concentrates observations in particular regions of X, those high-leverage
+        points pull the fitted slope in a consistent direction &mdash; producing estimates that are
+        systematically too large or too small even though every sample was drawn at random.</p>
+    </div>
+  </section>
+
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>The distinction this deck exists to make</h3>
+    <p>Almost everything here is in service of one sentence: <strong>confidence and power are different
+      properties, measured against different nulls.</strong></p>
+    <p>Take the worked example seriously, because the two numbers point opposite ways:</p>
+    <ul>
+      <li>Only 7 of 100 intervals miss the <strong>true slope of 1</strong>. With alpha at 0.05 you
+        expected about 5. The confidence procedure is behaving exactly as advertised.</li>
+      <li>Yet more than half of those same intervals contain <strong>zero</strong>, so more than half of
+        these studies would report &ldquo;no significant effect&rdquo; &mdash; about a real effect.</li>
+    </ul>
+    <p>Both statements describe the same 100 simulations. Nothing is broken. The study is correctly
+      quantifying its own uncertainty and is simply too small to distinguish a slope of 1 from a slope of
+      0.</p>
+    <div class="callout">
+      <p>The lesson: <strong>&ldquo;we used a 95% confidence interval&rdquo; says nothing about whether
+        your study could have found anything.</strong> Those are separate design questions, and only the
+        second is about power.</p>
+    </div>
+
+    <h3>Two nulls, two false positives</h3>
+    <p>The deck is unusually careful about a genuine ambiguity in the term &ldquo;Type I error,&rdquo;
+      and it is worth keeping the two straight:</p>
+    <ul>
+      <li>In the <strong>sampling</strong> sense, the null is the true parameter, and a false positive is
+        an interval that fails to cover it. This is the coverage property from p-04&rsquo;s three-draw
+        sequence &mdash; the purple intervals in the simulation.</li>
+      <li>In the <strong>program evaluation</strong> sense, the null is zero effect, and a false positive
+        is claiming a program worked when it did not. This is what a p-value in a regression table
+        reports, and it is the version that matters for decisions.</li>
+    </ul>
+    <p>They coincide only in the special case where the true effect actually is zero. Everywhere else
+      they are answering different questions, which is why a study can have good coverage and no power
+      at the same time.</p>
+
+    <h3>Power depends on the effect you are looking for</h3>
+    <p>The slide that makes this concrete is the one where the sample size stays at 10 and the true slope
+      changes from 1 to 4. Nothing about the design improved &mdash; same data-collection budget, same
+      noise &mdash; and power goes from dismal to good.</p>
+    <p>That has two consequences worth carrying into research design:</p>
+    <ul>
+      <li><strong>You cannot compute power without naming an effect size.</strong> &ldquo;Is my study
+        powered?&rdquo; is not a well-formed question. &ldquo;Is my study powered to detect a slope of
+        1?&rdquo; is.</li>
+      <li><strong>Small effects require large studies, and the relationship is unforgiving.</strong> If
+        the intervention you are evaluating is realistically going to move the outcome a little, the
+        sample size must do all the work.</li>
+    </ul>
+    <p>This is also the honest reason many program evaluations fail to find effects. It is often not that
+      the program did nothing; it is that the design could never have detected what the program plausibly
+      does.</p>
+
+    <h3>Power reuses the same three levers</h3>
+    <p>Slide 12 says power improves with sample size or control variables. That is not a new mechanism
+      &mdash; it is the standard-error formula from p-03, seen from the other end:</p>
+    <div class="eq center">
+      <span class="m">SE<sub><i>b</i><sub>1</sub></sub> &asymp;
+        <span class="frac"><span class="num">residual</span><span class="den">sample size &middot; var(<i>x</i>)</span></span></span>
+    </div>
+    <p>Anything that shrinks the standard error narrows the interval, and a narrower interval is less
+      likely to contain zero. So the levers for power are the levers for precision: more cases, more
+      explained variance (controls, from p-06), and more variation in X.</p>
+    <p>Which means the whole course now closes a loop. Unexplained variance sets the standard error
+      (p-02, p-03); the standard error sets the interval (p-04); the interval decides significance
+      (p-05); and how often you get significance when there is something to find is power (p-11).</p>
+
+    <h3>Type II errors are a design failure, not an analysis failure</h3>
+    <p>Put p-05&rsquo;s error table next to this deck and the asymmetry stands out:</p>
+    <ul>
+      <li><strong>Type I errors</strong> come mostly from <strong>bias</strong> &mdash; a mis-specified
+        model, an omitted variable. They are fixed by thinking harder about the model.</li>
+      <li><strong>Type II errors</strong> come mostly from <strong>low power</strong> &mdash; too few
+        cases, too much noise, too small an effect. They are fixed <em>before data collection</em> or not
+        at all.</li>
+    </ul>
+    <p>You can re-specify a model after the fact. You cannot re-power a study after the fact. That is the
+      practical argument for doing power calculations at the design stage rather than treating them as a
+      reviewer&rsquo;s request.</p>
+
+    <h3>The leverage puzzle at the end</h3>
+    <p>Slides 16 and 17 pose a question rather than answering it: the estimates are systematically too
+      large (then too small) across repeated random samples. If sampling is random, where does a
+      <em>systematic</em> error come from?</p>
+    <p>Slides 18 and 19 give the answer with one word circled &mdash; <strong>leverage</strong>. Points at
+      the extremes of X exert disproportionate pull on the fitted line (this is p-09&rsquo;s outlier
+      geometry). When the sampling frame reliably includes a cluster in a high-leverage region, every
+      sample inherits the same tug, and the bias shows up in the sampling distribution as a shifted
+      centre rather than as extra spread.</p>
+    <p>The important structural point: this is <strong>bias, not noise</strong>. More samples will not
+      average it away, and a larger <span class="m"><i>n</i></span> will not fix it. It is a
+      specification problem masquerading as a sampling one &mdash; which is exactly what the deck&rsquo;s
+      hint says.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>1&ndash;4</td><td>Sampling distribution recap</td><td><span class="m"><i>n</i> = 10</span> vs <span class="m"><i>n</i> = 50</span>. Carried over from p-03.</td></tr>
+          <tr><td>5&ndash;7</td><td>Confidence interval width</td><td>60%, 90%, 95%, 99% on the same estimate.</td></tr>
+          <tr><td>8&ndash;9</td><td>The normal distribution and <span class="m"><i>n</i> = 50</span></td><td>Setup for the simulation.</td></tr>
+          <tr><td>10&ndash;11</td><td><strong>The two-nulls slides</strong></td><td>The thesis. Read the notes text carefully &mdash; it is doing the work.</td></tr>
+          <tr><td>12&ndash;14</td><td>Power and sample size</td><td><span class="m">10 &rarr; 50 &rarr; 75</span>; failure rate a half &rarr; a third &rarr; 5&ndash;10%.</td></tr>
+          <tr><td>15</td><td>Power and effect size</td><td>True slope of 4 at <span class="m"><i>n</i> = 10</span>. Big effects are easy to find.</td></tr>
+          <tr><td>16&ndash;17</td><td><strong>A puzzle</strong></td><td>Systematic error from random samples. Try to answer before turning the page.</td></tr>
+          <tr><td>18&ndash;19</td><td>The answer: leverage</td><td>Extreme-X clusters bias every sample the same way.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">This deck has no closing checklist. These are the things to be able to answer.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>The difference between confidence and power.</strong> Confidence asks how often your
+        interval covers the true slope. Power asks how often you reject zero when the effect is real.
+        Different nulls, different questions.</li>
+      <li><strong>Why a study can have correct coverage and no power.</strong> The interval is honestly
+        reporting a lot of uncertainty; that uncertainty just happens to span zero.</li>
+      <li><strong>The two meanings of Type I error</strong>, and which one your regression p-value
+        reports.</li>
+      <li><strong>What power depends on:</strong> sample size, residual variance, variation in X, and the
+        size of the effect you are trying to detect.</li>
+      <li><strong>Why power must be specified against an effect size.</strong> &ldquo;Powered&rdquo; is
+        meaningless without &ldquo;powered to detect what.&rdquo;</li>
+      <li><strong>Why leverage produces systematic rather than random error</strong>, and why more
+        sampling will not fix it.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Power and confidence are not the same thing.</strong> One is measured against the true
+        slope, the other against zero.</li>
+      <li><strong>7 misses in 100 is good coverage; failing to reject half the time is bad power.</strong>
+        Both were true of the same simulation.</li>
+      <li><strong>Power is always power to detect a specific effect</strong> under a specific design.</li>
+      <li><strong>Big effects are easy to find; small ones need large samples.</strong> Sample size and
+        effect size trade off directly.</li>
+      <li><strong>The levers for power are the levers for precision</strong> &mdash; more cases, more
+        explained variance, more spread in X.</li>
+      <li><strong>Type I errors are usually a modelling failure; Type II errors are usually a design
+        failure.</strong> Only the first can be fixed after the data are collected.</li>
+      <li><strong>Leverage biases every sample the same way</strong>, so it shows up as a shifted sampling
+        distribution, not a wider one.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">p-11-statistical-power</span>. Source file lives alongside this
+      page as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,2882 @@
+---
+pagetitle: "Build the Model from the Hypothesis"
+output:
+  html_document:
+    theme: null
+    highlight: null
+    mathjax: null
+    self_contained: true
+    md_extensions: -implicit_figures
+---
+
+<!--
+  Unit 14 · Practicing Dummy Variable Specifications
+
+  Every figure is drawn by the R functions in the setup chunk below and embedded in the
+  rendered HTML, so the page has no external image files. The page body is written as raw
+  HTML blocks (```{=html}) so it can share the styling of the course notes pages; each
+  figure sits between two raw blocks as an ordinary R chunk.
+
+  Render with:  rmarkdown::render("dummy-variable-specification-exercises.rmd")
+-->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE,
+  dev = "png", dpi = 200, fig.retina = 1,
+  fig.width = 6.5, fig.height = 3
+)
+
+# ---- palette and plot scaffolding --------------------------------------------
+
+blue   <- "#3f77b1"
+orange <- "#dd7a35"
+slate  <- "#5e6878"
+red    <- "#b23a48"
+light  <- "#b1b8bf"
+gridc  <- "#ececec"
+
+fig_par <- function() {
+  par(mar = c(3.1, 3.6, 0.6, 0.8), mgp = c(2.1, 0.55, 0), las = 1,
+      tcl = -0.3, cex.axis = 0.8, cex.lab = 0.85, bty = "l")
+}
+
+# Empty plot with light gridlines, left/bottom axes only.
+# Pass xat + xlabels for a categorical x-axis.
+fig_frame <- function(xlim, ylim, xlab, ylab, yat = pretty(ylim),
+                      xat = NULL, xlabels = NULL) {
+  fig_par()
+  plot(NA, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
+       axes = FALSE, xaxs = "i", yaxs = "i")
+  abline(h = yat, col = gridc, lwd = 0.8)
+  if (is.null(xlabels)) {
+    xt <- pretty(xlim)
+    abline(v = xt, col = gridc, lwd = 0.8)
+    axis(1, at = xt, lwd = 0, lwd.ticks = 1)
+  } else {
+    abline(v = xat, col = gridc, lwd = 0.8)
+    axis(1, at = xat, labels = xlabels, lwd = 0, lwd.ticks = 1)
+  }
+  axis(2, at = yat, lwd = 0, lwd.ticks = 1)
+  box(bty = "l")
+}
+
+dot <- function(x, y, col, cex = 1.5) {
+  points(x, y, pch = 21, bg = col, col = "white", cex = cex, lwd = 1.2)
+}
+
+legend_tl <- function(labels, cols, lty = 1, lwd = 3, pch = NA, pt.bg = NA) {
+  legend("topleft", legend = labels, col = cols, lty = lty, lwd = lwd,
+         pch = pch, pt.bg = pt.bg, bty = "n", cex = 0.75, seg.len = 1.6,
+         inset = c(0.01, 0.02))
+}
+
+# Two categories joined by one line per group (2 x 2 designs).
+two_by_two <- function(xlabels, xlab, ylim, series, cols) {
+  fig_frame(c(0.6, 2.4), ylim, xlab, "Outcome", yat = seq(ylim[1], ylim[2], 5),
+            xat = 1:2, xlabels = xlabels)
+  for (i in seq_along(series)) {
+    lines(1:2, series[[i]], col = cols[i], lwd = 3)
+    dot(1:2, series[[i]], cols[i], cex = 1.3)
+  }
+  legend_tl(names(series), cols)
+}
+
+# ---- one function per figure -------------------------------------------------
+
+fig_01a <- function() {
+  set.seed(609)
+  y <- 74 + as.vector(scale(rnorm(24))) * 5
+  x <- runif(24, 0.65, 1.35)
+  fig_frame(c(0.2, 2.6), c(55, 90), "", "Score", yat = seq(55, 90, 5),
+            xat = 1, xlabels = "Sample")
+  abline(h = 70, col = slate, lty = 2, lwd = 2)
+  points(x, y, pch = 16, col = adjustcolor(blue, 0.45), cex = 0.9)
+  segments(0.6, 74, 1.4, 74, col = blue, lwd = 3)
+  text(1.47, 74, "Sample mean 74", adj = 0, cex = 0.75, col = blue, font = 2)
+  text(2.55, 70, "Benchmark 70", adj = c(1, 1.5), cex = 0.75, col = slate)
+}
+
+fig_01b <- function() {
+  set.seed(610)
+  yc <- 50 + as.vector(scale(rnorm(18))) * 5
+  yt <- 62 + as.vector(scale(rnorm(18))) * 5
+  fig_frame(c(0.4, 2.6), c(35, 80), "Group (different people)", "Score",
+            yat = seq(35, 80, 5), xat = 1:2, xlabels = c("Control", "Treatment"))
+  points(runif(18, 0.8, 1.2), yc, pch = 16, col = adjustcolor(blue, 0.45), cex = 0.9)
+  points(runif(18, 1.8, 2.2), yt, pch = 16, col = adjustcolor(orange, 0.5), cex = 0.9)
+  segments(0.72, 50, 1.28, 50, col = blue, lwd = 3)
+  segments(1.72, 62, 2.28, 62, col = orange, lwd = 3)
+  text(1.3, 50, "mean 50", adj = 0, cex = 0.75, col = blue, font = 2)
+  text(2.3, 62, "mean 62", adj = 0, cex = 0.75, col = orange, font = 2)
+}
+
+fig_01c <- function() {
+  pre  <- c(A = 50, B = 60, C = 55)
+  post <- c(A = 58, B = 66, C = 62)
+  fig_frame(c(0.5, 2.7), c(45, 70), "Period (same people measured twice)", "Score",
+            yat = seq(45, 70, 5), xat = 1:2, xlabels = c("Pre", "Post"))
+  segments(1, pre, 2, post, col = light, lwd = 2)
+  dot(rep(1, 3), pre, slate, cex = 1.1)
+  dot(rep(2, 3), post, slate, cex = 1.1)
+  text(2.06, post, paste0(names(post), ": +", post - pre), adj = 0, cex = 0.72, col = slate)
+  dot(1, 55, blue)
+  dot(2, 62, orange)
+  text(0.94, 55, "Pre mean 55", adj = 1, cex = 0.75, col = blue, font = 2)
+  text(2.06, 69, "Post mean 62", adj = 0, cex = 0.75, col = orange, font = 2)
+  segments(2, 62, 2.05, 68.2, col = orange, lwd = 1)
+}
+
+fig_02 <- function() {
+  m <- c(70, 76, 61)
+  cols <- c(blue, orange, slate)
+  fig_frame(c(0.4, 3.6), c(50, 85), "Program", "Mean score", yat = seq(50, 85, 5),
+            xat = 1:3, xlabels = c("Traditional", "Hybrid", "Online"))
+  dot(1:3, m, cols, cex = 1.7)
+  text(1:3, m + 2.4, m, cex = 0.8, col = cols, font = 2)
+}
+
+fig_03 <- function() {
+  fig_frame(c(0, 10), c(10, 70), "X", "Outcome", yat = seq(10, 70, 10))
+  abline(20, 3, col = blue, lwd = 3)
+  abline(30, 3, col = orange, lwd = 3)
+  legend_tl(c("A", "B"), c(blue, orange))
+}
+
+fig_04 <- function() {
+  fig_frame(c(0, 10), c(10, 90), "X", "Outcome", yat = seq(10, 90, 10))
+  abline(20, 2, col = blue, lwd = 3)
+  abline(30, 5, col = orange, lwd = 3)
+  legend_tl(c("A", "B"), c(blue, orange))
+}
+
+fig_05 <- function() {
+  two_by_two(c("Low resources", "High resources"), "Setting", c(30, 75),
+             list(Control = c(40, 60), Program = c(55, 60)), c(blue, orange))
+}
+
+fig_06 <- function() {
+  two_by_two(c("Pre", "Post"), "Period", c(40, 80),
+             list(Control = c(50, 55), Treatment = c(50, 70)), c(blue, orange))
+}
+
+fig_07 <- function() {
+  y <- c(20, 25, 30)
+  cols <- c(slate, blue, orange)
+  fig_frame(c(-0.5, 2.5), c(15, 35), "Doses received", "Mean outcome",
+            yat = seq(15, 35, 5), xat = 0:2, xlabels = c("0", "1", "2"))
+  lines(0:2, y, col = light, lwd = 2)
+  dot(0:2, y, cols, cex = 1.7)
+  text(0:2, y + 1.8, y, cex = 0.8, col = cols, font = 2)
+  text(c(0.5, 1.5), c(22.5, 27.5), "+5", adj = c(-0.3, 1.6), cex = 0.75, col = slate)
+}
+
+fig_08 <- function() {
+  fig_frame(c(-6, 6), c(5, 60), "Time relative to intervention", "Outcome",
+            yat = seq(10, 60, 10))
+  abline(v = 0, col = slate, lty = 2, lwd = 1.5)
+  segments(-1, 18, 5, 30, col = light, lty = 3, lwd = 2)
+  segments(-5, 10, -1, 18, col = blue, lwd = 3)
+  segments(0, 30, 5, 55, col = orange, lwd = 3)
+  dot(-1, 18, blue)
+  dot(0, 30, orange)
+  legend_tl(c("Before", "After", "Pre-trend extended"), c(blue, orange, light),
+            lty = c(1, 1, 3), lwd = c(3, 3, 2))
+}
+
+fig_09 <- function() {
+  fig_frame(c(-5, 5), c(25, 65), "Running variable minus cutoff", "Outcome",
+            yat = seq(30, 60, 10))
+  abline(v = 0, col = slate, lty = 2, lwd = 1.5)
+  segments(-5, 30, 0, 40, col = blue, lwd = 3)
+  segments(0, 50, 5, 60, col = orange, lwd = 3)
+  dot(0, 40, blue)
+  dot(0, 50, orange)
+  legend_tl(c("Below", "Above"), c(blue, orange))
+}
+
+fig_10 <- function() {
+  set.seed(1010)
+  x  <- runif(70, 1, 9)
+  y  <- 10 + 4 * x + rnorm(70, 0, 3)
+  y0 <- 30 + rnorm(16, 0, 2.5)
+  fig_frame(c(-0.8, 10), c(0, 55), "Fundraising expense", "Donations",
+            yat = seq(0, 50, 10))
+  abline(v = 0, col = slate, lty = 3, lwd = 1.5)
+  points(x, y, pch = 16, col = adjustcolor(blue, 0.5), cex = 0.8)
+  segments(0, 10, 9, 46, col = blue, lwd = 3)
+  points(rep(0, 16), y0, pch = 16, col = adjustcolor(orange, 0.7), cex = 0.9)
+}
+
+fig_11 <- function() {
+  set.seed(1111)
+  xs <- runif(35, 1, 9); ys <- 10 + 3 * xs + rnorm(35, 0, 2.5)
+  xl <- runif(35, 1, 9); yl <- 17 + 5 * xl + rnorm(35, 0, 2.5)
+  y0 <- 30 + rnorm(16, 0, 2.5)
+  fig_frame(c(-0.8, 10), c(0, 75), "Fundraising expense", "Donations",
+            yat = seq(0, 70, 10))
+  points(xs, ys, pch = 16, col = adjustcolor(blue, 0.45), cex = 0.8)
+  points(xl, yl, pch = 16, col = adjustcolor(orange, 0.45), cex = 0.8)
+  segments(0, 10, 9, 37, col = blue, lwd = 3)
+  segments(0, 17, 9, 62, col = orange, lwd = 3)
+  points(rep(0, 16), y0, pch = 16, col = adjustcolor(slate, 0.7), cex = 0.9)
+  legend_tl(c("Small", "Large", "Zero X"), c(blue, orange, slate),
+            lty = c(1, 1, NA), lwd = c(3, 3, NA), pch = c(NA, NA, 16))
+}
+
+# One panel of the single-outlier figure: Y = t for 2010-2020 (t = 1..11), except
+# that `odd_year` is 10 units too high. The line is the OLS fit with no dummy.
+outlier_panel <- function(odd_year, label) {
+  year <- 2010:2020
+  y <- year - 2009
+  y[year == odd_year] <- y[year == odd_year] + 10
+  fig_frame(c(2009.3, 2020.7), c(-5, 25), "Year", "Outcome", yat = seq(-5, 25, 5),
+            xat = seq(2010, 2020, 2), xlabels = seq(2010, 2020, 2))
+  fit <- lm(y ~ year)
+  clip(2009.3, 2020.7, -5, 25)
+  abline(fit, col = orange, lwd = 2.5)
+  dot(year[year != odd_year], y[year != odd_year], blue, cex = 1.2)
+  dot(odd_year, y[year == odd_year], red, cex = 1.5)
+  mtext(label, side = 3, line = -1.1, adj = 0.04, cex = 0.72, font = 2, col = slate)
+}
+
+fig_12 <- function() {
+  op <- par(mfrow = c(1, 2)); on.exit(par(op))
+  outlier_panel(2015, "A: odd year 2015")
+  outlier_panel(2020, "B: odd year 2020")
+}
+
+covid_base <- function(ylim) {
+  fig_frame(c(2013.5, 2027.8), ylim, "Year", "Outcome", yat = seq(ylim[1] + 5, ylim[2], 10),
+            xat = seq(2014, 2026, 2), xlabels = seq(2014, 2026, 2))
+  rect(2019.6, ylim[1], 2022.4, ylim[2], col = adjustcolor(slate, 0.1), border = NA)
+}
+
+covid_legend <- function(first = "Pre-COVID trend, extended", extra = NULL, extra_col = NULL) {
+  legend_tl(c(first, "Anomaly years", "Stable post period", extra),
+            c(blue, slate, orange, extra_col), lty = c(2, NA, 1, rep(1, length(extra))),
+            lwd = c(2, NA, 3, rep(3, length(extra))), pch = c(NA, 16, NA, rep(NA, length(extra))))
+}
+
+# 13A: flat before and after, no shift
+fig_13a <- function() {
+  covid_base(c(35, 80))
+  segments(2014, 60, 2027, 60, col = blue, lty = 2, lwd = 2)
+  dot(2014:2019, rep(60, 6), blue, cex = 1.2)
+  dot(2020:2022, c(44, 42, 53), slate, cex = 1.3)
+  lines(2023:2027, rep(60, 5), col = orange, lwd = 3)
+  dot(2023:2027, rep(60, 5), orange, cex = 1.2)
+  covid_legend("Pre-COVID level, extended")
+}
+
+# 13B and 13C: rising trend, post level 9 above it
+covid_trend <- function(ylim) {
+  covid_base(ylim)
+  segments(2014, 50, 2027, 76, col = blue, lty = 2, lwd = 2)
+  dot(2014:2019, 50 + 2 * (0:5), blue, cex = 1.2)
+  dot(2020:2022, c(44, 42, 53), slate, cex = 1.3)
+  lines(2023:2027, 77 + 2 * (0:4), col = orange, lwd = 3)
+  dot(2023:2027, 77 + 2 * (0:4), orange, cex = 1.2)
+}
+
+fig_13b <- function() {
+  covid_trend(c(35, 90))
+  covid_legend()
+}
+
+fig_13c <- function() {
+  covid_trend(c(35, 100))
+  lines(c(2023, 2027), c(77, 93), col = red, lwd = 3)
+  covid_legend(extra = "Alternative: steeper post slope", extra_col = red)
+}
+
+fig_14 <- function() {
+  two_by_two(c("Pre", "Post"), "Period", c(40, 80),
+             list(A = c(50, 55), B = c(50, 70)), c(blue, orange))
+}
+```
+
+<!-- Web fonts load at view time; data-external keeps them out of the self-contained file -->
+<link rel="stylesheet" data-external="1" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+
+```{css, echo=FALSE}
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child,.callout ul:last-child,.callout ol:last-child{margin-bottom:0;}
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+  /* ---------- exercise-specific additions ---------- */
+  .ex{scroll-margin-top:1rem;}
+  .ex + .ex{border-top:1px solid var(--rule);margin-top:3.25rem;}
+  .ex h3{margin-top:2.25rem;}
+
+  figure.fig{
+    margin:1.1rem 0 1.3rem;
+    max-width:40rem;
+    background:#ffffff;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:.35rem;
+  }
+  figure.fig img{display:block;width:100%;height:auto;}
+  figure.fig.wide{max-width:46rem;}
+
+  .lbl{
+    display:block;
+    font-size:.72rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .4rem;
+  }
+  .callout .lbl{color:var(--accent-ink);}
+
+  .prompt{
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1rem 0 1.3rem;
+    max-width:var(--measure);
+  }
+  .prompt p{max-width:none;}
+  .prompt p:last-child{margin-bottom:0;}
+
+  .mistake{
+    border:1px dashed var(--rule-strong);
+    border-radius:3px;
+    padding:1.05rem 1.25rem;
+    margin:1.6rem 0 .5rem;
+    max-width:var(--measure);
+  }
+  .mistake .lbl{color:var(--accent-ink);}
+  .mistake p{max-width:none;}
+  .mistake p:last-child,.mistake ul:last-child{margin-bottom:0;}
+
+  h4{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:1.9rem 0 .6rem;
+  }
+
+  .table-scroll.tight{margin:.6rem 0 1.2rem;}
+  .dm{width:auto;}
+  .dm th,.dm td{padding:.5rem .8rem;}
+  .dm td{font-family:var(--font-math);font-size:.98rem;font-variant-numeric:tabular-nums;text-align:right;}
+  .dm thead th{text-align:right;}
+  .dm thead th:first-child{text-align:left;}
+  .dm tbody th{font-weight:600;font-size:var(--step--1);}
+  .dm td.y{font-weight:600;color:var(--accent-ink);}
+  .dm td.off{color:var(--ink-soft);}
+  .dm thead th.off .m{color:var(--ink-soft);}
+
+  .coef{max-width:46rem;}
+  .coef th,.coef td{padding:.55rem .8rem;vertical-align:top;}
+  .coef td:first-child{font-family:var(--font-math);font-size:1rem;white-space:nowrap;width:1%;}
+  .coef td:nth-child(2){font-family:var(--font-math);font-size:1rem;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;width:1%;font-weight:600;color:var(--accent-ink);}
+  .coef thead th:nth-child(2){text-align:right;}
+  .coef thead th:last-child{white-space:normal;}
+  .coef td:last-child{min-width:9rem;}
+  @media (max-width:640px){
+    .coef th,.coef td,.dm th,.dm td{padding-left:.45rem;padding-right:.45rem;}
+  }
+  .coef tr.grp th{
+    background:var(--surface);
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-mid);
+    white-space:normal;
+    width:auto;
+    padding:.45rem .8rem;
+  }
+
+  .cells{list-style:none;padding-left:0;}
+  .cells li{padding-left:0;}
+  .cells .m{color:var(--accent-ink);}
+
+  .to-sol{
+    display:inline-block;
+    font-size:var(--step--1);
+    font-weight:600;
+    color:var(--accent-ink);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  .to-sol:hover,.to-sol:focus-visible{border-bottom-color:var(--accent);}
+
+  .synth{min-width:40rem;}
+  .synth td:last-child{font-family:var(--font-math);font-size:.98rem;}
+  .synth tbody th{white-space:normal;width:32%;}
+
+  .concepts ol li::marker{color:var(--pumpkin);}
+
+  /* ---------- R Markdown wrapper and knitr figures ---------- */
+  .main-container{max-width:none;margin:0;padding:0;}
+  figure.fig p{margin:0;max-width:none;}
+```
+
+```{=html}
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Unit 14 &middot; Practicing Dummy Variable Specifications</p>
+    <h1>Build the Model from the Hypothesis</h1>
+    <p class="dek">Dummy variables, reference categories, interactions, and structural changes. Fourteen
+      exercises that start from a picture and a question, and end with a single coefficient that answers
+      it.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#how">How to use</a>
+      <a href="#questions">Questions</a>
+      <a href="#solutions">Solutions</a>
+      <a href="#synthesis">Synthesis</a>
+    </nav>
+  </header>
+
+  <!-- ================================================================== -->
+  <section id="how">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>How to use this handout</h2>
+      <p class="sub">The conventions, the four-step routine, and the one rule that answers most of the
+        questions.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Before you start</p>
+
+      <p class="claim">Every picture is a set of conditional means.</p>
+      <p>Points and lines stand for group means or conditional means, not fitted estimates with standard
+        errors. <strong>The picture suggests a contrast; it does not establish statistical significance or
+        causality.</strong> A real test needs case-level data and a standard error appropriate to the
+        design. The numbers are illustrative.</p>
+
+      <p class="claim">Four steps for every question.</p>
+      <ol>
+        <li><strong>Define the indicators</strong> and name the reference (omitted) group.</li>
+        <li><strong>Write the regression equation.</strong> Assume an error term in every model.</li>
+        <li><strong>State the null hypothesis</strong> as a restriction on a coefficient, such as
+          <span class="m"><i>β</i><sub>2</sub> = 0</span>.</li>
+        <li><strong>Interpret each relevant coefficient</strong> as a specific difference between two
+          points in the picture.</li>
+      </ol>
+
+      <p class="claim">The one rule behind almost every answer.</p>
+      <p>Software tests every coefficient against zero. A coefficient on a dummy is
+        <strong>the gap between that category and the omitted category, measured where every other
+        predictor equals zero</strong>. So if you want a contrast tested for you, choose two things:</p>
+      <ul>
+        <li>the <strong>reference category</strong>, so the comparison is against the group you care
+          about; and</li>
+        <li>the <strong>zero point</strong> of any continuous variable (by centering), so the gap is
+          measured where you care about it: a cutoff, an intervention date, a benchmark.</li>
+      </ul>
+
+      <p class="claim">How to get coefficients from a picture.</p>
+      <p>Write the equation once for each cell, setting each dummy to its 0/1 value. The reference cell
+        gives you the intercept. Every other cell adds exactly one new coefficient, so you can solve for
+        each one by subtraction.</p>
+
+      <p class="claim">Coding conventions.</p>
+      <ul>
+        <li>Every indicator is written <span class="m"><i>d</i><sub>name</sub></span> and equals 1 when the
+          name is true.</li>
+        <li>The column headed <span class="m">1</span> is the intercept. <span class="m"><i>Y</i></span> is
+          the illustrated cell mean unless stated otherwise.</li>
+        <li>Design matrices often display <em>complementary</em> indicators side by side (for example
+          <span class="m"><i>d</i><sub>treat</sub></span> and <span class="m"><i>d</i><sub>control</sub></span>)
+          so you can see both reference choices. <strong>Never enter a complete set of complementary
+          indicators together with an intercept.</strong> Columns left out of the model are shown in grey.</li>
+        <li>Rows are observation <em>types</em>. Real data would have many rows of each type, which is
+          where the standard errors come from.</li>
+      </ul>
+
+      <p class="claim">Work the questions before reading the solutions.</p>
+      <p>Each solution repeats the figure and question, then gives a short answer, the reasoning, a design
+        matrix, the model, a coefficient table, and a common mistake.</p>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section id="questions">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Questions</h2>
+      <p class="sub">Fourteen designs, roughly in order of difficulty. Each links to its solution.</p>
+    </div>
+
+    <h3>1. Two means: three t-test designs</h3>
+    <p>Three designs that each compare two means, and the regression that reproduces each t-test.</p>
+
+    <article class="ex" id="q1a">
+      <h3>1A. One sample versus a benchmark</h3>
+      <figure class="fig">
+```
+
+```{r q01a, fig.alt="A cloud of sample scores centred on a mean of 74, with a dashed benchmark line at 70."}
+fig_01a()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>A sample has mean 74; a historical benchmark is 70. Construct an intercept-only
+        regression that tests whether the population mean equals 70. What does its intercept measure? Would a
+        group dummy help?</p></div>
+      <a class="to-sol" href="#s1a">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q1b">
+      <h3>1B. Two independent samples</h3>
+      <figure class="fig">
+```
+
+```{r q01b, fig.alt="Control scores centred on 50 and treatment scores centred on 62, in two separate groups."}
+fig_01b()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Independent control and treatment groups have means 50 and 62. Code one dummy so its
+        coefficient tests their difference. What changes if treatment is omitted instead?</p></div>
+      <a class="to-sol" href="#s1b">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q1c">
+      <h3>1C. Paired samples</h3>
+      <figure class="fig">
+```
+
+```{r q01c, fig.alt="Three people measured before and after: A from 50 to 58, B from 60 to 66, C from 55 to 62. Pre mean 55, post mean 62."}
+fig_01c()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>The <em>same</em> people A, B, and C are measured before and after a program.
+        Construct (a) a regression on within-person differences, (b) a long-format model with
+        <span class="m"><i>d</i><sub>A</sub>, <i>d</i><sub>B</sub>, <i>d</i><sub>C</sub></span> and
+        <span class="m"><i>d</i><sub>post</sub></span>, and (c) the equivalent model with a person-specific
+        intercept <span class="m"><i>α</i><sub><i>i</i></sub></span>. Why does treating the two periods as
+        independent samples give a different standard error?</p></div>
+      <a class="to-sol" href="#s1c">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q2">
+      <h3>2. Three categories, two reference choices</h3>
+      <figure class="fig">
+```
+
+```{r q02, fig.alt="Mean scores: Traditional 70, Hybrid 76, Online 61."}
+fig_02()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Means are Traditional 70, Hybrid 76, Online 61. Model A should test Hybrid versus
+        Traditional and Online versus Traditional directly. Model B should test Traditional versus Online and
+        Hybrid versus Online directly. Specify both and calculate the coefficients.</p></div>
+      <a class="to-sol" href="#s2">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q3">
+      <h3>3. Parallel lines: a common slope</h3>
+      <figure class="fig">
+```
+
+```{r q03, fig.alt="Two parallel lines: A is 20 + 3X and B is 30 + 3X."}
+fig_03()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Group A follows <span class="m">20 + 3<i>X</i></span> and B follows
+        <span class="m">30 + 3<i>X</i></span>. Make the slope and the group gap individual coefficient tests.
+        What restriction on the slopes have you imposed?</p></div>
+      <a class="to-sol" href="#s3">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q4">
+      <h3>4. Nonparallel lines: intercept and slope interactions</h3>
+      <figure class="fig">
+```
+
+```{r q04, fig.alt="Two diverging lines: A is 20 + 2X and B is 30 + 5X."}
+fig_04()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>A follows <span class="m">20 + 2<i>X</i></span> and B follows
+        <span class="m">30 + 5<i>X</i></span>. Embed tests for the intercept difference, the slope difference,
+        and A&rsquo;s slope. Then recode so B&rsquo;s slope is a single coefficient.</p></div>
+      <a class="to-sol" href="#s4">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q5">
+      <h3>5. A 2 &times; 2 program-by-setting design</h3>
+      <figure class="fig">
+```
+
+```{r q05, fig.alt="Control rises from 40 in low-resource settings to 60 in high; program rises from 55 to 60."}
+fig_05()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Control means are 40 (low resource) and 60 (high); program means are 55 and 60. Test
+        the program effect in low settings, its effect in high settings, and whether the effects differ.
+        Which reference choice makes the high-setting effect a single coefficient?</p></div>
+      <a class="to-sol" href="#s5">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q6">
+      <h3>6. Pre/post with a comparison group</h3>
+      <figure class="fig">
+```
+
+```{r q06, fig.alt="Control rises from 50 to 55; treatment rises from 50 to 70."}
+fig_06()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Control changes from 50 to 55; treatment changes from 50 to 70. Test the baseline
+        group difference, the control group&rsquo;s time change, and the <em>difference in changes</em>. Which
+        coefficient is the last contrast?</p></div>
+      <a class="to-sol" href="#s6">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q7">
+      <h3>7. Cumulative doses</h3>
+      <figure class="fig">
+```
+
+```{r q07, fig.alt="Mean outcome 20 after zero doses, 25 after one, 30 after two."}
+fig_07()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Mean outcomes after zero, one, and two doses are 20, 25, and 30. Build
+        <em>cumulative</em> indicators so each coefficient is the increment from receiving another dose.
+        Compare this with indicators for exactly one and exactly two doses.</p></div>
+      <a class="to-sol" href="#s7">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q8">
+      <h3>8. Interrupted time series</h3>
+      <figure class="fig">
+```
+
+```{r q08, fig.alt="A pre-intervention line with slope 2 reaching 18 at t = -1, then a jump to 30 at t = 0 and a steeper post line with slope 5."}
+fig_08()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Time is centered so the first post-intervention period is
+        <span class="m"><i>t</i> = 0</span>. The pretrend slope is 2. At <span class="m"><i>t</i> = 0</span>
+        the post line is 10 above the extrapolated pre line, and then it rises 5 per period. Specify separate
+        tests for the immediate level change and the slope change. What if the graph has a kink but no
+        jump?</p></div>
+      <a class="to-sol" href="#s8">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q9">
+      <h3>9. Regression discontinuity at a cutoff</h3>
+      <figure class="fig">
+```
+
+```{r q09, fig.alt="Outcome against running variable minus cutoff: the line below reaches 40 at the cutoff, the line above starts at 50, and both lines have the same slope."}
+fig_09()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>An eligibility rule switches on at running-variable value
+        <span class="m"><i>X</i> = 50</span>. The expected outcome rises 2 units per unit of
+        <span class="m"><i>X</i></span> on both sides of the cutoff and jumps by 10 at the cutoff. Code the
+        running variable and threshold dummy so the jump is one coefficient. Does centering the running
+        variable at 50 change the jump estimate? When would it?</p></div>
+      <a class="to-sol" href="#s9">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q10">
+      <h3>10. A special pile of observations at predictor zero</h3>
+      <figure class="fig">
+```
+
+```{r q10, fig.alt="Donations rise with fundraising expense along the line 10 + 4X; organizations with zero expense cluster around 30."}
+fig_10()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Among organizations with positive fundraising expense <span class="m"><i>X</i></span>,
+        donations follow approximately <span class="m">10 + 4<i>X</i></span>. Organizations with
+        <span class="m"><i>X</i> = 0</span> have mean donations of 30. Add a dummy that tests whether the zero
+        cases follow the extrapolated positive-<span class="m"><i>X</i></span> line. Which value of the line is
+        the comparison?</p></div>
+      <a class="to-sol" href="#s10">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q11">
+      <h3>11. Zero group and size-specific slopes</h3>
+      <figure class="fig">
+```
+
+```{r q11, fig.alt="Zero-expense organizations cluster near 30; small organizations follow 10 + 3X; large organizations follow a steeper, higher line 17 + 5X."}
+fig_11()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>The zero-<span class="m"><i>X</i></span> cases have a distinct mean. Among
+        positive-<span class="m"><i>X</i></span> cases, large organizations have a different intercept and slope
+        from small ones. Specify the model so each of these three departures is a coefficient. How must size
+        be coded for the zero cases?</p></div>
+      <a class="to-sol" href="#s11">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q12">
+      <h3>12. A single outlying year</h3>
+      <figure class="fig wide">
+```
+
+```{r q12, fig.width=7.5, fig.alt="Two panels of eleven yearly observations from 2010 to 2020 that rise one unit per year. In panel A the 2015 value is 10 units too high and the OLS line is lifted but keeps its slope. In panel B the 2020 value is 10 units too high and the OLS line is tilted upward."}
+fig_12()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>An outcome rises exactly one unit per year from 2010 to 2020, so with
+        <span class="m"><i>t</i> = year &minus; 2009</span> it follows <span class="m"><i>Y</i> = <i>t</i></span>.
+        One year is 10 units too high: a reporting error, a strike, a one-off grant. In panel A the odd year is
+        2015, the middle of the series; in panel B it is 2020, the last year. The orange lines are OLS fits of
+        <span class="m"><i>Y</i></span> on <span class="m"><i>t</i></span> with no dummy. How does the odd year
+        distort each fit, and why differently? Add a <strong>single</strong> dummy that removes its influence.
+        What does the dummy&rsquo;s coefficient measure, and what happens to the trend estimates?</p></div>
+      <a class="to-sol" href="#s12">Solution &rarr;</a>
+    </article>
+
+    <h3>13. COVID anomalies and a later regime</h3>
+    <p>Exercise 12 with three odd years instead of one, and a question about what comes after them.</p>
+
+    <article class="ex" id="q13a">
+      <h3>13A. Flat before, flat after</h3>
+      <figure class="fig wide">
+```
+
+```{r q13a, fig.width=7.5, fig.alt="The outcome is flat at 60 from 2014 to 2019, falls to 44, 42, and 53 in 2020 to 2022, and is flat at 60 again from 2023 to 2027."}
+fig_13a()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Let <span class="m"><i>d</i><sub>pre</sub></span> mark ordinary pre-COVID years
+        (2014&ndash;2019); <span class="m"><i>d</i><sub>covid20</sub>, <i>d</i><sub>covid21</sub>,
+        <i>d</i><sub>covid22</sub></span> mark 2020&ndash;2022; and <span class="m"><i>d</i><sub>post</sub></span>
+        marks the stable post-COVID years (2023&ndash;2027). The outcome is flat at 60 before COVID, drops to
+        44, 42, and 53 in the shaded years, and is flat at 60 again afterwards. Build a model that (a) gives
+        each anomalous year its own deviation and (b) tests whether the post-COVID level differs from the
+        pre-COVID level. Which category is omitted, and what is the post contrast? What goes wrong if the COVID
+        years are left in the reference group instead?</p></div>
+      <a class="to-sol" href="#s13a">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q13b">
+      <h3>13B. Add a trend</h3>
+      <figure class="fig wide">
+```
+
+```{r q13b, fig.width=7.5, fig.alt="A pre-COVID trend from 50 in 2014 rising 2 per year; anomalous low values in 2020 to 2022; a stable post period from 2023 that runs parallel to the extrapolated trend but 9 units above it."}
+fig_13b()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Same indicators as 13A, but now the outcome rises 2 units per year before COVID,
+        and the later line is parallel to the pretrend but 9 units above it. Build a model that (a) gives each
+        anomalous year its own deviation and (b) tests whether the later regime is at a new level relative to
+        the pre-COVID trend <strong>at the same calendar time</strong>. Which category is omitted? Is the
+        <span class="m"><i>d</i><sub>post</sub></span> coefficient still an unadjusted difference in period
+        means, as it was in 13A?</p></div>
+      <a class="to-sol" href="#s13b">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q13c">
+      <h3>13C. What if the post-COVID slope changed?</h3>
+      <figure class="fig wide">
+```
+
+```{r q13c, fig.width=7.5, fig.alt="The same picture with an alternative red post-period line that starts at 77 in 2023 and rises 4 per year."}
+fig_13c()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>In the alternative red post period, the slope is 2 units per year steeper than
+        before. Add one term that tests this change. Define time so that the post-level coefficient is still the
+        vertical gap at the start of the stable post period. What is the post slope?</p></div>
+      <a class="to-sol" href="#s13c">Solution &rarr;</a>
+    </article>
+
+    <article class="ex" id="q14">
+      <h3>14. Reverse-engineer the coding</h3>
+      <figure class="fig">
+```
+
+```{r q14, fig.alt="Group A rises from 50 to 55; group B rises from 50 to 70."}
+fig_14()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Group A changes from 50 to 55; B changes from 50 to 70. For each request, choose the
+        group and time references so a <em>single coefficient</em> tests it. You may write a different model for
+        each. (a) B versus A in the pre period; (b) B versus A in the post period; (c) B&rsquo;s own
+        pre-to-post change; (d) the difference in changes. Are any of these impossible to isolate as one
+        coefficient under a saturated 2 &times; 2 coding?</p></div>
+      <a class="to-sol" href="#s14">Solution &rarr;</a>
+    </article>
+  </section>
+
+  <!-- ================================================================== -->
+  <section id="solutions">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Solutions and common mistakes</h2>
+      <p class="sub">Short answer first, then the reasoning, the design matrix, the model, what each coefficient
+        tests, and the mistake to avoid.</p>
+    </div>
+
+    <!-- 1A ------------------------------------------------------------ -->
+    <article class="ex" id="s1a">
+      <h3>1A. One sample versus a benchmark</h3>
+      <figure class="fig">
+```
+
+```{r s01a, fig.alt="A cloud of sample scores centred on a mean of 74, with a dashed benchmark line at 70."}
+fig_01a()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>A sample has mean 74; a historical benchmark is 70. Construct an intercept-only
+        regression that tests whether the population mean equals 70. What does its intercept measure? Would a
+        group dummy help?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Subtract the benchmark from the outcome, <span class="m"><i>Y</i><sub>c</sub> = <i>Y</i> &minus; 70</span>,
+          and regress it on a constant alone. The intercept is the sample mean minus the benchmark
+          (<span class="m">74 &minus; 70 = 4</span>), and testing <span class="m"><i>β</i><sub>0</sub> = 0</span>
+          is exactly the one-sample t-test of <span class="m"><i>μ</i> = 70</span>. A group dummy cannot help:
+          there is only one group, so the dummy would be a column of ones that duplicates the intercept.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>A regression with nothing but a constant estimates the mean of the outcome, and its standard error is
+        <span class="m"><i>s</i>/&radic;<i>n</i></span>, the same standard error the one-sample t-test uses. The
+        only problem is that software tests the intercept against <em>zero</em>, and nobody doubts that the
+        mean score is above zero. Shifting the outcome by 70 moves the benchmark to zero, so the default test
+        becomes the test you want.</p>
+      <p>An equivalent route is to regress raw <span class="m"><i>Y</i></span> on a constant
+        (<span class="m"><i>β</i><sub>0</sub> = 74</span>) and ask for the linear-hypothesis test
+        <span class="m"><i>β</i><sub>0</sub> = 70</span>. The t-statistic is identical. Recentering simply makes
+        the right test the default one.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m"><i>Y</i><sub>c</sub></span></th><th scope="col"><span class="m">1</span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Sample mean</th><td>74</td><td class="y">4</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>In real data each person supplies one row with their own <span class="m"><i>Y</i><sub>c</sub></span>.</p>
+
+      <h4>Model</h4>
+      <div class="eq"><span class="m"><i>Y</i><sub>c</sub> = <i>β</i><sub>0</sub> + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr><td><i>β</i><sub>0</sub></td><td>4</td><td>Does the population mean equal the benchmark of 70?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Creating <span class="m"><i>d</i><sub>above</sub> = I(<i>Y</i> &gt; 70)</span> as a
+            predictor.</strong> It is built from the outcome itself, so it only splits cases into above and below
+            the benchmark. It says nothing about whether the <em>mean</em> equals 70.</li>
+          <li><strong>Regressing raw <span class="m"><i>Y</i></span> on a constant and reading the default
+            p-value.</strong> That tests whether the mean is zero, not whether it is 70.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q1a">&larr; Back to question</a>
+    </article>
+
+    <!-- 1B ------------------------------------------------------------ -->
+    <article class="ex" id="s1b">
+      <h3>1B. Two independent samples</h3>
+      <figure class="fig">
+```
+
+```{r s01b, fig.alt="Control scores centred on 50 and treatment scores centred on 62, in two separate groups."}
+fig_01b()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Independent control and treatment groups have means 50 and 62. Code one dummy so its
+        coefficient tests their difference. What changes if treatment is omitted instead?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Use <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>treat</sub> + <i>ε</i></span>.
+          The intercept is the control mean (50) and <span class="m"><i>β</i><sub>1</sub> = 12</span> is
+          treatment minus control, so testing <span class="m"><i>β</i><sub>1</sub> = 0</span> is the two-sample
+          t-test. Omitting treatment instead gives <span class="m">(62, &minus;12)</span>: the same test, the same
+          |t|, with the sign reversed.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>With one dummy and a constant, the constant takes care of the omitted group and the dummy measures how
+        far the other group sits from it. Write the equation for each row:</p>
+      <ul class="cells">
+        <li>Control (<span class="m"><i>d</i><sub>treat</sub> = 0</span>): <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> = 50</span></li>
+        <li>Treatment (<span class="m"><i>d</i><sub>treat</sub> = 1</span>): <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> = 62</span>, so <span class="m"><i>β</i><sub>1</sub> = 12</span></li>
+      </ul>
+      <p>Ordinary OLS standard errors pool the two groups&rsquo; variances, so this matches the equal-variance
+        (Student) t-test. For the Welch test, ask for heteroskedasticity-robust standard errors.</p>
+
+      <h4>Design matrix</h4>
+      <p>Both indicators are shown so you can see both reference choices. Include only <strong>one</strong>
+        alongside the intercept.</p>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>d</i><sub>treat</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>control</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Control</th><td class="y">50</td><td>1</td><td>0</td><td class="off">1</td></tr>
+            <tr><th scope="row">Treatment</th><td class="y">62</td><td>1</td><td>1</td><td class="off">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">Model A (control reference): <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>treat</sub> + <i>ε</i></span></div>
+      <div class="eq"><span class="m">Model B (treatment reference): <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>d</i><sub>control</sub> + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model A &middot; control reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>50</td><td>Is the control mean zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>12</td><td>Does the treatment mean equal the control mean?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model B &middot; treatment reference</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>62</td><td>Is the treatment mean zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>&minus;12</td><td>Does the control mean equal the treatment mean?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Entering <span class="m">1</span>, <span class="m"><i>d</i><sub>treat</sub></span>, and
+            <span class="m"><i>d</i><sub>control</sub></span> together.</strong> Because
+            <span class="m"><i>d</i><sub>treat</sub> + <i>d</i><sub>control</sub> = 1</span> on every row, the
+            two dummies add up to the intercept column (perfect collinearity), and the coefficients cannot be
+            identified.</li>
+          <li><strong>Calling <span class="m"><i>γ</i><sub>1</sub></span> &ldquo;treatment minus
+            control.&rdquo;</strong> In Model B it is control minus treatment. The named category is always
+            compared <em>to</em> the omitted one.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q1b">&larr; Back to question</a>
+    </article>
+
+    <!-- 1C ------------------------------------------------------------ -->
+    <article class="ex" id="s1c">
+      <h3>1C. Paired samples</h3>
+      <figure class="fig">
+```
+
+```{r s01c, fig.alt="Three people measured before and after: A from 50 to 58, B from 60 to 66, C from 55 to 62. Pre mean 55, post mean 62."}
+fig_01c()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>The <em>same</em> people A, B, and C are measured before and after a program.
+        Construct (a) a regression on within-person differences, (b) a long-format model with
+        <span class="m"><i>d</i><sub>A</sub>, <i>d</i><sub>B</sub>, <i>d</i><sub>C</sub></span> and
+        <span class="m"><i>d</i><sub>post</sub></span>, and (c) the equivalent model with a person-specific
+        intercept <span class="m"><i>α</i><sub><i>i</i></sub></span>. Why does treating the two periods as
+        independent samples give a different standard error?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>All three models estimate the same thing: the average within-person change,
+          <span class="m">(8 + 6 + 7)/3 = 7</span>, with the same standard error. The independent-samples
+          version gets the same 7 but a much larger standard error, because it leaves the stable differences
+          <em>between</em> people in the error term. Pairing makes each person their own control.</p>
+      </div>
+
+      <h4>(a) Difference-score regression</h4>
+      <p>Compute each person&rsquo;s change, <span class="m">Δ<sub>A</sub> = 8, Δ<sub>B</sub> = 6,
+        Δ<sub>C</sub> = 7</span>, and regress it on a constant:</p>
+      <div class="eq"><span class="m">Δ<sub><i>i</i></sub> = <i>γ</i><sub>0</sub> + <i>u</i><sub><i>i</i></sub>,&ensp; <i>γ̂</i><sub>0</sub> = 7</span></div>
+      <p>This is 1A again, applied to the differences. Testing <span class="m"><i>γ</i><sub>0</sub> = 0</span>
+        is the paired t-test.</p>
+
+      <h4>(b) Long format with ID dummies</h4>
+      <div class="eq"><span class="m"><i>Y</i><sub><i>it</i></sub> = <i>α</i><sub>A</sub><i>d</i><sub>A</sub> + <i>α</i><sub>B</sub><i>d</i><sub>B</sub> + <i>α</i><sub>C</sub><i>d</i><sub>C</sub> + <i>β</i><i>d</i><sub>post</sub> + <i>ε</i><sub><i>it</i></sub></span></div>
+      <p>There is <strong>no common intercept</strong>: all three ID dummies are included, and together they do
+        the intercept&rsquo;s job. Each person gets their own baseline, and <span class="m"><i>β̂</i> = 7</span> is
+        the common within-person change.</p>
+      <p>Why are the fitted intercepts <span class="m">50.5, 59.5, 55</span> rather than the observed pre scores
+        <span class="m">50, 60, 55</span>? The model forces everyone to share one change of 7, but the actual
+        changes are 8, 6, and 7. Each <span class="m"><i>α̂</i><sub><i>i</i></sub></span> therefore lands at
+        the person&rsquo;s own average minus half the common change. For A, <span class="m">54 &minus; 3.5 = 50.5</span>.
+        The leftover &plusmn;0.5 residuals are the only error the model sees.</p>
+
+      <h4>(c) Person-specific intercepts</h4>
+      <div class="eq"><span class="m"><i>Y</i><sub><i>it</i></sub> = <i>α</i><sub><i>i</i></sub> + <i>β</i><i>d</i><sub>post</sub> + <i>ε</i><sub><i>it</i></sub>,&ensp; <i>i</i> &isin; {A, B, C}</span></div>
+      <p>This is the same model as (b) in shorter notation. <span class="m"><i>α</i><sub><i>i</i></sub></span>
+        stands for the three ID columns; it is <em>not</em> a single common intercept. This is the one-way
+        fixed-effects model you will see again in panel data.</p>
+
+      <h4>Why the standard errors differ</h4>
+      <p>People differ a lot in <em>level</em> (pre scores of 50, 60, 55) but very little in <em>change</em>
+        (8, 6, 7). The independent-samples test compares the two columns of scores, so all of that level
+        variation counts as noise. The paired test compares each person with themselves, so it disappears.</p>
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Analysis</th><th scope="col">Estimate</th><th scope="col">What goes into the standard error</th></tr></thead>
+          <tbody>
+            <tr><td>Paired / ID dummies</td><td>7</td><td>SD of the changes = 1, so SE = <span class="m">1/&radic;3 &asymp; 0.58</span>, <span class="m"><i>t</i> &asymp; 12</span></td></tr>
+            <tr><td>Independent samples</td><td>7</td><td>Pooled SD of levels &asymp; 4.5, so SE &asymp; 3.7, <span class="m"><i>t</i> &asymp; 1.9</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m"><i>d</i><sub>A</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>B</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>C</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">A, pre</th><td class="y">50</td><td>1</td><td>0</td><td>0</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">A, post</th><td class="y">58</td><td>1</td><td>0</td><td>0</td><td class="off">0</td><td>1</td></tr>
+            <tr><th scope="row">B, pre</th><td class="y">60</td><td>0</td><td>1</td><td>0</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">B, post</th><td class="y">66</td><td>0</td><td>1</td><td>0</td><td class="off">0</td><td>1</td></tr>
+            <tr><th scope="row">C, pre</th><td class="y">55</td><td>0</td><td>0</td><td>1</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">C, post</th><td class="y">62</td><td>0</td><td>0</td><td>1</td><td class="off">0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">ID dummies / <span class="m"><i>α</i><sub><i>i</i></sub></span></th></tr>
+            <tr><td><i>α</i><sub>A</sub>, <i>α</i><sub>B</sub>, <i>α</i><sub>C</sub></td><td>50.5, 59.5, 55</td><td>Is this person&rsquo;s fitted baseline zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i></td><td>7</td><td>Is the average within-person change zero?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Difference scores</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>7</td><td>Is the mean of the paired differences zero?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Fitting <code>Y ~ d_post</code> and calling it a paired t-test.</strong> The coefficient is
+            still 7 in balanced data, but the standard error treats the six rows as independent and ignores the
+            matched IDs.</li>
+          <li><strong>Adding a common intercept to <span class="m"><i>d</i><sub>A</sub>, <i>d</i><sub>B</sub>,
+            <i>d</i><sub>C</sub></span>.</strong> The ID dummies sum to one on every row, so this is perfectly
+            collinear. The same goes for entering both <span class="m"><i>d</i><sub>pre</sub></span> and
+            <span class="m"><i>d</i><sub>post</sub></span> alongside all the ID dummies.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q1c">&larr; Back to question</a>
+    </article>
+
+    <!-- 2 ------------------------------------------------------------- -->
+    <article class="ex" id="s2">
+      <h3>2. Three categories, two reference choices</h3>
+      <figure class="fig">
+```
+
+```{r s02, fig.alt="Mean scores: Traditional 70, Hybrid 76, Online 61."}
+fig_02()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Means are Traditional 70, Hybrid 76, Online 61. Model A should test Hybrid versus
+        Traditional and Online versus Traditional directly. Model B should test Traditional versus Online and
+        Hybrid versus Online directly. Specify both and calculate the coefficients.</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Omit the category that every requested contrast shares. Model A omits Traditional and gives
+          <span class="m">(70, 6, &minus;9)</span>. Model B omits Online and gives
+          <span class="m">(61, 9, 15)</span>. The two models fit the data identically; they just put p-values
+          on different comparisons.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>Three groups allow three pairwise comparisons, but a model with an intercept has room for only two
+        dummy coefficients. Whichever category you omit becomes the comparison point for <em>both</em> of them.
+        The third comparison is still available as a difference of coefficients, but it needs a separate
+        linear-combination test. In Model A, Hybrid versus Online is
+        <span class="m"><i>β</i><sub>1</sub> &minus; <i>β</i><sub>2</sub> = 6 &minus; (&minus;9) = 15</span>,
+        which Model B reports directly as <span class="m"><i>γ</i><sub>2</sub></span>.</p>
+      <ul class="cells">
+        <li>Model A, Traditional row: <span class="m"><i>β</i><sub>0</sub> = 70</span>. Hybrid:
+          <span class="m">70 + <i>β</i><sub>1</sub> = 76</span>. Online: <span class="m">70 + <i>β</i><sub>2</sub> = 61</span>.</li>
+        <li>Model B, Online row: <span class="m"><i>γ</i><sub>0</sub> = 61</span>. Traditional:
+          <span class="m">61 + <i>γ</i><sub>1</sub> = 70</span>. Hybrid: <span class="m">61 + <i>γ</i><sub>2</sub> = 76</span>.</li>
+      </ul>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>d</i><sub>traditional</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>hybrid</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>online</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Traditional</th><td class="y">70</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Hybrid</th><td class="y">76</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Online</th><td class="y">61</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each model uses the constant and <strong>two</strong> of the three indicators.</p>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">Model A: <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>hybrid</sub> + <i>β</i><sub>2</sub><i>d</i><sub>online</sub> + <i>ε</i></span></div>
+      <div class="eq"><span class="m">Model B: <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>d</i><sub>traditional</sub> + <i>γ</i><sub>2</sub><i>d</i><sub>hybrid</sub> + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model A &middot; Traditional reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>70</td><td>Is the Traditional mean zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>6</td><td>Does Hybrid equal Traditional?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>&minus;9</td><td>Does Online equal Traditional?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model B &middot; Online reference</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>61</td><td>Is the Online mean zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>9</td><td>Does Traditional equal Online?</td></tr>
+            <tr><td><i>γ</i><sub>2</sub></td><td>15</td><td>Does Hybrid equal Online?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Omitting Hybrid for Model A.</strong> Both coefficients would then compare with Hybrid, and
+            Online versus Traditional would be a difference of two coefficients rather than one.</li>
+          <li><strong>Including all three indicators with the constant.</strong> They sum to the intercept
+            column, so the model is not identified.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q2">&larr; Back to question</a>
+    </article>
+
+    <!-- 3 ------------------------------------------------------------- -->
+    <article class="ex" id="s3">
+      <h3>3. Parallel lines: a common slope</h3>
+      <figure class="fig">
+```
+
+```{r s03, fig.alt="Two parallel lines: A is 20 + 3X and B is 30 + 3X."}
+fig_03()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Group A follows <span class="m">20 + 3<i>X</i></span> and B follows
+        <span class="m">30 + 3<i>X</i></span>. Make the slope and the group gap individual coefficient tests.
+        What restriction on the slopes have you imposed?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>B</sub> + <i>ε</i></span>
+          gives <span class="m">(20, 3, 10)</span>. <span class="m"><i>β</i><sub>1</sub></span> is the common
+          slope and <span class="m"><i>β</i><sub>2</sub></span> is the vertical gap between the lines. You have
+          <strong>imposed</strong> equal slopes, not tested them: with no
+          <span class="m"><i>X</i>&middot;<i>d</i><sub>B</sub></span> term, the model cannot draw anything but
+          parallel lines.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>Write the line for each group:</p>
+      <ul class="cells">
+        <li>A (<span class="m"><i>d</i><sub>B</sub> = 0</span>): <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i></span></li>
+        <li>B (<span class="m"><i>d</i><sub>B</sub> = 1</span>): <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub>) + <i>β</i><sub>1</sub><i>X</i></span></li>
+      </ul>
+      <p>A dummy on its own moves a line up or down. It cannot tilt it. Because both lines share
+        <span class="m"><i>β</i><sub>1</sub></span>, the gap <span class="m"><i>β</i><sub>2</sub> = 10</span>
+        is the same at every value of <span class="m"><i>X</i></span>. That is the one situation in which
+        &ldquo;the group difference&rdquo; has a single answer. To <em>check</em> whether the lines really are
+        parallel, add the interaction and test it (exercise 4).</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>X</i></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>A</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>B</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">A, <span class="m"><i>X</i> = 0</span></th><td class="y">20</td><td>1</td><td>0</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">A, <span class="m"><i>X</i> = 5</span></th><td class="y">35</td><td>1</td><td>5</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">B, <span class="m"><i>X</i> = 0</span></th><td class="y">30</td><td>1</td><td>0</td><td class="off">0</td><td>1</td></tr>
+            <tr><th scope="row">B, <span class="m"><i>X</i> = 5</span></th><td class="y">45</td><td>1</td><td>5</td><td class="off">0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">A reference: <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>B</sub> + <i>ε</i></span></div>
+      <div class="eq"><span class="m">B reference: <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>X</i> + <i>γ</i><sub>2</sub><i>d</i><sub>A</sub> + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">A reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>20</td><td>Is A&rsquo;s mean at <span class="m"><i>X</i> = 0</span> zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>3</td><td>Is the common slope zero?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>10</td><td>Are A and B equal at the same <span class="m"><i>X</i></span>?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">B reference</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>30</td><td>Is B&rsquo;s mean at <span class="m"><i>X</i> = 0</span> zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>3</td><td>Is the common slope zero?</td></tr>
+            <tr><td><i>γ</i><sub>2</sub></td><td>&minus;10</td><td>Are A and B equal at the same <span class="m"><i>X</i></span>?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Adding <span class="m"><i>X</i>&middot;<i>d</i><sub>B</sub></span> but still calling the
+            <span class="m"><i>d</i><sub>B</sub></span> coefficient &ldquo;the gap.&rdquo;</strong> Once the
+            slopes can differ, the gap is <span class="m"><i>β</i><sub>2</sub> + <i>β</i><sub>3</sub><i>X</i></span>,
+            and <span class="m"><i>β</i><sub>2</sub></span> alone is the gap only at
+            <span class="m"><i>X</i> = 0</span>.</li>
+          <li><strong>Using a dummy to test a slope difference.</strong> A dummy alone can only shift intercepts.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q3">&larr; Back to question</a>
+    </article>
+
+    <!-- 4 ------------------------------------------------------------- -->
+    <article class="ex" id="s4">
+      <h3>4. Nonparallel lines: intercept and slope interactions</h3>
+      <figure class="fig">
+```
+
+```{r s04, fig.alt="Two diverging lines: A is 20 + 2X and B is 30 + 5X."}
+fig_04()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>A follows <span class="m">20 + 2<i>X</i></span> and B follows
+        <span class="m">30 + 5<i>X</i></span>. Embed tests for the intercept difference, the slope difference,
+        and A&rsquo;s slope. Then recode so B&rsquo;s slope is a single coefficient.</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>B</sub> + <i>β</i><sub>3</sub>(<i>X</i>&middot;<i>d</i><sub>B</sub>) + <i>ε</i></span>
+          gives <span class="m">(20, 2, 10, 3)</span>: A&rsquo;s slope, the intercept gap, and the slope gap are
+          each one coefficient. B&rsquo;s slope is <span class="m"><i>β</i><sub>1</sub> + <i>β</i><sub>3</sub> = 5</span>,
+          a sum. To make it a single coefficient, make B the reference by using
+          <span class="m"><i>d</i><sub>A</sub></span> and <span class="m"><i>X</i>&middot;<i>d</i><sub>A</sub></span>
+          instead. Then <span class="m"><i>γ</i><sub>1</sub> = 5</span>.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>Write each group&rsquo;s line and match it to the picture:</p>
+      <ul class="cells">
+        <li>A: <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> = 20 + 2<i>X</i></span></li>
+        <li>B: <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub>) + (<i>β</i><sub>1</sub> + <i>β</i><sub>3</sub>)<i>X</i> = 30 + 5<i>X</i></span></li>
+      </ul>
+      <p>The main-effect dummy shifts the intercept and the interaction shifts the slope. Every coefficient
+        describes the reference group (A) or B&rsquo;s <em>difference</em> from it. In particular,
+        <span class="m"><i>β</i><sub>1</sub></span> is not &ldquo;the effect of <span class="m"><i>X</i></span>&rdquo;;
+        it is the effect of <span class="m"><i>X</i></span> <strong>for A</strong>.</p>
+      <p>Also note what the intercept gap means now. <span class="m"><i>β</i><sub>2</sub> = 10</span> is the gap
+        at <span class="m"><i>X</i> = 0</span> only. At <span class="m"><i>X</i> = 5</span> the gap is
+        <span class="m">10 + 3&middot;5 = 25</span>. If <span class="m"><i>X</i> = 0</span> is outside your data or
+        not meaningful, center <span class="m"><i>X</i></span> at a value you care about, and
+        <span class="m"><i>β</i><sub>2</sub></span> becomes the gap there.</p>
+
+      <h4>Design matrix</h4>
+      <p>The interaction columns are products of <span class="m"><i>X</i></span> and the named dummy. Use the B
+        pair <strong>or</strong> the A pair, depending on the reference.</p>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>X</i></span></th><th scope="col"><span class="m"><i>d</i><sub>A</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>B</sub></span></th><th scope="col"><span class="m"><i>X</i><i>d</i><sub>A</sub></span></th><th scope="col"><span class="m"><i>X</i><i>d</i><sub>B</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">A, <span class="m"><i>X</i> = 0</span></th><td class="y">20</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">A, <span class="m"><i>X</i> = 5</span></th><td class="y">30</td><td>1</td><td>5</td><td>1</td><td>0</td><td>5</td><td>0</td></tr>
+            <tr><th scope="row">B, <span class="m"><i>X</i> = 0</span></th><td class="y">30</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">B, <span class="m"><i>X</i> = 5</span></th><td class="y">55</td><td>1</td><td>5</td><td>0</td><td>1</td><td>0</td><td>5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">A reference: <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>B</sub> + <i>β</i><sub>3</sub>(<i>X</i><i>d</i><sub>B</sub>) + <i>ε</i></span></div>
+      <div class="eq"><span class="m">B reference: <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>X</i> + <i>γ</i><sub>2</sub><i>d</i><sub>A</sub> + <i>γ</i><sub>3</sub>(<i>X</i><i>d</i><sub>A</sub>) + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">A reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>20</td><td>Is A&rsquo;s intercept zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Is A&rsquo;s slope zero?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>10</td><td>Are A and B equal at <span class="m"><i>X</i> = 0</span>?</td></tr>
+            <tr><td><i>β</i><sub>3</sub></td><td>3</td><td>Do A and B have the same slope?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">B reference</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>30</td><td>Is B&rsquo;s intercept zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>5</td><td>Is B&rsquo;s slope zero?</td></tr>
+            <tr><td><i>γ</i><sub>2</sub></td><td>&minus;10</td><td>Are A and B equal at <span class="m"><i>X</i> = 0</span>?</td></tr>
+            <tr><td><i>γ</i><sub>3</sub></td><td>&minus;3</td><td>Do A and B have the same slope?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Leaving out the interaction and reading <span class="m"><i>d</i><sub>B</sub></span> as a
+            slope difference.</strong> Without <span class="m"><i>X</i><i>d</i><sub>B</sub></span> the model forces
+            the slopes to match (exercise 3).</li>
+          <li><strong>Reading <span class="m"><i>β</i><sub>3</sub> = 3</span> as B&rsquo;s slope.</strong> It is
+            the <em>difference</em> between B&rsquo;s slope and A&rsquo;s. B&rsquo;s slope is
+            <span class="m"><i>β</i><sub>1</sub> + <i>β</i><sub>3</sub></span>.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q4">&larr; Back to question</a>
+    </article>
+
+    <!-- 5 ------------------------------------------------------------- -->
+    <article class="ex" id="s5">
+      <h3>5. A 2 &times; 2 program-by-setting design</h3>
+      <figure class="fig">
+```
+
+```{r s05, fig.alt="Control rises from 40 in low-resource settings to 60 in high; program rises from 55 to 60."}
+fig_05()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Control means are 40 (low resource) and 60 (high); program means are 55 and 60. Test
+        the program effect in low settings, its effect in high settings, and whether the effects differ.
+        Which reference choice makes the high-setting effect a single coefficient?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>With low settings as the reference (use <span class="m"><i>d</i><sub>high</sub></span>), the model
+          gives <span class="m">(40, 15, 20, &minus;15)</span>. The program effect in low settings is
+          <span class="m"><i>β</i><sub>1</sub> = 15</span>, the difference in effects is
+          <span class="m"><i>β</i><sub>3</sub> = &minus;15</span>, and the high-setting effect is the sum
+          <span class="m"><i>β</i><sub>1</sub> + <i>β</i><sub>3</sub> = 0</span>. To test the high-setting
+          effect as one coefficient, make <strong>high</strong> the reference by using
+          <span class="m"><i>d</i><sub>low</sub></span>. Then <span class="m"><i>γ</i><sub>1</sub> = 0</span>.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>The key idea: <strong>a main effect in an interacted model is the effect where the other dummy equals
+        zero</strong>, which is in the reference category of the other factor. So the program coefficient is
+        the program effect in whichever setting you omitted.</p>
+      <ul class="cells">
+        <li>Control, low: <span class="m"><i>β</i><sub>0</sub> = 40</span></li>
+        <li>Program, low: <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> = 55 &rarr; <i>β</i><sub>1</sub> = 15</span></li>
+        <li>Control, high: <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>2</sub> = 60 &rarr; <i>β</i><sub>2</sub> = 20</span></li>
+        <li>Program, high: <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> + <i>β</i><sub>2</sub> + <i>β</i><sub>3</sub> = 60 &rarr; <i>β</i><sub>3</sub> = &minus;15</span></li>
+      </ul>
+      <p>The interaction is the gap between what you&rsquo;d expect if program and setting simply added up
+        (<span class="m">40 + 15 + 20 = 75</span>) and what you actually see (60). Here the program closes the
+        resource gap in low settings and does nothing where resources are already high. The interaction test
+        is the same in both codings; only its sign flips.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>d</i><sub>program</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>low</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>high</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>program</sub><i>d</i><sub>low</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>program</sub><i>d</i><sub>high</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Control, low</th><td class="y">40</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Program, low</th><td class="y">55</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Control, high</th><td class="y">60</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Program, high</th><td class="y">60</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">Low reference: <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>program</sub> + <i>β</i><sub>2</sub><i>d</i><sub>high</sub> + <i>β</i><sub>3</sub>(<i>d</i><sub>program</sub><i>d</i><sub>high</sub>) + <i>ε</i></span></div>
+      <div class="eq"><span class="m">High reference: <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>d</i><sub>program</sub> + <i>γ</i><sub>2</sub><i>d</i><sub>low</sub> + <i>γ</i><sub>3</sub>(<i>d</i><sub>program</sub><i>d</i><sub>low</sub>) + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Low-setting reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>40</td><td>Is the control/low mean zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>15</td><td>Is there a program effect in low settings?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>20</td><td>Do high and low settings differ among controls?</td></tr>
+            <tr><td><i>β</i><sub>3</sub></td><td>&minus;15</td><td>Is the program effect the same in both settings?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">High-setting reference</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>60</td><td>Is the control/high mean zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>0</td><td>Is there a program effect in high settings?</td></tr>
+            <tr><td><i>γ</i><sub>2</sub></td><td>&minus;20</td><td>Do low and high settings differ among controls?</td></tr>
+            <tr><td><i>γ</i><sub>3</sub></td><td>15</td><td>Is the program effect the same in both settings?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Coding <span class="m"><i>d</i><sub>high</sub></span> but reading the program coefficient as
+            the high-setting effect.</strong> Because <span class="m"><i>d</i><sub>high</sub> = 0</span> in low
+            settings, the program main effect describes <em>low</em> settings.</li>
+          <li><strong>Calling <span class="m"><i>β</i><sub>1</sub></span> &ldquo;the average program
+            effect.&rdquo;</strong> In an interacted model there is no single program effect. There is one per
+            setting.</li>
+          <li><strong>Entering <span class="m"><i>d</i><sub>low</sub></span> and
+            <span class="m"><i>d</i><sub>high</sub></span> together with an intercept.</strong> That is perfectly
+            collinear.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q5">&larr; Back to question</a>
+    </article>
+
+    <!-- 6 ------------------------------------------------------------- -->
+    <article class="ex" id="s6">
+      <h3>6. Pre/post with a comparison group</h3>
+      <figure class="fig">
+```
+
+```{r s06, fig.alt="Control rises from 50 to 55; treatment rises from 50 to 70."}
+fig_06()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Control changes from 50 to 55; treatment changes from 50 to 70. Test the baseline
+        group difference, the control group&rsquo;s time change, and the <em>difference in changes</em>. Which
+        coefficient is the last contrast?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>With control/pre as the reference,
+          <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>treat</sub> + <i>β</i><sub>2</sub><i>d</i><sub>post</sub> + <i>β</i><sub>3</sub>(<i>d</i><sub>treat</sub><i>d</i><sub>post</sub>) + <i>ε</i></span>
+          gives <span class="m">(50, 0, 5, 15)</span>. <span class="m"><i>β</i><sub>1</sub></span> is the
+          baseline gap, <span class="m"><i>β</i><sub>2</sub></span> is the control group&rsquo;s change, and the
+          <strong>interaction <span class="m"><i>β</i><sub>3</sub></span></strong> is the difference in changes.
+          This is the difference-in-differences estimator.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>This is exercise 5 with &ldquo;setting&rdquo; replaced by &ldquo;time.&rdquo; Solve cell by cell:</p>
+      <ul class="cells">
+        <li>Control, pre: <span class="m"><i>β</i><sub>0</sub> = 50</span></li>
+        <li>Treatment, pre: <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> = 50 &rarr; <i>β</i><sub>1</sub> = 0</span></li>
+        <li>Control, post: <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>2</sub> = 55 &rarr; <i>β</i><sub>2</sub> = 5</span></li>
+        <li>Treatment, post: <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> + <i>β</i><sub>2</sub> + <i>β</i><sub>3</sub> = 70 &rarr; <i>β</i><sub>3</sub> = 15</span></li>
+      </ul>
+      <p>So <span class="m"><i>β</i><sub>3</sub> = (70 &minus; 50) &minus; (55 &minus; 50) = 20 &minus; 5 = 15</span>.
+        The control group&rsquo;s change (5) is the counterfactual: what would have happened to the treatment
+        group without the program. <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> + <i>β</i><sub>2</sub> = 55</span>
+        is the treatment group&rsquo;s expected post score under that counterfactual, and
+        <span class="m"><i>β</i><sub>3</sub></span> is how far the observed 70 sits above it. Reading
+        <span class="m"><i>β</i><sub>3</sub></span> as a program effect requires the
+        <strong>parallel-trends</strong> assumption: without the program, both groups would have changed by the
+        same amount.</p>
+      <p>Changing the reference changes what the main effects mean. Flipping <em>one</em> reference (group or
+        period) flips the sign of the interaction; flipping both leaves it unchanged.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>control</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>treat</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>treat</sub><i>d</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Control, pre</th><td class="y">50</td><td>1</td><td class="off">1</td><td>0</td><td class="off">1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Treatment, pre</th><td class="y">50</td><td>1</td><td class="off">0</td><td>1</td><td class="off">1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Control, post</th><td class="y">55</td><td>1</td><td class="off">1</td><td>0</td><td class="off">0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Treatment, post</th><td class="y">70</td><td>1</td><td class="off">0</td><td>1</td><td class="off">0</td><td>1</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Control/pre reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>50</td><td>Is the control pre mean zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>0</td><td>Are treatment and control equal at baseline?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>5</td><td>Did the control group change from pre to post?</td></tr>
+            <tr><td><i>β</i><sub>3</sub></td><td>15</td><td>Did the treatment group change by the same amount as control?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Using the post-period group gap (<span class="m">70 &minus; 55 = 15</span>) as the
+            estimator.</strong> It matches here only because the baseline gap happens to be zero. In general it
+            mixes the program effect with any pre-existing difference.</li>
+          <li><strong>Using the treatment group&rsquo;s own change (20).</strong> It fails to subtract the change
+            of 5 that would have happened anyway.</li>
+          <li><strong>Adding <span class="m"><i>d</i><sub>control</sub></span> beside
+            <span class="m"><i>d</i><sub>treat</sub></span>, or <span class="m"><i>d</i><sub>pre</sub></span>
+            beside <span class="m"><i>d</i><sub>post</sub></span>, with an intercept.</strong> Both are
+            collinear.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q6">&larr; Back to question</a>
+    </article>
+
+    <!-- 7 ------------------------------------------------------------- -->
+    <article class="ex" id="s7">
+      <h3>7. Cumulative doses</h3>
+      <figure class="fig">
+```
+
+```{r s07, fig.alt="Mean outcome 20 after zero doses, 25 after one, 30 after two."}
+fig_07()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Mean outcomes after zero, one, and two doses are 20, 25, and 30. Build
+        <em>cumulative</em> indicators so each coefficient is the increment from receiving another dose.
+        Compare this with indicators for exactly one and exactly two doses.</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Define <span class="m"><i>d</i><sub>dose1</sub> = 1</span> if a person received <strong>at least</strong>
+          one dose and <span class="m"><i>d</i><sub>dose2</sub> = 1</span> if they received at least two. The
+          model gives <span class="m">(20, 5, 5)</span>: <span class="m"><i>β</i><sub>1</sub></span> is the gain
+          from the first dose and <span class="m"><i>β</i><sub>2</sub></span> is the <em>additional</em> gain
+          from the second. Exact-group indicators give <span class="m">(20, 5, 10)</span> instead, comparing
+          each group with zero doses.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>A two-dose person has <em>both</em> cumulative indicators switched on, so their predicted mean is
+        <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub> + <i>β</i><sub>2</sub></span>. A one-dose
+        person has <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub></span>. The difference between
+        them is <span class="m"><i>β</i><sub>2</sub></span> alone, the step from one dose to two.</p>
+      <p>With exact-group indicators, a two-dose person has only <span class="m"><i>d</i><sub>two</sub></span>
+        switched on, so <span class="m"><i>α</i><sub>2</sub></span> is the whole distance from zero doses. The
+        second increment is still there, but only as
+        <span class="m"><i>α</i><sub>2</sub> &minus; <i>α</i><sub>1</sub> = 5</span>.</p>
+      <p>Both codings fit the same three means; they differ only in which contrasts get a p-value. Cumulative
+        coding also lets you test whether each dose adds the same amount
+        (<span class="m"><i>β</i><sub>1</sub> = <i>β</i><sub>2</sub></span>). That is exactly the assumption a
+        linear dose term <span class="m"><i>β</i>&middot;doses</span> would impose without testing. The same
+        stacking idea reappears in exercises 8 and 13, where a post-period dummy is added on top of a trend.</p>
+
+      <h4>Design matrix</h4>
+      <p>The exact-group pair (<span class="m"><i>d</i><sub>one</sub>, <i>d</i><sub>two</sub></span>) and the
+        cumulative pair (<span class="m"><i>d</i><sub>dose1</sub>, <i>d</i><sub>dose2</sub></span>) encode
+        <strong>different contrasts</strong>. Use one pair, not both.</p>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>none</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>one</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>two</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>dose1</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>dose2</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Zero doses</th><td class="y">20</td><td>1</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">One dose</th><td class="y">25</td><td>1</td><td class="off">0</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Two doses</th><td class="y">30</td><td>1</td><td class="off">0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">Exact groups: <i>Y</i> = <i>α</i><sub>0</sub> + <i>α</i><sub>1</sub><i>d</i><sub>one</sub> + <i>α</i><sub>2</sub><i>d</i><sub>two</sub> + <i>ε</i></span></div>
+      <div class="eq"><span class="m">Cumulative: <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>dose1</sub> + <i>β</i><sub>2</sub><i>d</i><sub>dose2</sub> + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Exact groups</th></tr>
+            <tr><td><i>α</i><sub>0</sub></td><td>20</td><td>Is the zero-dose mean zero? (descriptive only)</td></tr>
+            <tr><td><i>α</i><sub>1</sub></td><td>5</td><td>Does one dose differ from none?</td></tr>
+            <tr><td><i>α</i><sub>2</sub></td><td>10</td><td>Do two doses differ from none?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Cumulative</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>20</td><td>Is the zero-dose mean zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>5</td><td>Does the first dose add anything?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>5</td><td>Does the second dose add anything beyond the first?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Calling <span class="m"><i>α</i><sub>2</sub> = 10</span> &ldquo;the effect of the second
+            dose.&rdquo;</strong> It is the total difference between two doses and none.</li>
+          <li><strong>Coding <span class="m"><i>d</i><sub>dose1</sub> = 1</span> only for people with exactly one
+            dose.</strong> That turns it back into an exact-group indicator, and it no longer measures cumulative
+            exposure.</li>
+          <li><strong>Reading the dose coefficients causally without asking how dosage was assigned.</strong>
+            People who choose a second dose may differ from those who do not.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q7">&larr; Back to question</a>
+    </article>
+
+    <!-- 8 ------------------------------------------------------------- -->
+    <article class="ex" id="s8">
+      <h3>8. Interrupted time series</h3>
+      <figure class="fig">
+```
+
+```{r s08, fig.alt="A pre-intervention line with slope 2 reaching 18 at t = -1, then a jump to 30 at t = 0 and a steeper post line with slope 5."}
+fig_08()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Time is centered so the first post-intervention period is
+        <span class="m"><i>t</i> = 0</span>. The pretrend slope is 2. At <span class="m"><i>t</i> = 0</span>
+        the post line is 10 above the extrapolated pre line, and then it rises 5 per period. Specify separate
+        tests for the immediate level change and the slope change. What if the graph has a kink but no
+        jump?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>β</i><sub>2</sub><i>d</i><sub>post</sub> + <i>β</i><sub>3</sub><i>t</i><sub>after</sub> + <i>ε</i></span>,
+          with <span class="m"><i>t</i><sub>after</sub> = <i>t</i>&middot;<i>d</i><sub>post</sub></span>, gives
+          <span class="m">(20, 2, 10, 3)</span>. <span class="m"><i>β</i><sub>2</sub></span> is the immediate
+          jump, <span class="m"><i>β</i><sub>3</sub></span> is the change in slope, and the post slope is
+          <span class="m"><i>β</i><sub>1</sub> + <i>β</i><sub>3</sub> = 5</span>. A kink with no jump means
+          <span class="m"><i>β</i><sub>2</sub> = 0</span>. You can test that, or impose it by dropping
+          <span class="m"><i>d</i><sub>post</sub></span>.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>This is exercise 4 with time as <span class="m"><i>X</i></span> and before/after as the groups:</p>
+      <ul class="cells">
+        <li>Before: <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> = 20 + 2<i>t</i></span></li>
+        <li>After: <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub>) + (<i>β</i><sub>1</sub> + <i>β</i><sub>3</sub>)<i>t</i> = 30 + 5<i>t</i></span></li>
+      </ul>
+      <p>Because <span class="m"><i>t</i><sub>after</sub> = 0</span> at the first post period, the two lines
+        differ by exactly <span class="m"><i>β</i><sub>2</sub></span> at <span class="m"><i>t</i> = 0</span>.
+        That is the gap between the observed post level (30) and where the old trend would have been (20).
+        <strong>Centering time at the interruption is what makes the dummy coefficient mean
+        &ldquo;jump at the interruption.&rdquo;</strong> Note that <span class="m"><i>β</i><sub>0</sub> = 20</span>
+        is not an observed point; it is the pre-trend extrapolated to <span class="m"><i>t</i> = 0</span>, the
+        counterfactual level.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>t</i></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th><th scope="col"><span class="m"><i>t</i><sub>after</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Before, <span class="m"><i>t</i> = &minus;2</span></th><td class="y">16</td><td>1</td><td>&minus;2</td><td class="off">1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Before, <span class="m"><i>t</i> = &minus;1</span></th><td class="y">18</td><td>1</td><td>&minus;1</td><td class="off">1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">First post, <span class="m"><i>t</i> = 0</span></th><td class="y">30</td><td>1</td><td>0</td><td class="off">0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Post, <span class="m"><i>t</i> = 1</span></th><td class="y">35</td><td>1</td><td>1</td><td class="off">0</td><td>1</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Pre-period reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>20</td><td>Is the extrapolated pre level at <span class="m"><i>t</i> = 0</span> zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Was there a pre-intervention trend?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>10</td><td>Was there an immediate level change at the interruption?</td></tr>
+            <tr><td><i>β</i><sub>3</sub></td><td>3</td><td>Did the slope change after the interruption?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Using only <span class="m"><i>d</i><sub>post</sub></span> to test a slope change.</strong> A
+            dummy on its own gives a jump with parallel lines.</li>
+          <li><strong>Starting the post-period counter at 1.</strong> If
+            <span class="m"><i>t</i><sub>after</sub> = 1</span> in the first post period, the post line becomes
+            <span class="m">(<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub> + <i>β</i><sub>3</sub>) + (<i>β</i><sub>1</sub> + <i>β</i><sub>3</sub>)<i>t</i></span>.
+            The jump at <span class="m"><i>t</i> = 0</span> is then <span class="m"><i>β</i><sub>2</sub> + <i>β</i><sub>3</sub></span>,
+            and <span class="m"><i>β</i><sub>2</sub></span> alone (here 7, not 10) is a gap one period
+            <em>before</em> the interruption.</li>
+          <li><strong>Adding <span class="m"><i>d</i><sub>pre</sub></span> alongside
+            <span class="m"><i>d</i><sub>post</sub></span> and the intercept.</strong> Use one or the other.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q8">&larr; Back to question</a>
+    </article>
+
+    <!-- 9 ------------------------------------------------------------- -->
+    <article class="ex" id="s9">
+      <h3>9. Regression discontinuity at a cutoff</h3>
+      <figure class="fig">
+```
+
+```{r s09, fig.alt="Outcome against running variable minus cutoff: the line below reaches 40 at the cutoff, the line above starts at 50, and both lines have the same slope."}
+fig_09()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>An eligibility rule switches on at running-variable value
+        <span class="m"><i>X</i> = 50</span>. The expected outcome rises 2 units per unit of
+        <span class="m"><i>X</i></span> on both sides of the cutoff and jumps by 10 at the cutoff. Code the
+        running variable and threshold dummy so the jump is one coefficient. Does centering the running
+        variable at 50 change the jump estimate? When would it?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Let <span class="m"><i>x</i><sub>c</sub> = <i>X</i> &minus; 50</span> and
+          <span class="m"><i>d</i><sub>above</sub> = I(<i>X</i> &ge; 50)</span>. Then
+          <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> + <i>β</i><sub>2</sub><i>d</i><sub>above</sub> + <i>ε</i></span>
+          gives <span class="m">(40, 2, 10)</span>, and <span class="m"><i>β</i><sub>2</sub></span> is the program
+          effect: the jump at the cutoff. The treatment shifts the intercept and leaves the slope alone, so both
+          sides share <span class="m"><i>β</i><sub>1</sub></span>. With parallel lines, centering does
+          <strong>not</strong> change the jump estimate. It makes the intercept meaningful, and it becomes
+          essential as soon as you add a slope interaction to check the common-slope assumption.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>This is exercise 3, parallel lines, with the running variable as <span class="m"><i>X</i></span> and
+        eligibility as the group. It is also exercise 8 without the slope change:</p>
+      <ul class="cells">
+        <li>Below: <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> = 40 + 2<i>x</i><sub>c</sub></span></li>
+        <li>Above: <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>2</sub>) + <i>β</i><sub>1</sub><i>x</i><sub>c</sub> = 50 + 2<i>x</i><sub>c</sub></span></li>
+      </ul>
+      <p>The logic of the design is that units just below and just above the cutoff are comparable, so the
+        only thing that changes as <span class="m"><i>X</i></span> crosses 50 is eligibility. The running
+        variable&rsquo;s relationship with the outcome carries straight through the cutoff, and the program
+        shows up as a <strong>shift in the intercept</strong> at that point. That is
+        <span class="m"><i>β</i><sub>2</sub></span>.</p>
+      <p>The value 40 is a <strong>left-hand limit</strong>: where the untreated line arrives at the cutoff.
+        Nobody at <span class="m"><i>X</i> = 50</span> is untreated, so it is never observed directly. It is the
+        counterfactual for the units just above the line.</p>
+
+      <h4>Does centering matter?</h4>
+      <p>Not for the jump, in this model. With raw <span class="m"><i>X</i></span> the lines are
+        <span class="m">&minus;60 + 2<i>X</i></span> and <span class="m">&minus;50 + 2<i>X</i></span>, so the
+        dummy coefficient is still 10. Parallel lines are the same distance apart everywhere, as in exercise 3.
+        Centering changes only the intercept: &minus;60 is the outcome extrapolated to
+        <span class="m"><i>X</i> = 0</span>, while 40 is the untreated level at the cutoff.</p>
+      <p>Centering <em>does</em> matter the moment you let the slopes differ, for example to check the common-slope
+        assumption by adding <span class="m"><i>x</i><sub>c</sub><i>d</i><sub>above</sub></span> and testing
+        whether its coefficient is zero. The dummy then measures the gap where the running variable equals
+        zero. With <span class="m"><i>x</i><sub>c</sub></span> that is still the cutoff. With raw
+        <span class="m"><i>X</i></span> it is <span class="m"><i>X</i> = 0</span>, far outside the data, where
+        even a slope difference of 0.2 would move the dummy coefficient by <span class="m">50 &times; 0.2 = 10</span>.
+        If the check shows clearly different slopes, the straight-line model near the cutoff deserves a closer
+        look before you trust the jump.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>X</i></span></th><th scope="col"><span class="m"><i>x</i><sub>c</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>below</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>above</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Below, <span class="m"><i>X</i> = 48</span></th><td class="y">36</td><td>1</td><td class="off">48</td><td>&minus;2</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">Below, <span class="m"><i>X</i> = 49</span></th><td class="y">38</td><td>1</td><td class="off">49</td><td>&minus;1</td><td class="off">1</td><td>0</td></tr>
+            <tr><th scope="row">Cutoff, <span class="m"><i>X</i> = 50</span></th><td class="y">50</td><td>1</td><td class="off">50</td><td>0</td><td class="off">0</td><td>1</td></tr>
+            <tr><th scope="row">Above, <span class="m"><i>X</i> = 51</span></th><td class="y">52</td><td>1</td><td class="off">51</td><td>1</td><td class="off">0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Raw <span class="m"><i>X</i></span> is shown only to explain centering. Including both
+        <span class="m"><i>X</i></span> and <span class="m"><i>x</i><sub>c</sub></span> with an intercept is
+        collinear. Using <span class="m"><i>d</i><sub>below</sub></span> instead of
+        <span class="m"><i>d</i><sub>above</sub></span> reverses the sign of the jump.</p>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Below-cutoff reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>40</td><td>Is the left-hand limit at the cutoff zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Is the outcome related to the running variable, on either side?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>10</td><td>Is there a jump at the cutoff, the program effect?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Leaving out the running variable.</strong> <code>Y ~ d_above</code> compares the average
+            outcome above the cutoff with the average below it. Because the outcome rises with
+            <span class="m"><i>X</i></span> anyway, that difference mixes the jump with the slope. With data from
+            <span class="m"><i>X</i> = 40</span> to 60 it reports 31, three times the true jump of 10. The
+            running variable is the control that makes the comparison local.</li>
+          <li><strong>Adding a slope interaction with raw <span class="m"><i>X</i></span> and calling the dummy
+            coefficient the jump.</strong> As shown above, the dummy then measures the gap at
+            <span class="m"><i>X</i> = 0</span>, not at the cutoff. Center first.</li>
+          <li><strong>Fitting one line through data far from the cutoff.</strong> RD identifies an effect only
+            near the threshold. Observations far from 50 say little about the jump, and a straight line through
+            them can invent or hide one.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q9">&larr; Back to question</a>
+    </article>
+
+    <!-- 10 ------------------------------------------------------------ -->
+    <article class="ex" id="s10">
+      <h3>10. A special pile of observations at predictor zero</h3>
+      <figure class="fig">
+```
+
+```{r s10, fig.alt="Donations rise with fundraising expense along the line 10 + 4X; organizations with zero expense cluster around 30."}
+fig_10()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Among organizations with positive fundraising expense <span class="m"><i>X</i></span>,
+        donations follow approximately <span class="m">10 + 4<i>X</i></span>. Organizations with
+        <span class="m"><i>X</i> = 0</span> have mean donations of 30. Add a dummy that tests whether the zero
+        cases follow the extrapolated positive-<span class="m"><i>X</i></span> line. Which value of the line is
+        the comparison?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Add <span class="m"><i>d</i><sub>zero</sub> = I(<i>X</i> = 0)</span>:
+          <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>zero</sub> + <i>ε</i></span>
+          gives <span class="m">(10, 4, 20)</span>. <span class="m"><i>β</i><sub>2</sub></span> compares the
+          zero group&rsquo;s mean (30) with the <strong>positive-case line extrapolated to
+          <span class="m"><i>X</i> = 0</span></strong> (10). It is not a comparison with the average positive
+          organization.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <ul class="cells">
+        <li>Zero cases (<span class="m"><i>X</i> = 0</span>, <span class="m"><i>d</i><sub>zero</sub> = 1</span>): <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>2</sub> = 30</span></li>
+        <li>Positive cases (<span class="m"><i>d</i><sub>zero</sub> = 0</span>): <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> = 10 + 4<i>X</i></span></li>
+      </ul>
+      <p>The zero group gets its own mean through <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>2</sub></span>,
+        so the line (<span class="m"><i>β</i><sub>0</sub></span> and <span class="m"><i>β</i><sub>1</sub></span>)
+        is estimated from the positive cases alone. That is the second benefit of the dummy. Without it, the pile
+        at 30 would drag the intercept up and flatten the slope, misdescribing the organizations that do
+        fundraise. <span class="m"><i>β</i><sub>2</sub></span> asks whether &ldquo;zero&rdquo; behaves like the
+        smallest possible amount of fundraising, or like a different kind of organization. Here it is clearly
+        the second: non-fundraisers raise far more than the line predicts.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>X</i></span></th><th scope="col"><span class="m"><i>d</i><sub>zero</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>positive</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Zero expense</th><td class="y">30</td><td>1</td><td>0</td><td>1</td><td class="off">0</td></tr>
+            <tr><th scope="row">Positive, <span class="m"><i>X</i> = 2</span></th><td class="y">18</td><td>1</td><td>2</td><td>0</td><td class="off">1</td></tr>
+            <tr><th scope="row">Positive, <span class="m"><i>X</i> = 5</span></th><td class="y">30</td><td>1</td><td>5</td><td>0</td><td class="off">1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <div class="eq"><span class="m">Zero indicator: <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>zero</sub> + <i>ε</i></span></div>
+      <div class="eq"><span class="m">Positive indicator: <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>X</i> + <i>γ</i><sub>2</sub><i>d</i><sub>positive</sub> + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Zero indicator</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>10</td><td>Is the positive-case line zero at <span class="m"><i>X</i> = 0</span>? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>4</td><td>Do donations rise with fundraising among positive cases?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>20</td><td>Do zero cases sit on the extrapolated line?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Positive indicator</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>30</td><td>Is the zero-group mean zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>4</td><td>Do donations rise with fundraising among positive cases?</td></tr>
+            <tr><td><i>γ</i><sub>2</sub></td><td>&minus;20</td><td>Does the extrapolated line meet the zero-group mean at <span class="m"><i>X</i> = 0</span>?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Putting <span class="m">I(<i>Y</i> = 0)</span> on the right-hand side.</strong> The pile-up
+            is in <span class="m"><i>X</i></span>, not <span class="m"><i>Y</i></span>, and a predictor built from
+            the outcome is never legitimate.</li>
+          <li><strong>Reading <span class="m"><i>β</i><sub>2</sub></span> as &ldquo;zero cases versus the average
+            positive case.&rdquo;</strong> It compares with the line at <span class="m"><i>X</i> = 0</span>.</li>
+          <li><strong>Adding <span class="m"><i>X</i>&middot;<i>d</i><sub>zero</sub></span> for a zero-group
+            slope.</strong> The column is always zero, since <span class="m"><i>X</i> = 0</span> whenever
+            <span class="m"><i>d</i><sub>zero</sub> = 1</span>. A group with one <span class="m"><i>X</i></span>
+            value has no slope.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q10">&larr; Back to question</a>
+    </article>
+
+    <!-- 11 ------------------------------------------------------------ -->
+    <article class="ex" id="s11">
+      <h3>11. Zero group and size-specific slopes</h3>
+      <figure class="fig">
+```
+
+```{r s11, fig.alt="Zero-expense organizations cluster near 30; small organizations follow 10 + 3X; large organizations follow a steeper, higher line 17 + 5X."}
+fig_11()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>The zero-<span class="m"><i>X</i></span> cases have a distinct mean. Among
+        positive-<span class="m"><i>X</i></span> cases, large organizations have a different intercept and slope
+        from small ones. Specify the model so each of these three departures is a coefficient. How must size
+        be coded for the zero cases?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>With small positive-<span class="m"><i>X</i></span> organizations as the reference,
+          <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> + <i>β</i><sub>2</sub><i>d</i><sub>zero</sub> + <i>β</i><sub>3</sub><i>d</i><sub>large</sub> + <i>β</i><sub>4</sub>(<i>X</i><i>d</i><sub>large</sub>) + <i>ε</i></span>
+          gives <span class="m">(10, 3, 20, 7, 2)</span>. The three departures are
+          <span class="m"><i>β</i><sub>2</sub></span> (zero group), <span class="m"><i>β</i><sub>3</sub></span>
+          (large intercept), and <span class="m"><i>β</i><sub>4</sub></span> (large slope). Code
+          <span class="m"><i>d</i><sub>large</sub> = 0</span> for every zero case, so the zero group is a third
+          category rather than a subset of small or large.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>The model describes three groups, each with its own equation:</p>
+      <ul class="cells">
+        <li>Zero cases: <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>2</sub> = 30</span></li>
+        <li>Small, positive: <span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>X</i> = 10 + 3<i>X</i></span></li>
+        <li>Large, positive: <span class="m"><i>Y</i> = (<i>β</i><sub>0</sub> + <i>β</i><sub>3</sub>) + (<i>β</i><sub>1</sub> + <i>β</i><sub>4</sub>)<i>X</i> = 17 + 5<i>X</i></span></li>
+      </ul>
+      <p>This combines exercise 10 (a dummy for the pile at zero) with exercise 4 (intercept and slope shifts
+        for a second group). The coding of size for zero cases matters. If a large zero-expense organization
+        had <span class="m"><i>d</i><sub>large</sub> = 1</span>, its prediction would be
+        <span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>2</sub> + <i>β</i><sub>3</sub></span>. Then
+        <span class="m"><i>β</i><sub>3</sub></span> would have to describe both the gap between the positive
+        lines <em>and</em> a size gap within the zero group, forcing the two to be equal.</p>
+      <p>If size genuinely matters among zero cases, code it for them and add
+        <span class="m"><i>d</i><sub>zero</sub><i>d</i><sub>large</sub></span>, so the zero group can have
+        separate small and large means.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>X</i></span></th><th scope="col"><span class="m"><i>d</i><sub>zero</sub></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>small</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>large</sub></span></th><th scope="col"><span class="m"><i>X</i><i>d</i><sub>large</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Zero <span class="m"><i>X</i></span></th><td class="y">30</td><td>1</td><td>0</td><td>1</td><td class="off">0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Small, <span class="m"><i>X</i> = 2</span></th><td class="y">16</td><td>1</td><td>2</td><td>0</td><td class="off">1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Small, <span class="m"><i>X</i> = 5</span></th><td class="y">25</td><td>1</td><td>5</td><td>0</td><td class="off">1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Large, <span class="m"><i>X</i> = 2</span></th><td class="y">27</td><td>1</td><td>2</td><td>0</td><td class="off">0</td><td>1</td><td>2</td></tr>
+            <tr><th scope="row">Large, <span class="m"><i>X</i> = 5</span></th><td class="y">42</td><td>1</td><td>5</td><td>0</td><td class="off">0</td><td>1</td><td>5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Small-positive reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>10</td><td>Is the small-positive line zero at <span class="m"><i>X</i> = 0</span>? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>3</td><td>Do donations rise with fundraising for small organizations?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>20</td><td>Do zero cases sit on the extrapolated small-organization line?</td></tr>
+            <tr><td><i>β</i><sub>3</sub></td><td>7</td><td>Do large and small lines meet at <span class="m"><i>X</i> = 0</span>?</td></tr>
+            <tr><td><i>β</i><sub>4</sub></td><td>2</td><td>Do large and small organizations have the same slope?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Adding <span class="m"><i>X</i><i>d</i><sub>zero</sub></span> to give the zero group a
+            slope.</strong> The column is all zeros.</li>
+          <li><strong>Adding <span class="m"><i>d</i><sub>small</sub></span> to the model.</strong>
+            <span class="m"><i>d</i><sub>zero</sub></span>, <span class="m"><i>d</i><sub>small</sub></span>, and
+            <span class="m"><i>d</i><sub>large</sub></span> cover every case exactly once, so all three plus the
+            intercept are collinear.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q11">&larr; Back to question</a>
+    </article>
+
+    <!-- 12 ------------------------------------------------------------ -->
+    <article class="ex" id="s12">
+      <h3>12. A single outlying year</h3>
+      <figure class="fig wide">
+```
+
+```{r s12, fig.width=7.5, fig.alt="Two panels of eleven yearly observations from 2010 to 2020 that rise one unit per year. In panel A the 2015 value is 10 units too high and the OLS line is lifted but keeps its slope. In panel B the 2020 value is 10 units too high and the OLS line is tilted upward."}
+fig_12()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>An outcome follows <span class="m"><i>Y</i> = <i>t</i></span>, with
+        <span class="m"><i>t</i> = year &minus; 2009</span>, except that one year is 10 units too high: 2015 in
+        panel A, 2020 in panel B. How does the odd year distort each OLS fit, and why differently? Add a
+        <strong>single</strong> dummy that removes its influence. What does the dummy&rsquo;s coefficient
+        measure, and what happens to the trend estimates?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Without a dummy, the middle-year outlier (A) lifts the whole line but leaves the slope at 1.00. The
+          last-year outlier (B) tilts the line, raising the slope to 1.45. Add a dummy that equals 1 in the odd
+          year only, <span class="m"><i>d</i><sub>2015</sub></span> or <span class="m"><i>d</i><sub>2020</sub></span>:</p>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i><i>d</i><sub>odd</sub> + <i>ε</i></span></p>
+        <p>In both panels this gives <span class="m"><i>β</i><sub>0</sub> = 0</span>,
+          <span class="m"><i>β</i><sub>1</sub> = 1</span>, <span class="m"><i>δ</i> = 10</span>. The trend is
+          estimated from the ten ordinary years, and <span class="m"><i>δ</i></span> is how far the odd year sits
+          above that trend.</p>
+      </div>
+
+      <h4>How one point moves a line</h4>
+      <p>An outlier pulls on the fitted line in two ways. It always raises the mean of
+        <span class="m"><i>Y</i></span>, and the line must pass through
+        <span class="m">(<i>t̄</i>, <i>Ȳ</i>)</span>, so the whole line lifts. How much it also <em>tilts</em> the
+        line depends on its distance from the middle of the <span class="m"><i>t</i></span> values, its
+        <strong>leverage</strong>:</p>
+      <div class="eq"><span class="m">change in slope = 10 &times; (<i>t</i><sub>odd</sub> &minus; <i>t̄</i>) / &Sigma;(<i>t</i> &minus; <i>t̄</i>)<sup>2</sup> = 10 &times; (<i>t</i><sub>odd</sub> &minus; 6) / 110</span></div>
+      <ul>
+        <li><strong>Panel A, 2015</strong> (<span class="m"><i>t</i> = 6 = <i>t̄</i></span>): no leverage, so the
+          slope stays at 1.00. The intercept rises from 0 to <span class="m">10/11 &asymp; 0.91</span>. The
+          residuals balloon, so the slope&rsquo;s standard error jumps from about 0 to 0.30.</li>
+        <li><strong>Panel B, 2020</strong> (<span class="m"><i>t</i> = 11</span>): maximum leverage. The slope
+          rises by <span class="m">50/110 &asymp; 0.45</span> to 1.45, and the intercept falls to &minus;1.82 to
+          compensate. An odd <em>first</em> year would do the opposite: slope 0.55, intercept 3.64.</li>
+      </ul>
+      <p>So a single bad year at the end of a series can manufacture or hide a trend, which is exactly where
+        policy series tend to have their surprises.</p>
+
+      <h4>Why one dummy fixes it</h4>
+      <p>A dummy that is 1 for a single observation gives that observation its own intercept. The model can then
+        fit it exactly (<span class="m"><i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i> = <i>Y</i></span>),
+        so it has no residual left to pull the line with. The trend is estimated from the other ten years alone.
+        That gives the same slope and intercept as deleting the year, but the observation stays in the data and
+        you get a coefficient for it.</p>
+      <p><span class="m"><i>δ</i></span> is the gap between the odd year and the value the trend predicts for
+        it: <span class="m">16 &minus; 6 = 10</span> in panel A and <span class="m">21 &minus; 11 = 10</span> in
+        panel B. Its t-test is the standard regression test for an outlier: is this year further from the trend
+        than ordinary noise would put it?</p>
+
+      <h4>Design matrix</h4>
+      <p>Each panel uses only its own dummy.</p>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span> (A)</th><th scope="col"><span class="m"><i>Y</i></span> (B)</th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>t</i></span></th><th scope="col"><span class="m"><i>d</i><sub>2015</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>2020</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">2010</th><td class="y">1</td><td class="y">1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2014</th><td class="y">5</td><td class="y">5</td><td>1</td><td>5</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2015</th><td class="y">16</td><td class="y">6</td><td>1</td><td>6</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">2016</th><td class="y">7</td><td class="y">7</td><td>1</td><td>7</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2019</th><td class="y">10</td><td class="y">10</td><td>1</td><td>10</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">2020</th><td class="y">11</td><td class="y">21</td><td>1</td><td>11</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">No dummy &middot; panel A / panel B</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>0.91 / &minus;1.82</td><td>Is the fitted line zero at <span class="m"><i>t</i> = 0</span>? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>1.00 / 1.45</td><td>Is there a trend? (A is right but noisy; B is biased by the endpoint)</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">With the odd-year dummy &middot; both panels</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>0</td><td>Is the trend zero at <span class="m"><i>t</i> = 0</span>? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>1</td><td>Is there a trend among the ordinary years?</td></tr>
+            <tr><td><i>δ</i></td><td>10</td><td>Does the odd year sit on the trend line?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Deleting the year without saying so.</strong> The line is the same, but readers cannot see
+            the decision and you lose the test of whether the year really was unusual.</li>
+          <li><strong>Adding a dummy for every point that does not fit.</strong> A dummy should have a reason
+            that exists before you look at the residuals: a known strike, a coding change, a pandemic. Give
+            enough points their own dummy and any line fits perfectly.</li>
+          <li><strong>Reading the dummy&rsquo;s p-value at face value after hunting for the biggest
+            residual.</strong> Picking the worst of eleven years and then testing it is eleven tests, not one. The
+            multiple-comparison logic of the Bonferroni correction (Unit 09) applies.</li>
+          <li><strong>Using a step dummy (1 from 2015 onward) for a one-year blip.</strong> That models a
+            permanent shift, not a single odd year.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q12">&larr; Back to question</a>
+    </article>
+
+    <!-- 13A ----------------------------------------------------------- -->
+    <article class="ex" id="s13a">
+      <h3>13A. Flat before, flat after</h3>
+      <figure class="fig wide">
+```
+
+```{r s13a, fig.width=7.5, fig.alt="The outcome is flat at 60 from 2014 to 2019, falls to 44, 42, and 53 in 2020 to 2022, and is flat at 60 again from 2023 to 2027."}
+fig_13a()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>The outcome is flat at 60 before COVID (2014&ndash;2019), drops to 44, 42, and 53 in
+        2020&ndash;2022, and is flat at 60 again afterwards (2023&ndash;2027). Build a model that (a) gives each
+        anomalous year its own deviation and (b) tests whether the post-COVID level differs from the pre-COVID
+        level. Which category is omitted, and what is the post contrast? What goes wrong if the COVID years are
+        left in the reference group instead?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Omit <span class="m"><i>d</i><sub>pre</sub></span>:</p>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>δ</i><sub>20</sub><i>d</i><sub>covid20</sub> + <i>δ</i><sub>21</sub><i>d</i><sub>covid21</sub> + <i>δ</i><sub>22</sub><i>d</i><sub>covid22</sub> + <i>δ</i><sub>P</sub><i>d</i><sub>post</sub> + <i>ε</i></span></p>
+        <p>This gives <span class="m"><i>β</i><sub>0</sub> = 60</span>, anomaly deviations
+          <span class="m">(&minus;16, &minus;18, &minus;7)</span>, and <span class="m"><i>δ</i><sub>P</sub> = 0</span>:
+          the outcome went back to exactly where it was. If the COVID years are left in the reference group, the
+          same data show a spurious post-COVID <em>gain</em> of about 4.6.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>This is exercise 12 three times over. Each anomaly year has its own dummy, so each is fit exactly and
+        cannot contaminate either the pre or the post level. With no trend in the model, every coefficient is a
+        plain difference in means from the pre-COVID years:</p>
+      <ul class="cells">
+        <li>Pre years: <span class="m"><i>β</i><sub>0</sub> = 60</span></li>
+        <li>2020: <span class="m">60 + <i>δ</i><sub>20</sub> = 44 &rarr; <i>δ</i><sub>20</sub> = &minus;16</span>;
+          2021: <span class="m"><i>δ</i><sub>21</sub> = &minus;18</span>; 2022: <span class="m"><i>δ</i><sub>22</sub> = &minus;7</span></li>
+        <li>Post years: <span class="m">60 + <i>δ</i><sub>P</sub> = 60 &rarr; <i>δ</i><sub>P</sub> = 0</span></li>
+      </ul>
+      <p>Because nothing else changes over time, <span class="m"><i>δ</i><sub>P</sub></span> here <em>is</em> the
+        raw difference between the post and pre means, and that is the right contrast. Keep this in mind for
+        13B, where adding a trend breaks that equivalence.</p>
+      <p>Two separate questions, two separate tests. Was there a temporary disruption? Test
+        <span class="m"><i>δ</i><sub>20</sub> = <i>δ</i><sub>21</sub> = <i>δ</i><sub>22</sub> = 0</span> jointly.
+        Is there a lasting change? Test <span class="m"><i>δ</i><sub>P</sub> = 0</span>. Here the answers are
+        yes and no.</p>
+
+      <h4>What goes wrong without the COVID dummies</h4>
+      <p>The anomaly years have to go <em>somewhere</em>. If you code only
+        <span class="m"><i>d</i><sub>post</sub></span>, they join whichever group is left:</p>
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">COVID years placed in&hellip;</th><th scope="col"><span class="m"><i>δ</i><sub>P</sub></span></th><th scope="col">What the model concludes</th></tr></thead>
+          <tbody>
+            <tr><td>their own dummies</td><td>0</td><td>No lasting change. Correct.</td></tr>
+            <tr><td>the reference (pre) group</td><td>+4.6</td><td>The pre mean drops to <span class="m">(6&middot;60 + 44 + 42 + 53)/9 &asymp; 55.4</span>, so post looks like a gain.</td></tr>
+            <tr><td>the post group</td><td>&minus;5.1</td><td>The post mean drops to <span class="m">(44 + 42 + 53 + 5&middot;60)/8 &asymp; 54.9</span>, so post looks like a loss.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The same three odd years produce a gain, a loss, or nothing, depending only on where they are filed.
+        That is exercise 12&rsquo;s lesson about a single outlier, in dummy-variable form.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid20</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid21</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid22</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Pre, 2014</th><td class="y">60</td><td>1</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Pre, 2019</th><td class="y">60</td><td>1</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2020</th><td class="y">44</td><td>1</td><td class="off">0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2021</th><td class="y">42</td><td>1</td><td class="off">0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2022</th><td class="y">53</td><td>1</td><td class="off">0</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Post, 2023</th><td class="y">60</td><td>1</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><th scope="row">Post, 2027</th><td class="y">60</td><td>1</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>In the shorthand <span class="m"><i>d</i><sub>0</sub>, &hellip;, <i>d</i><sub>4</sub></span>, these five
+        indicators are <span class="m"><i>d</i><sub>pre</sub>, <i>d</i><sub>covid20</sub>, <i>d</i><sub>covid21</sub>,
+        <i>d</i><sub>covid22</sub>, <i>d</i><sub>post</sub></span> in that order.</p>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Pre-COVID reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>60</td><td>Is the pre-COVID level zero? (descriptive only)</td></tr>
+            <tr><td><i>δ</i><sub>20</sub></td><td>&minus;16</td><td>Was 2020 at the pre-COVID level?</td></tr>
+            <tr><td><i>δ</i><sub>21</sub></td><td>&minus;18</td><td>Was 2021 at the pre-COVID level?</td></tr>
+            <tr><td><i>δ</i><sub>22</sub></td><td>&minus;7</td><td>Was 2022 at the pre-COVID level?</td></tr>
+            <tr><td><i>δ</i><sub>P</sub></td><td>0</td><td>Is the post-COVID level different from the pre-COVID level?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Coding only <span class="m"><i>d</i><sub>post</sub></span>.</strong> The COVID years land in
+            one of the comparison groups and create a shift that is not there (table above).</li>
+          <li><strong>Using one <span class="m"><i>d</i><sub>covid</sub></span> dummy for all three
+            years.</strong> That protects the pre and post levels, but forces 2020&ndash;2022 to share one mean
+            and hides the recovery path (&minus;16, &minus;18, &minus;7).</li>
+          <li><strong>Including all five period dummies with the intercept.</strong> They sum to one on every
+            row.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q13a">&larr; Back to question</a>
+    </article>
+
+    <!-- 13B ----------------------------------------------------------- -->
+    <article class="ex" id="s13b">
+      <h3>13B. Add a trend</h3>
+      <figure class="fig wide">
+```
+
+```{r s13b, fig.width=7.5, fig.alt="A pre-COVID trend from 50 in 2014 rising 2 per year; anomalous low values in 2020 to 2022; a stable post period from 2023 that runs parallel to the extrapolated trend but 9 units above it."}
+fig_13b()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Same indicators as 13A, but now the outcome rises 2 units per year before COVID, and
+        the later line is parallel to the pretrend but 9 units above it. Build a model that (a) gives each
+        anomalous year its own deviation and (b) tests whether the later regime is at a new level relative to
+        the pre-COVID trend <strong>at the same calendar time</strong>. Which category is omitted? Is the
+        <span class="m"><i>d</i><sub>post</sub></span> coefficient still an unadjusted difference in period
+        means, as it was in 13A?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Keep the 13A dummies, still omitting <span class="m"><i>d</i><sub>pre</sub></span>, and add a calendar
+          trend <span class="m"><i>t</i> = year &minus; 2014</span>:</p>
+        <p><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i><sub>20</sub><i>d</i><sub>covid20</sub> + <i>δ</i><sub>21</sub><i>d</i><sub>covid21</sub> + <i>δ</i><sub>22</sub><i>d</i><sub>covid22</sub> + <i>δ</i><sub>P</sub><i>d</i><sub>post</sub> + <i>ε</i></span></p>
+        <p>This gives a trend of <span class="m">50 + 2<i>t</i></span>, anomaly deviations
+          <span class="m">(&minus;18, &minus;22, &minus;13)</span>, and <span class="m"><i>δ</i><sub>P</sub> = 9</span>.
+          <strong>No</strong>, unlike 13A, <span class="m"><i>δ</i><sub>P</sub></span> is no longer the raw
+          difference in period means. That raw difference is 26, and 17 of it is just the old trend
+          continuing.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>Because the trend term is in the model, every dummy coefficient is a <em>vertical</em> distance from the
+        pre-COVID trend line, measured in the same year. Omitting <span class="m"><i>d</i><sub>pre</sub></span>
+        makes the ordinary pre years the reference, so the trend line is estimated from them. In 13A the
+        reference line was flat, so &ldquo;distance from the line&rdquo; and &ldquo;difference in means&rdquo;
+        were the same thing. Here they are not.</p>
+      <ul>
+        <li><strong>Each anomaly year gets its own dummy.</strong> As in exercise 12, one dummy for a single year
+          fits that year exactly, so the three unusual points cannot pull the trend line around. Each
+          <span class="m"><i>δ</i></span> is that year&rsquo;s deviation from where the trend would have put it.
+          For 2020, the trend predicts <span class="m">50 + 2&middot;6 = 62</span> and the observed value is 44,
+          so <span class="m"><i>δ</i><sub>20</sub> = &minus;18</span>.</li>
+        <li><strong><span class="m"><i>δ</i><sub>P</sub></span> is a shift, not a change in means.</strong> In
+          2023 the trend predicts <span class="m">50 + 2&middot;9 = 68</span> and the observed value is 77, a gap
+          of 9. Because the post line is parallel, the gap is 9 in every post year.</li>
+      </ul>
+      <p>Compare that with the naive comparison. The post-period mean (2023&ndash;2027) is 81 and the pre-period
+        mean (2014&ndash;2019) is 55, a difference of 26. But the trend alone would have raised the mean from 55 to
+        72 across those years (+17). Only the remaining 9 is a new level.</p>
+      <p>To test for a temporary disruption, test the three anomaly coefficients <em>jointly</em>:
+        <span class="m"><i>δ</i><sub>20</sub> = <i>δ</i><sub>21</sub> = <i>δ</i><sub>22</sub> = 0</span> (an
+        F-test). To test for a lasting shift, test <span class="m"><i>δ</i><sub>P</sub> = 0</span>.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>t</i></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid20</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid21</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid22</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Pre, 2014</th><td class="y">50</td><td>1</td><td>0</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Pre, 2019</th><td class="y">60</td><td>1</td><td>5</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2020</th><td class="y">44</td><td>1</td><td>6</td><td class="off">0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2021</th><td class="y">42</td><td>1</td><td>7</td><td class="off">0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2022</th><td class="y">53</td><td>1</td><td>8</td><td class="off">0</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Post, 2023</th><td class="y">77</td><td>1</td><td>9</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><th scope="row">Post, 2025</th><td class="y">81</td><td>1</td><td>11</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>In the shorthand <span class="m"><i>d</i><sub>0</sub>, &hellip;, <i>d</i><sub>4</sub></span>, these five
+        indicators are <span class="m"><i>d</i><sub>pre</sub>, <i>d</i><sub>covid20</sub>, <i>d</i><sub>covid21</sub>,
+        <i>d</i><sub>covid22</sub>, <i>d</i><sub>post</sub></span> in that order.</p>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Pre-COVID reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>50</td><td>Is the trend level in 2014 zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Was there a pre-COVID trend?</td></tr>
+            <tr><td><i>δ</i><sub>20</sub></td><td>&minus;18</td><td>Was 2020 on the extrapolated trend?</td></tr>
+            <tr><td><i>δ</i><sub>21</sub></td><td>&minus;22</td><td>Was 2021 on the extrapolated trend?</td></tr>
+            <tr><td><i>δ</i><sub>22</sub></td><td>&minus;13</td><td>Was 2022 on the extrapolated trend?</td></tr>
+            <tr><td><i>δ</i><sub>P</sub></td><td>9</td><td>Is the stable post period on the extrapolated trend, compared in the same year?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Regressing on <span class="m">1</span> and <span class="m"><i>d</i><sub>post</sub></span>
+            alone.</strong> This compares raw means from different years (26) and credits the ordinary trend to
+            the new regime.</li>
+          <li><strong>Including all five period dummies with the intercept.</strong> They sum to one on every
+            row.</li>
+          <li><strong>Reading <span class="m"><i>δ</i><sub>P</sub></span> as the effect of COVID.</strong> It shows
+            that the level shifted around 2023. Attributing the shift to COVID needs a design argument (a
+            comparison series, a mechanism), not just the coefficient.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q13b">&larr; Back to question</a>
+    </article>
+
+    <!-- 13C ----------------------------------------------------------- -->
+    <article class="ex" id="s13c">
+      <h3>13C. What if the post-COVID slope changed?</h3>
+      <figure class="fig wide">
+```
+
+```{r s13c, fig.width=7.5, fig.alt="The same picture with an alternative red post-period line that starts at 77 in 2023 and rises 4 per year."}
+fig_13c()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>In the alternative red post period, the slope is 2 units per year steeper than
+        before. Add one term that tests this change. Define time so that the post-level coefficient is still the
+        vertical gap at the start of the stable post period. What is the post slope?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <p>Keep the model from 13B and add
+          <span class="m"><i>t</i><sub>post</sub> = (year &minus; 2023)&middot;<i>d</i><sub>post</sub></span>,
+          which is zero before 2023 <em>and</em> in 2023 itself. Its coefficient
+          <span class="m"><i>θ</i> = 2</span> tests the slope change, <span class="m"><i>δ</i><sub>P</sub> = 9</span>
+          is still the jump in 2023, and the post slope is
+          <span class="m"><i>β</i><sub>1</sub> + <i>θ</i> = 4</span>.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>This is the interrupted time series of exercise 8 on top of the anomaly dummies of exercise 13B. The post
+        line is</p>
+      <div class="eq"><span class="m"><i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>t</i> + <i>δ</i><sub>P</sub> + <i>θ</i>(year &minus; 2023)</span></div>
+      <p>In 2023 the last term vanishes, so the gap from the pretrend there is exactly
+        <span class="m"><i>δ</i><sub>P</sub></span>. Each later year adds <span class="m"><i>θ</i></span> to the
+        gap. Starting the post clock at 2023 is what keeps <span class="m"><i>δ</i><sub>P</sub></span> meaning
+        &ldquo;the jump at the start of the new regime.&rdquo;</p>
+      <p>Suppose you used <span class="m"><i>t</i>&middot;<i>d</i><sub>post</sub></span> instead, with
+        <span class="m"><i>t</i></span> counted from 2014. The post line would then be
+        <span class="m">(<i>β</i><sub>0</sub> + <i>δ</i><sub>P</sub>) + (<i>β</i><sub>1</sub> + <i>θ</i>)<i>t</i></span>,
+        so <span class="m"><i>δ</i><sub>P</sub></span> would be the gap extrapolated back to 2014:
+        <span class="m">9 &minus; 9&middot;2 = &minus;9</span>. The fit is identical, but the sign of the headline
+        coefficient flips.</p>
+      <p>Test the two components separately, or test <span class="m"><i>δ</i><sub>P</sub> = <i>θ</i> = 0</span>
+        jointly to ask whether the post regime differs from the old trend in any way.</p>
+
+      <h4>Design matrix</h4>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>t</i></span></th><th scope="col" class="off"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid20</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid21</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>covid22</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th><th scope="col"><span class="m"><i>t</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Pre, 2014</th><td class="y">50</td><td>1</td><td>0</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Pre, 2019</th><td class="y">60</td><td>1</td><td>5</td><td class="off">1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2020</th><td class="y">44</td><td>1</td><td>6</td><td class="off">0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2021</th><td class="y">42</td><td>1</td><td>7</td><td class="off">0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">COVID, 2022</th><td class="y">53</td><td>1</td><td>8</td><td class="off">0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Post, 2023</th><td class="y">77</td><td>1</td><td>9</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">Post, 2025</th><td class="y">85</td><td>1</td><td>11</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>2</td></tr>
+            <tr><th scope="row">Post, 2027</th><td class="y">93</td><td>1</td><td>13</td><td class="off">0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>4</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Pre-COVID reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>50</td><td>Is the trend level in 2014 zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>2</td><td>Was there a pre-COVID trend?</td></tr>
+            <tr><td><i>δ</i><sub>20</sub>, <i>δ</i><sub>21</sub>, <i>δ</i><sub>22</sub></td><td>&minus;18, &minus;22, &minus;13</td><td>Was each anomaly year on the extrapolated trend?</td></tr>
+            <tr><td><i>δ</i><sub>P</sub></td><td>9</td><td>Was 2023 on the extrapolated trend?</td></tr>
+            <tr><td><i>θ</i></td><td>2</td><td>Is the post slope the same as the pre slope?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Inferring a slope change from <span class="m"><i>d</i><sub>post</sub></span> alone.</strong>
+            That term shifts the level only.</li>
+          <li><strong>Using raw <span class="m">year &times; <i>d</i><sub>post</sub></span> and reading
+            <span class="m"><i>δ</i><sub>P</sub></span> as the gap in 2023.</strong> As shown above, it becomes a
+            gap extrapolated to year zero of whatever clock you used. Center the post clock at 2023.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q13c">&larr; Back to question</a>
+    </article>
+
+    <!-- 14 ------------------------------------------------------------ -->
+    <article class="ex" id="s14">
+      <h3>14. Reverse-engineer the coding</h3>
+      <figure class="fig">
+```
+
+```{r s14, fig.alt="Group A rises from 50 to 55; group B rises from 50 to 70."}
+fig_14()
+```
+
+```{=html}
+      </figure>
+      <div class="prompt"><p>Group A changes from 50 to 55; B changes from 50 to 70. For each request, choose the
+        group and time references so a <em>single coefficient</em> tests it. You may write a different model for
+        each. (a) B versus A in the pre period; (b) B versus A in the post period; (c) B&rsquo;s own
+        pre-to-post change; (d) the difference in changes. Are any of these impossible to isolate as one
+        coefficient under a saturated 2 &times; 2 coding?</p></div>
+
+      <div class="callout">
+        <span class="lbl">Short answer</span>
+        <ul>
+          <li><strong>(a)</strong> Reference A/pre: the <span class="m"><i>d</i><sub>B</sub></span> coefficient,
+            <span class="m"><i>β</i><sub>1</sub> = 0</span>.</li>
+          <li><strong>(b)</strong> Reference A/post: the <span class="m"><i>d</i><sub>B</sub></span> coefficient,
+            <span class="m"><i>γ</i><sub>1</sub> = 15</span>.</li>
+          <li><strong>(c)</strong> Reference B/pre: the <span class="m"><i>d</i><sub>post</sub></span> coefficient,
+            <span class="m"><i>λ</i><sub>2</sub> = 20</span>.</li>
+          <li><strong>(d)</strong> Any reference: the interaction, <span class="m">&plusmn;15</span>.</li>
+        </ul>
+        <p>None of the four is impossible. What <em>is</em> impossible is getting all four from one model, or
+          getting a diagonal contrast (such as B/post versus A/pre) as a single coefficient under any coding.</p>
+      </div>
+
+      <h4>Why this works</h4>
+      <p>A saturated 2 &times; 2 model has an intercept and three coefficients, and every one of them is anchored
+        at the reference cell:</p>
+      <ul>
+        <li>the <strong>group</strong> main effect compares the two groups <em>in the reference period</em>;</li>
+        <li>the <strong>period</strong> main effect is the change over time <em>for the reference group</em>;</li>
+        <li>the <strong>interaction</strong> is the difference in changes, which is the same contrast from every
+          reference, up to sign.</li>
+      </ul>
+      <p>So to test a group gap in a particular period, make that period the reference. To test one group&rsquo;s
+        change, make that group the reference. The diagonal contrast from the reference cell is always
+        the sum of all three coefficients (for example, B/post versus A/pre is
+        <span class="m"><i>β</i><sub>1</sub> + <i>β</i><sub>2</sub> + <i>β</i><sub>3</sub> = 20</span> in Model 1).
+        No choice of reference makes it a single coefficient, so it needs a linear-combination test.</p>
+
+      <h4>Design matrix</h4>
+      <p>Choose one group indicator and one period indicator for each model. Each interaction column is the
+        product of the two indicators you chose.</p>
+      <div class="table-scroll tight">
+        <table class="dm">
+          <thead><tr><th scope="col">Observation type</th><th scope="col"><span class="m"><i>Y</i></span></th><th scope="col"><span class="m">1</span></th><th scope="col"><span class="m"><i>d</i><sub>A</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>B</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>post</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>B</sub><i>d</i><sub>post</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>B</sub><i>d</i><sub>pre</sub></span></th><th scope="col"><span class="m"><i>d</i><sub>A</sub><i>d</i><sub>post</sub></span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">A, pre</th><td class="y">50</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">B, pre</th><td class="y">50</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th scope="row">A, post</th><td class="y">55</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+            <tr><th scope="row">B, post</th><td class="y">70</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Models</h4>
+      <p>The models are numbered rather than lettered, so they are not confused with groups A and B.</p>
+      <div class="eq"><span class="m">Model 1 (A/pre): <i>Y</i> = <i>β</i><sub>0</sub> + <i>β</i><sub>1</sub><i>d</i><sub>B</sub> + <i>β</i><sub>2</sub><i>d</i><sub>post</sub> + <i>β</i><sub>3</sub>(<i>d</i><sub>B</sub><i>d</i><sub>post</sub>) + <i>ε</i></span></div>
+      <div class="eq"><span class="m">Model 2 (A/post): <i>Y</i> = <i>γ</i><sub>0</sub> + <i>γ</i><sub>1</sub><i>d</i><sub>B</sub> + <i>γ</i><sub>2</sub><i>d</i><sub>pre</sub> + <i>γ</i><sub>3</sub>(<i>d</i><sub>B</sub><i>d</i><sub>pre</sub>) + <i>ε</i></span></div>
+      <div class="eq"><span class="m">Model 3 (B/pre): <i>Y</i> = <i>λ</i><sub>0</sub> + <i>λ</i><sub>1</sub><i>d</i><sub>A</sub> + <i>λ</i><sub>2</sub><i>d</i><sub>post</sub> + <i>λ</i><sub>3</sub>(<i>d</i><sub>A</sub><i>d</i><sub>post</sub>) + <i>ε</i></span></div>
+
+      <div class="table-scroll tight">
+        <table class="coef">
+          <thead><tr><th scope="col">Coefficient</th><th scope="col">Value</th><th scope="col">Testing it equals zero asks&hellip;</th></tr></thead>
+          <tbody>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model 1 &middot; A/pre reference</th></tr>
+            <tr><td><i>β</i><sub>0</sub></td><td>50</td><td>Is the A pre mean zero? (descriptive only)</td></tr>
+            <tr><td><i>β</i><sub>1</sub></td><td>0</td><td><strong>(a)</strong> Are B and A equal in the pre period?</td></tr>
+            <tr><td><i>β</i><sub>2</sub></td><td>5</td><td>Did A change from pre to post?</td></tr>
+            <tr><td><i>β</i><sub>3</sub></td><td>15</td><td><strong>(d)</strong> Did B and A change by the same amount?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model 2 &middot; A/post reference</th></tr>
+            <tr><td><i>γ</i><sub>0</sub></td><td>55</td><td>Is the A post mean zero? (descriptive only)</td></tr>
+            <tr><td><i>γ</i><sub>1</sub></td><td>15</td><td><strong>(b)</strong> Are B and A equal in the post period?</td></tr>
+            <tr><td><i>γ</i><sub>2</sub></td><td>&minus;5</td><td>Are A&rsquo;s pre and post means equal?</td></tr>
+            <tr><td><i>γ</i><sub>3</sub></td><td>&minus;15</td><td><strong>(d)</strong> Is the B&minus;A gap the same pre and post?</td></tr>
+            <tr class="grp"><th colspan="3" scope="rowgroup">Model 3 &middot; B/pre reference</th></tr>
+            <tr><td><i>λ</i><sub>0</sub></td><td>50</td><td>Is the B pre mean zero? (descriptive only)</td></tr>
+            <tr><td><i>λ</i><sub>1</sub></td><td>0</td><td>Are A and B equal in the pre period?</td></tr>
+            <tr><td><i>λ</i><sub>2</sub></td><td>20</td><td><strong>(c)</strong> Did B change from pre to post?</td></tr>
+            <tr><td><i>λ</i><sub>3</sub></td><td>&minus;15</td><td><strong>(d)</strong> Did A and B change by the same amount?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mistake">
+        <span class="lbl">Common mistakes</span>
+        <ul>
+          <li><strong>Keeping A/pre as the reference and calling <span class="m"><i>β</i><sub>1</sub></span> the
+            post-period gap, or <span class="m"><i>β</i><sub>2</sub></span> B&rsquo;s change.</strong> They are the
+            pre-period gap and A&rsquo;s change. For the others, switch the reference or test a sum
+            (<span class="m"><i>β</i><sub>1</sub> + <i>β</i><sub>3</sub></span>,
+            <span class="m"><i>β</i><sub>2</sub> + <i>β</i><sub>3</sub></span>).</li>
+          <li><strong>Calling the interaction &ldquo;B&rsquo;s change.&rdquo;</strong> It is the
+            <em>difference</em> between B&rsquo;s change and A&rsquo;s.</li>
+        </ul>
+      </div>
+      <a class="to-sol" href="#q14">&larr; Back to question</a>
+    </article>
+  </section>
+
+  <!-- ================================================================== -->
+  <section id="synthesis">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Quick synthesis</h2>
+      <p class="sub">Every exercise is the same move: choose the reference and the zero point so the contrast you
+        want lands on one coefficient.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="synth">
+        <thead><tr><th scope="col">Contrast in the picture</th><th scope="col">Coding choice</th><th scope="col">Coefficient or restriction</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Sample mean versus a benchmark</th><td>Center the outcome at the benchmark</td><td>Intercept = 0</td></tr>
+          <tr><th scope="row">Group versus reference group</th><td>Omit the comparison group</td><td>Group dummy = 0</td></tr>
+          <tr><th scope="row">Same people before and after</th><td>Person intercepts, or difference scores</td><td>Post dummy = 0</td></tr>
+          <tr><th scope="row">Difference in slopes</th><td>Interact the group dummy with <span class="m"><i>X</i></span></td><td>Interaction = 0</td></tr>
+          <tr><th scope="row">Effect in one particular setting</th><td>Make that setting the reference</td><td>Program main effect = 0</td></tr>
+          <tr><th scope="row">Difference in changes</th><td>Group &times; post</td><td>Interaction = 0</td></tr>
+          <tr><th scope="row">Increment from one more dose</th><td>Cumulative &ldquo;at least <span class="m"><i>k</i></span>&rdquo; dummies</td><td>Dose-<span class="m"><i>k</i></span> dummy = 0</td></tr>
+          <tr><th scope="row">Immediate jump at a date or cutoff</th><td>Center the running variable there</td><td>Post / threshold dummy = 0</td></tr>
+          <tr><th scope="row">Slope change at an interruption date</th><td>Centered time &times; post dummy</td><td>Interaction = 0</td></tr>
+          <tr><th scope="row">One outlying observation</th><td>A dummy equal to 1 for that observation only</td><td>That dummy = 0 (an outlier test)</td></tr>
+          <tr><th scope="row">Temporary anomalous periods</th><td>One indicator per anomalous period</td><td>Joint F-test of those dummies</td></tr>
+          <tr><th scope="row">New regime after anomalies</th><td>Pre regime omitted, calendar trend included</td><td>Post dummy = 0, at a common time</td></tr>
+          <tr><th scope="row">Distinct group at predictor zero</th><td><span class="m">I(<i>X</i> = 0)</span></td><td>Zero dummy = 0, versus the extrapolated line</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What should be clear in my mind?</h3>
+    <ol class="checklist">
+      <li><strong>Name the reference before reading any coefficient.</strong> Every dummy coefficient is a gap
+        from the omitted category.</li>
+      <li><strong>Know where each gap is measured.</strong> In a model with an interaction, a dummy
+        coefficient is the gap where the continuous variable equals zero. Center to move that point where
+        you want it.</li>
+      <li><strong>Recover any cell or line by adding coefficients.</strong> Write the equation for each row of
+        the design matrix and solve from the reference outward.</li>
+      <li><strong>Distinguish imposing from testing.</strong> Leaving out an interaction <em>assumes</em>
+        parallel lines; including it lets you test them.</li>
+      <li><strong>When a contrast is a sum of coefficients</strong>, either recode so it becomes one coefficient,
+        or run a linear-combination test.</li>
+      <li><strong>Never enter a complete set of complementary indicators alongside an intercept.</strong></li>
+    </ol>
+
+    <div class="callout">
+      <span class="lbl">Instructor note</span>
+      <p>The diagrams deliberately show conditional means without sampling uncertainty. Have students write the
+        estimand and the model first, then give them an actual dataset to fit the model with standard errors
+        appropriate to its design (clustered for repeated measures, robust for unequal variances, and so
+        on).</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Unit 14 &middot; Practicing Dummy Variable Specifications. Source:
+      <span class="m">dummy-variable-specification-exercises.rmd</span>; every figure is drawn by the R code in that file.</p>
+  </footer>
+
+</div>
+```
+

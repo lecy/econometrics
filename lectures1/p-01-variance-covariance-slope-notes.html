@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variance, Covariance & Slope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Regression Foundations</p>
+    <h1>Variance, Covariance &amp; the Regression Slope</h1>
+    <p class="dek">A reading guide for lecture <span class="m">p-01</span> &mdash; what the slides
+      cover, how the pieces connect, and what to walk away with.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#relationships">Key relationships</a>
+      <a href="#clear">What should be clear</a>
+    </nav>
+  </header>
+
+  <!-- ============ 1. KEY CONCEPTS ============ -->
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The formulas and definitions the lecture depends on, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Everything in this lecture is built from one quantity: the deviation.</p>
+      <ul>
+        <li><span class="m"><i>x<sub>i</sub></i></span> = a data point</li>
+        <li><span class="m"><span class="bar"><i>x</i></span></span> = the mean of X</li>
+        <li><span class="m"><i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span></span>
+          = distance to the mean = <strong>a deviation</strong></li>
+      </ul>
+      <p>Square it, multiply it by another one, or divide one by another &mdash; that is the whole
+        lecture.</p>
+
+      <p class="claim">Variance measures distances from data points to the mean.</p>
+      <div class="eq">
+        <span class="m">var(<i>x</i>) =
+          <span class="frac"><span class="num"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span><span class="den"><i>n</i> &minus; 1</span></span></span>
+      </div>
+      <ul>
+        <li>Deviations always sum to zero, so they must be squared before averaging.</li>
+        <li>Variance is a <strong>total</strong>: it grows with the number and the extremity of cases.</li>
+      </ul>
+
+      <p class="claim">Standard deviation puts variance back into the original units.</p>
+      <div class="eq">
+        <span class="m">sd(<i>x</i>) = <span class="sqrt"><span class="radical">&radic;</span><span class="radicand">var(<i>x</i>)</span></span></span>
+      </div>
+      <ul>
+        <li>Read as: the average distance a point must travel to reach the mean.</li>
+        <li>Standard deviation is an <strong>average</strong>, not a total.</li>
+      </ul>
+
+      <p class="claim">Standard error measures the distance from an estimate to the truth.</p>
+      <div class="eq">
+        <span class="m">SE<sub><span class="bar"><i>x</i></span></sub> =
+          <span class="frac"><span class="num">sd(<i>x</i>)</span><span class="den"><span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><i>n</i></span></span></span></span></span>
+      </div>
+      <ul>
+        <li>Standard deviation describes the <strong>data</strong>. Standard error describes the
+          <strong>estimate</strong>.</li>
+        <li>&ldquo;The truth&rdquo; is <span class="m"><i>&mu;</i></span> for a mean and
+          <span class="m"><i>&beta;</i><sub>1</sub></span> for a slope.</li>
+      </ul>
+
+      <p class="claim">Covariance measures whether two variables sit above or below their means together.</p>
+      <div class="eq">
+        <span class="m">cov(<i>x</i>,&thinsp;<i>y</i>) =
+          <span class="frac"><span class="num"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)(<i>y<sub>i</sub></i> &minus; <span class="bar"><i>y</i></span>)</span><span class="den"><i>n</i> &minus; 1</span></span></span>
+      </div>
+      <ul>
+        <li><span class="m">(+)(+)</span> and <span class="m">(&minus;)(&minus;)</span> contribute
+          <strong>positively</strong></li>
+        <li><span class="m">(+)(&minus;)</span> and <span class="m">(&minus;)(+)</span> contribute
+          <strong>negatively</strong></li>
+        <li>Note that <span class="m">var(<i>x</i>) = cov(<i>x</i>,&thinsp;<i>x</i>)</span></li>
+      </ul>
+
+      <p class="claim">Correlation is covariance rescaled into unitless form.</p>
+      <div class="eq">
+        <span class="m">cor(<i>x</i>,&thinsp;<i>y</i>) =
+          <span class="frac"><span class="num">cov(<i>x</i>,&thinsp;<i>y</i>)</span><span class="den">sd(<i>x</i>) &middot; sd(<i>y</i>)</span></span>
+          <span class="op">&nbsp;&nbsp;</span>
+          <span>&minus;1 &lt; cor(<i>x</i>,&thinsp;<i>y</i>) &lt; +1</span></span>
+      </div>
+
+      <p class="claim">The regression slope is covariance divided by variance.</p>
+      <div class="eq">
+        <span class="m"><i>Y</i> = <i>b</i><sub>0</sub> + <i>b</i><sub>1</sub><i>X</i> + <i>e</i>
+          <span class="op">&nbsp;&nbsp;&nbsp;</span>
+          <i>b</i><sub>1</sub> =
+          <span class="frac"><span class="num">cov(<i>x</i>,&thinsp;<i>y</i>)</span><span class="den">var(<i>x</i>)</span></span></span>
+      </div>
+      <ul>
+        <li>The line always passes through the means:
+          <span class="m"><span class="bar"><i>y</i></span> = <i>b</i><sub>0</sub> + <i>b</i><sub>1</sub><span class="bar"><i>x</i></span></span></li>
+      </ul>
+
+      <p class="claim">The same four concepts apply to the mean and to the slope.</p>
+      <div class="table-scroll">
+        <table class="roadmap">
+          <thead>
+            <tr><th scope="col"></th><th scope="col">Of the mean</th><th scope="col">Of the slope</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Variance</th>
+              <td><span class="m"><i>&sigma;</i><sup>2</sup><sub><i>x</i></sub> =
+                <span class="frac"><span class="num"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span><span class="den"><i>n</i> &minus; 1</span></span></span></td>
+              <td><span class="m"><i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub> =
+                <span class="frac"><span class="num">SSE</span><span class="den"><i>n</i> &minus; 2</span></span>
+                = <span class="frac"><span class="num"><span class="sum">&sum;</span><i>e<sub>i</sub></i><sup>2</sup></span><span class="den"><i>n</i> &minus; 2</span></span></span></td>
+            </tr>
+            <tr>
+              <th scope="row">Standard deviation</th>
+              <td><span class="m"><i>&sigma;<sub>x</sub></i> = <span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><i>&sigma;</i><sup>2</sup><sub><i>x</i></sub></span></span></span></td>
+              <td><span class="m"><i>&sigma;<sub>&epsilon;</sub></i> = <span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub></span></span></span></td>
+            </tr>
+            <tr>
+              <th scope="row">Standard error</th>
+              <td><span class="m">SE<sub><span class="bar"><i>x</i></span></sub> =
+                <span class="frac"><span class="num"><i>&sigma;<sub>x</sub></i></span><span class="den"><span class="sqrt"><span class="radical">&radic;</span><span class="radicand"><i>n</i></span></span></span></span></span></td>
+              <td><span class="m">SE<sub><i>b</i><sub>1</sub></sub> =
+                <span class="sqrt tall"><span class="radical">&radic;</span><span class="radicand"><span class="frac"><span class="num"><i>&sigma;</i><sup>2</sup><sub><i>&epsilon;</i></sub></span><span class="den"><span class="sum">&sum;</span>(<i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span>)<sup>2</sup></span></span></span></span></span></td>
+            </tr>
+            <tr>
+              <th scope="row">Confidence interval</th>
+              <td><span class="m"><i>&mu;</i> = <span class="bar"><i>x</i></span> &plusmn; <i>t</i> &middot; SE<sub><span class="bar"><i>x</i></span></sub></span></td>
+              <td><span class="m"><i>&beta;</i><sub>1</sub> = <i>b</i><sub>1</sub> &plusmn; <i>t</i> &middot; SE<sub><i>b</i><sub>1</sub></sub></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. KEY RELATIONSHIPS ============ -->
+  <section id="relationships">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Key relationships</h2>
+      <p class="sub">The mental map. How the pieces connect, and how to read the deck.</p>
+    </div>
+
+    <h3>Four topics, one operation</h3>
+    <p>The lecture appears to introduce four separate measures &mdash; variance, covariance,
+      correlation, and the regression slope. It does not. It introduces <strong>one operation</strong>
+      and then divides it by four different things.</p>
+    <p>Take a deviation. Multiply it by a second deviation. Add up the products. That is it:</p>
+    <ul>
+      <li>Multiply a deviation <strong>by itself</strong> and divide by
+        <span class="m"><i>n</i> &minus; 1</span> &rarr; <strong>variance</strong></li>
+      <li>Multiply X&rsquo;s deviation <strong>by Y&rsquo;s deviation</strong> and divide by
+        <span class="m"><i>n</i> &minus; 1</span> &rarr; <strong>covariance</strong></li>
+      <li>Divide covariance <strong>by the variance of X</strong> &rarr; <strong>the slope</strong></li>
+      <li>Divide covariance <strong>by both standard deviations</strong> &rarr; <strong>the correlation</strong></li>
+    </ul>
+    <p>Variance is not a different kind of thing from covariance; it is the special case where both
+      variables are the same one. If you understand the deviation product, you understand the whole
+      lecture, and the four names are just bookkeeping for what sits in the denominator.</p>
+
+    <h3>The denominator decides the interpretation</h3>
+    <p>Slope and correlation have the <strong>identical numerator</strong>. Everything that
+      distinguishes them is what they are divided by, and what you divide by determines what units
+      survive:</p>
+    <ul>
+      <li><strong>The slope keeps units.</strong> Dividing by
+        <span class="m">var(<i>x</i>)</span> leaves &ldquo;units of Y per unit of X.&rdquo; That is why
+        a slope can be interpreted as an effect: <em>heart rate rises 9 bpm per 100&nbsp;mg of
+        caffeine.</em></li>
+      <li><strong>The correlation throws units away.</strong> Dividing by both standard deviations
+        cancels the units entirely, leaving a number between &minus;1 and +1. That is why correlations
+        can be compared across studies, and why a correlation can never tell you how large an effect
+        is.</li>
+    </ul>
+    <p>So: <strong>slope answers &ldquo;how much,&rdquo; correlation answers &ldquo;how
+      tightly.&rdquo;</strong> Students routinely treat a bigger slope as a stronger relationship. It
+      is not, and the scatterplot pairs at the end of the deck exist to break that habit.</p>
+
+    <h3>Sign, strength, and steepness are three different questions</h3>
+    <p>The closing sequence of the lecture is a diagnostic, not new content. It separates three things
+      that intuition tends to fuse:</p>
+    <ul>
+      <li><strong>Sign</strong> &mdash; do the variables move together or oppositely? Set by which
+        quadrants the data occupy.</li>
+      <li><strong>Strength</strong> &mdash; how tightly does Y track X? Set by the spread around the
+        line. A tight cloud beats a diffuse one.</li>
+      <li><strong>Steepness</strong> &mdash; how much does Y change per unit of X? Set by the slope,
+        which depends on the <em>scales</em> of the variables and says nothing about strength.</li>
+    </ul>
+    <p>The one case that ties them together: a perfectly flat line has zero correlation no matter how
+      tight the points are, because Y is not moving with X at all. Tightness alone is not a
+      relationship.</p>
+
+    <h3>This lecture is descriptive; the course is inferential</h3>
+    <p>Nothing here involves uncertainty. Covariance, correlation, and the slope are descriptions of
+      the data in front of you &mdash; no sampling, no significance, no claim about a population. That
+      is worth noticing, because it is exactly what the rest of the term adds.</p>
+    <p>Slide 2 is not a summary of this lecture. It is the map of the next four:</p>
+    <div class="ladder">variance &rarr; standard deviation &rarr; standard error &rarr; confidence interval</div>
+    <p>You climbed that ladder for the <strong>mean</strong> in your first statistics course. The
+      course now climbs it again for the <strong>slope</strong>. This lecture builds the bottom rungs;
+      p-02 partitions the variance, p-03 derives the standard errors, p-04 builds the confidence
+      intervals. The only structural change on the slope side is that dispersion gets measured with
+      <strong>residuals</strong> (<span class="m"><i>e<sub>i</sub></i></span>, distance from the point
+      to the <em>line</em>) instead of deviations
+      (<span class="m"><i>x<sub>i</sub></i> &minus; <span class="bar"><i>x</i></span></span>, distance
+      from the point to the <em>mean</em>). Same ladder, different reference point.</p>
+    <p>This is also why the lecture insists on the phrase <strong>&ldquo;of the.&rdquo;</strong> There
+      is no such thing as &ldquo;the standard error&rdquo; &mdash; only the standard error <em>of the
+      mean</em> or <em>of the slope</em>, which are different formulas answering different
+      questions.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead>
+          <tr>
+            <th scope="col">Slides</th>
+            <th scope="col">What they are doing</th>
+            <th scope="col">What to take away</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2&ndash;3</td><td>The map for the whole unit</td>
+            <td>Skim now; return after p-04. Slide 2 is a reference, not a lesson.</td></tr>
+          <tr><td>4&ndash;8</td><td>Variance, SD, SE via the cyclist metaphor</td>
+            <td>Variance is a total, SD is an average, SE is about the <em>estimate</em>.</td></tr>
+          <tr><td>9&ndash;12</td><td>Covariance mechanics</td>
+            <td>The four-quadrant diagram. This is the load-bearing image of the lecture.</td></tr>
+          <tr><td>13&ndash;18</td><td>Covariance by picture, including outliers</td>
+            <td>A single extreme point can dominate the entire measure. Plot before you trust a coefficient.</td></tr>
+          <tr><td>19&ndash;21</td><td>The regression slope</td>
+            <td>Slide 21 is the payoff: the slope is rise-over-run computed across all cases at once.</td></tr>
+          <tr><td>22&ndash;24</td><td>Correlation</td>
+            <td>It is a unit conversion, nothing more.</td></tr>
+          <tr><td>25&ndash;29</td><td>Self-test scatterplots</td>
+            <td>No new content. Check whether you have separated tightness, steepness, and sign.</td></tr>
+          <tr><td>30</td><td>The checklist</td>
+            <td>If any of the four is fuzzy, reread that block.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>The slides on outliers (16&ndash;18) are a thought experiment rather than new material.
+        Because covariance multiplies two deviations, one point far from <em>both</em> means
+        contributes a product that can outweigh every other case combined &mdash; in the worked
+        example, a single product of magnitude 100 against a total of 3 from all the other points. The
+        lesson is not a formula; it is that the measure is fragile.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3. WHAT SHOULD BE CLEAR ============ -->
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">The lecture&rsquo;s own closing checklist, with the answers it is looking for.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>What variance and standard deviation are.</strong> Variance is total dispersion (a
+        sum of squared deviations); standard deviation is typical dispersion (that sum averaged and
+        returned to the original units).</li>
+      <li><strong>The difference between standard deviation and standard error.</strong> Standard
+        deviation is how far the <em>data</em> are from the mean. Standard error is how far your
+        <em>estimate</em> is from the truth. One describes a sample; the other describes how much your
+        answer would move if you drew a new sample.</li>
+      <li><strong>The definitions of covariance and correlation.</strong> Covariance is the average
+        product of paired deviations &mdash; positive when cases sit on the same side of both means.
+        Correlation is that same quantity with the units divided out, so it lands between &minus;1 and
+        +1 and can be compared across studies.</li>
+      <li><strong>The &ldquo;intuitive&rdquo; regression formula.</strong>
+        <span class="m"><i>b</i><sub>1</sub> = cov(<i>x</i>,&thinsp;<i>y</i>) / var(<i>x</i>)</span>
+        &mdash; rise over run, computed simultaneously across every case in the data.</li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>One operation, four names.</strong> Variance, covariance, correlation, and slope are
+        all built from the deviation product. Only the denominator changes.</li>
+      <li><strong>Variance is a total; standard deviation is an average.</strong> Two cyclists can ride
+        the same number of trips and differ on both counts independently.</li>
+      <li><strong>Deviations are squared because they otherwise sum to zero</strong>, and the square
+        root at the end is only there to restore interpretable units.</li>
+      <li><strong>Standard deviation describes data; standard error describes estimates.</strong> This
+        distinction is the hinge the rest of the course turns on.</li>
+      <li><strong>Covariance works by signs</strong>, so it is fully determined by which quadrants
+        around <span class="m">(<span class="bar"><i>x</i></span>,&thinsp;<span class="bar"><i>y</i></span>)</span>
+        the data occupy &mdash; and is therefore highly vulnerable to a single outlier.</li>
+      <li><strong>Slope and correlation share a numerator.</strong> Slope keeps units and answers
+        <em>how much</em>; correlation drops units and answers <em>how tightly</em>.</li>
+      <li><strong>The regression line always passes through
+        <span class="m">(<span class="bar"><i>x</i></span>,&thinsp;<span class="bar"><i>y</i></span>)</span>.</strong>
+        Fitting only chooses the angle of tilt around that pivot.</li>
+      <li><strong>Nothing in this lecture is inferential yet.</strong> Uncertainty enters in p-02
+        through p-04, using the same four-rung ladder applied to the slope.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">p-01-variance-covariance-slope</span>. Source file lives
+      alongside the deck as Markdown with LaTeX math, ready for bookdown.</p>
+  </footer>
+
+</div>
+</body>
+</html>

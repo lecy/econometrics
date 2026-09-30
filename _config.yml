@@ -1,0 +1,164 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole website.
+
+
+# Site identity
+
+title:              "Applied Econometrics"
+description:        "An archive of lectures, reading guides, labs, and R Markdown templates from a graduate regression sequence."
+
+# GitHub Course Location 
+
+github_info:
+    username:          lecy
+    branch:            main
+    website-repo:      econometrics
+    course-repo:       econometrics
+
+# Site subpath, e.g. /blog
+url :               "https://lecy.github.io"
+baseurl:            "/econometrics"
+course_url:         "https://lecy.github.io/econometrics/"
+
+# Root for files linked straight from GitHub rather than from the built site
+# (the R Markdown templates -- see the note in the exclude: block below).
+raw_root:           "https://github.com/lecy/econometrics/raw/main"
+
+
+# NAVIGATION BAR
+# set header color at assets/css/custom.css under default_nav and footer background-color
+
+# Header text on the left
+brand:
+    image:          # logo.svg  # e.g. logo.png, upload logo image file to /assets/img/ folder
+    text:           "Applied Econometrics"    # if the above "logo:" image variable  is not set, this text logo is displayed instead
+    # in the default html file add extra fav icons to header for parts II and III
+
+# Main website top navigation bar
+header:
+- title: Syllabus
+  url: 
+- title: Course Schedule
+  url: schedule/
+- title: Resources 
+  url: resources/
+# - title: Review Sessions 
+#  url: review/
+- title: Get Help
+  url: help/
+
+
+calendly:  'mailto:david.schlinkert@asu.edu'
+
+
+
+
+
+
+
+# DO NOT EDIT THESE 
+
+# Permalink URLs structure, for permalink style options see: https://jekyllrb.com/docs/permalinks/
+permalink:          /:title/
+
+# Default author settings
+author:
+    name:       Jesse Lecy
+    github:     lecy   # Github username for avatar
+
+# Social icons displayed in footer
+social:
+    email:
+    website:
+    facebook:       
+    flickr:
+    dribbble:
+    github:
+    googleplus:
+    instagram:      
+    linkedin:       
+    pinterest:
+    twitter:        
+    vimeo:          
+    youtube:        
+
+# Twitter share button
+twitter_username:
+
+# Disqus comments shortname, requires Disqus account https://disqus.com/
+disqus:
+    shortname:      1234
+
+# Google analytics code, get your code here https://www.google.com/analytics/
+google_analytics:   UA-123960540-4
+
+# Google maps API key, get your key here: https://developers.google.com/maps/documentation/javascript/get-api-key
+google_maps_api_key:
+
+# Number of posts displayed on blog page
+paginate: 10
+
+# Blog path
+paginate_path:      "layouts/datasets/:num/"
+
+# Path to post content assets directory i.e post images, pdfs etc
+post_assets:        /assets/posts/
+
+post_css: /assets/css/posts
+
+# Build settings
+markdown:           kramdown
+highlighter:        rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-gist
+  - jekyll-avatar
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - scripts
+  - node_modules
+  # Source files that begin with a YAML header. Jekyll would otherwise treat them
+  # as pages, strip that header, and render them into _site:
+  #   *-notes.md   would overwrite the matching *-notes.html we actually publish
+  #   *.rmd/*.Rmd  would be served with their knitr header removed
+  # All of them stay in the repo and remain reachable on GitHub; they are just not
+  # part of the built site.
+  - "lectures1/*-notes.md"
+  - "lectures1/*.rmd"
+  - "lectures1/*.Rmd"
+  - "lectures1/walk-through/*.rmd"
+  - "labs1/*.rmd"
+  - "labs1/*.Rmd"
+  - "labs1/*.utf8.md"
+  - "lectures2/*-notes.md"
+  - "lectures2/*.rmd"
+  - "lectures2/*.Rmd"
+  - "labs2/*.rmd"
+  - "labs2/*.Rmd"
+  - "labs2/*.knit.md"
+  - "lectures3/*.rmd"
+  - "lectures3/*.Rmd"
+  - "labs3/*.rmd"
+  - "labs3/*.Rmd"
+  - "labs3/DATA/*.Rmd"
+  - "handouts/*.rmd"
+
+sass:
+  style:            compressed
+
+collections:
+  docs:
+    output: true
+
+
+markdown: kramdown
+kramdown:
+  parse_block_html: true
+
+
+
+

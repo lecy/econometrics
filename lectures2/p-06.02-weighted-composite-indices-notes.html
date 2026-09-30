@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weighted Composite Indices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Weighted Composite Indices</h1>
+  <p class="dek">A more detailed note on measurement theory — why an index that weights each item by its quality measures a latent construct more reliably than a simple average.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#math">The math</a>
+    <a href="#clear">What should be clear</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">From simple averages to weighted composites, in plain language.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Start from the measurement model.</p>
+<p><a href="p-06.01-measurement-theory-notes.html" style="color:inherit">Signal, Noise, and Reliable Indices</a> introduced the
+basic model. Every observed measure of a latent construct is a true score plus error:</p>
+
+<div class="eq center" role="math" aria-label="M equals T plus e">
+  <span class="m"><i>M</i></span><span class="op">=</span><span class="m"><i>T</i></span><span class="op">+</span><span class="m"><i>e</i></span>
+</div>
+
+<p>and reliability is the share of the observed variance that is signal:</p>
+
+<div class="eq center" role="math" aria-label="reliability equals var of T over var of T plus e">
+  <span class="m">reliability</span><span class="op">=</span>
+  <span class="frac">
+    <span class="num m">var(<i>T</i>)</span>
+    <span class="den m">var(<i>T</i> + <i>e</i>)</span>
+  </span>
+</div>
+
+<p>An instrument combines several items so the errors partly cancel. The question for this note
+is <strong>how</strong> to combine them.</p>
+
+      <p class="claim">A simple index treats every item as equally good.</p>
+<p>The usual approach adds or averages the items:</p>
+
+<div class="eq center" role="math" aria-label="M equals X1 plus X2 plus X3, or M equals X1 plus X2 plus X3 over 3">
+  <span class="m"><i>M</i> = <i>X</i><sub>1</sub> + <i>X</i><sub>2</sub> + <i>X</i><sub>3</sub></span>
+  <span class="op">or</span>
+  <span class="m"><i>M</i> =</span>
+  <span class="frac">
+    <span class="num m"><i>X</i><sub>1</sub> + <i>X</i><sub>2</sub> + <i>X</i><sub>3</sub></span>
+    <span class="den m">3</span>
+  </span>
+</div>
+
+<p>Summing and averaging have the same reliability, because dividing by 3 rescales the signal and
+the noise by the same amount. Both give every item the same weight.</p>
+
+      <p class="claim">But items are not equally good.</p>
+<p>Each item has a part that tracks the true construct and a part that is noise:</p>
+
+<div class="eq center" role="math" aria-label="X1 equals T1 plus e1">
+  <span class="m"><i>X</i><sub>1</sub></span><span class="op">=</span><span class="m"><i>T</i><sub>1</sub></span><span class="op">+</span><span class="m"><i>e</i><sub>1</sub></span>
+</div>
+
+<p>The strength of the link between <span class="m"><i>T</i><sub>1</sub></span>, <span class="m"><i>T</i><sub>2</sub></span>, <span class="m"><i>T</i><sub>3</sub></span> and the true construct <span class="m"><i>T</i></span> varies from item to
+item. A simple average gives an item that barely tracks <span class="m"><i>T</i></span> the same influence as an item that
+tracks it closely:</p>
+
+<div class="eq center" role="math" aria-label="M average equals one third of T1 plus e1, plus one third of T2 plus e2, plus one third of T3 plus e3">
+  <span class="m"><i>M</i><sub>avg</sub> = ⅓(<i>T</i><sub>1</sub> + <i>e</i><sub>1</sub>) + ⅓(<i>T</i><sub>2</sub> + <i>e</i><sub>2</sub>) + ⅓(<i>T</i><sub>3</sub> + <i>e</i><sub>3</sub>)</span>
+</div>
+
+      <p class="claim">A weighted composite gives better items more influence.</p>
+<div class="eq center" role="math" aria-label="M w equals w1 times T1 plus e1, plus w2 times T2 plus e2, plus w3 times T3 plus e3">
+  <span class="m"><i>M</i><sub><i>w</i></sub> = <i>w</i><sub>1</sub>(<i>T</i><sub>1</sub> + <i>e</i><sub>1</sub>) + <i>w</i><sub>2</sub>(<i>T</i><sub>2</sub> + <i>e</i><sub>2</sub>) + <i>w</i><sub>3</sub>(<i>T</i><sub>3</sub> + <i>e</i><sub>3</sub>)</span>
+</div>
+
+<p>The weight on each item should move <strong>inversely with its noise</strong>. If <span class="m"><i>X</i><sub>1</sub></span> has a weak
+relationship with <span class="m"><i>T</i></span>, then <span class="m"><i>T</i><sub>1</sub></span> is small, <span class="m"><i>e</i><sub>1</sub></span> is large, and <span class="m"><i>w</i><sub>1</sub></span> should be small relative to
+the weights on the stronger items.</p>
+
+<p>Chosen this way, the weighted composite has <strong>less measurement error and higher reliability</strong>
+than the simple average, and it sits closer to the true score <span class="m"><i>T</i></span>. Factor analysis is the
+standard way to estimate the weights, because it estimates how strongly each item loads on
+the construct and how much of each item is unique noise.</p>
+    </div>
+  </section>
+
+<section id="math">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>The math</h2>
+    <p class="sub">The one-factor model, the optimal weights, and a worked example.</p>
+  </div>
+
+<h3 id="the-one-factor-model">1. The one-factor model</h3>
+
+<p>Assume a single latent trait <span class="m"><i>T</i></span> measured by three items:</p>
+
+<div class="eq center" role="math" aria-label="X i equals lambda i times T plus e i, for i equals 1, 2, 3">
+  <span class="m"><i>X<sub>i</sub></i> = <i>λ<sub>i</sub></i><i>T</i> + <i>e<sub>i</sub></i></span><span class="op">,</span>
+  <span class="m"><i>i</i> = 1, 2, 3</span>
+</div>
+
+<p><span class="m"><i>λ<sub>i</sub></i></span> is the item’s <strong>loading</strong>, its signal strength. <span class="m"><i>e<sub>i</sub></i></span> is its error, with variance
+<span class="m"><i>σ</i><sup>2</sup><sub><i>e</i>,<i>i</i></sub></span>. Collect the loadings in a vector <span class="m"><b>λ</b></span>, the weights in a vector <span class="m"><b>w</b></span>, and the error
+variances and covariances in a matrix <span class="m"><b>Σ</b><sub><i>e</i></sub></span>.</p>
+
+<p>A linear composite is:</p>
+
+<div class="eq center" role="math" aria-label="M w equals w1 X1 plus w2 X2 plus w3 X3, which equals w prime lambda times T, plus w prime e">
+  <span class="m"><i>M</i><sub><i>w</i></sub> = <i>w</i><sub>1</sub><i>X</i><sub>1</sub> + <i>w</i><sub>2</sub><i>X</i><sub>2</sub> + <i>w</i><sub>3</sub><i>X</i><sub>3</sub> = (<b>w</b>′<b>λ</b>)<i>T</i> + <b>w</b>′<b>e</b></span>
+</div>
+
+<p>Fix the scale by requiring <span class="m"><b>w</b>′<b>λ</b> = 1</span>. Then the composite is the true score plus a weighted sum
+of the errors, and its <strong>measurement error variance</strong> is:</p>
+
+<div class="eq center" role="math" aria-label="M w equals T plus w prime e, so the variance of M w minus T equals w prime Sigma e w">
+  <span class="m"><i>M</i><sub><i>w</i></sub> = <i>T</i> + <b>w</b>′<b>e</b></span>
+  <span class="op">so</span>
+  <span class="m">Var(<i>M</i><sub><i>w</i></sub> − <i>T</i>) = <b>w</b>′<b>Σ</b><sub><i>e</i></sub><b>w</b></span>
+</div>
+
+<h3 id="the-optimal-weights">2. The optimal weights down-weight noisy items</h3>
+
+<p>Choose <span class="m"><b>w</b></span> to minimize the error variance <span class="m"><b>w</b>′<b>Σ</b><sub><i>e</i></sub><b>w</b></span>, subject to <span class="m"><b>w</b>′<b>λ</b> = 1</span>. The solution is:</p>
+
+<div class="eq center" role="math" aria-label="w star is proportional to Sigma e inverse times lambda, scaled so that w star prime lambda equals 1">
+  <span class="m"><b>w</b>* ∝ <b>Σ</b><sub><i>e</i></sub><sup>−1</sup><b>λ</b></span>
+  <span class="op">scaled so that</span>
+  <span class="m"><b>w</b>*′<b>λ</b> = 1</span>
+</div>
+
+<p>When the errors are independent, <span class="m"><b>Σ</b><sub><i>e</i></sub></span> is diagonal and each weight has a simple form:</p>
+
+<div class="eq center" role="math" aria-label="w star i is proportional to lambda i over sigma squared e i">
+  <span class="m"><i>w</i>*<sub><i>i</i></sub> ∝</span>
+  <span class="frac">
+    <span class="num m"><i>λ<sub>i</sub></i></span>
+    <span class="den m"><i>σ</i><sup>2</sup><sub><i>e</i>,<i>i</i></sub></span>
+  </span>
+</div>
+
+<p><strong>High-loading, low-error items get higher weights.</strong> Equal weights are optimal only when
+<span class="m"><i>λ<sub>i</sub></i> / <i>σ</i><sup>2</sup><sub><i>e</i>,<i>i</i></sub></span> is the same for every item, for example when all the items have identical
+loadings and identical error variances.</p>
+
+<h3 id="a-worked-example">3. A worked example</h3>
+
+<p>Three items with these loadings and error variances:</p>
+
+<div class="table-scroll">
+<table>
+  <caption>Optimal versus equal weights</caption>
+  <thead><tr><th>Item</th><th>Loading <span class="m"><i>λ</i></span></th><th>Error variance <span class="m"><i>σ</i><sup>2</sup><sub><i>e</i></sub></span></th><th><span class="m"><i>λ</i> / <i>σ</i><sup>2</sup><sub><i>e</i></sub></span></th><th>Optimal weight</th><th>Equal weight</th></tr></thead>
+  <tbody>
+    <tr><td>X1</td><td>0.9</td><td>0.20</td><td>4.50</td><td>0.750</td><td>0.500</td></tr>
+    <tr><td>X2</td><td>0.7</td><td>0.30</td><td>2.33</td><td>0.389</td><td>0.500</td></tr>
+    <tr><td>X3</td><td>0.4</td><td>0.50</td><td>0.80</td><td>0.133</td><td>0.500</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Both sets of weights are scaled so that <span class="m"><b>w</b>′<b>λ</b> = 1</span>. For equal weights that means <span class="m"><i>w</i> = 1 / (0.9 + 0.7 + 0.4) = 0.5</span> each.</p>
+
+<ul>
+  <li><strong>Optimal weights:</strong> error variance = 0.75²(0.20) + 0.389²(0.30) + 0.133²(0.50) ≈ <strong>0.167</strong></li>
+  <li><strong>Equal weights:</strong> error variance = 0.5²(0.20 + 0.30 + 0.50) = <strong>0.250</strong></li>
+</ul>
+
+<div class="callout">
+<p>The weighted composite <strong>cuts the error variance by about a third.</strong> Nearly all of the gain
+comes from shrinking the weight on X3, the weakest and noisiest item.</p>
+</div>
+
+<h3 id="reliability">4. Reliability</h3>
+
+<p>The reliability of a composite is its signal variance over its total variance:</p>
+
+<div class="eq center" role="math" aria-label="alpha w equals sigma squared T times w prime lambda squared, over sigma squared T times w prime lambda squared plus w prime Sigma e w">
+  <span class="m"><i>α</i><sub><i>w</i></sub></span><span class="op">=</span>
+  <span class="frac">
+    <span class="num m"><i>σ</i><sup>2</sup><sub><i>T</i></sub>(<b>w</b>′<b>λ</b>)<sup>2</sup></span>
+    <span class="den m"><i>σ</i><sup>2</sup><sub><i>T</i></sub>(<b>w</b>′<b>λ</b>)<sup>2</sup> + <b>w</b>′<b>Σ</b><sub><i>e</i></sub><b>w</b></span>
+  </span>
+</div>
+
+<p>With the constraint <span class="m"><b>w</b>′<b>λ</b> = 1</span>, the numerator is fixed at <span class="m"><i>σ</i><sup>2</sup><sub><i>T</i></sub></span>, so <strong>maximizing reliability is
+the same as minimizing error variance.</strong> The optimal weights maximize reliability, and equal
+weights reach the same reliability only when the items are equally informative.</p>
+
+<p>In the example, with <span class="m"><i>σ</i><sup>2</sup><sub><i>T</i></sub> = 1</span>:</p>
+
+<ul>
+  <li><strong>Optimal weights:</strong> reliability = 1 / (1 + 0.167) ≈ <strong>0.86</strong></li>
+  <li><strong>Equal weights:</strong> reliability = 1 / (1 + 0.250) = <strong>0.80</strong></li>
+</ul>
+
+<h3 id="cronbach-and-factor-analysis">5. How this connects to Cronbach’s alpha and factor analysis</h3>
+
+<p><strong>Cronbach’s alpha</strong> is the most common reliability statistic for an index, and it measures
+<strong>internal consistency</strong>. It is calculated for the <em>unweighted</em> sum of the items and assumes
+every item measures the construct equally well. When loadings differ, alpha understates the
+reliability that a well-weighted composite can achieve. McDonald’s omega relaxes the
+equal-loadings assumption, and coefficient H gives the reliability of the optimally weighted
+composite itself.</p>
+
+<p><strong>Factor analysis</strong> estimates exactly the ingredients the optimal weights need: the loadings
+<span class="m"><b>λ</b></span> and the unique variances <span class="m"><i>σ</i><sup>2</sup><sub><i>e</i></sub></span>. Bartlett factor scores use the weights <span class="m"><b>Σ</b><sub><i>e</i></sub><sup>−1</sup><b>λ</b></span> directly,
+and regression factor scores are proportional to them when there is a single factor.</p>
+
+<p><strong>Principal component analysis</strong> also produces a weighted composite, but its weights are chosen
+to capture total variance. It doesn’t separate signal from noise, so its weights only
+approximate the reliability-maximizing ones. See the
+<a href="measurement-pca-vs-factor-analysis.html">PCA versus Factor Analysis</a> walkthrough.</p>
+
+  </section>
+
+<section id="clear">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>What should be clear in my mind?</h2>
+    <p class="sub">The short version, and how it connects to factor analysis.</p>
+  </div>
+
+<h3 id="the-short-version">The short version</h3>
+
+<ul>
+  <li>Each item = signal (<span class="m"><i>λ<sub>i</sub></i><i>T</i></span>) + noise (<span class="m"><i>e<sub>i</sub></i></span>).</li>
+  <li>A simple average assumes every item is equally good.</li>
+  <li>The optimal weights are <span class="m"><i>w<sub>i</sub></i> ∝ <i>λ<sub>i</sub></i> / <i>σ</i><sup>2</sup><sub><i>e</i>,<i>i</i></sub></span>: strong, clean items count more.</li>
+  <li>These weights minimize error variance and maximize reliability.</li>
+  <li>Equal weights are optimal only when every item is equally informative.</li>
+</ul>
+
+<h3 id="how-much-does-weighting-matter">How much does weighting matter in practice?</h3>
+
+<p>It depends on how different the items are. In the
+<a href="measurement-factor-analysis.html">Factor Analysis</a> walkthrough, six strong socioeconomic items
+already form a highly reliable simple index (α = 0.94), and the simple average correlates 0.96
+with the weighted factor score. When items are uniformly strong, weighting changes little. When
+one or two items are much noisier than the rest, as in the worked example above, weighting
+pays off.</p>
+
+<h3 id="questions-to-ask-of-any-index">Questions to ask of any index</h3>
+
+<ul>
+  <li>Are the items combined with equal weights, or weighted by how well each measures the
+construct?</li>
+  <li>Is there reason to think some items are much noisier than others?</li>
+  <li>Is the reported reliability Cronbach’s alpha, which assumes equal loadings, or a coefficient
+that allows them to differ?</li>
+  <li>If the weights came from PCA, would factor analysis give a different answer?</li>
+</ul>
+
+  </section>
+
+</div>
+</body>
+</html>

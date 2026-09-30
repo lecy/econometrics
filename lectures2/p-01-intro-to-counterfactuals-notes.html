@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduction to Counterfactual Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Introduction to Counterfactual Analysis</h1>
+  <p class="dek">A reading guide for lecture p-01 — what a counterfactual is, why the choice of comparison group decides the answer, and how that choice hides inside every null hypothesis.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#relationships">Key relationships</a>
+    <a href="#clear">What should be clear</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">The definitions the deck depends on, each stated as a claim.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+      <p class="claim">A counterfactual is a claim about a world that did not happen.</p>
+<p>The formal definition the deck opens with, from Lewis (1973):</p>
+
+<ul>
+  <li>A counterfactual assertion is a conditional whose <strong>antecedent is false</strong> and whose
+consequent describes how the world <strong>would have been</strong> if the antecedent had obtained.</li>
+  <li>It takes the subjunctive form: <em>“If P had obtained, then Q would have obtained.”</em></li>
+  <li>“If the wind had not reached 50 miles per hour, the bridge would not have collapsed.”</li>
+</ul>
+      <p class="claim">Every causal claim implies a counterfactual claim.</p>
+<p>If you assert <em>“P caused Q in circumstances C”</em>, you have committed yourself to
+<em>“if P had not occurred in circumstances C, then Q would not have occurred.”</em>
+Causal judgment and counterfactual judgment are the same act described two ways —
+which is why research design is mostly the business of building a credible “would have.”</p>
+      <p class="claim">In statistics the counterfactual becomes a difference between two groups.</p>
+<p>Start from conditional probability, <code>Pr( A | B )</code>, and let B be a treatment:</p>
+
+<ul>
+  <li>Binary outcome: <code>Pr( Y=TRUE | Treat=TRUE ) − Pr( Y=TRUE | Treat=FALSE )</code></li>
+  <li>Continuous outcome: <code>[ mean(Y) | Treat=TRUE ] − [ mean(Y) | Treat=FALSE ]</code></li>
+  <li>Succinctly: <strong>Treatment Effect = Y(t) − Y(c)</strong></li>
+</ul>
+
+<p>The first term is the world <em>with</em> the treatment; the second is the world <em>without</em>.</p>
+      <p class="claim">We settle for average treatment effects because we only get one world.</p>
+<p>The Paris Climate Accord slide makes the point bluntly: the effect is the 2050
+temperature with the accord minus the 2050 temperature without it, and we do not have
+two planets. So we compare <em>groups</em> that stand in for states of the world, and report
+the <strong>average</strong> treatment effect — the easiest thing to measure and the most compact way
+to state program effectiveness.</p>
+      <p class="claim">"Treatment" is a dosage, not a label.</p>
+<p>The part of an average treatment effect that is rarely made explicit: what the typical
+treatment actually was. “Going to the gym increases muscle mass” — how many visits per
+week, how long, doing what? An effect size means nothing until the dose is specified.</p>
+      <p class="claim">The null hypothesis *is* the counterfactual, written as a number.</p>
+<p>In the regression framing carried over from the first course:</p>
+
+<ul>
+  <li><code>b1 = MEAN(treatment) − MEAN(control)</code>, i.e. <code>b1 = T2 − C2</code></li>
+  <li><code>b1 = 0</code> is the null: no program impact</li>
+  <li>Significance is the question of whether the confidence interval around <code>b1</code> contains zero</li>
+  <li><strong>Effect</strong> in program evaluation = the observed change <strong>plus</strong> its confidence interval</li>
+</ul>
+      <p class="claim">A comparison group is not automatically a control group.</p>
+<p>Both stand in for the untreated world, but only one earns the stronger name:</p>
+
+<ul>
+  <li><strong>Comparison group</strong> — chosen by the researcher, not necessarily equivalent.</li>
+  <li><strong>Control group</strong> — a comparison group that is statistically identical to the treatment
+group. This is a special case, not the default.</li>
+</ul>
+    </div>
+  </section>
+
+<section id="relationships">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>Key relationships</h2>
+    <p class="sub">The mental map. Why the deck spends most of its slides on examples rather than formulas.</p>
+  </div>
+
+<h3 id="the-decks-real-subject-is-the-denominator-of-the-comparison-not-the-math">The deck’s real subject is the denominator of the comparison, not the math</h3>
+
+<p>Almost none of these slides are about estimation. The regression machinery — difference
+of means, confidence interval, <code>b1 = 0</code> — is review from the first course and gets about
+ten slides. The other forty are examples in which the statistics are held fixed and only
+the comparison group changes. That is the argument: <strong>the hard part of causal inference
+is choosing what to compare against, and no amount of estimation rescues a bad choice.</strong></p>
+
+<h3 id="the-suicide-rate-example-is-the-spine-of-the-deck">The suicide-rate example is the spine of the deck</h3>
+
+<p>A school district in suburban California has had multiple student suicides. The
+superintendent cut counseling services. Parents want to know whether the district’s rate
+is unusually high. You are hired as the expert evaluator.</p>
+
+<p>The same district rate is then tested against three different nulls:</p>
+
+<ul>
+  <li>against the <strong>population average</strong> — rates are significantly <strong>higher</strong></li>
+  <li>against <strong>all high-school students in California</strong> — rates are <strong>no different</strong></li>
+  <li>against <strong>all suburban high-school students</strong> — rates are significantly <strong>lower</strong></li>
+</ul>
+
+<p>Every one of these is a defensible counterfactual. The conclusion flips from “higher” to
+“no different” to “lower” without a single change to the model or the data. As the slide
+says: the conclusions <em>are driven entirely by the selection of the counterfactual.</em></p>
+
+<p>The question the deck leaves you with is not which test is correct but <strong>which comparison
+best answers the research question that was actually asked.</strong></p>
+
+<h3 id="significance-and-magnitude-can-point-in-opposite-directions">Significance and magnitude can point in opposite directions</h3>
+
+<p>The deck poses two cases and asks which finding is more meaningful:</p>
+
+<ul>
+  <li><strong>Case A</strong> — the district rate is <em>triple</em> the comparison rate, but not significant at
+α = 0.05.</li>
+  <li><strong>Case B</strong> — the district rate is <em>slightly</em> larger (0.25 cases per year) and is
+significant.</li>
+</ul>
+
+<p>Neither answer is free. Case A is a large effect measured imprecisely, usually because
+suicide is a rare event in a small district. Case B is a precisely measured effect that
+may be too small to act on. This is the effect-size-versus-precision tension that lecture
+p-04 takes up directly.</p>
+
+<h3 id="the-pundit-study-shows-how-a-null-can-be-chosen-badly">The pundit study shows how a null can be chosen badly</h3>
+
+<p>Hamilton College students scored 472 predictions by 26 media prognosticators on a −10 to
++10 accuracy scale. Krugman scored 8.2 (p = 0.001), Friedman 2 (p = 0.2461, not
+significant), Cal Thomas −8.7 (p = 0.0004).</p>
+
+<p>The null being tested is <strong>zero on the prognosticator scale</strong> — equivalent to a coin flip.
+The deck asks whether a coin flip is a good counterfactual for a prediction made on
+television. It is a low bar chosen for convenience rather than for meaning: nobody
+believes a paid columnist is guessing at random. Plausible alternatives — the base rate of
+the event, a naive “no change” forecast, or the average of the other 25 pundits — would
+each produce a different ranking.</p>
+
+<h3 id="the-charter-school-example-is-omitted-variable-bias-wearing-a-research-design-hat">The charter school example is omitted variable bias wearing a research-design hat</h3>
+
+<p>Raw comparison: charter schools outscore public schools. Add controls for the population
+each school actually serves and the advantage shrinks or reverses, because charters are
+disproportionately sited in better communities and, per Ravitch, “skim the most motivated
+students out of the poorest communities.”</p>
+
+<p>Read this as the bridge back to the first course. In the regression sequence this was
+omitted variable bias. Here it is the same problem stated as a design failure: the
+comparison group was never equivalent to begin with.</p>
+
+<h3 id="experiments-quasi-experiments-and-observational-studies-are-a-spectrum-not-a-hierarchy">Experiments, quasi-experiments, and observational studies are a spectrum, not a hierarchy</h3>
+
+<p>The deck closes by placing the three side by side and citing the within-study comparison
+literature (Cook, Shadish &amp; Wong 2008; Aiken et al. 1998; West et al. 2000) for the claim
+that <strong>careful quasi-experimental methods can reproduce experimental results.</strong> The final
+slide states the course’s organizing question directly:</p>
+
+<p><code>Y(treatment) − Y(CONTROL)  =  Y(treatment) − Y(COMPARISON)  ?</code></p>
+
+<p>The rest of the course is the set of conditions under which that equality holds.</p>
+
+<h3 id="how-to-read-the-slides">How to read the slides</h3>
+
+<p>Slides 3–13 are the philosophical and statistical setup. Slides 14–47 are five worked
+examples — the suicide district, the pundits, the Bingham &amp; Felbinger cognitive-ability
+study, and the charter schools — and they are the point, not illustrations of it. For each
+one, stop and answer the deck’s own two questions before advancing.</p>
+
+  </section>
+
+<section id="clear">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>What should be clear in my mind?</h2>
+    <p class="sub">The checklist to run against yourself once the deck is done.</p>
+  </div>
+
+<h3 id="the-two-questions-a-valid-counterfactual-must-answer">The two questions a valid counterfactual must answer</h3>
+
+<p>The deck states these explicitly, and they are worth memorizing:</p>
+
+<ol>
+  <li><strong>Compared to what?</strong> Program outcomes differ from outcomes in <em>the comparison group</em>,
+and that group is defined by the researcher. Only when it is statistically identical to
+the treatment group does it deserve to be called a control group.</li>
+  <li><strong>How big is the program effect?</strong> Is the difference meaningful — both statistically
+significant <em>and</em> socially salient?</li>
+</ol>
+
+<h3 id="key-takeaways">Key takeaways</h3>
+
+<ul>
+  <li>A counterfactual is the world that did not happen; a causal claim is a counterfactual
+claim in disguise.</li>
+  <li><code>Treatment Effect = Y(t) − Y(c)</code>, and because we only have one world, we estimate it by
+comparing groups rather than timelines.</li>
+  <li>The null hypothesis is where the counterfactual enters the statistics. Choosing the null
+<em>is</em> choosing the comparison group.</li>
+  <li>Change the comparison group and the sign of your conclusion can change while the data,
+the model, and the p-value machinery stay exactly the same.</li>
+  <li>A large-but-imprecise effect and a small-but-significant effect are different findings.
+Report both magnitude and interval.</li>
+  <li>“Treatment” without a stated dose is not yet a measurable intervention.</li>
+  <li>Comparison group ≠ control group. Earning the second name is what the remaining lectures
+are about.</li>
+</ul>
+
+  </section>
+
+</div>
+</body>
+</html>

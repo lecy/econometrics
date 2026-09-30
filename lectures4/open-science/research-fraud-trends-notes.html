@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Fraud and the Reproducibility Crisis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .timeline{min-width:34rem;max-width:46rem;}
+  .timeline td{vertical-align:top;}
+  .timeline td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+  }
+  .timeline td:nth-child(2){font-weight:600;width:30%;}
+  .refs li{margin-bottom:.8rem;}
+  .refs h4{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2rem 0 .8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Research Fraud and the Reproducibility Crisis</h1>
+    <p class="dek">A reading guide for the opening lecture of Unit 22 &mdash; how often published
+      research turns out to be wrong or fake, how people catch it, why the system keeps producing it,
+      and why every tool you learned in the regression units is part of the story.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#scale">Scale of the problem</a>
+      <a href="#detection">Cases and detection</a>
+      <a href="#incentives">Publishing and incentives</a>
+      <a href="#econometrics">Why econometricians care</a>
+      <a href="#reform">Reforms and the slides</a>
+      <a href="#clear">What should be clear</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The vocabulary and the core claims of the deck, each stated as a claim.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Fraud, questionable practice and honest error are different things that produce the same symptom: a published result that is not true.</p>
+      <ul>
+        <li><strong>Fabrication</strong> = inventing data or results (Sch&ouml;n, Stapel, Surgisphere).</li>
+        <li><strong>Falsification</strong> = manipulating real data, images or analyses so they show
+          something they do not (image splicing, altered spreadsheets).</li>
+        <li><strong>Questionable research practices</strong> = legal-looking analytic choices made
+          after seeing the data &mdash; dropping observations, adding controls, stopping data collection
+          when <span class="m"><i>p</i> &lt; .05</span>. Collectively called <strong>p-hacking</strong>.</li>
+        <li><strong>Honest error</strong> = spreadsheet mistakes, coding bugs, mislabelled samples.</li>
+      </ul>
+      <p>The detection tools in this deck flag <em>inconsistencies</em>. Which of the four produced
+        them is a separate question.</p>
+
+      <p class="claim">Reproducibility and replicability are different tests.</p>
+      <ul>
+        <li><strong>Reproducible</strong> = same data, same code, same numbers. A computational
+          check.</li>
+        <li><strong>Replicable</strong> = new data, same design, same conclusion. A scientific
+          check.</li>
+      </ul>
+      <p>A study can pass the first and fail the second. Fraud usually fails the first as soon as
+        anyone asks for the data.</p>
+
+      <p class="claim">Retractions are growing much faster than publications.</p>
+      <ul>
+        <li>About 22% compound annual growth in retractions versus about 6.25% for publications
+          &mdash; roughly 3.5 times faster.</li>
+        <li>Around 14,000 retractions in 2023; 63,000+ records in the Retraction Watch Database.</li>
+      </ul>
+      <p>But a retraction is a detection event, not a fraud event. Part of the growth is better
+        policing.</p>
+
+      <p class="claim">Most fraud detection is arithmetic on published summary statistics.</p>
+      <ul>
+        <li><strong>GRIM</strong> &mdash; is this mean possible with this many integer responses?</li>
+        <li><strong>SPRITE</strong> &mdash; can any raw dataset produce this mean, SD, N and range?</li>
+        <li><strong>statcheck</strong> &mdash; does the reported p-value match the reported test
+          statistic?</li>
+        <li><strong>Image forensics</strong> &mdash; are these figures duplicated or edited?</li>
+      </ul>
+
+      <p class="claim">The publishing economy now pays for volume.</p>
+      <p>Article processing charges (APCs) mean journals earn more by accepting more. Paper mills sell
+        authorship; fake peer review lets manuscripts through the gate. The deck&rsquo;s point is that
+        this is an <em>industry</em>, not a handful of bad actors.</p>
+
+      <p class="claim">Incentives make misconduct rational, which is why reforms target the incentives.</p>
+      <div class="chain">publication counts &rarr; careers &amp; funding &rarr; pressure for novel,
+        significant results &rarr; p-hacking, publication bias, fraud</div>
+      <p>Preregistration, registered reports, open data and post-publication review each cut one link
+        in that chain.</p>
+
+      <p class="claim">For an econometrician, the reproducibility crisis is mostly about standard tools used badly.</p>
+      <ul>
+        <li>The 0.05 threshold is what gets hacked.</li>
+        <li>Specification choices (controls, samples, functional form) are where the flexibility
+          lives.</li>
+        <li>Low power plus publication bias guarantees that published effects are inflated.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="scale">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The scale of the problem</h2>
+      <p class="sub">What the retraction numbers show &mdash; and what they cannot show.</p>
+    </div>
+
+    <h3>Retractions: exponential, not linear</h3>
+    <p>Slide 3 plots annual retractions from 2000 to 2023. The curve starts near 140 a year and ends
+      near 14,000. That is a hundredfold increase in 23 years, which is what 22% compound growth
+      produces:</p>
+    <div class="eq center">
+      <span>140 &times; 1.22<sup>23</sup></span><span class="op">&asymp;</span><span>14,000</span>
+    </div>
+    <p>Publications grew too, but at about 6.25% a year. The ratio of the two rates is where the
+      deck&rsquo;s headline &ldquo;3.5&times; faster&rdquo; comes from (22 / 6.25 &asymp; 3.5).
+      Note the dip around 2020 and the spike after it; the 2022&ndash;23 surge is dominated by mass
+      retractions of paper-mill products (Section four).</p>
+    <div class="callout">
+      <p><strong>A data caution.</strong> Slide 3 also says the 14,000 retractions of 2023 equal
+        &ldquo;all retractions from 2020&ndash;22 combined.&rdquo; The slide&rsquo;s own chart puts
+        2020 at about 7,000 and 2022 at about 11,000, so that comparison does not hold as stated.
+        The growth rate and the order of magnitude are the claims to keep.</p>
+    </div>
+
+    <h3>Rates vary enormously by field</h3>
+    <p>Slide 4 reports retractions per 10,000 papers (Web of Science, 2000&ndash;2024):</p>
+    <div class="table-scroll">
+      <table class="split">
+        <thead><tr><th scope="col">Field</th><th scope="col">Retractions per 10,000 papers</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Electrical engineering &amp; computer science</th><td>157</td></tr>
+          <tr><th scope="row">Clinical &amp; life sciences</th><td>40</td></tr>
+          <tr><th scope="row">Social sciences</th><td>38</td></tr>
+          <tr><th scope="row">Arts &amp; humanities</th><td>33</td></tr>
+          <tr><th scope="row">Engineering &amp; materials science</th><td>22</td></tr>
+          <tr><th scope="row">Earth sciences</th><td>22</td></tr>
+          <tr><th scope="row">Mathematics</th><td>17</td></tr>
+          <tr><th scope="row">Agriculture, environment, ecology</th><td>17</td></tr>
+          <tr><th scope="row">Chemistry</th><td>16</td></tr>
+          <tr><th scope="row">Physics</th><td>3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Two things to notice. First, the social sciences are not a safe corner: at 38 per 10,000 they
+      sit alongside the biomedical fields. Second, the top of the table is driven by fake peer review
+      and paper mills rather than by lone fabricators. Clinical and life sciences have more than
+      21,000 retractions in total, and there the cost is not just wasted citations but patient
+      harm.</p>
+    <div class="callout">
+      <p><strong>Correction.</strong> The slide describes the computer-science rate as &ldquo;10&times;
+        higher than Physics.&rdquo; Using the slide&rsquo;s own chart values (157.1 and 3.25), the
+        ratio is about <strong>48&times;</strong>. The slide also gives an overall average of 11 per
+        10,000 across 42 million papers, which sits below every field except physics; the field rates
+        and the average probably come from different denominators, so compare fields with each other
+        rather than with the average.</p>
+    </div>
+
+    <h3>Is fraud rising, or is detection improving?</h3>
+    <p>The deck is careful on this point, and so should you be. Its own first takeaway (slide 15)
+      is that rising retractions reflect <em>better detection, not only more fraud</em>. Look at the
+      parallel timeline on slide 6: Retraction Watch starts tracking in 2010, GRIM and statcheck
+      appear in 2016, SPRITE and PubPeer scale up in 2017&ndash;18, AI image screening arrives in
+      2024&ndash;25. Every one of those raises the retraction count even if the underlying rate of
+      misconduct were flat.</p>
+    <p>This is a measurement problem you already know. A retraction count is an outcome that depends
+      on two things &mdash; the true rate of bad papers and the probability that a bad paper is
+      caught:</p>
+    <div class="eq center">
+      <span>retractions</span><span class="op">=</span><span>bad papers</span><span class="op">&times;</span><span>Pr(detected)</span><span class="op">&times;</span><span>Pr(journal acts)</span>
+    </div>
+    <p>A rising product does not tell you which term is rising. The same logic cuts the other way:
+      slide 14 notes that the US Office of Research Integrity issued only 2 misconduct findings in
+      2025, against an average of about 10 a year. Fewer findings there means weaker enforcement, not
+      less misconduct. Treat every count in this deck as a lower bound on a quantity you cannot
+      observe directly.</p>
+  </section>
+
+  <section id="detection">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>High-profile cases and the detection toolkit</h2>
+      <p class="sub">Who got caught, and the (mostly simple) tools that caught them.</p>
+    </div>
+
+    <h3>A timeline of cases</h3>
+    <div class="table-scroll">
+      <table class="timeline">
+        <thead><tr><th scope="col">Year</th><th scope="col">Case</th><th scope="col">What happened</th></tr></thead>
+        <tbody>
+          <tr><td>2002</td><td>Jan Hendrik Sch&ouml;n, Bell Labs</td><td>16 fabricated papers in <em>Nature</em> and <em>Science</em>. Fired; doctorate revoked.</td></tr>
+          <tr><td>2005&ndash;06</td><td>Hwang Woo-suk, Seoul National University</td><td>Fabricated landmark stem-cell papers retracted from <em>Science</em>; criminal conviction.</td></tr>
+          <tr><td>2011</td><td>Diederik Stapel; Marc Hauser</td><td>Stapel: 58 papers retracted. Hauser: 8 ORI misconduct findings. Both resigned.</td></tr>
+          <tr><td>2017</td><td>Brian Wansink, Cornell</td><td>SPRITE reveals impossible data; 15+ papers retracted; resigned.</td></tr>
+          <tr><td>2020</td><td>Surgisphere / COVID-19</td><td>A fake hospital database behind papers in <em>The Lancet</em> and <em>NEJM</em>; both retracted within days of the concerns surfacing.</td></tr>
+          <tr><td>2022&ndash;23</td><td>Marc Tessier-Lavigne, Stanford</td><td>Image-manipulation findings; stepped down as president after an 8-month investigation.</td></tr>
+          <tr><td>2023</td><td>Francesca Gino, Harvard Business School</td><td>Data Colada bloggers expose falsified data in honesty research; 5 papers retracted.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Notice who did the catching. Wansink was exposed by outside methodologists running SPRITE;
+      Gino by the Data Colada bloggers; the Tessier-Lavigne, Gino and Dana-Farber cases were flagged
+      on PubPeer. Institutions mostly acted <em>after</em> outsiders had done the work. Notice too that
+      prestige offered no protection: <em>Nature</em>, <em>Science</em>, <em>The Lancet</em>,
+      Harvard and Stanford all appear.</p>
+
+    <h3>GRIM: the granularity of a mean</h3>
+    <p>The GRIM test (Brown &amp; Heathers) is the cleanest example of fraud detection as arithmetic.
+      If <span class="m"><i>N</i></span> people each give an integer answer (a 1&ndash;7 scale, a
+      count), their sum is an integer, so the mean must be a multiple of
+      <span class="m">1/<i>N</i></span>:</p>
+    <div class="eq center">
+      <span class="m"><i>x&#772;</i></span><span class="op">=</span>
+      <span class="frac"><span class="num">integer</span><span class="den"><i>N</i></span></span>
+    </div>
+    <p>With <span class="m"><i>N</i> = 20</span>, possible means move in steps of 0.05: &hellip; 3.40,
+      3.45, 3.50 &hellip; A reported mean of 3.47 cannot come from 20 integer responses. It is a typo,
+      a miscounted sample, excluded cases that were not reported &mdash; or invented numbers. GRIM only
+      works when <span class="m"><i>N</i></span> is small relative to the reporting precision (with two
+      decimals, below about 100), which is exactly the small-sample world where p-hacking is most
+      effective.</p>
+
+    <h3>SPRITE, statcheck, images and tortured phrases</h3>
+    <ul>
+      <li><strong>SPRITE</strong> (Sample Parameter Reconstruction via Iterative Techniques) extends
+        GRIM. Given a mean, SD, <span class="m"><i>N</i></span> and range, it searches for raw datasets
+        that could have produced them. If the only feasible datasets are absurd, the summary statistics
+        are suspect. It is how Wansink&rsquo;s data were shown to require, in the deck&rsquo;s example,
+        a child eating 60 carrots.</li>
+      <li><strong>statcheck</strong> reads a PDF, extracts each reported test (e.g.
+        <span class="m"><i>t</i>(28) = 1.20, <i>p</i> &lt; .05</span>), recomputes the p-value from
+        the statistic and degrees of freedom, and flags mismatches. In that illustrative case the
+        true two-sided <span class="m"><i>p</i></span> is about 0.24; a mismatch that flips the
+        conclusion is a &ldquo;gross error.&rdquo;</li>
+      <li><strong>Image forensics.</strong> Elisabeth Bik and colleagues screened biomedical papers by
+        eye and found problematic duplicated figures in 3.8% of them (Bik et al., 2016). Her volunteer
+        work has led to 1,331 retractions by 2024. Tools such as Imagetwin and Proofig now automate the
+        screening at submission.</li>
+      <li><strong>PubPeer</strong> is an open post-publication comment platform where concerns are
+        posted and coordinated &mdash; often before any institution acts.</li>
+      <li><strong>Tortured phrases.</strong> Paper mills disguise plagiarism with synonym software, so
+        &ldquo;artificial neural network&rdquo; becomes &ldquo;counterfeit brain
+        organization.&rdquo; The Problematic Paper Screener searches for these fingerprints and has
+        flagged 32,000+ suspected paper-mill products.</li>
+    </ul>
+    <div class="callout">
+      <p><strong>Read the deck&rsquo;s own caveat.</strong> GRIM, SPRITE and statcheck detect
+        <em>inconsistencies</em>, not fraud. Most statcheck flags are typos. Confidence comes from
+        several independent tools pointing at the same paper &mdash; and, decisively, from the raw
+        data. This is why open data appears in the reform list: it turns detective work into a
+        reproducibility check.</p>
+    </div>
+
+    <h3>Open science as preventive infrastructure</h3>
+    <p>Slide 9 groups the prevention tools into three families:</p>
+    <ul>
+      <li><strong>Preregistration</strong> &mdash; a time-stamped plan of hypotheses, methods and
+        analyses filed before data collection (OSF hosts 500,000+). The deck is honest that the
+        evidence is mixed: preregistered studies have larger samples and more power analyses, but not
+        necessarily fewer positive results. The stronger version is the <strong>registered
+        report</strong>, where peer review happens before data exist and acceptance does not depend
+        on the result.</li>
+      <li><strong>Open data and code</strong>, following the FAIR principles (findable, accessible,
+        interoperable, reusable), and the 2013 US OSTP mandate for federally funded research.</li>
+      <li><strong>Post-publication review</strong> &mdash; PubPeer, the Retraction Watch Database,
+        social media, and volunteer sleuths.</li>
+    </ul>
+  </section>
+
+  <section id="incentives">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>The publishing economy and the incentives behind it</h2>
+      <p class="sub">Why misconduct is a market outcome and not only a character flaw.</p>
+    </div>
+
+    <h3>From gatekeeping to pay-to-publish</h3>
+    <p>Under the subscription model, readers paid and journals made money by being selective. Under
+      open access with article processing charges, authors pay (roughly $2,000 to $15,000+ per paper)
+      and journals make money by publishing. Slide 11 lays out the resulting spectrum:</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Tier</th><th scope="col">Who pays</th><th scope="col">Quality gate</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Subscription journals</th><td>Reader</td><td>Rigorous but slow peer review.</td></tr>
+          <tr><th scope="row">Hybrid / gold OA</th><td>Author (APC)</td><td>Varies. Very profitable: Elsevier reported about $3.6B profit in 2023.</td></tr>
+          <tr><th scope="row">Grey-zone OA</th><td>Author</td><td>Fast, weak review; broad scope; high acceptance rates.</td></tr>
+          <tr><th scope="row">Predatory journals</th><td>Author</td><td>Peer review in name only; acceptance follows payment.</td></tr>
+          <tr><th scope="row">Paper mills / fake journals</th><td>&ldquo;Author&rdquo; buys a slot</td><td>None. Fabricated or AI-generated manuscripts; hijacked ISSNs.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The key fact is that the bottom of the spectrum leaks into the top. More than 11,300 papers
+      were retracted from Wiley&rsquo;s Hindawi journals in 2022&ndash;24 after paper mills
+      infiltrated them; at <em>PLOS ONE</em>, 0.25% of editors handled 30.2% of retracted articles.
+      A handful of compromised editors is enough. That is why the deck concludes that journal
+      reputation is no longer a reliable proxy for integrity.</p>
+
+    <h3>Paper mills and fake peer review</h3>
+    <ul>
+      <li>Richardson and colleagues (2025, <em>PNAS</em>) estimate that the number of fraudulent
+        papers may double every 1.5 years; the deck cites estimates that 5&ndash;15% of biomedical
+        papers may be fraudulent or suspicious.</li>
+      <li>Authorship is for sale at roughly $500&ndash;$3,000 per paper.</li>
+      <li>Fake peer review &mdash; authors suggesting reviewers whose email addresses they control, or
+        mills impersonating real academics &mdash; accounts for about half of all retractions,
+        according to the deck.</li>
+      <li>Reviewer burnout makes this easy: editors short of reviewers accept suggested ones.</li>
+    </ul>
+
+    <h3>Incentives at three levels</h3>
+    <p>Slide 13 organizes the incentives by level. The pattern is that each level rewards counts and
+      novelty, and none rewards being right.</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Level</th><th scope="col">Pressure</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Systemic</th><td>National research assessment tied to publication counts (UK REF, China&rsquo;s evaluation system); NIH success rates near 20%; the journal impact factor as a proxy for career worth.</td></tr>
+          <tr><th scope="row">Institutional</th><td>Tenure and promotion require high-impact publications; grant overhead funds university budgets; early-career jobs depend on paper counts.</td></tr>
+          <tr><th scope="row">Individual</th><td>Stapel: &ldquo;I wanted too much, too fast.&rdquo; Paper mills offer a market solution. Amaral describes a situation where the optimal strategy is to start cheating to win.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Slide 14 adds the AI arms race: 14% of 2024 biomedical abstracts show signs of AI-generated
+      text, generative models can produce convincing western blots, and detection tools are racing to
+      keep up &mdash; while enforcement capacity (ORI&rsquo;s 2 findings in 2025) is shrinking.</p>
+    <div class="callout">
+      <p><strong>The economist&rsquo;s reading.</strong> When the payoff to a publication is high,
+        the probability of being caught is low, and the penalty is rarely applied, misconduct is not
+        irrational &mdash; it is a predictable response to the payoff structure. That is why the
+        serious reforms change the payoffs (what gets counted, what gets published) rather than just
+        adding ethics training.</p>
+    </div>
+  </section>
+
+  <section id="econometrics">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>Why an econometrics student should care</h2>
+      <p class="sub">Outright fraud is rare. The tools you have been learning are how most wrong results get made &mdash; and caught.</p>
+    </div>
+
+    <h3>p-hacking exploits the threshold you already know</h3>
+    <p>In the program-impact lecture you learned that &ldquo;significant&rdquo; only means the
+      confidence interval excludes zero, and that the p-value is the widest interval you can draw
+      before it contains the null. p-hacking is simply the search for a version of the analysis in
+      which that interval clears zero: drop an outlier, add a control, split a subgroup, stop
+      collecting data at the right moment. Each choice looks defensible alone. Tried together, they
+      push the real false-positive rate far above the nominal 5%. The telltale sign in a literature is
+      a pile-up of p-values just below .05.</p>
+
+    <h3>Low power plus publication bias guarantees inflated effects</h3>
+    <p>The <em>Economist</em>&rsquo;s &ldquo;Trouble at the lab&rdquo; works the arithmetic. Suppose
+      1,000 hypotheses are tested, 100 of which are true, with power 0.8 and
+      <span class="m">&alpha;</span> = 0.05. You get 80 true positives and 45 false positives
+      (5% of 900). The share of &ldquo;significant&rdquo; findings that are false is</p>
+    <div class="eq center">
+      <span class="frac"><span class="num">45</span><span class="den">45 + 80</span></span>
+      <span class="op">&asymp;</span><span>0.36</span>
+    </div>
+    <p>Cut power to 0.4 and it becomes <span class="m">45 / (45 + 40) &asymp; 0.53</span>: more than
+      half the positive results are wrong. Now add publication bias &mdash; only the significant
+      results get printed &mdash; and a second problem appears. In a low-powered study, an estimate
+      only clears the significance bar when sampling error happened to push it upward, so the
+      <em>published</em> effect sizes are systematically too large. This is the bridge to Unit 24:
+      a meta-analysis that averages a filtered literature averages inflated numbers.</p>
+
+    <h3>Analytic flexibility is specification choice</h3>
+    <p>Every regression unit asked you to make choices: which controls, which functional form, which
+      sample, how to code a variable, where to draw the bandwidth in an RD. Those are the
+      &ldquo;researcher degrees of freedom&rdquo; the reform movement is worried about.
+      Huntington-Klein et al. (2021) measured how much they matter. Seven economists each
+      independently replicated two published applied-micro studies &mdash; one on compulsory
+      schooling and teen births, one an RD on Medicare eligibility at 65 and self-employment &mdash;
+      from the same instructions and public data. No two replicators ended up with the same sample
+      size; statistical significance varied across replications, and in one study the sign did too.
+      The standard deviation of the estimates across replicators was <strong>3 to 4 times</strong> the
+      average reported standard error.</p>
+    <div class="callout">
+      <p><strong>The lesson for reading a regression table.</strong> The standard error measures
+        sampling variability for one analyst&rsquo;s specification. It says nothing about the
+        variability across reasonable analysts, which in this study was larger. Specification curves,
+        multiverse analyses and preregistered analysis plans are attempts to put that hidden
+        variance back on the page.</p>
+    </div>
+
+    <h3>Confounding and data you cannot see</h3>
+    <p>The Surgisphere <em>Lancet</em> paper reported in-hospital mortality of 23.8% for COVID-19
+      patients given hydroxychloroquine with an antibiotic, against 9.3% for controls, across 671
+      hospitals. Before anyone questioned whether the data existed, critics raised a textbook omitted
+      variable problem: physicians give experimental drugs to sicker patients, and the database had no
+      good measure of severity. Then came the plausibility checks &mdash; more Australian deaths than
+      the country had officially recorded, thousands of African patients with detailed electronic
+      records &mdash; and the refusal to share hospital-level data. Both lines of attack, bad
+      identification and unverifiable data, are the ones this course has trained you to run.</p>
+
+    <h3>Economics is not exempt</h3>
+    <p>The <em>Economist</em> piece recalls Thomas Herndon, a graduate student who tried to
+      replicate Reinhart and Rogoff&rsquo;s influential finding on public debt and growth and found
+      errors, including a spreadsheet error. The replication was possible only because the data could
+      be obtained. That is the ordinary, non-fraudulent version of this lecture&rsquo;s problem, and
+      the reason the next lectures stress reproducible workflows.</p>
+
+    <h3>Reading the popular accounts</h3>
+    <p>The <span class="m">pubs/</span> folder holds five readings that tell the story from different
+      angles, plus a news report on Surgisphere. Read at least the first two.</p>
+    <ul>
+      <li><strong>&ldquo;Trouble at the lab&rdquo;</strong> (<em>The Economist</em>, 2013). The best
+        single overview. Industry scientists at Amgen could reproduce only 6 of 53 landmark cancer
+        studies, and Bayer about a quarter of 67; a spoof paper was accepted by 157 of 304 journals;
+        in surveys, 2% of scientists admit fabricating or falsifying data while 28% know of colleagues
+        using questionable practices. Its worked example on power and false positives is the one used
+        above.</li>
+      <li><strong>&ldquo;Psychology&rsquo;s replication crisis is real, Many Labs 2 says&rdquo;</strong>
+        (Ed Yong, <em>The Atlantic</em>, 2018). About 200 psychologists re-ran 28 famous studies with
+        15,305 participants in 36 countries &mdash; on average 60 times the original samples &mdash;
+        and replicated 14. Crucially, results barely varied across sites, which undercuts the
+        &ldquo;hidden moderator&rdquo; defence that failed replications were run on different
+        people.</li>
+      <li><strong>&ldquo;When the revolution came for Amy Cuddy&rdquo;</strong> (Susan Dominus,
+        <em>New York Times Magazine</em>, 2017). The human side. Cuddy&rsquo;s 2010 power-pose study
+        and TED talk made her famous; a larger, double-blind replication by Eva Ranehill (200
+        subjects) did not find the hormone or risk-taking effects; co-author Dana Carney later said she
+        did not believe the effects were real. The article also explains p-hacking through Simmons,
+        Nelson and Simonsohn&rsquo;s &ldquo;False-Positive Psychology&rdquo; demonstration, which used
+        standard methods to &ldquo;show&rdquo; that listening to a Beatles song made people younger.
+        Read it for how norms changed under researchers who had followed the old rules.</li>
+      <li><strong>&ldquo;The influence of hidden researcher decisions in applied
+        microeconomics&rdquo;</strong> (Huntington-Klein et al., <em>Economic Inquiry</em>, 2021). The
+        many-analysts study described above; the one reading written by and for economists.</li>
+      <li><strong>&ldquo;Reproducible research in R&rdquo;</strong> (Peikert, van Lissa &amp;
+        Brandmaier, <em>Psych</em>, 2021). The practical response. It names four threats to
+        computational reproducibility (multiple versions, copy-and-paste errors, undocumented order
+        of computation, ambiguous software dependencies) and four remedies: version control (Git),
+        dynamic documents (R Markdown), dependency tracking (Make) and software management (Docker),
+        wrapped in their <span class="m">repro</span> package. It also proposes
+        &ldquo;preregistration as code.&rdquo;</li>
+      <li><strong>&ldquo;A mysterious company&rsquo;s coronavirus papers in top medical journals may
+        be unraveling&rdquo;</strong> (Servick &amp; Enserink, <em>Science</em>, 2020). Written on the
+        day <em>The Lancet</em> and <em>NEJM</em> issued expressions of concern, before the
+        retractions. Useful as a real-time record of how outside researchers spotted the problems.</li>
+    </ul>
+  </section>
+
+  <section id="reform">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>Reforms, and how to read the slides</h2>
+      <p class="sub">What is being done, and a map of the deck.</p>
+    </div>
+
+    <h3>Reform efforts underway</h3>
+    <ul>
+      <li><strong>Stockholm Declaration (2025)</strong> &mdash; 34 specific actions, led by
+        abandoning publication counting and valuing quality over quantity in hiring and tenure
+        (Sabel &amp; Larhammar, 2025).</li>
+      <li><strong>Registered reports</strong> &mdash; peer review before data collection, acceptance
+        regardless of results. The one reform that removes publication bias by design.</li>
+      <li><strong>Open data mandates</strong> from NIH, NSF, the Gates Foundation and most major
+        funders.</li>
+      <li><strong>United2Act</strong> &mdash; publishers sharing intelligence on paper mills.</li>
+      <li><strong>Elisabeth Bik Science Integrity Fund</strong> (2025, with Retraction Watch) &mdash;
+        money for the volunteer sleuths who currently do much of the detection.</li>
+    </ul>
+    <p>Map each reform onto the incentive chain from Section one. Registered reports and open data
+      change what gets published and make checking cheap; the Stockholm Declaration changes what gets
+      counted; the sleuth fund pays for detection. None relies on persuading individuals to be more
+      virtuous.</p>
+
+    <h3>How to read the slides</h3>
+    <div class="table-scroll">
+      <table class="reading">
+        <thead><tr><th scope="col">Slides</th><th scope="col">What they are doing</th><th scope="col">What to take away</th></tr></thead>
+        <tbody>
+          <tr><td>1&ndash;2</td><td>Title and roadmap</td><td>Six parts: trends, cases, detection, publishing, incentives, reform.</td></tr>
+          <tr><td>3</td><td>Retraction growth</td><td>22% vs. 6.25% a year. Exponential, not linear.</td></tr>
+          <tr><td>4</td><td>Rates by field</td><td>Social science is mid-table, not immune. CS vs. physics is about 48&times;, not 10&times;.</td></tr>
+          <tr><td>5</td><td>Timeline of cases</td><td>Prestige is no protection; outsiders usually find it first.</td></tr>
+          <tr><td>6</td><td>Timeline of detection</td><td>Read it against slide 5: detection capacity grew alongside the retraction count.</td></tr>
+          <tr><td>7&ndash;8</td><td><strong>Detection methods</strong></td><td>GRIM, SPRITE, statcheck, image forensics, tortured phrases. Inconsistency, not proof.</td></tr>
+          <tr><td>9</td><td>Open science infrastructure</td><td>Preregistration, open data, post-publication review. Evidence on preregistration is mixed.</td></tr>
+          <tr><td>10&ndash;11</td><td>The publishing economy</td><td>APCs reward volume; paper mills infiltrate legitimate journals.</td></tr>
+          <tr><td>12&ndash;13</td><td><strong>Incentives</strong></td><td>Systemic, institutional, individual. Misconduct as a rational response.</td></tr>
+          <tr><td>14</td><td>AI and enforcement</td><td>An arms race on both sides; ORI findings at a low.</td></tr>
+          <tr><td>15</td><td>Reforms and takeaways</td><td>Note the first takeaway: part of the rise is better detection.</td></tr>
+          <tr><td>16</td><td>Sources</td><td>Starting points for the rest of Unit 22; listed in the References below.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p>The deck is a survey, and many of its numbers are drawn from news reports and preprints. Treat
+        exact figures as indicative and the direction of the trends as the finding. That is itself a
+        research-integrity habit: check a striking number before repeating it.</p>
+    </div>
+  </section>
+
+  <section id="clear">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>What should be clear in my mind?</h2>
+      <p class="sub">A self-check before moving on to Unit 23.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>I can distinguish fabrication, falsification, questionable research practices and
+        honest error</strong>, and explain why detection tools cannot tell them apart on their own.</li>
+      <li><strong>I can explain why a rising retraction count does not prove rising fraud</strong>
+        &mdash; retractions multiply the true rate by the probability of detection and action.</li>
+      <li><strong>I can run a GRIM check by hand</strong> and say what statcheck and SPRITE
+        recompute.</li>
+      <li><strong>I can describe how APCs, paper mills and fake peer review change what gets
+        published</strong>, and why journal reputation is a weaker signal than it was.</li>
+      <li><strong>I can connect p-hacking to the 0.05 threshold and publication bias to inflated
+        effect sizes</strong>, using the power arithmetic.</li>
+      <li><strong>I can explain what Huntington-Klein et al. found</strong> and why the reported
+        standard error understates total uncertainty.</li>
+      <li><strong>I can match each reform to the incentive it targets.</strong></li>
+    </ol>
+
+    <h3>Key takeaways</h3>
+    <ul>
+      <li><strong>Retractions grow about 3.5&times; faster than publications</strong>, but part of that
+        is better detection.</li>
+      <li><strong>Most detection is arithmetic on reported statistics</strong>; open data turns it into
+        a direct check.</li>
+      <li><strong>Prestige does not protect.</strong> Landmark cases ran through <em>Nature</em>,
+        <em>Science</em>, <em>The Lancet</em>, Harvard and Stanford.</li>
+      <li><strong>Pay-to-publish economics and paper mills make fraud an industry</strong>, one that
+        infiltrates legitimate journals.</li>
+      <li><strong>Incentives reward counts and novelty</strong>, which makes misconduct and p-hacking
+        predictable responses.</li>
+      <li><strong>Low power plus publication bias inflates published effects</strong> &mdash; the
+        central problem for the meta-analysis unit that follows.</li>
+      <li><strong>Specification choices are a hidden source of variance</strong> that can exceed the
+        reported standard error.</li>
+      <li><strong>Preregistration, registered reports, open data and post-publication review</strong>
+        are the working defences.</li>
+    </ul>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>References</h2>
+      <p class="sub">Course readings first, then the deck&rsquo;s own sources and related studies.</p>
+    </div>
+
+    <div class="refs">
+      <h4>The slide deck</h4>
+      <ul>
+        <li><a href="trends_in_research_fraud.pdf">Research fraud &amp; the reproducibility crisis:
+          Open science tools, detection methods, publishing pressures and systemic incentives driving
+          research misconduct</a> [Slide deck, PDF]. Companion document:
+          <a href="research_integrity_framework.pdf">Research integrity framework</a>.</li>
+      </ul>
+
+      <h4>Course readings</h4>
+      <ul>
+        <li>Dominus, S. (2017, October 18). <a href="pubs/When%20the%20Revolution%20Came%20for%20Amy%20Cuddy.pdf">When the revolution came for Amy Cuddy</a>. <em>The New York Times Magazine</em>.</li>
+        <li>Huntington-Klein, N., Arenas, A., Beam, E., Bertoni, M., Bloem, J. R., Burli, P., Chen, N., Grieco, P., Ekpe, G., Pugatch, T., Saavedra, M., &amp; Stopnitzky, Y. (2021). <a href="pubs/The%20influence%20of%20hidden%20researcher%20decisions%20in%20applied%20microeconomics.pdf">The influence of hidden researcher decisions in applied microeconomics</a>. <em>Economic Inquiry, 59</em>(3), 944&ndash;960. <a href="https://doi.org/10.1111/ecin.12992">https://doi.org/10.1111/ecin.12992</a></li>
+        <li>Peikert, A., van Lissa, C. J., &amp; Brandmaier, A. M. (2021). <a href="pubs/reproducibility-guide-r.pdf">Reproducible research in R: A tutorial on how to do the same thing more than once</a>. <em>Psych, 3</em>(4), 836&ndash;867. <a href="https://doi.org/10.3390/psych3040053">https://doi.org/10.3390/psych3040053</a></li>
+        <li>Servick, K., &amp; Enserink, M. (2020, June 2). <a href="../../pubs/open-science/a-mysterious-companys-coronavirus-papers-in-top-medical-journals-may-be-unraveling.pdf">A mysterious company&rsquo;s coronavirus papers in top medical journals may be unraveling</a>. <em>Science</em> (news).</li>
+        <li>The Economist. (2013, October 19). <a href="pubs/Trouble-at-the-lab-The-Economist.pdf">Trouble at the lab: Scientists like to think of science as self-correcting. To an alarming degree, it is not</a>. <em>The Economist</em>.</li>
+        <li>Yong, E. (2018, November 19). <a href="pubs/Psychology%27s%20Replication%20Crisis%20Is%20Real%20ATLANTIC.pdf">Psychology&rsquo;s replication crisis is real, Many Labs 2 says</a>. <em>The Atlantic</em>.</li>
+      </ul>
+
+      <h4>Retraction data and trends (deck slide 16)</h4>
+      <ul>
+        <li>Retraction Watch Database. Center for Scientific Integrity. <a href="https://retractionwatch.com">https://retractionwatch.com</a></li>
+        <li>PubPeer. Post-publication commentary and flagging. <a href="https://pubpeer.com">https://pubpeer.com</a></li>
+        <li>Li, &amp; Shen. (2024). Science map of academic misconduct. <em>The Innovation, 5</em>(2).</li>
+        <li>Retraction rates by discipline, 2000&ndash;2024. (2025, November). arXiv:2511.21176. <a href="https://arxiv.org/abs/2511.21176">https://arxiv.org/abs/2511.21176</a></li>
+        <li>Richardson, R. A. K., Hong, S. S., Byrne, J. A., Stoeger, T., &amp; Amaral, L. A. N. (2025). The entities enabling scientific fraud at scale are large, resilient, and growing rapidly. <em>PNAS, 122</em>(32), e2420092122. <a href="https://doi.org/10.1073/pnas.2420092122">https://doi.org/10.1073/pnas.2420092122</a></li>
+        <li>Scholarly Kitchen. (2024). Making sense of retractions and tackling research misconduct. <em>The Scholarly Kitchen</em> [Blog].</li>
+        <li>Fang, F. C., Steen, R. G., &amp; Casadevall, A. (2012). Misconduct accounts for the majority of retracted scientific publications. <em>PNAS, 109</em>(42), 17028&ndash;17033. <a href="https://doi.org/10.1073/pnas.1212247109">https://doi.org/10.1073/pnas.1212247109</a></li>
+      </ul>
+
+      <h4>Detection methods</h4>
+      <ul>
+        <li>Bik, E. M., Casadevall, A., &amp; Fang, F. C. (2016). The prevalence of inappropriate image duplication in biomedical research publications. <em>mBio, 7</em>(3), e00809-16. <a href="https://doi.org/10.1128/mBio.00809-16">https://doi.org/10.1128/mBio.00809-16</a></li>
+        <li>Brown, N. J. L., &amp; Heathers, J. A. J. (2017). The GRIM test: A simple technique detects numerous anomalies in the reporting of results in psychology. <em>Social Psychological and Personality Science, 8</em>(4), 363&ndash;369. <a href="https://doi.org/10.1177/1948550616673876">https://doi.org/10.1177/1948550616673876</a> (published online 2016; the deck dates it 2016).</li>
+        <li>Cabanac, G., Labb&eacute;, C., &amp; Magazinov, A. (2021). Tortured phrases: A dubious writing style emerging in science. Evidence of critical issues affecting established journals. arXiv:2107.06751.</li>
+        <li>Heathers, J. A. J., Anaya, J., van der Zee, T., &amp; Brown, N. J. L. (2018). Recovering data from summary statistics: Sample parameter reconstruction via iterative techniques (SPRITE). <em>PeerJ Preprints</em>. <a href="https://doi.org/10.7287/peerj.preprints.26968v1">https://doi.org/10.7287/peerj.preprints.26968v1</a></li>
+        <li>Nuijten, M. B., Hartgerink, C. H. J., van Assen, M. A. L. M., Epskamp, S., &amp; Wicherts, J. M. (2016). The prevalence of statistical reporting errors in psychology (1985&ndash;2013). <em>Behavior Research Methods, 48</em>, 1205&ndash;1226. <a href="https://doi.org/10.3758/s13428-015-0664-2">https://doi.org/10.3758/s13428-015-0664-2</a></li>
+        <li>statcheck. Automated p-value extraction and recalculation. <a href="https://statcheck.io">https://statcheck.io</a></li>
+      </ul>
+
+      <h4>Replication, p-hacking and analytic flexibility</h4>
+      <ul>
+        <li>Herndon, T., Ash, M., &amp; Pollin, R. (2014). Does high public debt consistently stifle economic growth? A critique of Reinhart and Rogoff. <em>Cambridge Journal of Economics, 38</em>(2), 257&ndash;279. <a href="https://doi.org/10.1093/cje/bet075">https://doi.org/10.1093/cje/bet075</a></li>
+        <li>Ioannidis, J. P. A. (2005). Why most published research findings are false. <em>PLOS Medicine, 2</em>(8), e124. <a href="https://doi.org/10.1371/journal.pmed.0020124">https://doi.org/10.1371/journal.pmed.0020124</a></li>
+        <li>John, L. K., Loewenstein, G., &amp; Prelec, D. (2012). Measuring the prevalence of questionable research practices with incentives for truth telling. <em>Psychological Science, 23</em>(5), 524&ndash;532. <a href="https://doi.org/10.1177/0956797611430953">https://doi.org/10.1177/0956797611430953</a></li>
+        <li>Open Science Collaboration. (2015). Estimating the reproducibility of psychological science. <em>Science, 349</em>(6251), aac4716. <a href="https://doi.org/10.1126/science.aac4716">https://doi.org/10.1126/science.aac4716</a></li>
+        <li>Reinhart, C. M., &amp; Rogoff, K. S. (2010). Growth in a time of debt. <em>American Economic Review, 100</em>(2), 573&ndash;578. <a href="https://doi.org/10.1257/aer.100.2.573">https://doi.org/10.1257/aer.100.2.573</a></li>
+        <li>Silberzahn, R., Uhlmann, E. L., Martin, D. P., et al. (2018). Many analysts, one data set: Making transparent how variations in analytic choices affect results. <em>Advances in Methods and Practices in Psychological Science, 1</em>(3), 337&ndash;356. <a href="https://doi.org/10.1177/2515245917747646">https://doi.org/10.1177/2515245917747646</a></li>
+        <li>Simonsohn, U., Simmons, J. P., &amp; Nelson, L. D. (2020). Specification curve analysis. <em>Nature Human Behaviour, 4</em>, 1208&ndash;1214. <a href="https://doi.org/10.1038/s41562-020-0912-z">https://doi.org/10.1038/s41562-020-0912-z</a></li>
+      </ul>
+
+      <h4>Reform and policy</h4>
+      <ul>
+        <li>Lumbard, &amp; Routledge. (2025). Open science and transparency. <em>PLOS Medicine, 22</em>(9).</li>
+        <li>Open Science Framework (OSF). Preregistration and open data tools. <a href="https://osf.io">https://osf.io</a></li>
+        <li>Sabel, B. A., &amp; Larhammar, D. (2025). Reformation of science publishing &mdash; the Stockholm Declaration. <em>Royal Society Open Science, 12</em>, 251805. <a href="https://doi.org/10.1098/rsos.251805">https://doi.org/10.1098/rsos.251805</a></li>
+        <li>Wilkinson, M. D., Dumontier, M., Aalbersberg, I. J., et al. (2016). The FAIR guiding principles for scientific data management and stewardship. <em>Scientific Data, 3</em>, 160018. <a href="https://doi.org/10.1038/sdata.2016.18">https://doi.org/10.1038/sdata.2016.18</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>Reading guide for <span class="m">trends_in_research_fraud</span>. Built from the slide deck
+      <span class="m">trends_in_research_fraud.pptx</span> and the readings in
+      <span class="m">pubs/</span> in this folder.</p>
+  </footer>
+
+</div>
+</body>
+</html>

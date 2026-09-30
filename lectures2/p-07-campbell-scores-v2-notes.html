@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campbell Scores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Campbell Scores</h1>
+  <p class="dek">A reading guide for lecture p-07 — ten competing hypotheses that could explain your result instead of the program, and the standard of proof each one is held to.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#relationships">Key relationships</a>
+    <a href="#clear">What should be clear</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">The ten items, grouped, with the fix for each.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+      <p class="claim">A Campbell Score is a structured search for competing hypotheses.</p>
+<p>Two statements about the same result:</p>
+
+<ul>
+  <li><strong>The program hypothesis</strong> — the change we saw in the study group above and beyond the
+comparison group was a result of <em>the program</em>.</li>
+  <li><strong>The competing hypothesis</strong> — the change we saw was a result of <em><strong>__</strong><strong>__</strong></em>, where
+the blank is filled by any item on the Campbell Score.</li>
+</ul>
+
+<p>This is the <strong>identification problem</strong> stated in plain language. Getting a significant
+result establishes that the outcome changed. It does not establish that the program caused
+the change.</p>
+      <p class="claim">The ten items fall into four families.</p>
+<p><strong>Selection / omitted variables</strong></p>
+
+<ol>
+  <li>Selection into a program</li>
+  <li>Non-random attrition</li>
+</ol>
+
+<p><strong>Trends in the data</strong></p>
+
+<ol>
+  <li>Maturation</li>
+  <li>Secular trends</li>
+  <li>Seasonality</li>
+  <li>Testing</li>
+  <li>Regression to the mean</li>
+</ol>
+
+<p><strong>Study calibration</strong></p>
+
+<ol>
+  <li>Measurement error</li>
+  <li>Study time-frame</li>
+</ol>
+
+<p><strong>Contamination</strong></p>
+
+<ol>
+  <li>Intervening events</li>
+</ol>
+      <p class="claim">Items 1 and 2 are guilty until proven innocent. The other eight are not.</p>
+<p>This is the deck’s most important procedural rule. Selection and attrition are so common
+and so damaging that a rigorous evaluation must <strong>affirmatively demonstrate</strong> it has
+handled them before it earns any baseline of internal validity.</p>
+
+<p>The remaining eight are <em>potential</em> concerns. You cannot simply assume they are present —
+you have to make a reasonable argument from the data and evidence in the study, or from
+sound reasoning that goes beyond speculation.</p>
+      <p class="claim">Selection into a program (#1)</p>
+<p>If people choose whether to enroll, enrollees differ from non-enrollees. This is a source
+of omitted variable bias.
+<strong>The fix:</strong> randomization into treatment and control, or a rigorous matching process —
+and the randomization must be <em>happy</em>, which you demonstrate with a balance table and a
+Bonferroni-corrected decision rule (α / number of contrasts).</p>
+      <p class="claim">Non-random attrition (#2)</p>
+<p>If leavers differ from stayers, the effect calculation is biased.
+<strong>The fix:</strong> compare the characteristics of those who stay against those who leave, using
+only measures taken <em>before</em> the treatment occurred.</p>
+
+<p>A key qualification: if attrition is non-random but occurs <strong>equally across groups</strong>, it
+typically will not bias the results. That reprieve is unavailable in reflexive designs,
+where there is no second group to absorb it.</p>
+      <p class="claim">Maturation (#3) and secular trends (#4)</p>
+<p>The same problem at two scales. <strong>Maturation</strong> is growth expected naturally within
+individuals — children’s cognitive ability improves whether or not you intervene.
+<strong>Secular trends</strong> are global processes outside the individual — economic or cultural
+change.
+<strong>The fix for both:</strong> a comparison group, so the trend can be differenced out.</p>
+      <p class="claim">Seasonality (#5)</p>
+<p>Data with cycles have natural highs and lows, so a pre–post comparison across different
+points in the cycle produces an invalid impact claim.
+<strong>The fix:</strong> compare observations from the same period, or average over a full cycle.</p>
+      <p class="claim">Testing (#6)</p>
+<p>Repeated exposure to the same questions or tasks improves performance independently of any
+training.
+<strong>The fix:</strong> change the test, use a post-test-only design, or use a control group that also
+takes the test. Applies to a narrow set of programs.</p>
+      <p class="claim">Regression to the mean (#7)</p>
+<p>Any extreme observation is more likely to be followed by one closer to the mean than by one
+equally extreme. Quality-improvement programs aimed at <strong>low performers</strong> therefore have a
+built-in improvement bias regardless of whether they work.
+<strong>The fix:</strong> do not select the study group from the top or bottom of the distribution based
+on a single time period.</p>
+      <p class="claim">Measurement error (#8)</p>
+<p>Significant measurement error in the dependent variable <strong>biases effects toward zero</strong>,
+making programs look less effective than they are.
+<strong>The fix:</strong> better measures.</p>
+      <p class="claim">Study time-frame (#9)</p>
+<p>Too short and a real effect looks like nothing. Too long and attrition takes over.
+<strong>The fix:</strong> use prior research in the domain to choose the window.</p>
+      <p class="claim">Intervening events (#10)</p>
+<p>Something happens during the study that affects one group and not the other — the treatment
+school burns down, prices change for a substitute good in the control area.
+<strong>The fix:</strong> there often isn’t one. Intervening events can be very hard to remove.</p>
+    </div>
+  </section>
+
+<section id="relationships">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>Key relationships</h2>
+    <p class="sub">The mental map. Why two items are guilty until proven innocent and eight are not.</p>
+  </div>
+
+<h3 id="the-ants-video-is-the-whole-idea-in-three-minutes">The ants video is the whole idea in three minutes</h3>
+
+<p>The deck opens with “Can Ants Count?” as the inspiration for the assignment. The
+experimental logic there is the logic here: you do not prove ants count by showing they
+walk the right distance. You prove it by systematically eliminating every other
+explanation for why they walked the right distance. A Campbell Score is that elimination
+process turned into a checklist.</p>
+
+<h3 id="two-standards-of-proof-and-why-the-asymmetry-is-correct">Two standards of proof, and why the asymmetry is correct</h3>
+
+<p>Selection and attrition get the harsher standard because they are near-universal in
+observational work — most observational studies <em>will</em> be significantly affected by them.
+Assuming innocence there would let almost every weak study pass.</p>
+
+<p>The other eight are held to the ordinary standard because they are situational. Seasonality
+is irrelevant to most studies; testing effects apply to a small set of programs. Asserting
+them without evidence would let a critic dismiss any study by reciting the list.</p>
+
+<h3 id="the-trend-slides-show-why-t2--c2-is-not-always-enough">The trend slides show why <code>T2 − C2</code> is not always enough</h3>
+
+<p>Three cases, and they are worth studying closely:</p>
+
+<ul>
+  <li><code>C1 = T1</code> — groups equivalent at baseline. <code>T2 − C2</code> removes the trend correctly.</li>
+  <li><code>C1 ≠ T1</code>, comparison below treatment — <code>T2 − C2</code> does <strong>not</strong> fully remove the trend.</li>
+  <li><code>C1 ≠ T1</code>, comparison above treatment — <code>T2 − C2</code> removes <strong>too much</strong> trend.</li>
+</ul>
+
+<p>The note attached to both failure cases is the point: <strong>diff-in-diff separates trends even
+when the groups are not equivalent.</strong> This is the Campbell Score view of what lecture p-03
+established formally.</p>
+
+<h3 id="regression-to-the-mean-is-the-item-people-miss-most-often">Regression to the mean is the item people miss most often</h3>
+
+<p>Two examples make it stick. The batting slump: players are sent to the batting coach only
+when performing badly, so performance improves afterward whether or not the coach helps.
+And the FiveThirtyEight piece on sham surgery: chronic pain peaks and wanes, patients seek
+treatment at the worst moment, so improvement afterward may be the condition’s natural
+course rather than the operation.</p>
+
+<p>The surgery example is doing double duty — invasive procedures also produce stronger
+placebo effects than pills or injections — which is a good reminder that these ten items
+are not mutually exclusive.</p>
+
+<h3 id="the-iowa-liquor-example-shows-time-frame-and-measurement-error-compounding">The Iowa liquor example shows time-frame and measurement error compounding</h3>
+
+<ul>
+  <li>One year after the policy change: a significant jump in consumption. Conclusion: <strong>policy
+bad.</strong></li>
+  <li>Two or more years after: the jump was new stores stocking their shelves. Conclusion:
+<strong>policy good.</strong></li>
+</ul>
+
+<p>And the deck’s aside is as important as the main lesson: “consumption” here is measured as
+<em>wholesale volume</em>, not consumer consumption. So the study has a serious measurement problem
+(#8) sitting underneath its time-frame problem (#9).</p>
+
+<h3 id="how-to-use-this-in-the-assignment">How to use this in the assignment</h3>
+
+<p>Your job is to make a strong case, using the item definitions and the evidence in the case
+study. For items 1 and 2, look for what the study did to <em>rule them out</em> — a balance table,
+an attrition analysis — and score down if it is absent. For items 3–10, look for positive
+evidence in the study that the threat is live. Both directions require argument from
+evidence, not assertion.</p>
+
+  </section>
+
+<section id="clear">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>What should be clear in my mind?</h2>
+    <p class="sub">The checklist to run against a study before crediting the program.</p>
+  </div>
+
+<h3 id="the-checklist-in-order">The checklist, in order</h3>
+
+<ol>
+  <li>Could people select into the program? What did the study do about it?</li>
+  <li>Who left, and did the study check whether leavers differ from stayers?</li>
+  <li>Would the outcome have grown on its own (maturation)?</li>
+  <li>Was something moving in the wider world (secular trend)?</li>
+  <li>Do the data have cycles, and were like periods compared?</li>
+  <li>Were subjects tested repeatedly on the same instrument?</li>
+  <li>Was the study group selected because it was extreme?</li>
+  <li>How well is the dependent variable measured?</li>
+  <li>Was the observation window long enough to see the effect, and short enough to retain
+the sample?</li>
+  <li>Did anything happen to one group and not the other during the study?</li>
+</ol>
+
+<h3 id="key-takeaways">Key takeaways</h3>
+
+<ul>
+  <li>A significant result identifies a change; a Campbell Score is what identifies the <em>cause</em>.</li>
+  <li>Ten competing hypotheses, in four families: selection, trends, calibration, contamination.</li>
+  <li>Selection and attrition are guilty until proven innocent. The other eight require you to
+make an evidence-based argument that they are present.</li>
+  <li>Most trend threats — maturation, secular trends, testing — are solved by the same tool: a
+comparison group.</li>
+  <li><code>T2 − C2</code> only removes the trend cleanly when the groups started equal; diff-in-diff works
+even when they did not.</li>
+  <li>Measurement error biases toward zero, so a null result in a badly measured study is weak
+evidence of no effect.</li>
+  <li>Regression to the mean manufactures apparent improvement whenever a program targets the
+worst performers.</li>
+</ul>
+
+  </section>
+
+</div>
+</body>
+</html>

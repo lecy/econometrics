@@ -1,0 +1,615 @@
+---
+title: "PCA versus Factor Analysis"
+subtitle: "Two methods that produce similar-looking output and answer different questions."
+output:
+  html_document:
+    theme: null
+    highlight: tango
+    toc: true
+    toc_depth: 2
+    df_print: kable
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE,
+  fig.width = 9, fig.height = 6, dpi = 96
+)
+```
+
+<!-- Web fonts load at view time; data-external keeps them out of the self-contained file -->
+<link rel="stylesheet" data-external="1" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap">
+
+## Purpose
+
+Principal component analysis (PCA) and factor analysis (FA) are often confused, and in
+practice they are sometimes used interchangeably. Both take a large set of correlated
+variables and return a few dimensions with loadings and scores. But they rest on different
+models of where the data come from. This walkthrough:
+
+1. Explains the **conceptual and statistical difference** between FA and PCA.
+2. Explains what `psych::principal()` is actually doing.
+3. Fits a **four-dimension solution both ways** on the same census data and compares the
+   loadings, the variance explained, and the scores.
+
+It builds on the [Factor Analysis](measurement-factor-analysis.html) walkthrough, which uses
+the same data and explains how the four-factor solution was chosen.
+
+## 1. Two different questions
+
+### Factor analysis
+
+**Question:** *What latent constructs could be generating these observed variables?*
+
+FA is a **measurement model**. Each observed variable is treated as an imperfect indicator of
+a smaller set of latent factors, plus error:
+
+$$
+X = \Lambda F + \epsilon
+$$
+
+- $\Lambda$: loadings, how strongly each variable reflects each factor
+- $\epsilon$: uniqueness, the variance not explained by the factors, including measurement
+  error
+
+FA models only the **shared (common) variance** and sets the unique variance aside.
+
+### Principal component analysis
+
+**Question:** *How can we re-express the data with fewer variables while keeping as much of
+the variance as possible?*
+
+PCA is a **data compression** method, a rotation of the coordinate system. Each component is
+a weighted sum of the observed variables, chosen to capture as much variance as possible:
+
+$$
+C = W X
+$$
+
+The arrows run the other way. In FA, the factors *cause* the variables. In PCA, the
+components are *built from* the variables. PCA does not model:
+
+- latent causes
+- measurement error
+- the split between common and unique variance
+
+> **One-line intuition.** FA tries to explain the *covariance* among variables. PCA tries to
+> preserve their *total variance*.
+
+## 2. Common versus total variance
+
+| | Factor analysis | PCA |
+|---|---|---|
+| Models latent variables | Yes | No |
+| Separates common from unique variance | Yes | No |
+| Includes an error term | Yes | No |
+| Treats all variance as signal | No | Yes |
+| Built for theory and construct measurement | Yes | Sometimes |
+| Built for compression and prediction features | Sometimes | Yes |
+
+**The practical implication:** PCA loadings usually look *stronger* than FA loadings. PCA
+counts all of a variable's variance, including the noise, as something to explain. FA
+loadings reflect only the variance a variable shares with the others.
+
+### What loadings and scores mean
+
+**Loadings**
+
+- **FA loading:** how strongly does this variable *measure* the latent factor?
+- **PCA loading:** how strongly does this variable *contribute* to the component?
+
+**Scores**
+
+- **FA factor scores:** estimates of each case's value on the latent trait. They are
+  model-based, and they contain estimation error.
+- **PCA component scores:** exact projections of each case onto the component axes. They
+  are geometry, not estimates.
+
+Rotation, such as varimax, makes both solutions easier to read, but **rotating PCA does not
+turn it into FA**.
+
+## 3. What `psych::principal()` is doing
+
+A common snippet looks like this:
+
+```r
+pc4 <- principal(d, nfactors = 4, rotate = "varimax", scores = TRUE)
+print.psych(pc4, cut = 0.3, sort = TRUE)
+```
+
+This is **PCA**, even though the argument is named `nfactors`. `psych::principal()` extracts
+principal components, optionally rotates them, and returns component scores. The `psych`
+package uses the same argument names for both methods so the output is easy to compare, which
+is also why the two are easy to confuse.
+
+## 4. Setup and data
+
+```{r packages}
+# Install once if needed:
+# install.packages(c("tidyverse", "psych", "GPArotation", "pander"))
+
+library(tidyverse)     # data import and wrangling
+library(psych)         # principal(), fa()
+library(GPArotation)   # rotation methods
+library(pander)        # clean tables in the knitted report
+
+# Read local copies if they sit next to this file; otherwise read from the course repo.
+repo <- "https://raw.githubusercontent.com/lecy/econometrics/main/lectures2/data/"
+data_path <- if (file.exists("census-data.csv"))    "census-data.csv"    else paste0(repo, "census-data.csv")
+dd_path   <- if (file.exists("census-data-dd.csv")) "census-data-dd.csv" else paste0(repo, "census-data-dd.csv")
+
+out_dir <- "fa_vs_pca_outputs"
+dir.create(out_dir, showWarnings = FALSE)
+```
+
+For comparability, both methods get identical inputs:
+
+1. Median imputation for any missing values (a simple exploratory default)
+2. Z-score standardization, so both methods analyze the correlation matrix
+
+```{r prep}
+dat <- readr::read_csv(data_path, show_col_types = FALSE)
+dd  <- readr::read_csv(dd_path,   show_col_types = FALSE)
+
+stopifnot(all(c("LABEL", "VARIABLE") %in% names(dd)))
+vars <- dd$LABEL
+stopifnot(all(vars %in% names(dat)))
+
+median_impute <- function(x) ifelse(is.na(x), median(x, na.rm = TRUE), x)
+
+X_z <- dat %>%
+  dplyr::select(all_of(vars)) %>%
+  mutate(across(everything(), ~ median_impute(as.numeric(.x)))) %>%
+  scale() %>%
+  as.data.frame()
+
+dim(X_z)
+```
+
+## 5. Fit PCA and FA with four dimensions
+
+Both use `varimax` rotation, so each solution has uncorrelated dimensions and is as easy to
+read as possible.
+
+### PCA with `psych::principal()`
+
+```{r fit-pca}
+pca4 <- psych::principal(
+  X_z,
+  nfactors = 4,           # number of components to keep
+  rotate   = "varimax",   # orthogonal rotation
+  scores   = TRUE         # return component scores
+)
+```
+
+### FA with `psych::fa()`
+
+Principal axis factoring (`fm = "pa"`) models only the common variance. As explained in the
+Factor Analysis walkthrough, this four-factor solution produces a Heywood-case warning,
+because two pairs of variables are near-duplicates. It is suppressed here.
+
+```{r fit-fa4}
+fa4 <- suppressWarnings(psych::fa(
+  X_z,
+  nfactors = 4,
+  fm       = "pa",          # principal axis factoring
+  rotate   = "varimax",
+  scores   = "regression"   # regression-method factor scores
+))
+```
+
+## 6. Line up the dimensions
+
+Neither method guarantees that its first dimension matches the other method's first
+dimension. PCA names its rotated components `RC1`–`RC4` and FA names its factors `PA1`–`PA4`,
+and the numbering doesn't correspond. Before comparing, **match each factor to the component
+whose scores correlate with it most strongly**, and flip the sign if needed. The sign of a
+loading column is arbitrary in both methods.
+
+```{r align}
+cross <- cor(fa4$scores, pca4$scores)
+round(cross, 2)
+
+# For each FA factor, the PCA component it matches best
+match_pc <- colnames(cross)[apply(abs(cross), 1, which.max)]
+names(match_pc) <- rownames(cross)
+stopifnot(!anyDuplicated(match_pc))
+match_sign <- sign(cross[cbind(rownames(cross), match_pc)])
+names(match_sign) <- rownames(cross)
+
+# Construct names from the Factor Analysis walkthrough
+factor_names <- c(PA1 = "ses", PA2 = "stability", PA4 = "immigrant", PA3 = "aging")
+fa_order <- names(factor_names)
+
+tibble(
+  construct = factor_names[fa_order],
+  fa_factor = fa_order,
+  pca_component = match_pc[fa_order],
+  score_correlation = round(cross[cbind(fa_order, match_pc[fa_order])], 3)
+)
+```
+
+Every factor has a clear partner component. The four dimensions are the same constructs
+under either method: socioeconomic status, household stability, immigrant communities, and
+aging population.
+
+## 7. Compare the loadings side by side
+
+```{r compare-loadings}
+L_fa  <- unclass(fa4$loadings)[, fa_order]
+L_pca <- sweep(unclass(pca4$loadings)[, match_pc[fa_order]], 2, match_sign[fa_order], `*`)
+colnames(L_fa)  <- paste0("FA_",  factor_names[fa_order])
+colnames(L_pca) <- paste0("PCA_", factor_names[fa_order])
+
+loadings_compare <- dd %>%
+  dplyr::select(LABEL, VARIABLE) %>%
+  left_join(as.data.frame(L_pca) %>% rownames_to_column("LABEL"), by = "LABEL") %>%
+  left_join(as.data.frame(L_fa)  %>% rownames_to_column("LABEL"), by = "LABEL")
+
+readr::write_csv(loadings_compare, file.path(out_dir, "loadings_pca_vs_fa.csv"))
+```
+
+Show each construct's PCA and FA loadings next to each other, for the variables where either
+method has a loading of at least 0.40 on that construct.
+
+```{r loadings-by-construct, results="asis"}
+for (k in unname(factor_names[fa_order])) {
+  tab <- loadings_compare %>%
+    transmute(LABEL, VARIABLE,
+              PCA = .data[[paste0("PCA_", k)]],
+              FA  = .data[[paste0("FA_",  k)]],
+              pca_minus_fa = abs(PCA) - abs(FA)) %>%   # compare sizes, ignoring sign
+    filter(pmax(abs(PCA), abs(FA)) >= 0.40) %>%
+    arrange(desc(abs(PCA))) %>%
+    mutate(across(c(PCA, FA, pca_minus_fa), ~ sprintf("%.2f", .x)))
+  cat("\n### ", k, "\n\n", sep = "")
+  pander::pandoc.table(tab, justify = "llrrr", split.table = Inf)
+}
+```
+
+The `pca_minus_fa` column compares the size of the two loadings, ignoring sign. Two patterns
+stand out:
+
+- **Strong indicators barely change.** College degrees, income, and homeownership load within
+  about 0.03 of each other under both methods. When most of a variable's variance is shared,
+  there is little unique variance for the two methods to disagree about.
+- **Weaker indicators load higher in PCA.** Female labor force participation, children, and
+  vacant units on the aging dimension, and percent Black on the stability dimension, gain
+  roughly 0.08 to 0.12 under PCA. FA sets much of their variance aside as unique; PCA counts
+  it. This is the common-versus-total-variance difference in action.
+
+The main exceptions run the other way: percent speaking another language and percent 60 and
+older load *higher* in FA. These are the near-duplicate variables behind the Heywood warning,
+where FA treats essentially all of the variance as shared.
+
+## 8. Variance explained and communalities
+
+Both methods report a **communality** ($h^2$) for each variable: the share of its variance
+captured by the four dimensions. In FA, the rest is uniqueness. In PCA, the rest is simply
+variance the four components left behind.
+
+```{r communalities}
+comm <- tibble(
+  LABEL   = names(fa4$communality),
+  h2_pca  = unname(pca4$communality),
+  h2_fa   = unname(fa4$communality)
+) %>%
+  left_join(dd, by = "LABEL") %>%
+  relocate(LABEL, VARIABLE)
+
+summarise(comm,
+          mean_h2_pca = mean(h2_pca),
+          mean_h2_fa  = mean(h2_fa),
+          share_pca_higher = mean(h2_pca > h2_fa))
+
+# Variables where FA reports the higher communality
+comm %>% filter(h2_fa >= h2_pca) %>% mutate(across(c(h2_pca, h2_fa), ~ round(.x, 2)))
+```
+
+```{r communality-plot, fig.width=6.5, fig.height=6.5}
+lim <- c(0, 1.05)
+plot(comm$h2_fa, comm$h2_pca, xlim = lim, ylim = lim,
+     pch = 19, col = "#bd5416", bty = "n",
+     xlab = "Communality in factor analysis",
+     ylab = "Communality in PCA",
+     main = "Communality: PCA versus factor analysis")
+abline(0, 1, lty = 2, col = "#6d7681")
+text(comm$h2_fa, comm$h2_pca, comm$LABEL, pos = 4, cex = 0.6, col = "#4d565f")
+```
+
+Points above the dashed line are variables where PCA claims more variance than FA, which is
+`r round(100 * mean(comm$h2_pca > comm$h2_fa))`% of them. The gap tends to be widest for
+variables with low FA communalities, such as percent 17 and under and female labor force
+participation. Those are the noisy indicators, where FA attributes most of the variance to
+uniqueness and PCA keeps it. The few points below the line are the near-duplicates and a
+handful of very strong indicators.
+
+The same pattern shows up in total variance explained:
+
+```{r variance-explained}
+round(pca4$Vaccounted[c("SS loadings", "Proportion Var", "Cumulative Var"), ], 2)
+round(fa4$Vaccounted[c("SS loadings", "Proportion Var", "Cumulative Var"), ], 2)
+```
+
+## 9. Compare the scores
+
+Both methods produce a score on each dimension for every neighborhood. How similar are they,
+and how independent is each set?
+
+```{r compare-scores}
+scores_fa <- as.data.frame(fa4$scores)[, fa_order]
+names(scores_fa) <- paste0("FA_", factor_names[fa_order])
+
+scores_pca <- sweep(as.data.frame(pca4$scores)[, match_pc[fa_order]], 2, match_sign[fa_order], `*`) %>%
+  as.data.frame()
+names(scores_pca) <- paste0("PCA_", factor_names[fa_order])
+
+# Within-method correlations
+round(cor(scores_pca), 3)
+round(cor(scores_fa), 3)
+
+# Matched pairs across methods
+round(diag(cor(scores_pca, scores_fa)), 3)
+
+readr::write_csv(scores_pca, file.path(out_dir, "scores_pca4.csv"))
+readr::write_csv(scores_fa,  file.path(out_dir, "scores_fa4.csv"))
+readr::write_csv(
+  as.data.frame(round(cor(scores_pca, scores_fa), 3)) %>% rownames_to_column("PCA_component"),
+  file.path(out_dir, "score_correlations_pca_vs_fa.csv")
+)
+```
+
+Three things to notice:
+
+- **PCA component scores are exactly uncorrelated.** They are exact projections onto
+  orthogonal axes.
+- **FA factor scores are only approximately uncorrelated.** The factors are orthogonal, but
+  the scores are *estimates* of them, and estimation error introduces small correlations.
+- **The matched scores are highly correlated** across methods (roughly 0.9 or higher). For a
+  large, well-structured set of variables, the two methods agree on *which* dimensions exist.
+  They disagree about how much of each variable is signal.
+
+## 10. When to use which
+
+### Prefer factor analysis when
+
+- You want interpretable **latent constructs** that you can name and defend
+- You care about **measurement validity**, meaning the split between common and unique
+  variance
+- You treat the variables as indicators of underlying neighborhood conditions
+
+### Prefer PCA when
+
+- You want compact features for **prediction** or **dimension reduction**
+- You want to keep as much of the total variance as possible in fewer dimensions
+- You don't need a latent-variable or measurement interpretation
+
+### A practical workflow
+
+Many projects:
+
+1. Run PCA as a quick check of the structure.
+2. Run FA to interpret and report the constructs.
+3. Use FA factor scores, or PCA components, as predictors in later models.
+
+## Outputs
+
+Knitting this file writes four files to `fa_vs_pca_outputs/`:
+
+- `loadings_pca_vs_fa.csv`: aligned PCA and FA loadings for every variable
+- `scores_pca4.csv`: aligned PCA component scores
+- `scores_fa4.csv`: FA factor scores
+- `score_correlations_pca_vs_fa.csv`: correlations between the two sets of scores
+
+
+```{css, echo=FALSE}
+/* Matches the course notes pages (lectures2/*-notes.html) */
+:root{
+  --ground:#ffffff;
+  --surface:#f3f4f6;
+  --ink:#1f2429;
+  --ink-mid:#4d565f;
+  --ink-soft:#6d7681;
+  --rule:#dcdfe4;
+  --rule-strong:#c3c8cf;
+  --accent:#bd5416;
+  --accent-ink:#8f3f10;
+  --accent-wash:#fbf0e7;
+  --navy:#153243;
+  --pumpkin:#dc965a;
+  --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+  --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --font-code:"Source Code Pro",Consolas,"Courier New",monospace;
+  --measure:40rem;
+}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:1.0625rem;
+  line-height:1.62;
+  max-width:52rem;
+  margin:0 auto;
+  padding:0 1.5rem 5rem;
+}
+
+/* ---------- masthead (theme: null renders a bare h1.title + h3.subtitle) ---------- */
+h1.title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:2.75rem;
+  line-height:1.06;
+  letter-spacing:-.015em;
+  margin:0;
+  padding-top:3.5rem;
+}
+h1.title::before{
+  content:"Measurement Theory · R walkthrough";
+  display:block;
+  font-family:var(--font-body);
+  font-size:.8125rem;
+  line-height:1.4;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--accent-ink);
+  margin-bottom:.9rem;
+}
+h3.subtitle{
+  font-family:var(--font-body);
+  font-weight:400;
+  font-size:1.25rem;
+  line-height:1.5;
+  color:var(--ink-mid);
+  margin:.9rem 0 0;
+  padding-bottom:2rem;
+  border-bottom:1px solid var(--rule);
+  max-width:none;
+}
+
+/* ---------- table of contents ---------- */
+#TOC{
+  background:var(--surface);
+  border-radius:10px;
+  padding:1.25rem 1.5rem;
+  margin:2rem 0 1rem;
+}
+#TOC::before{
+  content:"Contents";
+  display:block;
+  font-size:.8125rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:var(--ink-soft);
+  margin-bottom:.5rem;
+}
+#TOC ul{list-style:none;margin:0;padding:0;columns:2 16rem;column-gap:2rem;}
+#TOC li{margin:.2rem 0;break-inside:avoid;}
+#TOC ul ul{display:none;}
+#TOC a{color:var(--ink);text-decoration:none;font-weight:600;font-size:.95rem;}
+#TOC a:hover{color:var(--accent-ink);}
+
+/* ---------- headings ---------- */
+h2{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:2rem;
+  line-height:1.14;
+  margin:3.5rem 0 1rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--rule);
+}
+h3{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.45rem;
+  line-height:1.24;
+  margin:2.25rem 0 .75rem;
+}
+h4{font-family:var(--font-body);font-weight:700;font-size:1.05rem;margin:1.75rem 0 .5rem;}
+
+p,ul,ol{max-width:var(--measure);}
+p{margin:0 0 1.05rem;}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem;}
+li{margin-bottom:.4rem;}
+li::marker{color:var(--accent);font-weight:600;}
+strong{font-weight:700;color:var(--ink);}
+a{color:var(--accent-ink);text-underline-offset:2px;}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+hr{border:0;border-top:1px solid var(--rule);margin:2.5rem 0;}
+
+/* ---------- callouts (use > blockquotes) ---------- */
+blockquote{
+  background:var(--accent-wash);
+  border:0;
+  border-radius:3px;
+  padding:1.1rem 1.3rem;
+  margin:1.5rem 0;
+  max-width:var(--measure);
+  font-size:1rem;
+}
+blockquote p:last-child{margin-bottom:0;}
+
+/* ---------- key-idea panel: wrap in <div class="concepts"> ---------- */
+.concepts{
+  background:var(--navy);
+  color:#fff;
+  border-radius:10px;
+  padding:1.75rem 2rem 1.5rem;
+  margin:1.5rem 0 2rem;
+}
+.concepts p,.concepts li{color:rgba(255,255,255,.9);}
+.concepts strong{color:var(--pumpkin);}
+.concepts li::marker{color:var(--pumpkin);}
+.concepts code{background:rgba(255,255,255,.12);color:#fff;}
+
+/* ---------- code ---------- */
+code{font-family:var(--font-code);font-size:.88em;}
+p code,li code,td code{background:var(--surface);padding:.08em .32em;border-radius:3px;color:var(--accent-ink);}
+pre{
+  font-family:var(--font-code);
+  font-size:.85rem;
+  line-height:1.5;
+  background:var(--surface);
+  border:0;
+  border-radius:3px;
+  padding:.9rem 1.1rem;
+  margin:1rem 0 1.25rem;
+  overflow-x:auto;
+}
+pre code{background:none;padding:0;color:inherit;font-size:inherit;}
+pre.r{border-left:3px solid var(--accent);}
+pre:not(.r){background:var(--ground);border:1px solid var(--rule);color:var(--ink-mid);}
+
+/* ---------- math ---------- */
+.math.display{display:block;overflow-x:auto;margin:1rem 0;}
+
+/* ---------- tables ---------- */
+table{
+  border-collapse:collapse;
+  font-size:.9rem;
+  margin:1.25rem 0 1.75rem;
+  display:block;
+  max-width:100%;
+  overflow-x:auto;
+}
+th,td{text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+thead th{
+  font-size:.75rem;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:var(--ink-soft);
+  border-bottom:1.5px solid var(--rule-strong);
+  white-space:nowrap;
+}
+td{font-variant-numeric:tabular-nums;}
+caption{
+  caption-side:top;
+  text-align:left;
+  font-size:.8rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  font-weight:700;
+  color:var(--ink-soft);
+  padding-bottom:.6rem;
+}
+
+/* ---------- figures ---------- */
+img{max-width:100%;height:auto;display:block;margin:1.25rem auto;}
+p.caption{text-align:center;font-size:.9rem;color:var(--ink-soft);font-style:italic;}
+
+@media (max-width:640px){
+  h1.title{font-size:2.1rem;}
+  h2{font-size:1.65rem;}
+  h3{font-size:1.3rem;}
+  body{padding:0 1rem 3.5rem;}
+  .concepts{padding:1.35rem 1.25rem;}
+}
+```

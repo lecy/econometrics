@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measurement Theory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Research Design</p>
+  <h1>Measurement Theory</h1>
+  <p class="dek">A reading guide for lecture p-06 — what a number actually measures, how to tell whether a scale is reliable, and what happens when a metric becomes a target.</p>
+  <nav class="jump" aria-label="Sections">
+    <a href="#concepts">Key concepts</a>
+    <a href="#relationships">Key relationships</a>
+    <a href="#clear">What should be clear</a>
+  </nav>
+</header>
+
+<section id="concepts">
+  <div class="sec-head">
+    <p class="num">Section one</p>
+    <h2>Key concepts</h2>
+    <p class="sub">Types of measures, instruments, validity, reliability, and the statistic that checks reliability.</p>
+  </div>
+
+  <div class="concepts">
+    <p class="panel-label">Key concepts</p>
+
+      <p class="claim">The same poverty rate can describe two very different communities.</p>
+<p>Harlem and Chinatown both sit in the 40–80% poverty band on the Manhattan map. In Harlem
+the residents are mostly US-born, with high rates of inter-generational poverty. Chinatown
+has many new immigrants with few financial assets but strong social capital, and their
+children are highly mobile.</p>
+
+<p>The deck makes the point with two communities that each have a <strong>25% poverty rate</strong>:</p>
+
+<ul>
+  <li><strong>Community A:</strong> 1% of the population enters poverty each year and 1% leaves.
+That leaves <strong>24% in chronic poverty</strong>.</li>
+  <li><strong>Community B:</strong> 20% enter each year and 20% leave. Only <strong>5% are chronically poor</strong>.</li>
+</ul>
+
+<p>The poverty rate measures a <em>stock</em>. It says nothing about the <em>flows</em> in and out, and the
+flows are what separate a trap from a way station.</p>
+
+      <p class="claim">A measure is only as good as the construct behind it.</p>
+<p>Before you can build an index you have to decide what it is an index <em>of</em>. The deck’s list
+for poverty: lack of money, lack of opportunity, limited access to healthcare, lack of
+education, lack of mobility, or position in a caste. It also lists “lack of character” as
+one popular theory. And is a college student on a fixed budget poor?</p>
+
+<p>A richer poverty measure might combine several dimensions: <strong>financial capital, human
+capital, social capital, physical health, and public goods.</strong> If you have good parks, free
+libraries, and public art, do you need as much money?</p>
+
+      <p class="claim">There are three types of measures.</p>
+<ul>
+  <li><strong>Direct measures</strong> count the thing itself, like the number of windshields a factory
+worker installs.</li>
+  <li><strong>Markers or predictors</strong> are direct measures that stand in as proxies for something
+harder to measure.</li>
+  <li><strong>Latent constructs</strong> can’t be observed at all, only inferred. Intelligence (IQ tests),
+depression (surveys), and health (surveys) are examples.</li>
+</ul>
+
+      <p class="claim">An instrument is the tool that turns a construct into a number.</p>
+<p>For direct measures the instruments are microscopes, spectrometers, and scales. For latent
+constructs they are <strong>survey questions, observational protocols for coding data, and
+standardized exams.</strong> The Oxford Happiness Questionnaire is an example: agree/disagree items
+on a six-point scale, some of them reverse-coded (R) so that agreement means <em>less</em> happiness.</p>
+
+      <p class="claim">Validity asks whether you measure the right thing. Reliability asks whether you measure it consistently.</p>
+<ul>
+  <li><strong>Validity:</strong> do the items measure the latent construct they claim to?</li>
+  <li><strong>Reliability:</strong> how consistently do the items measure the same construct?</li>
+</ul>
+
+<p>The deck’s four-item “good dancer” scale scores each item 0–4, for a total of 0 to 16. One
+item is “I am athletic.” It is plausibly related to dancing, but it measures a different
+construct, and the correlation structure shows it.</p>
+
+      <p class="claim">Cronbach’s alpha measures internal consistency.</p>
+<p>Alpha measures how closely related a set of items are as a group. It is the standard
+measure of <strong>scale reliability</strong>, and it runs from 0 to 1:</p>
+
+<div class="eq center" role="math" aria-label="alpha equals N times c-bar, divided by v-bar plus N minus 1 times c-bar">
+  <span class="m"><i>α</i></span><span class="op">=</span>
+  <span class="frac">
+    <span class="num m"><i>N</i> · <span class="bar"><i>c</i></span></span>
+    <span class="den m"><span class="bar"><i>v</i></span> + (<i>N</i> − 1) · <span class="bar"><i>c</i></span></span>
+  </span>
+</div>
+
+<p>where <span class="m"><i>N</i></span> is the number of items, <span class="m"><span class="bar"><i>c</i></span></span> is the average inter-item covariance, and <span class="m"><span class="bar"><i>v</i></span></span> is the
+average variance per item.</p>
+
+<div class="table-scroll">
+<table>
+  <caption>Reading an alpha score</caption>
+  <thead><tr><th>α</th><th>Reliability</th></tr></thead>
+  <tbody>
+    <tr><th>0.9 – 1.0</th><td>Excellent</td></tr>
+    <tr><th>0.8 – 0.9</th><td>Good</td></tr>
+    <tr><th>0.7 – 0.8</th><td>Acceptable</td></tr>
+    <tr><th>0.6 – 0.7</th><td>Questionable</td></tr>
+    <tr><th>below 0.6</th><td>Poor / inadequate</td></tr>
+  </tbody>
+</table>
+</div>
+    </div>
+  </section>
+
+<section id="relationships">
+  <div class="sec-head">
+    <p class="num">Section two</p>
+    <h2>Key relationships</h2>
+    <p class="sub">The mental map. How measurement connects to the regression and design problems from earlier units.</p>
+  </div>
+
+<h3 id="dropping-the-item-that-doesnt-belong-can-raise-alpha">Dropping the item that doesn’t belong can raise alpha</h3>
+
+<p>The two worked examples in the deck follow the same logic. Read the correlation matrix,
+find the items that don’t correlate with the rest, and remove them.</p>
+
+<ul>
+  <li><strong>Good dancer:</strong> all four items give <strong>α = 0.68</strong>. Drop “I am athletic” and alpha rises
+to <strong>0.86</strong>.</li>
+  <li><strong>Bro culture:</strong> six items give <strong>α = 0.16</strong>. In the correlation matrix, <em>beards</em> and
+<em>Michael Jackson</em> correlate with nothing (all near 0.02). Drop them and alpha rises to
+<strong>0.61</strong>. <em>Salmon shorts</em> correlates only weakly with the others (0.25–0.35). Drop it too
+and the three remaining items (beer pong, Family Guy, Santacon, with inter-item
+correlations of 0.65–0.91) give <strong>α = 0.89</strong>.</li>
+</ul>
+
+<p>The formula also shows the other lever. Holding the average covariance fixed, adding items
+raises alpha. A long scale can look reliable even when its items are only weakly related,
+so a high alpha is not a substitute for looking at the correlations.</p>
+
+<h3 id="reliability-is-necessary-but-not-sufficient-for-validity">Reliability is necessary but not sufficient for validity</h3>
+
+<p>The three-item bro-culture scale is highly reliable. The items hang together, because
+people who like beer pong also like Family Guy. Whether that cluster actually measures the
+traits on the slide (entitlement, disregard for others, self-destructive behavior) is a
+<em>validity</em> question, and alpha can’t answer it. A scale can consistently measure the wrong
+thing.</p>
+
+<p>The reverse doesn’t hold. An unreliable instrument can’t be valid. The Myers-Briggs reading
+is the cautionary case. Retake the test after five weeks and there is roughly a 50% chance
+you land in a different type, which is no better than a coin toss.</p>
+
+<h3 id="unreliable-measures-are-the-measurement-error-from-unit-06">Unreliable measures are the measurement error from Unit 06</h3>
+
+<p>A low-alpha scale is a noisy measure, and you already know what noise does to a regression:</p>
+
+<ul>
+  <li><strong>Noise in the outcome (Y)</strong> leaves the slope unbiased but widens the confidence
+interval. That lowers statistical power, the subject of lecture p-05.</li>
+  <li><strong>Noise in the policy variable (X)</strong> attenuates the slope toward zero.</li>
+  <li><strong>Noise in a control variable</strong> means the control only partly adjusts for the
+confounder it stands in for, so some omitted variable bias remains.</li>
+</ul>
+
+<p>Improving an instrument’s reliability improves every estimate built on top of it.</p>
+
+<h3 id="good-instruments-are-built-for-the-people-who-use-them">Good instruments are built for the people who use them</h3>
+
+<p>The examples section shows three practical designs:</p>
+
+<ul>
+  <li><strong>Progress out of Poverty Index (PPI):</strong> 10 easy questions that take 5–10 minutes, such as
+“What material is your roof made out of?” and “How many of your children are in school?”
+These are <em>markers</em>. The scored answers give the likelihood that a household is below the
+poverty line, and the questions are calibrated separately for each country.</li>
+  <li><strong>Krishna’s Stages of Progress:</strong> villagers in 50 Gujarat villages ranked the order in
+which households spend as they escape poverty, starting with food, clothes, a better roof,
+school enrollment, and repaying debts. The ordering itself becomes the scale.</li>
+  <li><strong>The Apgar score:</strong> five signs (heart rate, respiration, muscle tone, reflex irritability,
+and skin color), each scored 0–2, for a total of 0–10. It is taken right after birth and
+again five minutes later. It is fast, standardized, and repeated.</li>
+</ul>
+
+<h3 id="measurement-is-inherently-political">Measurement is inherently political</h3>
+
+<p>Tie a metric to rewards and penalties and it starts to change the behavior it was meant to
+record. The deck lists five challenges:</p>
+
+<ol>
+  <li>What if we can’t measure what we care about?</li>
+  <li>Data collection costs time and money.</li>
+  <li><strong>Perverse incentives.</strong> Under <em>multi-tasking</em>, what gets measured gets done at the
+expense of everything else. Under <em>creaming</em>, providers avoid serving the poorest and
+hardest cases.</li>
+  <li><strong>Poor counterfactuals.</strong> Most agencies lack the capacity to evaluate properly.</li>
+  <li>Fatigue from reporting to multiple stakeholders.</li>
+</ol>
+
+<p>The Humans of New York teacher makes the fourth point concrete. Forty percent of their job
+rating depends on test scores, which also reflect abuse at home, missed breakfasts, and late
+arrivals. A rating built on raw outcomes, without a counterfactual, holds a person
+accountable for things they don’t control. The closing slides, drawn from Soss, Fording, and
+Schram’s <em>The Organization of Discipline</em>, argue that performance management doesn’t just
+measure agents. It reshapes what they do.</p>
+
+<h3 id="how-to-read-the-slides">How to read the slides</h3>
+
+<ul>
+  <li><strong>Slides 1–9:</strong> the poverty-rate example, and what a better index would include.</li>
+  <li><strong>Slides 10–13:</strong> types of measures and instruments.</li>
+  <li><strong>Slides 14–35:</strong> reliability, Cronbach’s alpha, and the two item-pruning examples.
+Read these most carefully.</li>
+  <li><strong>Slides 36–39:</strong> three practical instruments.</li>
+  <li><strong>Slides 40–47:</strong> the politics of measurement.</li>
+</ul>
+
+<p>The <a href="https://jdlecy.shinyapps.io/measurement-lab/#section-warmup">measurement lab app</a> is the hands-on companion. Work through it after slides 14–35.</p>
+
+  </section>
+
+<section id="clear">
+  <div class="sec-head">
+    <p class="num">Section three</p>
+    <h2>What should be clear in my mind?</h2>
+    <p class="sub">The questions to ask before you trust an outcome variable.</p>
+  </div>
+
+<h3 id="questions-to-ask-of-any-outcome-measure">Questions to ask of any outcome measure</h3>
+
+<ul>
+  <li>Is this a direct measure, a marker, or a latent construct?</li>
+  <li>If it is latent, what instrument produced it, and has that instrument been validated?</li>
+  <li>Is reliability reported? Is alpha at least 0.7?</li>
+  <li>Does the measure capture a stock when the program is meant to change flows?</li>
+  <li>Could the people being measured move the number without moving the outcome?</li>
+  <li>Does the metric hold someone accountable for things outside their control?</li>
+</ul>
+
+<h3 id="key-takeaways">Key takeaways</h3>
+
+<ul>
+  <li>Two places with the same rate can have very different underlying realities, so ask what
+the number summarizes and what it hides.</li>
+  <li>Most outcomes in public policy are latent constructs, measured only through an instrument.</li>
+  <li>Validity means measuring the right construct. Reliability means measuring it consistently.</li>
+  <li>Cronbach’s alpha measures internal consistency. Aim for 0.7 or higher, and use the item
+correlations to find items that don’t belong.</li>
+  <li>A reliable scale can still be invalid, but an unreliable scale can’t be valid.</li>
+  <li>Measurement error has regression consequences: noisy outcomes cost power, and noisy
+predictors bias slopes toward zero.</li>
+  <li>Once a metric carries rewards or penalties, expect people to optimize the metric.</li>
+</ul>
+
+  </section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+---
+title: "Report Title"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    highlight: tango
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+# Global knit options: defaults for every chunk in the document
+knitr::opts_chunk$set(
+  echo = TRUE,       # show code
+  message = FALSE,   # hide package startup messages
+  warning = FALSE,   # hide warnings
+  fig.width = 8,     # figure size in inches
+  fig.height = 5
+)
+```
+
+```{r packages}
+# Load packages (install them once in the console, never inside the document)
+library( dplyr )
+library( pander )
+
+# Source your own helper functions (local file or URL)
+# source( "R/helper-functions.R" )
+```
+
+```{r data}
+# Local file: path is relative to the folder holding this .rmd file
+# dat <- read.csv( "data/my-data.csv" )
+
+# File on the web: use the "raw" URL
+# dat <- read.csv( "https://raw.githubusercontent.com/user/repo/main/data.csv" )
+
+# Built-in example data so the template knits as-is
+dat <- mtcars
+```
+
+# Introduction
+
+Write prose in markdown. Use **bold**, *italics*, [links](https://rmarkdown.rstudio.com/), and lists:
+
+* first point
+* second point
+
+The data contain `r nrow(dat)` observations.
+
+# Model
+
+We estimate the model:
+
+$$
+mpg = \beta_0 + \beta_1 \cdot weight + \epsilon
+$$
+
+```{r model}
+m <- lm( mpg ~ wt, data = dat )
+pander( m )
+```
+
+```{r plot, fig.cap="Fuel efficiency declines with vehicle weight."}
+plot( dat$wt, dat$mpg, pch = 19, col = "gray40",
+      xlab = "Weight (1000 lbs)", ylab = "Miles per gallon", bty = "n" )
+abline( m, col = "firebrick", lwd = 2 )
+```
+
+# Conclusion
+
+Summarize the findings here.
+
+```{css, echo=FALSE}
+/* Embedded style sheet: applies to the HTML output only */
+h1 { color: #153243; margin-top: 2em; }
+p  { max-width: 45em; }
+```

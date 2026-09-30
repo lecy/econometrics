@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Replicating Finn and Achilles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .codesheet{min-width:46rem;}
+  .codesheet td{vertical-align:top;}
+  .codesheet td:first-child{
+    font-family:var(--font-math);
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+  }
+  .codesheet td:last-child{color:var(--ink-mid);}
+  .codesheet tr.group td{
+    font-family:var(--font-body);
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    background:var(--surface);
+    padding:.45rem .85rem;
+  }
+  .designs{min-width:48rem;}
+  .designs td{vertical-align:top;}
+  .designs td:first-child{font-weight:600;color:var(--ink);}
+  .designs td:nth-child(3){font-family:var(--font-math);white-space:nowrap;}
+  .designs td:last-child{font-family:var(--font-math);font-size:.78rem;color:var(--ink-mid);}
+  .worked{
+    border-left:3px solid var(--accent);
+    padding:.2rem 0 .2rem 1.2rem;
+    margin:1.6rem 0 2rem;
+    max-width:40rem;
+  }
+  .worked .tag{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--accent-ink);
+    margin:0 0 .5rem;
+  }
+  .coded{min-width:30rem;max-width:40rem;}
+  .coded td:first-child{font-family:var(--font-math);color:var(--accent-ink);font-weight:600;white-space:nowrap;width:1%;}
+</style>
+<style>
+  .where{min-width:48rem;}
+  .where td{vertical-align:top;}
+  .where td:first-child{font-weight:600;color:var(--ink);width:22%;}
+  .where td:nth-child(2){font-family:var(--font-math);white-space:nowrap;color:var(--accent-ink);font-weight:600;width:1%;}
+  .where td:last-child{color:var(--ink-mid);}
+  .nums{min-width:34rem;max-width:46rem;}
+  .nums td,.nums th{font-variant-numeric:tabular-nums;}
+  .nums td:not(:first-child){font-family:var(--font-math);text-align:right;}
+  .nums thead th:not(:first-child){text-align:right;}
+  .nums tr.hl td{background:var(--accent-wash);}
+  .decision{
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.1rem 0 1.4rem;
+    max-width:40rem;
+  }
+  .decision p{max-width:none;margin-bottom:.55rem;}
+  .decision p:last-child{margin-bottom:0;}
+  .decision .lbl{
+    font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);
+    margin-right:.35rem;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;background:var(--surface);padding:.05em .3em;border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Replicating Shin and Chung: Finn and Achilles (1990)</h1>
+    <p class="dek">This is the first of the replication case studies. Shin and Chung (2009) list Finn and Achilles (1990) as
+      one of their 17 studies, but they don't say which numbers they took from it. This guide rebuilds that
+      coding step by step. It shows where each statistic sits in the article and which decisions you have to
+      make along the way. Read <a href="../class-size-coding-notes.html">Coding Class Size Studies</a> first. The
+      R code is in <a href="finn_achilles_1990.R"><span class="m">replication/finn_achilles_1990.R</span></a>.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#glance">The study</a>
+      <a href="#where">Where the numbers are</a>
+      <a href="#reproduce">Reproduce the authors</a>
+      <a href="#decisions">Decision points</a>
+      <a href="#coded">Coded rows</a>
+      <a href="#shin-chung">Compare with Shin &amp; Chung</a>
+      <a href="#exercises">Exercises</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">What this replication is meant to teach, stated as claims.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Reproduce the authors&rsquo; numbers before computing your own.</p>
+      <p>If you can get back the effect sizes printed in the paper, you know what each table means, which SD
+        was used, and how the contrast was defined. If you can&rsquo;t, you have misread something. Work that
+        out before going further.</p>
+
+      <p class="claim">Most of the work is finding the right standard deviation.</p>
+      <p>The means are in one table. The SD you need is in a <strong>different</strong> table, in a row
+        explained only by a footnote. A second SD, computed across class means, is never printed at all.
+        Using the wrong one nearly triples the effect size.</p>
+
+      <p class="claim">Papers rarely report everything a meta-analyst needs.</p>
+      <ul>
+        <li>This paper gives no student counts per arm, no SD for small classes, and no test statistics,
+          only <span class="m"><i>p</i></span>-value thresholds.</li>
+        <li>You will impute some numbers. That is normal. Leaving the imputation undocumented is the
+          problem.</li>
+      </ul>
+
+      <p class="claim">Every decision changes the number, so write every decision down.</p>
+      <div class="chain">control group &rarr; standardizer &rarr; sample sizes &rarr; dichotomous outcomes &rarr; clustering &rarr; multiple outcomes &rarr; what to leave out</div>
+      <p>For SAT reading, the same article supports an effect size anywhere from <span class="m">0.23</span>
+        to <span class="m">0.64</span>, depending on these choices.</p>
+    </div>
+  </section>
+
+  <section id="glance">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The study at a glance</h2>
+      <p class="sub">Tennessee&rsquo;s Project STAR, first-grade results after two years of the experiment.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Feature</th><th scope="col">What the paper says</th><th scope="col">Page</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Design</th>
+            <td>Randomized experiment. Pupils and teachers were assigned at random to class types
+              <em>within</em> each school, in separate steps.</td><td>559&ndash;560</td></tr>
+          <tr><th scope="row">Arms</th>
+            <td>Small (13&ndash;17 pupils), regular (22&ndash;25), regular with a full-time aide (22&ndash;25).
+              In practice about 15 vs. 22 pupils present, a 32% reduction.</td><td>559&ndash;560</td></tr>
+          <tr><th scope="row">Sample</th>
+            <td>76 schools. After screening, 6,570 Grade 1 students in 331 classes: 122 small, 111 regular,
+              98 aide.</td><td>559&ndash;560</td></tr>
+          <tr><th scope="row">Outcomes</th>
+            <td>Stanford Achievement Test (SAT): word study skills, reading, total math. Basic Skills
+              First (BSF) curriculum tests in reading and math, scored pass/fail. SCAMIN motivation and
+              self-concept.</td><td>561&ndash;562</td></tr>
+          <tr><th scope="row">Analysis</th>
+            <td>Multivariate ANOVA on <strong>class means</strong> computed separately for white and minority
+              pupils in each class. Schools random, nested in location.</td><td>562</td></tr>
+          <tr><th scope="row">Complication</th>
+            <td>After kindergarten, half the regular and half the aide pupils were swapped between those
+              two arms. Small-class pupils were never reassigned.</td><td>560</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>Page numbers.</strong> This guide uses the journal page numbers printed on each page
+        (557&ndash;577). In the JSTOR PDF, add 2 to get the PDF page: journal page 566 is PDF page 11, because of
+        the JSTOR cover sheet.</p>
+    </div>
+  </section>
+
+  <section id="where">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Where to find each statistic</h2>
+      <p class="sub">Everything a standardized mean difference needs, with its location in the article and what to watch for.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="where">
+        <caption>Extraction map: Finn and Achilles (1990)</caption>
+        <thead><tr><th scope="col">Statistic</th><th scope="col">Location</th><th scope="col">Watch out for</th></tr></thead>
+        <tbody>
+          <tr><td>Means by class type (all students)</td><td>Table 5, p. 566</td>
+            <td>The top panel. BSF columns are the average <em>percentage passing</em>, not scale scores
+              (footnote a).</td></tr>
+          <tr><td>Student-level SD</td><td>Table 3, p. 564</td>
+            <td>The last row, labeled only &ldquo;Standard deviation.&rdquo; Footnote b says it is for
+              <strong>all pupils in regular classes only</strong>. Table 5 doesn&rsquo;t print it, so
+              you have to look back two pages.</td></tr>
+          <tr><td>SD of class means</td><td>Not printed</td>
+            <td>Table 5 reports effect sizes using it (&ldquo;Class SD&rdquo;), but never the SD itself. You
+              can back it out as mean difference &divide; class-level effect size.</td></tr>
+          <tr><td>SD for small classes</td><td>Not printed</td>
+            <td>So a pooled SD can&rsquo;t be computed. The authors used the regular-class SD, which is
+              Glass&rsquo;s &Delta;.</td></tr>
+          <tr><td>Students per arm</td><td>Not printed</td>
+            <td>Only the total (6,570, p. 560), classes per arm (122 / 111 / 98, p. 560), and typical class
+              size (&ldquo;about 22&rdquo; and &ldquo;about 15,&rdquo; p. 559).</td></tr>
+          <tr><td>The authors&rsquo; effect sizes</td><td>Table 5, p. 566</td>
+            <td>Bottom panel. Two contrasts, each in two metrics. Footnotes c and d define the metrics.</td></tr>
+          <tr><td>How the contrast is defined</td><td>Table 6 note, p. 567</td>
+            <td>&ldquo;Small &minus; (Regular + Aide)/2.&rdquo; The comparison is <em>not</em> small vs.
+              regular. It&rsquo;s stated only in a footnote to a later table.</td></tr>
+          <tr><td>Means and SDs by race</td><td>Table 4, p. 565</td>
+            <td>Separate SDs for white and minority pupils, again from regular classes only.</td></tr>
+          <tr><td>How BSF was scored</td><td>p. 561; notes to Tables 3&ndash;5</td>
+            <td>Pass = mastering 80% of objectives. Tests used log-odds of the class pass rate, but the
+              SD row scores each pupil 0/1.</td></tr>
+          <tr><td>Test statistics</td><td>Table 2, p. 563</td>
+            <td>Only <span class="m"><i>p</i> &lt;</span> thresholds, with no <span class="m"><i>F</i></span>,
+              <span class="m"><i>t</i></span>, or <span class="m">df</span>. You can&rsquo;t convert from test
+              statistics, so means and SDs are the only route.</td></tr>
+          <tr><td>Longitudinal subsample</td><td>Tables 8&ndash;11, pp. 570&ndash;573</td>
+            <td>Kindergarten and Grade 1 means for 35% of the same pupils. No SDs.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The numbers typed into the R script, exactly as printed:</p>
+    <div class="table-scroll">
+      <table class="nums">
+        <caption>Grade 1 means (Table 5) and student SDs (Table 3)</caption>
+        <thead><tr><th scope="col">Class type</th><th scope="col">Word study</th><th scope="col">SAT reading</th><th scope="col">BSF reading %</th><th scope="col">SAT math</th><th scope="col">BSF math %</th></tr></thead>
+        <tbody>
+          <tr><td>Small</td><td>535.5</td><td>521.8</td><td>68.0</td><td>536.9</td><td>84.4</td></tr>
+          <tr><td>Regular</td><td>520.6</td><td>505.1</td><td>55.9</td><td>523.7</td><td>78.1</td></tr>
+          <tr><td>Aide</td><td>527.2</td><td>512.7</td><td>60.0</td><td>527.7</td><td>80.2</td></tr>
+          <tr class="hl"><td>SD (regular classes)</td><td>51.55</td><td>55.48</td><td>48.56</td><td>41.60</td><td>38.91</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="reproduce">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Step one: reproduce the authors&rsquo; effect sizes</h2>
+      <p class="sub">Confirm you&rsquo;ve read the tables correctly before making any choices of your own.</p>
+    </div>
+
+    <p>Table 5 reports a small-class effect of <span class="m">.23</span> for SAT reading, &ldquo;student
+      SD.&rdquo; Following the Table 6 footnote, the contrast is small minus the average of the other two
+      arms, divided by the regular-class student SD:</p>
+    <div class="eq">
+      <span class="m"><i>&Delta;</i></span><span class="op">=</span>
+      <span class="frac"><span class="num">521.8 &minus; (505.1 + 512.7)/2</span><span class="den">55.48</span></span>
+      <span class="op">=</span>
+      <span class="frac"><span class="num">12.9</span><span class="den">55.48</span></span>
+      <span class="op">=</span><span class="m">0.233</span>
+    </div>
+    <p>The same calculation for all five outcomes (Step 2 of the R script):</p>
+    <div class="table-scroll">
+      <table class="nums">
+        <thead><tr><th scope="col">Outcome</th><th scope="col">Small &minus; others</th><th scope="col">Ours</th><th scope="col">Table 5</th></tr></thead>
+        <tbody>
+          <tr><td>Word study skills</td><td>11.60</td><td>0.225</td><td>.22</td></tr>
+          <tr><td>SAT reading</td><td>12.90</td><td>0.233</td><td>.23</td></tr>
+          <tr><td>BSF reading</td><td>10.05</td><td>0.207</td><td>.21</td></tr>
+          <tr><td>SAT math</td><td>11.20</td><td>0.269</td><td>.27</td></tr>
+          <tr><td>BSF math</td><td>5.25</td><td>0.135</td><td>.13</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>All five match to rounding. This confirms two things you couldn&rsquo;t be sure of from the text:</p>
+    <ol>
+      <li>The unlabeled SD row in Table 3 is the standardizer.</li>
+      <li>For BSF, the effect size is a <strong>percentage-point difference divided by the SD of a 0/1
+        score</strong>. That holds even though the significance tests used log-odds. The Table 5 footnote
+        mentions both, and it&rsquo;s easy to misread.</li>
+    </ol>
+    <div class="callout">
+      <p><strong>Try the race subgroups too.</strong> Applying the same contrast to Table 4 reproduces
+        Table 6. The exception is minority SAT math: the rounded means give <span class="m">.30</span>, and
+        Table 6 prints <span class="m">.31</span>. Table 6 lists the mean difference as 11.6, but the rounded
+        means give 11.55. Discrepancies of one in the last digit usually come from rounding like this. They
+        aren&rsquo;t coding errors, but note them.</p>
+    </div>
+  </section>
+
+  <section id="decisions">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>The decision points</h2>
+      <p class="sub">Seven choices between the printed tables and a coded effect size. Each one lists the options, the choice made here, and how much it moves the number.</p>
+    </div>
+
+    <h3>1. Which group is the control?</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Small vs. the average of regular and aide, as the authors did.
+        (b) Small vs. regular only.</p>
+      <p><span class="lbl">Choice</span>(b), small vs. regular.</p>
+      <p><span class="lbl">Why</span>Aide classes are the same size as regular classes (22&ndash;25). The aide
+        lowers the pupil&ndash;adult ratio without shrinking the class, so it&rsquo;s a <em>different
+        treatment</em>. The coding notes make this point about class size versus PTR. Also, the aide arm was
+        partly reshuffled after kindergarten (p. 560).</p>
+      <p><span class="lbl">Effect</span>SAT reading goes from <span class="m">0.233</span> to
+        <span class="m">(521.8 &minus; 505.1)/55.48 = 0.301</span>. Aide classes scored a little above
+        regular classes, so pooling them into the control shrinks the contrast.</p>
+    </div>
+
+    <h3>2. Which standard deviation?</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Student-level SD, regular classes (Table 3). (b) SD of class means
+        (backed out of Table 5). (c) Pooled SD across small and regular groups.</p>
+      <p><span class="lbl">Choice</span>(a).</p>
+      <p><span class="lbl">Why</span>Almost every other study in a class-size meta-analysis standardizes by
+        variation <em>between students</em>. Class means vary much less than students do (about 17&ndash;20
+        points vs. 42&ndash;55), so class-SD effect sizes are 2.5&ndash;3 times larger and can&rsquo;t be
+        mixed with the rest. Option (c) is what Shin and Chung&rsquo;s formula calls for, but the paper
+        doesn&rsquo;t print a small-class SD. Using the control SD alone is standard for randomized
+        trials (Glass&rsquo;s &Delta;).</p>
+      <p><span class="lbl">Effect</span>SAT reading small vs. others: <span class="m">0.23</span> with the
+        student SD, <span class="m">0.64</span> with the class SD.</p>
+    </div>
+
+    <h3>3. Sample sizes the paper doesn&rsquo;t report</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Impute from classes &times; typical size. (b) Split 6,570 equally.
+        (c) Look up the STAR public-use data.</p>
+      <p><span class="lbl">Choice</span>(a), then rescale so the three arms add to 6,570.</p>
+      <p><span class="lbl">Why</span>The paper gives classes per arm and typical sizes. 122 &times; 15, 111
+        &times; 22, and 98 &times; 22 sum to 6,428. Scaling up by 6,570 / 6,428 gives
+        <span class="m"><i>n</i><sub>S</sub> &asymp; 1,870</span> and
+        <span class="m"><i>n</i><sub>R</sub> &asymp; 2,496</span>.</p>
+      <p><span class="lbl">Effect</span>None on <span class="m"><i>d</i></span>. Sample sizes only enter the
+        variance, and at these sizes the Hedges correction <span class="m"><i>J</i> = 0.9998</span>. Record
+        &ldquo;n imputed&rdquo; in the notes field.</p>
+    </div>
+
+    <h3>4. Turning pass rates into a <i>d</i></h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Authors&rsquo; route: percentage-point difference &divide; SD of
+        the 0/1 score. (b) Logit route: log odds ratio &times; &radic;3/&pi;.</p>
+      <p><span class="lbl">Choice</span>(b), metafor&rsquo;s <code>OR2DL</code>.</p>
+      <p><span class="lbl">Why</span>This is the standard conversion for putting a dichotomous outcome on the
+        SMD scale (Borenstein et al., 2009, ch. 7). It also gives the same answer no matter where the pass
+        rates fall on the 0&ndash;100 scale. Route (a) depends on how close the pass rate is to 50%.</p>
+      <div class="eq">
+        <span class="m"><i>d</i></span><span class="op">=</span>
+        <span class="m">[ ln(.680/.320) &minus; ln(.559/.441) ] &times; </span>
+        <span class="frac"><span class="num">&radic;3</span><span class="den">&pi;</span></span>
+        <span class="op">=</span><span class="m">0.517 &times; 0.551 = 0.285</span>
+      </div>
+      <p><span class="lbl">Effect</span>BSF reading: <span class="m">0.249</span> (a) vs.
+        <span class="m">0.286</span> (b). BSF math: <span class="m">0.162</span> vs.
+        <span class="m">0.230</span>. Math moves more because pass rates near 80% compress raw differences.
+        Pick one rule and use it for every dichotomous outcome in the review.</p>
+    </div>
+
+    <h3>5. Clustering: students in classrooms</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Use the naive variance that treats all 4,366 students as
+        independent. (b) Inflate it by a design effect.</p>
+      <p><span class="lbl">Choice</span>(b), with the ICC estimated from the paper itself.</p>
+      <p><span class="lbl">Why</span>Treatment was assigned to classes, and pupils in the same class share a
+        teacher (Hedges, 2007). Table 5 gives just enough to estimate the intraclass correlation. If regular classes have
+        <span class="m"><i>m</i> &asymp; 22</span> pupils, the SD of class means
+        <span class="m"><i>s</i><sub>c</sub></span> and the student SD
+        <span class="m">&sigma;</span> give the between-class variance:</p>
+      <div class="eq">
+        <span class="m"><i>&tau;</i><sup>2</sup></span><span class="op">=</span>
+        <span class="frac"><span class="num"><i>s</i><sub>c</sub><sup>2</sup> &minus; &sigma;<sup>2</sup>/<i>m</i></span><span class="den">1 &minus; 1/<i>m</i></span></span>
+        <span class="op">&nbsp;&nbsp;</span>
+        <span class="m">ICC = <i>&tau;</i><sup>2</sup>/&sigma;<sup>2</sup></span>
+      </div>
+      <p>For SAT reading, <span class="m"><i>s</i><sub>c</sub> = 12.9/0.64 = 20.2</span>, so
+        <span class="m"><i>&tau;</i><sup>2</sup> = (408 &minus; 140)/0.955 = 281</span> and
+        ICC <span class="m">= 281/3078 = .091</span>. The three SAT scales give .090, .091, and .127, with a
+        mean of .103. (The BSF class-level SDs are on the log-odds scale, so they can&rsquo;t be used.) With
+        <span class="m"><i>m&#772;</i> = 6570/331 = 19.8</span> pupils per class:</p>
+      <div class="eq">
+        <span class="m">DEFF = 1 + (19.8 &minus; 1)(0.103) = 2.93</span>
+      </div>
+      <p><span class="lbl">Effect</span>The SE for SAT reading goes from <span class="m">0.031</span> to
+        <span class="m">0.053</span>, and this study&rsquo;s weight in a fixed-effect model drops by about two
+        thirds. Randomization was blocked within schools, which reduces variance, so treat this as a
+        conservative upper bound.</p>
+    </div>
+
+    <h3>6. Five outcomes from the same children</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Enter all five as if independent. (b) Keep all five rows with a
+        shared <code>study_id</code> and model the dependence (multilevel or robust variance estimation).
+        (c) Average them into one reading and one math composite. (d) Pick one outcome per subject.</p>
+      <p><span class="lbl">Choice</span>Code all five rows, flag SAT reading and SAT math as
+        <code>primary</code>, and compute composites as a sensitivity check.</p>
+      <p><span class="lbl">Why</span>Coding everything keeps the later options open. The composite variance
+        needs the correlation between subtests, which isn&rsquo;t reported. The script assumes
+        <span class="m"><i>r</i> = .7</span>. Option (a) is what makes a pooled SE look too small.</p>
+      <p><span class="lbl">Effect</span>Reading composite <span class="m">0.292</span> (SE 0.049), math
+        composite <span class="m">0.273</span> (SE 0.059).</p>
+    </div>
+
+    <h3>7. What to leave out</h3>
+    <div class="decision">
+      <p><span class="lbl">Race subgroups (Tables 4, 6)</span>These are the same students split in two. Adding
+        them alongside the overall rows counts every child twice. Use them only in a moderator analysis
+        that <em>replaces</em> the overall rows. The script computes them for that purpose.</p>
+      <p><span class="lbl">Longitudinal (Tables 9&ndash;11)</span>A 35% subset of the same Grade 1 pupils,
+        with no SDs. Leave it out.</p>
+      <p><span class="lbl">SCAMIN (Table 7)</span>Motivation and self-concept aren&rsquo;t achievement
+        outcomes, and no class-type effect was significant.</p>
+      <p><span class="lbl">Other STAR papers</span>Finn et al. (1989), Achilles (1994), Finn and Achilles
+        (1999), Mosteller (1995), and Nye et al. (1992) all report the same children. The
+        <code>dataset</code> and <code>cohort</code> columns flag the overlap so it can be resolved when the
+        other studies are coded.</p>
+    </div>
+  </section>
+
+  <section id="coded">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>The coded rows</h2>
+      <p class="sub">Output of the R script: <span class="m">replication/finn_achilles_1990_coded.csv</span>.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="nums">
+        <caption>Small vs. regular, Grade 1</caption>
+        <thead><tr><th scope="col">Outcome</th><th scope="col"><i>d</i></th><th scope="col">var (naive)</th><th scope="col">var (clustered)</th><th scope="col">SE (clustered)</th></tr></thead>
+        <tbody>
+          <tr><td>Word study skills</td><td>0.289</td><td>0.00095</td><td>0.00277</td><td>0.053</td></tr>
+          <tr class="hl"><td>SAT reading (primary)</td><td>0.301</td><td>0.00095</td><td>0.00277</td><td>0.053</td></tr>
+          <tr><td>BSF reading</td><td>0.286</td><td>0.00124</td><td>0.00364</td><td>0.060</td></tr>
+          <tr class="hl"><td>SAT math (primary)</td><td>0.317</td><td>0.00095</td><td>0.00278</td><td>0.053</td></tr>
+          <tr><td>BSF math</td><td>0.230</td><td>0.00195</td><td>0.00571</td><td>0.076</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-scroll">
+      <table class="coded">
+        <thead><tr><th scope="col">Field</th><th scope="col">Coded value (all rows)</th></tr></thead>
+        <tbody>
+          <tr><td>study_id / dataset / cohort</td><td>finn_achilles_1990 / STAR / 1985 K entry</td></tr>
+          <tr><td>design / assign_unit</td><td>RCT / students and teachers within schools</td></tr>
+          <tr><td>measure, size_S, size_L, delta</td><td>class size, 15, 22, 7</td></tr>
+          <tr><td>grade, timing, published</td><td>1, end of year 2 of treatment, 1</td></tr>
+          <tr><td>control</td><td>regular (no aide)</td></tr>
+          <tr><td>sd_type, direction</td><td>student SD in regular classes (SAT) or logit conversion (BSF), +1</td></tr>
+          <tr><td>n_S, n_L</td><td>1,870, 2,496 (imputed)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="shin-chung">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>Comparing with Shin and Chung</h2>
+      <p class="sub">What we can check against their paper, and what we can&rsquo;t.</p>
+    </div>
+
+    <p>Shin and Chung&rsquo;s Table 2 codes this study as: AERJ, 1990, random assignment = 1, data = STAR,
+      subject = R, M, SS, published = 1, grade 1. Their method says each effect size used a
+      <strong>pooled SD</strong> and the group sizes <span class="m"><i>n</i><sub>S</sub></span> and
+      <span class="m"><i>n</i><sub>L</sub></span>. None of those three numbers is printed in this article,
+      so they must have imputed them or taken them from another source. Their paper doesn&rsquo;t say which.</p>
+    <ul>
+      <li><strong>We can&rsquo;t recover their per-study effect sizes.</strong> They report 120 effect sizes
+        but publish no list. So this replication checks our coding against the primary study, not against
+        their numbers. That limitation is a lesson too: a meta-analysis should publish its coded data.</li>
+      <li><strong>&ldquo;SS&rdquo; is ambiguous.</strong> Its most likely meaning is SAT word study skills.
+        This study measured no social studies and no science. If SS meant self-concept (SCAMIN), they coded a
+        non-achievement outcome, which their own definition excludes.</li>
+      <li><strong>The magnitude fits.</strong> Our SAT effects of <span class="m">0.29&ndash;0.32</span> (small
+        vs. regular) are above their pooled <span class="m">0.20</span>, and above their published-study mean
+        of <span class="m">0.21</span>. That is typical for STAR first grade. The pooled mean includes smaller
+        effects from non-randomized state programs and later grades.</li>
+      <li><strong>This study is one of several STAR reports.</strong> Eight of Shin and ChungRoughly ten of Shin and Chung&rsquo;s 17rsquo;s 17
+        studies draw on STAR. If each contributes several correlated outcomes, the same children are counted
+        many times, and the pooled SE of <span class="m">.0104</span> is too small. That dependence problem
+        is the subject of the <a href="class-size-replication-finn-achilles-1999.html">next replication</a>.</li>
+    </ul>
+  </section>
+
+  <section id="exercises">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>Exercises</h2>
+      <p class="sub">Each one changes one decision in the R script. Say how much the answer moves.</p>
+    </div>
+    <ol class="checklist">
+      <li><strong>Switch the control group.</strong> Recode all five outcomes as small vs. (regular + aide)/2,
+        using the logit route for BSF. How far do the effects fall?</li>
+      <li><strong>Use the class SD.</strong> Recompute SAT reading with the class-level SD. Suppose a
+        meta-analyst mixed this row with student-SD rows from other studies. Which way would the pooled
+        mean be biased?</li>
+      <li><strong>Stress-test the imputed n.</strong> Set small classes to 13 and regular to 25 pupils. What
+        happens to <span class="m"><i>d</i></span>? To the variance?</li>
+      <li><strong>Vary the outcome correlation.</strong> Rerun Step 9 with <span class="m"><i>r</i> = .5</span>
+        and <span class="m"><i>r</i> = .9</span>. When does it matter?</li>
+      <li><strong>Race as a moderator.</strong> Use the Step 10 subgroup effects (small vs. regular) in place
+        of the overall rows. Is the minority&ndash;white gap larger on standardized or curriculum-based tests?
+        Compare with the authors&rsquo; discussion on pp. 567&ndash;568.</li>
+    </ol>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section nine</p>
+      <h2>References</h2>
+      <p class="sub">PDFs in the <span class="m">class_size</span> folder are linked where available.</p>
+    </div>
+    <ul>
+      <li>Borenstein, M., Hedges, L. V., Higgins, J. P. T., &amp; Rothstein, H. R. (2009). <em>Introduction to
+        meta-analysis</em>. Wiley.</li>
+      <li>Chinn, S. (2000). A simple method for converting an odds ratio to effect size for use in
+        meta-analysis. <em>Statistics in Medicine, 19</em>(22), 3127&ndash;3131.</li>
+      <li>Finn, J. D., &amp; Achilles, C. M. (1990). <a href="1990-Finn-AnswersQuestions.pdf">Answers
+        and questions about class size: A statewide experiment</a>. <em>American Educational Research Journal,
+        27</em>(3), 557&ndash;577.</li>
+      <li>Hedges, L. V. (2007). Effect sizes in cluster-randomized designs. <em>Journal of Educational and
+        Behavioral Statistics, 32</em>(4), 341&ndash;370.</li>
+      <li>Shin, I.-S., &amp; Chung, J. Y. (2009). <a href="../META-2009-shin-chung.pdf">Class size
+        and student achievement in the United States: A meta-analysis</a>. <em>KEDI Journal of Educational
+        Policy, 6</em>(2), 3&ndash;19.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Replication case study 1 for <span class="m">Unit 24: Coding class size studies</span>. Code and coded
+      data are in <span class="m">replication/</span>, built on
+      <span class="m">effect_size_calculation_templates.R</span>.</p>
+  </footer>
+
+</div>
+</body>
+</html>
