@@ -23,10 +23,9 @@
 # address, personal web page, and the Google Docs link, and (4) keep
 # only per-article counts from the author contact log.
 #
-# Input: the OSF archive (https://osf.io/9fcqm/, "Download as zip"),
-#   saved as ../original/9fcqm-osfstorage-archive.zip. The script pulls
+# Input: the authors' OSF archive (https://osf.io/9fcqm/), saved as
+#   ../original/9fcqm-osfstorage-archive.zip. The script pulls
 #   Coding and analyses/Omission-Bias-Coding-Sheet-Meta-v6-G.xlsx out of it.
-#   The archive stays out of git: its Authors tab has e-mail addresses.
 #
 # Run from this folder (omission_bias/data); the CSVs are written here.
 # Companion guide: ../omission-bias-replication-data-prep.html
