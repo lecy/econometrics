@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Replicating Finn and Achilles 1999</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .codesheet{min-width:46rem;}
+  .codesheet td{vertical-align:top;}
+  .codesheet td:first-child{
+    font-family:var(--font-math);
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+  }
+  .codesheet td:last-child{color:var(--ink-mid);}
+  .codesheet tr.group td{
+    font-family:var(--font-body);
+    font-size:.72rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    background:var(--surface);
+    padding:.45rem .85rem;
+  }
+  .designs{min-width:48rem;}
+  .designs td{vertical-align:top;}
+  .designs td:first-child{font-weight:600;color:var(--ink);}
+  .designs td:nth-child(3){font-family:var(--font-math);white-space:nowrap;}
+  .designs td:last-child{font-family:var(--font-math);font-size:.78rem;color:var(--ink-mid);}
+  .worked{
+    border-left:3px solid var(--accent);
+    padding:.2rem 0 .2rem 1.2rem;
+    margin:1.6rem 0 2rem;
+    max-width:40rem;
+  }
+  .worked .tag{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--accent-ink);
+    margin:0 0 .5rem;
+  }
+  .coded{min-width:30rem;max-width:40rem;}
+  .coded td:first-child{font-family:var(--font-math);color:var(--accent-ink);font-weight:600;white-space:nowrap;width:1%;}
+</style>
+<style>
+  .where{min-width:48rem;}
+  .where td{vertical-align:top;}
+  .where td:first-child{font-weight:600;color:var(--ink);width:22%;}
+  .where td:nth-child(2){font-family:var(--font-math);white-space:nowrap;color:var(--accent-ink);font-weight:600;width:1%;}
+  .where td:last-child{color:var(--ink-mid);}
+  .nums{min-width:34rem;max-width:46rem;}
+  .nums td,.nums th{font-variant-numeric:tabular-nums;}
+  .nums td:not(:first-child){font-family:var(--font-math);text-align:right;}
+  .nums thead th:not(:first-child){text-align:right;}
+  .nums tr.hl td{background:var(--accent-wash);}
+  .decision{
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.1rem 0 1.4rem;
+    max-width:40rem;
+  }
+  .decision p{max-width:none;margin-bottom:.55rem;}
+  .decision p:last-child{margin-bottom:0;}
+  .decision .lbl{
+    font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);
+    margin-right:.35rem;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;background:var(--surface);padding:.05em .3em;border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Replicating Shin and Chung: Finn and Achilles (1999)</h1>
+    <p class="dek">This is the second replication case study. Finn and Achilles (1999) is a review of Project STAR,
+      not a new experiment. It prints only effect sizes, and its first-grade results come from the same
+      children as <a href="class-size-replication-finn-achilles.html">case study 1</a>. Shin and Chung (2009)
+      count it as a separate study. This guide shows how to code a paper like this and what happens to a
+      pooled estimate when one experiment is counted many times. The R code is in
+      <a href="finn_achilles_1999.R"><span class="m">replication/finn_achilles_1999.R</span></a>.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#glance">The paper</a>
+      <a href="#where">Where the numbers are</a>
+      <a href="#check">Check against 1990</a>
+      <a href="#decisions">Decision points</a>
+      <a href="#coded">Coded rows</a>
+      <a href="#double">Double counting</a>
+      <a href="#exercises">Exercises</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">What this second replication adds, stated as claims.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">The unit of independence is the sample, not the article.</p>
+      <p>A meta-analysis assumes each effect size comes from an independent sample. Project STAR produced
+        dozens of articles, reports, and reanalyses of one cohort of Tennessee children. Seven of Shin and
+        Chung&rsquo;s 17 &ldquo;studies&rdquo; include the same first graders.</p>
+
+      <p class="claim">A review article is a secondary source.</p>
+      <ul>
+        <li>This paper&rsquo;s Table 1 is &ldquo;taken from Finn (1998),&rdquo; and its Table 2 is drawn from
+          the Lasting Benefits Study reports.</li>
+        <li>When the same numbers appear in several places, code them once, from the source with the
+          fullest statistics, and record where else they appear.</li>
+      </ul>
+
+      <p class="claim">When a paper prints only <i>d</i>, you still have to build the variance.</p>
+      <p>You need the sample size in each arm, the contrast, and the clustering. This paper gives none of
+        them directly. Every one has to be borrowed or assumed, and each assumption has to be written down.</p>
+
+      <p class="claim">Double counting barely moves the mean, but it badly understates the uncertainty.</p>
+      <div class="chain">17 rows treated as 17 experiments &rarr; SE 0.007 &nbsp;&nbsp;|&nbsp;&nbsp; 13 rows treated as one cohort &rarr; SE 0.040</div>
+      <p>The pooled effect stays at about <span class="m">0.22</span> either way. The standard error is 5.5
+        times larger once the rows are treated as what they are.</p>
+    </div>
+  </section>
+
+  <section id="glance">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The paper at a glance</h2>
+      <p class="sub">A summary of STAR&rsquo;s findings, with new analyses of effect sizes across grades.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Feature</th><th scope="col">What the paper says</th><th scope="col">Page</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Type</th>
+            <td>A review of Project STAR: findings, new effect-size summaries, and a response to critics. It
+              reports no new data collection.</td><td>97&ndash;98</td></tr>
+          <tr><th scope="row">Design</th>
+            <td>The same STAR experiment. Pupils were randomized within schools to small (13&ndash;17), regular
+              (22&ndash;26), or regular with aide, and kept in that condition through Grade 3.</td><td>97&ndash;98</td></tr>
+          <tr><th scope="row">Class sizes</th>
+            <td>&ldquo;A median enrollment of 24 pupils to a median of 15.&rdquo; The 1990 paper said
+              about 22 vs. 15 pupils <em>present</em>.</td><td>98</td></tr>
+          <tr><th scope="row">Effect sizes</th>
+            <td>Table 1: Grades K&ndash;3 during the experiment. Table 2: Grades 4&ndash;7 after pupils
+              returned to regular classes. Table 3: differences in grade-equivalent months.</td><td>99&ndash;102</td></tr>
+          <tr><th scope="row">Sources</th>
+            <td>Table 1 from Finn (1998). Table 2 from Finn, Fulton, Zaharias, and Nye (1989) and Nye et al.
+              (1992, 1993, 1994).</td><td>99&ndash;100</td></tr>
+          <tr><th scope="row">Treatment fidelity</th>
+            <td>5&ndash;10% of small classes in Grades 1&ndash;3 &ldquo;drifted&rdquo; above the small range
+              through student mobility, and some regular classes drifted down. The effects are
+              intent-to-treat.</td><td>99&ndash;100</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>Page numbers.</strong> This PDF has no JSTOR cover sheet. Journal page 97 is PDF page 1, so
+        subtract 96 to find the PDF page.</p>
+    </div>
+  </section>
+
+  <section id="where">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Where to find each statistic</h2>
+      <p class="sub">What is printed, what isn&rsquo;t, and the traps in each table.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="where">
+        <caption>Extraction map: Finn and Achilles (1999)</caption>
+        <thead><tr><th scope="col">Statistic</th><th scope="col">Location</th><th scope="col">Watch out for</th></tr></thead>
+        <tbody>
+          <tr><td>Effect sizes, Grades K&ndash;3</td><td>Table 1, p. 99</td>
+            <td>Printed separately for white pupils, minority pupils, and all pupils. Use the <strong>All</strong>
+              rows (bold). The contrast is small vs. the average of regular and aide, standardized by the
+              regular-class SD (table note).</td></tr>
+          <tr><td>The Grade 3 &ldquo;Reading&rdquo; value</td><td>Table 1, footnote b</td>
+            <td>It&rsquo;s the <strong>Total Language</strong> scale, not reading. Coding it as reading puts a
+              language outcome into a reading average.</td></tr>
+          <tr><td>Sample size per grade</td><td>Table 1 column heads</td>
+            <td>Total pupils only: 5,738 / 6,572 / 5,148 / 4,744. Footnote a: Grades 2 and 3 exclude pupils
+              whose teachers received STAR training.</td></tr>
+          <tr><td>BSF pass rates</td><td>Table 1, p. 99</td>
+            <td>Percentage-point differences only (&ldquo;no standard deviation&rdquo;). No base rates, so
+              these can&rsquo;t be converted to <span class="m"><i>d</i></span>.</td></tr>
+          <tr><td>Effect sizes, Grades 4&ndash;7</td><td>Table 2, p. 100</td>
+            <td>A different contrast: <strong>small minus regular</strong>. A different SD: regular-class SD
+              in Grade 4, &ldquo;common within-cell&rdquo; (pooled) SD in Grades 5&ndash;7 (table note).</td></tr>
+          <tr><td>Grade-equivalent months</td><td>Table 3, p. 102</td>
+            <td>No SD on the GE scale, so these can&rsquo;t become effect sizes. Useful for explaining
+              magnitude, not for coding.</td></tr>
+          <tr><td>Means, SDs, arm sizes, test statistics</td><td>Not printed</td>
+            <td>Nowhere in the article. Everything for the variance has to come from elsewhere.</td></tr>
+          <tr><td>Why the contrast was chosen</td><td>p. 100</td>
+            <td>&ldquo;To maximize precision after it was discovered that there were no significant
+              differences between regular and teacher aide classes.&rdquo; The authors add that this contrast
+              &ldquo;was sometimes smaller&rdquo; than small vs. regular.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="nums">
+        <caption>Table 1, all pupils: small vs. (regular + aide)/2</caption>
+        <thead><tr><th scope="col">Scale</th><th scope="col">K</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th></tr></thead>
+        <tbody>
+          <tr><td>Word Study Skills</td><td>0.15</td><td>0.22</td><td>0.20</td><td>&mdash;</td></tr>
+          <tr><td>Reading</td><td>0.18</td><td>0.22</td><td>0.19</td><td>0.25*</td></tr>
+          <tr><td>Total Reading</td><td>0.18</td><td>0.24</td><td>0.23</td><td>0.26</td></tr>
+          <tr><td>Total Mathematics</td><td>0.15</td><td>0.27</td><td>0.20</td><td>0.23</td></tr>
+          <tr><td><i>N</i></td><td>5,738</td><td>6,572</td><td>5,148</td><td>4,744</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>* Total Language, per footnote b.</p>
+  </section>
+
+  <section id="check">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Step one: check Grade 1 against the 1990 paper</h2>
+      <p class="sub">There are no means to recompute from. So check the numbers against another report of the same children.</p>
+    </div>
+
+    <p>The Grade 1 column of Table 1 describes the same children, with the same contrast and the same
+      standardizer, as Tables 5 and 6 of Finn and Achilles (1990). The values should be identical.</p>
+    <div class="table-scroll">
+      <table class="nums">
+        <thead><tr><th scope="col">Grade 1 outcome</th><th scope="col">1999, Table 1</th><th scope="col">1990, Tables 5&ndash;6</th></tr></thead>
+        <tbody>
+          <tr><td>Word study skills, all</td><td>0.22</td><td>0.22</td></tr>
+          <tr class="hl"><td>SAT reading, all</td><td>0.22</td><td>0.23</td></tr>
+          <tr class="hl"><td>SAT reading, white</td><td>0.16</td><td>0.15</td></tr>
+          <tr><td>SAT reading, minority</td><td>0.35</td><td>0.35</td></tr>
+          <tr><td>SAT math, all</td><td>0.27</td><td>0.27</td></tr>
+          <tr class="hl"><td>BSF reading, all (pp)</td><td>9.6</td><td>10.1</td></tr>
+          <tr class="hl"><td>BSF math, all (pp)</td><td>5.9</td><td>5.2</td></tr>
+          <tr><td>BSF reading, white / minority (pp)</td><td>4.8 / 17.3</td><td>4.8 / 17.3</td></tr>
+          <tr><td><i>N</i></td><td>6,572</td><td>6,570</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Most values match, and a few don&rsquo;t. The race-specific BSF values agree exactly while the overall
+      values differ, so the overall BSF figures were probably computed a different way. One possibility is
+      pooling pupils instead of averaging class percentages. The article doesn&rsquo;t say.</p>
+    <div class="callout">
+      <p><strong>Two lessons.</strong> First, a match on most values is strong evidence that these are the
+        same children, so the 1999 Grade 1 rows are <em>duplicates</em>. Second, reports of one dataset
+        disagree in small ways. When they do, code from the source with the fullest statistics (here, 1990),
+        and note the discrepancy.</p>
+    </div>
+  </section>
+
+  <section id="decisions">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>The decision points</h2>
+      <p class="sub">Six choices specific to a paper that reports only effect sizes on a sample already coded.</p>
+    </div>
+
+    <h3>1. Which rows are new information?</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Code every row in Tables 1 and 2 as a new study, as Shin and Chung
+        effectively did. (b) Code only rows that add children or grades not already coded.</p>
+      <p><span class="lbl">Choice</span>(b). Grade 1 rows are flagged <code>dup_of = finn_achilles_1990</code>
+        and left out of the primary analysis. Kindergarten, Grade 2, and Grade 3 rows are new
+        <em>measurements</em>, though not new children.</p>
+      <p><span class="lbl">Why</span>The Grade 1 values match the 1990 paper (Section four), and the 1990 paper
+        has means and SDs behind them.</p>
+    </div>
+
+    <h3>2. Mislabeled and mixed outcomes</h3>
+    <div class="decision">
+      <p><span class="lbl">The trap</span>The Grade 3 &ldquo;Reading&rdquo; value (0.25) is Total Language
+        (footnote b).</p>
+      <p><span class="lbl">Choice</span>Code it as <code>total_language</code>, subject = language. A reading
+        analysis then excludes it automatically.</p>
+      <p><span class="lbl">Also</span>&ldquo;Total Reading&rdquo; combines Word Study Skills and Reading, so the
+        three reading rows in each grade overlap heavily. Treat them as correlated (decision 6).</p>
+    </div>
+
+    <h3>3. During treatment vs. after</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Pool Grades 4&ndash;7 with K&ndash;3. (b) Code them with
+        <code>timing = after treatment</code> and analyze them separately.</p>
+      <p><span class="lbl">Choice</span>(b). They are coded but not in the primary rows.</p>
+      <p><span class="lbl">Why</span>Three differences: the question (does the effect <em>persist</em>?), the
+        contrast (small vs. regular), and the SD (pooled in Grades 5&ndash;7). Shin and Chung coded this paper
+        as Grades K&ndash;3 only, which is consistent with this choice.</p>
+    </div>
+
+    <h3>4. Building a variance from a total <i>N</i></h3>
+    <div class="decision">
+      <p><span class="lbl">Problem</span>Only the grade total is printed. The contrast compares small classes
+        with the <em>average of two groups</em>, which changes the variance formula:</p>
+      <div class="eq">
+        <span class="m"><i>v</i></span><span class="op">=</span>
+        <span class="frac"><span class="num">1</span><span class="den"><i>n</i><sub>S</sub></span></span>
+        <span class="op">+</span>
+        <span class="frac"><span class="num">1</span><span class="den">4<i>n</i><sub>R</sub></span></span>
+        <span class="op">+</span>
+        <span class="frac"><span class="num">1</span><span class="den">4<i>n</i><sub>A</sub></span></span>
+        <span class="op">+</span>
+        <span class="frac"><span class="num"><i>d</i><sup>2</sup></span><span class="den">2<i>N</i></span></span>
+      </div>
+      <p><span class="lbl">Choice</span>Borrow the Grade 1 arm shares from the 1990 coding (28.5% small, 38.0%
+        regular, 33.5% aide). Multiply by the same design effect, 2.93, because pupils were still in their
+        experimental classes.</p>
+      <p><span class="lbl">Example</span>Kindergarten reading, <span class="m"><i>N</i> = 5,738</span>:
+        <span class="m"><i>n</i><sub>S</sub> &asymp; 1,633</span>, so
+        <span class="m"><i>v</i> = 0.00086</span>, times 2.93 = 0.00252, and SE = 0.050.</p>
+      <p><span class="lbl">Grades 4&ndash;7</span>No design effect. The pupils were spread across new
+        classes, so the old class clustering weakened, but by an unknown amount. The SEs there are
+        lower bounds.</p>
+    </div>
+
+    <h3>5. BSF: a difference without a base rate</h3>
+    <div class="decision">
+      <p><span class="lbl">Options</span>(a) Guess the regular-class pass rate and convert. (b) Don&rsquo;t
+        code BSF from this paper.</p>
+      <p><span class="lbl">Choice</span>(b).</p>
+      <p><span class="lbl">Why</span>The logit conversion depends on where the gap sits. The same 7.2-point
+        Grade 3 reading gap gives <span class="m"><i>d</i> = 0.16</span> if 50% of regular pupils pass,
+        <span class="m">0.21</span> at 70%, and <span class="m">0.41</span> at 85%. A guess that size is
+        worse than a missing value. (Grade 1 BSF is already coded from 1990, with its base rates.)</p>
+    </div>
+
+    <h3>6. Rows from one cohort are not independent</h3>
+    <div class="decision">
+      <p><span class="lbl">Problem</span>After duplicates are dropped, 11 primary rows remain from this paper.
+        They are three reading scales and math, measured on overlapping children every year from K to 3.</p>
+      <p><span class="lbl">Choice</span>Keep every row with its <code>cohort</code>, <code>grade</code>, and
+        <code>scale</code>. When pooling, use a covariance matrix that assumes <span class="m"><i>r</i> =
+        .7</span> between tests in the same grade and <span class="m"><i>r</i> = .5</span> across grades.</p>
+      <p><span class="lbl">Why</span>The correlations aren&rsquo;t reported, so these are assumptions. Exercise 3
+        varies them. Treating the rows as independent is also an assumption: that <span class="m"><i>r</i> =
+        0</span>, which is certainly wrong.</p>
+    </div>
+  </section>
+
+  <section id="coded">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>The coded rows</h2>
+      <p class="sub">Output of the R script: <span class="m">replication/finn_achilles_1999_coded.csv</span> (15 K&ndash;3 rows and 32 follow-up rows).</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="nums">
+        <caption>Grades K&ndash;3, all pupils (SE includes the design effect)</caption>
+        <thead><tr><th scope="col">Grade</th><th scope="col">Scale</th><th scope="col"><i>d</i></th><th scope="col"><i>N</i></th><th scope="col">SE</th><th scope="col">Primary?</th></tr></thead>
+        <tbody>
+          <tr><td>K</td><td>Word study / Reading / Total reading / Math</td><td>.15 / .18 / .18 / .15</td><td>5,738</td><td>0.050</td><td>yes</td></tr>
+          <tr><td>1</td><td>Word study / Reading / Total reading / Math</td><td>.22 / .22 / .24 / .27</td><td>6,572</td><td>0.047</td><td>no (duplicate)</td></tr>
+          <tr><td>2</td><td>Word study / Reading / Total reading / Math</td><td>.20 / .19 / .23 / .20</td><td>5,148</td><td>0.053</td><td>yes</td></tr>
+          <tr><td>3</td><td>Total language / Total reading / Math</td><td>.25 / .26 / .23</td><td>4,744</td><td>0.055</td><td>yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-scroll">
+      <table class="coded">
+        <thead><tr><th scope="col">Field</th><th scope="col">Coded value</th></tr></thead>
+        <tbody>
+          <tr><td>study_id / source</td><td>finn_achilles_1999 / Finn (1998) via Table 1; Lasting Benefits via Table 2</td></tr>
+          <tr><td>dataset / cohort</td><td>STAR / 1985 K entry (same as case study 1)</td></tr>
+          <tr><td>control</td><td>(regular + aide)/2 for K&ndash;3; regular for 4&ndash;7</td></tr>
+          <tr><td>sd_type</td><td>regular-class SD (K&ndash;4); pooled within-cell SD (5&ndash;7)</td></tr>
+          <tr><td>timing</td><td>during treatment (K&ndash;3); after treatment (4&ndash;7)</td></tr>
+          <tr><td>dup_of / in_primary</td><td>finn_achilles_1990 for Grade 1 / TRUE for K, 2, 3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="double">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>What double counting does to a pooled estimate</h2>
+      <p class="sub">The reading and math rows from both case studies, pooled four ways (Step 7 of the R script).</p>
+    </div>
+
+    <p>First, how often do the same children appear in Shin and Chung? Their Table 2 lists eight studies
+      whose data source is STAR. Seven of them include Grade 1:</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Study (Shin &amp; Chung, Table 2)</th><th scope="col">Grades</th><th scope="col">Same Grade 1 children?</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Finn et al. 1989</th><td>1</td><td>yes</td></tr>
+          <tr><th scope="row">Finn &amp; Achilles 1990</th><td>1</td><td>yes (case study 1)</td></tr>
+          <tr><th scope="row">Johnston et al. 1990</th><td>K&ndash;3</td><td>yes</td></tr>
+          <tr><th scope="row">Achilles 1994</th><td>K&ndash;3</td><td>yes</td></tr>
+          <tr><th scope="row">Mosteller 1995</th><td>1</td><td>yes</td></tr>
+          <tr><th scope="row">Goldstein et al. 1998</th><td>K, 1</td><td>yes</td></tr>
+          <tr><th scope="row">Finn &amp; Achilles 1999</th><td>K&ndash;3</td><td>yes (this case study)</td></tr>
+          <tr><th scope="row">Nye et al. 1992</th><td>5</td><td>no, but same cohort (Lasting Benefits)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Now take just the two papers coded so far. Pool their Grade K&ndash;3 reading and math rows under
+      four sets of assumptions:</p>
+    <div class="table-scroll">
+      <table class="nums">
+        <thead><tr><th scope="col">Approach</th><th scope="col">Rows</th><th scope="col">Pooled <i>d</i></th><th scope="col">SE</th></tr></thead>
+        <tbody>
+          <tr><td>A. Every row independent, naive variance</td><td>17</td><td>0.224</td><td>0.0072</td></tr>
+          <tr><td>B. Duplicate Grade 1 rows dropped</td><td>13</td><td>0.219</td><td>0.0085</td></tr>
+          <tr><td>C. + design effect for clustering</td><td>13</td><td>0.219</td><td>0.0145</td></tr>
+          <tr class="hl"><td>D. + correlation among rows from one cohort</td><td>13</td><td>0.218</td><td>0.0397</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The estimate barely moves, from 0.224 to 0.218. The standard error grows by a factor of 5.5. Under (A),
+      the 95% CI is 0.21 to 0.24, which suggests near-certainty. Under (D) it is 0.14 to 0.30. That is
+      the honest statement: <strong>one very good experiment</strong>, not seventeen.</p>
+    <div class="callout">
+      <p><strong>Connect it to Shin and Chung.</strong> Their pooled SE is <span class="m">.0104</span> for 120
+        effect sizes, even though the effects were strongly heterogeneous
+        (<span class="m"><i>Q</i> = 719.4</span>). Is that the kind of number approach (D) produces, or approach
+        (A)? Their paper mentions dependence only as a &ldquo;shifting unit of analysis&rdquo; check. The
+        coding notes report that the pooled effect falls from 0.20 to 0.17 when each study counts once, and
+        to 0.08 when each state counts once.</p>
+    </div>
+  </section>
+
+  <section id="exercises">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>Exercises</h2>
+      <p class="sub">Each changes one assumption in <span class="m">finn_achilles_1999.R</span>.</p>
+    </div>
+    <ol class="checklist">
+      <li><strong>Keep the duplicates.</strong> Set <code>in_primary</code> to TRUE for Grade 1 and rerun
+        Step 7 with the 1990 rows removed instead. Does it matter which report of Grade 1 you keep?</li>
+      <li><strong>The Grade 3 trap.</strong> Recode the Grade 3 Total Language row as reading. How much does a
+        reading-only pooled estimate change? Why is the change small here, and when would it be large?</li>
+      <li><strong>Vary the correlations.</strong> Rerun approach D with
+        (<span class="m"><i>r</i><sub>same</sub>, <i>r</i><sub>cross</sub></span>) = (.5, .3) and (.9, .7).
+        How sensitive is the SE?</li>
+      <li><strong>Persistence.</strong> Pool the Grade 4&ndash;7 Total Reading and Total Mathematics rows
+        from Table 2. Is the follow-up effect smaller than the K&ndash;3 effect? Remember that Grades
+        5&ndash;7 use a pooled SD. Which way would that bias the comparison?</li>
+      <li><strong>Enrollment or attendance?</strong> The 1990 paper says about 22 vs. 15 pupils
+        <em>present</em>, and this paper says median enrollment 24 vs. 15. Which should go in
+        <code>size_L</code>? If effects are later scaled per student removed, how much does the choice
+        change the answer?</li>
+    </ol>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section nine</p>
+      <h2>References</h2>
+      <p class="sub">PDFs in the <span class="m">class_size</span> folder are linked where available.</p>
+    </div>
+    <ul>
+      <li>Borenstein, M., Hedges, L. V., Higgins, J. P. T., &amp; Rothstein, H. R. (2009). <em>Introduction to
+        meta-analysis</em> (ch. 24&ndash;25, multiple outcomes and subgroups within a study). Wiley.</li>
+      <li>Finn, J. D., &amp; Achilles, C. M. (1990). <a href="1990-Finn-AnswersQuestions.pdf">Answers
+        and questions about class size: A statewide experiment</a>. <em>American Educational Research Journal,
+        27</em>(3), 557&ndash;577.</li>
+      <li>Finn, J. D., &amp; Achilles, C. M. (1999). <a href="1999-finn-achilles.pdf">Tennessee&rsquo;s
+        class size study: Findings, implications, misconceptions</a>. <em>Educational Evaluation and Policy
+        Analysis, 21</em>(2), 97&ndash;109.</li>
+      <li>Shin, I.-S., &amp; Chung, J. Y. (2009). <a href="../META-2009-shin-chung.pdf">Class size
+        and student achievement in the United States: A meta-analysis</a>. <em>KEDI Journal of Educational
+        Policy, 6</em>(2), 3&ndash;19.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Replication case study 2 for <span class="m">Unit 24: Coding class size studies</span>. Builds on
+      <a href="class-size-replication-finn-achilles.html">case study 1</a> and reads its coded data from
+      <span class="m">replication/finn_achilles_1990_coded.csv</span>. Next: <a href="class-size-replication-molnar.html">case study 3, Molnar et al. (1999)</a>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

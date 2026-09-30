@@ -534,6 +534,7 @@
     <nav class="bar-nav">
       {% assign nav_parts = site.data.units | group_by: "part" %}
       {% for g in nav_parts %}<a href="#{{ g.items.first.id }}">{{ g.name | split: " — " | first }}</a>{% endfor %}
+      <a href="#r-resources">R Resources</a>
       <a href="#reference">Reference</a>
       <a href="{{ '/syllabus/' | relative_url }}">Syllabus</a>
     </nav>
@@ -566,6 +567,12 @@
     </ul>
     {% endfor %}
     <ul class="toc">
+      <li>
+        <a href="#r-resources">
+          <span class="n">&#9679;</span>
+          <span class="t">R Resources</span>
+        </a>
+      </li>
       <li>
         <a href="#reference">
           <span class="n">&#9679;</span>
@@ -714,6 +721,31 @@
     </section>
   {% endfor %}
   </main>
+
+  <section class="shelf" id="r-resources">
+    <div class="shelf-head">
+      <h2>R Resources</h2>
+      <p>Installing R and RStudio, writing R Markdown documents, and building regression tables in R.</p>
+    </div>
+    <div class="shelf-grid">
+      {% for g in site.data.r_resources %}
+      <div>
+        <h3>{{ g.group }}</h3>
+        <ul>
+          {% for i in g.items %}
+          {% if i.raw %}{% assign href = site.raw_root | append: "/" | append: i.url %}{% else %}{% assign href = i.url | relative_url %}{% endif %}
+          <li>
+            <a href="{{ href }}"{% if i.download %} download{% endif %}>
+              <span class="tag">{{ i.kind }}</span>
+              <span>{{ i.title }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
 
   <section class="shelf" id="reference">
     <div class="shelf-head">

@@ -1617,18 +1617,18 @@
         Glass and Smith's meta-analysis, the Hanushek–Krueger debate, STAR, and what the modern
         consensus does and does not support.
       links:
-        - { label: Notes, url: lectures4/meta_analysis/class-size-debate-notes.html, kind: notes }
-        - { label: Case study (PDF), url: lectures4/meta_analysis/overview_of_evidence_for_class_size.pdf, kind: pdf }
-        - { label: DOCX, url: lectures4/meta_analysis/overview_of_evidence_for_class_size.docx, kind: docx, download: true }
+        - { label: Notes, url: lectures4/meta_analysis/class_size/class-size-debate-notes.html, kind: notes }
+        - { label: Case study (PDF), url: lectures4/meta_analysis/class_size/overview_of_evidence_for_class_size.pdf, kind: pdf }
+        - { label: DOCX, url: lectures4/meta_analysis/class_size/overview_of_evidence_for_class_size.docx, kind: docx, download: true }
     - title: "Case Study: Coding Class Size Studies"
       blurb: >
         Turning the literature into data: what to record about each study's design, treatment
         contrast, outcome, timing, and controls, and how to convert its estimate into an effect
         size.
       links:
-        - { label: Notes, url: lectures4/meta_analysis/class-size-coding-notes.html, kind: notes }
-        - { label: Policy overview (PDF), url: lectures4/meta_analysis/Class_Size_Policy_Overview.pdf, kind: pdf }
-        - { label: DOCX, url: lectures4/meta_analysis/Class_Size_Policy_Overview.docx, kind: docx, download: true }
+        - { label: Notes, url: lectures4/meta_analysis/class_size/class-size-coding-notes.html, kind: notes }
+        - { label: Policy overview (PDF), url: lectures4/meta_analysis/class_size/Class_Size_Policy_Overview.pdf, kind: pdf }
+        - { label: DOCX, url: lectures4/meta_analysis/class_size/Class_Size_Policy_Overview.docx, kind: docx, download: true }
     - title: "Replication: A Meta-Analysis of the Omission Bias"
       blurb: >
         Yeung, Yay, and Feldman (2022) posted their whole review on the OSF. Trace it from search terms
@@ -1642,16 +1642,16 @@
   readings:
     - title: Meta-Analysis and the Science of Research Synthesis
       cite: "Gurevitch, J., Koricheva, J., Nakagawa, S., & Stewart, G. (2018). Nature, 555, 175–182. A short overview of the method and its history."
-      url: lectures4/meta_analysis/class_size/science-of-research-synthesis.pdf
+      url: lectures4/meta_analysis/class_size/META-2018-overview-of-science-of-research-synthesis.pdf
     - title: Meta-Analysis of Research on Class Size and Achievement
       cite: "Glass, G. V., & Smith, M. L. (1979). Educational Evaluation and Policy Analysis, 1(1), 2–16. The first meta-analysis of the class size literature."
-      url: lectures4/meta_analysis/class_size/1979-Glass-and-Smith-Class-Size.pdf
+      url: lectures4/meta_analysis/class_size/META-1979-glass-and-smith.pdf
     - title: Evidence, Politics, and the Class Size Debate
       cite: "Hanushek, E. A. (2002). In L. Mishel & R. Rothstein (Eds.), The Class Size Debate. Economic Policy Institute. The full volume, including Krueger's chapters and his reply."
-      url: lectures4/meta_analysis/class_size/Hanushek%202002%20ClassSizeDebate.pdf
+      url: lectures4/meta_analysis/class_size/META-2002-hanushek-kreuger.pdf
     - title: Class Size and Student Achievement in the United States — A Meta-Analysis
       cite: "Shin, I.-S., & Chung, J. Y. (2009). KEDI Journal of Educational Policy, 6(2), 3–19. Updated synthesis of U.S. studies, 1989–2008."
-      url: lectures4/meta_analysis/class_size/2009-classsize-metaanalysis.pdf
+      url: lectures4/meta_analysis/class_size/META-2009-shin-chung.pdf
     - title: "Experimentology, Ch. 16 — Meta-Analysis"
       cite: "Frank, M. C., et al. Open textbook chapter; source of the forest plot in the slides."
       url: https://experimentology.io/016-meta.html

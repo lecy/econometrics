@@ -79,7 +79,7 @@ You will need to install R (the open-source analytics platform used in this cour
 
 You will have plenty of practice with these tools this semester. You will submit your labs as knitted R Markdown (RMD) files.
 
-The [R Markdown template guide](../handouts/rmd-template-guide.html) walks through the pieces of a good RMD template file, and the [starter template](../handouts/rmd-template.rmd) gives you one you can download and knit.
+The [R Markdown template guide](../handouts/rmd-template-guide.html) walks through the pieces of a good RMD template file, and the [starter template](https://github.com/lecy/econometrics/raw/main/handouts/rmd-template.rmd) gives you one you can download and knit.
 
 [![](https://github.com/DS4PS/ds4ps.github.io/blob/master/gifs/NewCodeChunk/NewCodeChunk_media/NewCodeChunk.gif?raw=true)](../gifs/NewCodeChunk/NewCodeChunk.html)
 

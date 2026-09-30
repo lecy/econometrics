@@ -145,6 +145,7 @@ exclude:
   - "labs3/*.rmd"
   - "labs3/*.Rmd"
   - "labs3/DATA/*.Rmd"
+  - "handouts/*.rmd"
 
 sass:
   style:            compressed

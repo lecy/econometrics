@@ -26,7 +26,7 @@ knitr::opts_chunk$set( echo=TRUE, message=FALSE, warning=FALSE )
       <a href="#style">Style and output</a>
       <a href="#formats">Formats and templates</a>
     </nav>
-    <p class="dek"><a href="rmd-template.rmd" download>Download the starter template (rmd-template.rmd)</a></p>
+    <p class="dek"><a href="https://github.com/lecy/econometrics/raw/main/handouts/rmd-template.rmd">Download the starter template (rmd-template.rmd)</a></p>
 </header>
 ```
 
@@ -141,7 +141,7 @@ A good template puts the same pieces in the same order every time, so you never 
 </figure>
 ```
 
-Here is the same skeleton as plain text. The [starter template](rmd-template.rmd) is a complete version you can knit right away.
+Here is the same skeleton as plain text. The [starter template](https://github.com/lecy/econometrics/raw/main/handouts/rmd-template.rmd) is a complete version you can knit right away.
 
 ````markdown
 ---
