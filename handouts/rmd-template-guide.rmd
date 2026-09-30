@@ -1,0 +1,474 @@
+---
+pagetitle: "Building an R Markdown Template"
+output:
+  html_document:
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    self_contained: false
+    css: '../lectures3/assets/lecture-notes.css'
+    includes:
+      in_header: '../lectures3/assets/lecture-head.html'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set( echo=TRUE, message=FALSE, warning=FALSE )
+```
+
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Handout &middot; Data-Driven Documents</p>
+    <h1>Building an R Markdown Template</h1>
+    <p class="dek">A short tour of the pieces that make up a good RMD (or QMD) template file. Each topic gets a quick explanation and a pointer to where you can learn the details.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#anatomy">Anatomy</a>
+      <a href="#basics">The basics</a>
+      <a href="#style">Style and output</a>
+      <a href="#formats">Formats and templates</a>
+    </nav>
+    <p class="dek"><a href="rmd-template.rmd" download>Download the starter template (rmd-template.rmd)</a></p>
+</header>
+```
+
+
+# The anatomy of a template {#anatomy}
+
+Every R Markdown file is a plain text file that mixes three languages: YAML for settings, markdown for prose, and R for code. When you knit, R runs the code, drops the results into the text, and pandoc converts the whole thing into HTML, PDF, or Word.
+
+A good template puts the same pieces in the same order every time, so you never start from a blank page.
+
+```{=html}
+<figure class="anatomy">
+<svg viewBox="0 0 760 680" role="img" aria-labelledby="anatomy-title anatomy-desc">
+  <title id="anatomy-title">Anatomy of an R Markdown template</title>
+  <desc id="anatomy-desc">A document drawn as a page with seven stacked sections from top to bottom: YAML header, global knit options, load packages, load data, text and math, code chunks, and an embedded CSS style sheet.</desc>
+
+  <!-- the page -->
+  <path class="page" d="M20 20 H352 L380 48 V660 H20 Z"/>
+  <path class="fold" d="M352 20 V48 H380"/>
+
+  <!-- 1 YAML header -->
+  <rect class="band yaml" x="40" y="44" width="300" height="84" rx="3"/>
+  <text class="mono" x="54" y="66">---</text>
+  <text class="mono" x="54" y="82">title: "My Report"</text>
+  <text class="mono" x="54" y="98">output: html_document</text>
+  <text class="mono" x="54" y="114">---</text>
+
+  <!-- 2 global options -->
+  <rect class="band code" x="40" y="140" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="160">```{r setup, include=FALSE}</text>
+  <text class="mono" x="54" y="176">knitr::opts_chunk$set(echo=TRUE)</text>
+
+  <!-- 3 packages -->
+  <rect class="band code" x="40" y="200" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="220">```{r packages}</text>
+  <text class="mono" x="54" y="236">library(dplyr); source("utils.R")</text>
+
+  <!-- 4 data -->
+  <rect class="band code" x="40" y="260" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="280">```{r data}</text>
+  <text class="mono" x="54" y="296">dat &lt;- read.csv("data.csv")</text>
+
+  <!-- 5 text and math -->
+  <rect class="band prose" x="40" y="328" width="320" height="64" rx="3"/>
+  <text class="head" x="54" y="350">## Results</text>
+  <text class="sans" x="54" y="368">Prose written in **markdown**, with</text>
+  <text class="sans" x="54" y="384">math like $y = \beta_0 + \beta_1 x$</text>
+
+  <!-- 6 code chunks -->
+  <rect class="band code" x="40" y="402" width="320" height="60" rx="3"/>
+  <text class="mono fence" x="54" y="422">```{r model}</text>
+  <text class="mono" x="54" y="438">m &lt;- lm(y ~ x, data=dat)</text>
+  <text class="mono" x="54" y="454">summary(m)</text>
+
+  <!-- repeated body -->
+  <rect class="band prose faint" x="40" y="472" width="320" height="36" rx="3"/>
+  <text class="sans note" x="54" y="495">more text &#8230;</text>
+  <rect class="band code faint" x="40" y="518" width="320" height="36" rx="3"/>
+  <text class="mono note" x="54" y="541">more chunks &#8230;</text>
+  <path class="brace" d="M368 328 h6 V554 h-6"/>
+  <text class="sans note" x="374" y="572" text-anchor="end">body: repeat as needed</text>
+
+  <!-- 7 css -->
+  <rect class="band style" x="40" y="588" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="608">```{css, echo=FALSE}</text>
+  <text class="mono" x="54" y="624">h1 { color: #bd5416; }</text>
+
+  <!-- labels -->
+  <g class="label">
+    <line x1="344" y1="86" x2="404" y2="86"/>
+    <circle cx="420" cy="86" r="12"/><text class="num" x="420" y="90.5">1</text>
+    <text class="lt" x="442" y="82">YAML header</text>
+    <text class="ld" x="442" y="100">Title, author, date, and output format</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="164" x2="404" y2="164"/>
+    <circle cx="420" cy="164" r="12"/><text class="num" x="420" y="168.5">2</text>
+    <text class="lt" x="442" y="160">Global knit options</text>
+    <text class="ld" x="442" y="178">Default settings for every code chunk</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="224" x2="404" y2="224"/>
+    <circle cx="420" cy="224" r="12"/><text class="num" x="420" y="228.5">3</text>
+    <text class="lt" x="442" y="220">Load packages</text>
+    <text class="ld" x="442" y="238">library() calls and source() for your own code</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="284" x2="404" y2="284"/>
+    <circle cx="420" cy="284" r="12"/><text class="num" x="420" y="288.5">4</text>
+    <text class="lt" x="442" y="280">Load data</text>
+    <text class="ld" x="442" y="298">Read files once, near the top</text>
+  </g>
+  <g class="label">
+    <line x1="380" y1="360" x2="404" y2="360"/>
+    <circle cx="420" cy="360" r="12"/><text class="num" x="420" y="364.5">5</text>
+    <text class="lt" x="442" y="356">Text and math</text>
+    <text class="ld" x="442" y="374">Markdown prose with LaTeX equations</text>
+  </g>
+  <g class="label">
+    <line x1="380" y1="432" x2="404" y2="432"/>
+    <circle cx="420" cy="432" r="12"/><text class="num" x="420" y="436.5">6</text>
+    <text class="lt" x="442" y="428">Code chunks</text>
+    <text class="ld" x="442" y="446">Analysis, tables, and figures woven into the text</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="612" x2="404" y2="612"/>
+    <circle cx="420" cy="612" r="12"/><text class="num" x="420" y="616.5">7</text>
+    <text class="lt" x="442" y="608">Embedded CSS style sheet</text>
+    <text class="ld" x="442" y="626">Page styles for HTML output</text>
+  </g>
+</svg>
+</figure>
+```
+
+Here is the same skeleton as plain text. The [starter template](rmd-template.rmd) is a complete version you can knit right away.
+
+````markdown
+---
+title: "My Report"
+output: html_document
+---
+
+`r ''````{r setup, include=FALSE}
+knitr::opts_chunk$set( echo=TRUE, message=FALSE, warning=FALSE )
+```
+
+`r ''````{r packages}
+library( dplyr )
+source( "utils.R" )
+```
+
+`r ''````{r data}
+dat <- read.csv( "data/my-data.csv" )
+```
+
+## Results
+
+Prose in markdown, with math like $y = \beta_0 + \beta_1 x$.
+
+`r ''````{r model}
+m <- lm( y ~ x, data=dat )
+summary( m )
+```
+
+`r ''````{css, echo=FALSE}
+h1 { color: #bd5416; }
+```
+````
+
+> **Learn more:** [Getting Started with R Markdown](https://rmarkdown.rstudio.com/lesson-1.html) &middot; [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/) &middot; [R Markdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/)
+
+
+# The basics {#basics}
+
+## YAML headers and document types
+
+The YAML header sits between two lines of three dashes at the very top of the file. It holds the document's metadata (title, author, date) and, most importantly, the **output format**. Indentation matters: nested options are indented two spaces under their parent.
+
+```yaml
+---
+title: "Program Evaluation Report"
+author: "Your Name"
+date: "2026-09-30"
+output:
+  html_document:
+    toc: true            # table of contents
+    toc_float: true      # keep it visible while scrolling
+    code_folding: hide   # let readers show or hide code
+---
+```
+
+Swap `html_document` for `pdf_document` or `word_document` to change the output type (see [HTML, PDF, or Word](#html-pdf-or-word)). Quarto files (`.qmd`) use the same idea but call the field `format:` instead of `output:`.
+
+> **Learn more:** [HTML document options](https://bookdown.org/yihui/rmarkdown/html-document.html) &middot; [Quarto HTML options](https://quarto.org/docs/output-formats/html-basics.html)
+
+## Loading packages and sourcing custom code
+
+Load every package in one chunk near the top, so a reader can see all of the document's dependencies at a glance.
+
+* **Install packages in the console, not in the document.** An `install.packages()` call inside an RMD file reinstalls the package every time you knit.
+* **Use `source()` for your own functions.** Keep helper functions in a separate `.R` file and pull them in with one line. `source()` also works with a URL, which makes it easy to share code across projects.
+
+```r
+library( dplyr )
+library( stargazer )
+
+source( "R/helper-functions.R" )                                   # local file
+source( "https://raw.githubusercontent.com/user/repo/main/utils.R" ) # on the web
+```
+
+> **Learn more:** [Packages chapter of R for Data Science](https://r4ds.hadley.nz/workflow-basics) &middot; [Sourcing code in the Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/source-script.html)
+
+## Loading data: local files versus URLs
+
+When you knit, R sets the working directory to **the folder that holds the RMD file**. Local paths are read relative to that folder, so a data file in a `data` subfolder is simply `"data/my-data.csv"`. Avoid `setwd()` and full paths like `C:/Users/...`: they break as soon as the file moves to another computer.
+
+Data stored online can be read straight from a URL. On GitHub, click **Raw** to get the address of the file itself rather than the web page around it.
+
+```r
+dat <- read.csv( "data/my-data.csv" )                                  # local
+dat <- read.csv( "https://raw.githubusercontent.com/user/repo/main/data.csv" ) # URL
+dat <- readRDS( gzcon( url( "https://example.com/data.rds" ) ) )       # .rds from a URL
+```
+
+For large downloads, add `cache=TRUE` to the chunk so the file is fetched once instead of on every knit.
+
+> **Learn more:** [Project-oriented workflow and the here package](https://here.r-lib.org/) &middot; [Data import chapter of R for Data Science](https://r4ds.hadley.nz/data-import)
+
+## Markdown rules
+
+Markdown is a set of light formatting conventions for plain text. A handful of rules cover almost everything you will write:
+
+| You type | You get |
+|:--|:--|
+| `# Heading` / `## Subheading` | section headings |
+| `**bold**` and `*italic*` | **bold** and *italic* |
+| `* item` or `1. item` | bulleted or numbered lists |
+| `[link text](https://...)` | a hyperlink |
+| `` `code` `` | inline `code` |
+| `> quote` | an indented call-out block |
+| a blank line | a new paragraph |
+
+You can also drop R results into a sentence with inline code: typing `` `r "\x60r nrow(dat)\x60"` `` prints the number of rows, so the text updates whenever the data changes.
+
+> **Learn more:** [Markdown overview (DS4PS textbook)](https://ds4ps.org/data-driven-management-textbook/markdown/) &middot; [Pandoc's Markdown in the Definitive Guide](https://bookdown.org/yihui/rmarkdown/markdown-syntax.html)
+
+## Code chunk arguments and global settings
+
+A code chunk opens with ```` ```{r} ```` and closes with ```` ``` ````. Inside the braces you can add a **label** (a short name, which helps with debugging and file names for figures) and **options** that control what shows up in the output.
+
+````markdown
+`r ''````{r model-results, echo=FALSE, fig.width=8}
+plot( dat$x, dat$y )
+```
+````
+
+The options you will use most:
+
+| Option | What it does |
+|:--|:--|
+| `echo=FALSE` | runs the code but hides it; only results appear |
+| `eval=FALSE` | shows the code but does not run it |
+| `include=FALSE` | runs the code, shows nothing (good for setup) |
+| `message=FALSE`, `warning=FALSE` | hide package messages and warnings |
+| `results="asis"` | passes output through as raw markdown or HTML |
+| `fig.width`, `fig.height` | figure size in inches |
+| `fig.cap` | figure caption |
+| `cache=TRUE` | save results and skip re-running slow chunks |
+
+Set defaults for the whole document once, in the setup chunk, with `knitr::opts_chunk$set()`. Any option written on an individual chunk overrides the default. In Quarto, options move inside the chunk as special comments: `#| echo: false`.
+
+> **Learn more:** [Complete list of chunk options (Yihui Xie)](https://yihui.org/knitr/options/) &middot; [Chunk options in the Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html)
+
+## Mathematical formulas
+
+R Markdown understands LaTeX math. Wrap an expression in single dollar signs for inline math, like `$\bar{x}$`, or double dollar signs for an equation on its own line:
+
+```latex
+$$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i
+$$
+```
+
+$$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i
+$$
+
+Greek letters (`\alpha`, `\beta`), hats (`\hat{\beta}`), subscripts (`x_i`), superscripts (`x^2`), and fractions (`\frac{a}{b}`) cover most of what you need for regression models.
+
+> **Learn more:** [Math in R Markdown (R. Pruim)](https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html) &middot; [LaTeX mathematics (Wikibooks)](https://en.wikibooks.org/wiki/LaTeX/Mathematics)
+
+## Embedding images, image options, and captions
+
+There are two ways to add an image that is not produced by R code:
+
+```markdown
+![Caption text shown under the image](images/logic-model.png){width=60%}
+```
+
+````markdown
+`r ''````{r, echo=FALSE, out.width="60%", fig.align="center", fig.cap="Caption text"}
+knitr::include_graphics( "images/logic-model.png" )
+```
+````
+
+The markdown version is quickest. The chunk version gives you the full set of figure options, and it treats pictures and R plots the same way. For plots made in R, remember the difference between two sizes: `fig.width` and `fig.height` set the size R draws the plot at (which controls text size), while `out.width` sets how large it is displayed on the page.
+
+> **Learn more:** [Figures in the Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html) &middot; [Figure options in Quarto](https://quarto.org/docs/authoring/figures.html)
+
+## Citation management
+
+Citations need two things in the YAML header: a bibliography file (BibTeX, `.bib`) and, optionally, a citation style file (`.csl`). Cite a source with its key, and pandoc formats the citation and adds the reference list at the end of the document.
+
+```yaml
+bibliography: references.bib
+csl: apa.csl
+```
+
+```markdown
+Class size effects fade over time [@finn1990]. As @krueger1999 shows, ...
+```
+
+You do not have to build the `.bib` file by hand. The RStudio **visual editor** can insert citations from Zotero, a DOI, or a search, and it adds them to your bibliography automatically. Thousands of journal styles are available as `.csl` files.
+
+> **Learn more:** [Bibliographies in the Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/bibliography.html) &middot; [Citations in the RStudio visual editor](https://rstudio.github.io/visual-markdown-editing/citations.html) &middot; [Zotero style repository](https://www.zotero.org/styles)
+
+
+# Style and output {#style}
+
+## Syntax highlighting styles
+
+The `highlight` option in the YAML header controls the colors used for code. Built-in choices include `default`, `tango`, `pygments`, `kate`, `monochrome`, `espresso`, `zenburn`, `haddock`, `breezedark`, and `textmate`.
+
+```yaml
+output:
+  html_document:
+    highlight: tango
+```
+
+In Quarto the option is `highlight-style:` and it accepts many more themes (for example `github` or `atom-one`).
+
+> **Learn more:** [Pandoc syntax highlighting examples (Garrick Aden-Buie)](https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/) &middot; [Quarto code highlighting](https://quarto.org/docs/output-formats/html-code.html#highlighting)
+
+## R-to-HTML functions and `results="asis"`
+
+By default, knitr treats printed output as plain text and places it in a gray output box. Many packages instead write formatted markdown or HTML for you: `pander()`, `knitr::kable()`, `stargazer( type="html" )`, and `kableExtra`. Some return output that knitr already knows how to display; others (such as `stargazer`) print raw HTML and need the chunk option `results="asis"` so it is passed through untouched.
+
+The same trick lets you write text with code. The chunk below uses `cat()` to build a markdown list, and `results="asis"` turns it into a real list:
+
+```{r, results="asis"}
+for( v in c("mpg","hp","wt") )
+{
+  cat( "* Mean of **", v, "**: ", round( mean( mtcars[[v]] ), 1 ), "\n", sep="" )
+}
+```
+
+> **Learn more:** [results="asis" in the Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/results-asis.html) &middot; [kableExtra for HTML tables](https://haozhu233.github.io/kableExtra/awesome_table_in_html.html) &middot; [stargazer cheatsheet](https://www.jakeruss.com/cheatsheets/stargazer/)
+
+## Custom style sheets: embedded versus imported
+
+HTML output is styled with CSS, so you can change fonts, colors, and spacing. There are two ways to add your own rules.
+
+* **Embedded:** a `css` chunk inside the document. The rules travel with the file, which is handy for a few quick changes. Use `echo=FALSE` so the CSS does not print.
+* **Imported:** a separate `.css` file named in the YAML header. One file can style a whole collection of documents, and a change in one place updates all of them.
+
+````markdown
+`r ''````{css, echo=FALSE}
+h1, h2 { color: #153243; }
+p { max-width: 45em; }
+```
+````
+
+```yaml
+output:
+  html_document:
+    css: styles.css
+```
+
+This page uses both: an imported style sheet shared by the course lecture notes, plus an embedded chunk at the bottom of the file that styles the anatomy diagram. CSS only affects HTML output; it has no effect on PDF or Word documents.
+
+> **Learn more:** [HTML and CSS in the Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html) &middot; [CSS basics (MDN)](https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps)
+
+
+# Formats and templates {#formats}
+
+## HTML, PDF, or Word
+
+The same RMD file can produce several document types, but they are not equally forgiving. **HTML is the most stable choice**: everything in this guide works there, it needs no extra software, and it is the format we use for labs.
+
+| | HTML | PDF | Word |
+|:--|:--|:--|:--|
+| Extra software | none | LaTeX (`tinytex`) | Word or LibreOffice |
+| Custom CSS | yes | no | no |
+| HTML tables (`stargazer`, `kableExtra` HTML) | yes | no, use LaTeX versions | no |
+| Interactive widgets | yes | no | no |
+| Styling | CSS | LaTeX templates | a reference `.docx` |
+
+* **PDF** output runs through LaTeX. Install it once with `tinytex::install_tinytex()`. Code that prints HTML will fail or disappear.
+* **Word** output is useful when collaborators need track changes. Style it by supplying a reference document whose styles you have edited (`reference_docx:`).
+
+> **Learn more:** [PDF documents](https://bookdown.org/yihui/rmarkdown/pdf-document.html) &middot; [TinyTeX](https://yihui.org/tinytex/) &middot; [Styling Word output](https://bookdown.org/yihui/rmarkdown-cookbook/word-template.html)
+
+## Advanced document types
+
+Beyond reports, R Markdown can produce slides, dashboards, and more. Each is a different `output:` value, and most come from an add-on package.
+
+* **PowerPoint** (`powerpoint_presentation`): editable slides, styled with a reference `.pptx`.
+* **HTML slides**: `ioslides_presentation` and `slidy_presentation` are built in; `xaringan` and Quarto's `revealjs` are more flexible.
+* **Dashboards** (`flexdashboard`): arrange charts, tables, and value boxes in rows and columns.
+* **Storyboards** (a `flexdashboard` layout): a sequence of frames, each with a chart and commentary, for walking a reader through an analysis.
+* **Books and websites** (`bookdown`, `distill`, Quarto projects): many files knit into one connected site.
+
+> **Learn more:** [PowerPoint presentations](https://bookdown.org/yihui/rmarkdown/powerpoint-presentation.html) &middot; [flexdashboard](https://pkgs.rstudio.com/flexdashboard/) &middot; [Storyboards](https://pkgs.rstudio.com/flexdashboard/articles/using.html#storyboards) &middot; [Quarto presentations](https://quarto.org/docs/presentations/)
+
+## The R Markdown template gallery
+
+You do not need to design a template from scratch. The format gallery shows dozens of ready-made output types, and several packages add polished HTML themes: `rmdformats`, `prettydoc`, and `tufte` are good places to start. After installing one, its templates appear in RStudio under **File > New File > R Markdown > From Template**.
+
+> **Learn more:** [R Markdown formats gallery](https://rmarkdown.rstudio.com/formats.html) &middot; [rmdformats](https://github.com/juba/rmdformats) &middot; [prettydoc](https://prettydoc.statr.me/) &middot; [tufte](https://rstudio.github.io/tufte/)
+
+## Quarto academic journal templates
+
+Quarto is the next generation of R Markdown. A `.qmd` file looks almost the same as an `.rmd` file, and Quarto can also knit Python and Julia. Its main advantage for research is a set of **journal templates** that format a manuscript to a publisher's specifications (Elsevier, PLOS, the American Chemical Society, the Journal of Statistical Software, and others). Start a new paper from a template with one command in the terminal:
+
+```bash
+quarto use template quarto-journals/elsevier
+```
+
+The `rticles` package offers the same service for `.rmd` files.
+
+> **Learn more:** [Quarto journal templates](https://quarto.org/docs/extensions/listing-journals.html) &middot; [quarto-journals on GitHub](https://github.com/quarto-journals) &middot; [rticles](https://pkgs.rstudio.com/rticles/) &middot; [Moving from R Markdown to Quarto](https://quarto.org/docs/faq/rmarkdown.html)
+
+
+```{=html}
+<footer class="notes-footer">
+  <p>Written by <a href="http://lecy.info">Jesse Lecy</a>. Content licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  <p><a href="https://lecy.github.io/econometrics/">Course home</a>.</p>
+</footer>
+```
+
+```{css, echo=FALSE}
+/* embedded style sheet: the anatomy diagram */
+figure.anatomy{margin:1.75rem 0 2rem;max-width:54rem;}
+figure.anatomy svg{display:block;width:100%;height:auto;}
+.anatomy .page{fill:var(--ground);stroke:var(--rule-strong);stroke-width:1.5;}
+.anatomy .fold{fill:var(--surface);stroke:var(--rule-strong);stroke-width:1.5;}
+.anatomy .band{stroke-width:1;}
+.anatomy .yaml{fill:var(--accent-wash);stroke:var(--accent);}
+.anatomy .code{fill:var(--surface);stroke:var(--rule-strong);}
+.anatomy .prose{fill:var(--ground);stroke:var(--rule-strong);stroke-dasharray:4 3;}
+.anatomy .style{fill:var(--surface);stroke:var(--code-fn);}
+.anatomy .faint{opacity:.55;}
+.anatomy text{fill:var(--ink);}
+.anatomy .mono{font-family:var(--font-code);font-size:12px;}
+.anatomy .fence{fill:var(--ink-soft);}
+.anatomy .sans{font-family:var(--font-body);font-size:13px;fill:var(--ink-mid);}
+.anatomy .head{font-family:var(--font-display);font-size:14px;font-weight:600;}
+.anatomy .note{font-style:italic;fill:var(--ink-soft);font-size:12px;}
+.anatomy .brace{fill:none;stroke:var(--ink-soft);stroke-width:1;}
+.anatomy .label line{stroke:var(--rule-strong);stroke-width:1;}
+.anatomy .label circle{fill:var(--accent);}
+.anatomy .num{fill:var(--ground);font-family:var(--font-body);font-size:13px;font-weight:700;text-anchor:middle;}
+.anatomy .lt{font-family:var(--font-body);font-size:15px;font-weight:700;}
+.anatomy .ld{font-family:var(--font-body);font-size:13px;fill:var(--ink-mid);}
+```

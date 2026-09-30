@@ -27,6 +27,8 @@ Join the MS-PEDA groups on Linked-In or Facebook to meet alumni and stay connect
 
 The [R Overview](../r-overview/) page provides background on installing R and RStudio and using markdown to create data-driven documents. 
 
+The [R Markdown template guide](../handouts/rmd-template-guide.html) is a short tour of the pieces of a good RMD or QMD template, with a [starter template](../handouts/rmd-template.rmd) you can download and knit.
+
 ## Stats Review 
 
 For a refresher on core stats concepts that serve as pre-requisites to this course, visit the [stats review page](../stats-review/). 

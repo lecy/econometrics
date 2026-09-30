@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Building an R Markdown Template</title>
+
+<script src="rmd-template-guide_files/header-attrs-2.31/header-attrs.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Source+Code+Pro:wght@400;600&display=swap">
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="../lectures3/assets/lecture-notes.css" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+
+
+
+<header class="masthead">
+    <p class="eyebrow">Handout &middot; Data-Driven Documents</p>
+    <h1>Building an R Markdown Template</h1>
+    <p class="dek">A short tour of the pieces that make up a good RMD (or QMD) template file. Each topic gets a quick explanation and a pointer to where you can learn the details.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#anatomy">Anatomy</a>
+      <a href="#basics">The basics</a>
+      <a href="#style">Style and output</a>
+      <a href="#formats">Formats and templates</a>
+    </nav>
+    <p class="dek"><a href="rmd-template.rmd" download>Download the starter template (rmd-template.rmd)</a></p>
+</header>
+<div id="anatomy" class="section level1">
+<h1>The anatomy of a template</h1>
+<p>Every R Markdown file is a plain text file that mixes three
+languages: YAML for settings, markdown for prose, and R for code. When
+you knit, R runs the code, drops the results into the text, and pandoc
+converts the whole thing into HTML, PDF, or Word.</p>
+<p>A good template puts the same pieces in the same order every time, so
+you never start from a blank page.</p>
+<figure class="anatomy">
+<svg viewBox="0 0 760 680" role="img" aria-labelledby="anatomy-title anatomy-desc">
+  <title id="anatomy-title">Anatomy of an R Markdown template</title>
+  <desc id="anatomy-desc">A document drawn as a page with seven stacked sections from top to bottom: YAML header, global knit options, load packages, load data, text and math, code chunks, and an embedded CSS style sheet.</desc>
+
+  <!-- the page -->
+  <path class="page" d="M20 20 H352 L380 48 V660 H20 Z"/>
+  <path class="fold" d="M352 20 V48 H380"/>
+
+  <!-- 1 YAML header -->
+  <rect class="band yaml" x="40" y="44" width="300" height="84" rx="3"/>
+  <text class="mono" x="54" y="66">---</text>
+  <text class="mono" x="54" y="82">title: "My Report"</text>
+  <text class="mono" x="54" y="98">output: html_document</text>
+  <text class="mono" x="54" y="114">---</text>
+
+  <!-- 2 global options -->
+  <rect class="band code" x="40" y="140" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="160">```{r setup, include=FALSE}</text>
+  <text class="mono" x="54" y="176">knitr::opts_chunk$set(echo=TRUE)</text>
+
+  <!-- 3 packages -->
+  <rect class="band code" x="40" y="200" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="220">```{r packages}</text>
+  <text class="mono" x="54" y="236">library(dplyr); source("utils.R")</text>
+
+  <!-- 4 data -->
+  <rect class="band code" x="40" y="260" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="280">```{r data}</text>
+  <text class="mono" x="54" y="296">dat &lt;- read.csv("data.csv")</text>
+
+  <!-- 5 text and math -->
+  <rect class="band prose" x="40" y="328" width="320" height="64" rx="3"/>
+  <text class="head" x="54" y="350">## Results</text>
+  <text class="sans" x="54" y="368">Prose written in **markdown**, with</text>
+  <text class="sans" x="54" y="384">math like $y = \beta_0 + \beta_1 x$</text>
+
+  <!-- 6 code chunks -->
+  <rect class="band code" x="40" y="402" width="320" height="60" rx="3"/>
+  <text class="mono fence" x="54" y="422">```{r model}</text>
+  <text class="mono" x="54" y="438">m &lt;- lm(y ~ x, data=dat)</text>
+  <text class="mono" x="54" y="454">summary(m)</text>
+
+  <!-- repeated body -->
+  <rect class="band prose faint" x="40" y="472" width="320" height="36" rx="3"/>
+  <text class="sans note" x="54" y="495">more text &#8230;</text>
+  <rect class="band code faint" x="40" y="518" width="320" height="36" rx="3"/>
+  <text class="mono note" x="54" y="541">more chunks &#8230;</text>
+  <path class="brace" d="M368 328 h6 V554 h-6"/>
+  <text class="sans note" x="374" y="572" text-anchor="end">body: repeat as needed</text>
+
+  <!-- 7 css -->
+  <rect class="band style" x="40" y="588" width="320" height="48" rx="3"/>
+  <text class="mono fence" x="54" y="608">```{css, echo=FALSE}</text>
+  <text class="mono" x="54" y="624">h1 { color: #bd5416; }</text>
+
+  <!-- labels -->
+  <g class="label">
+    <line x1="344" y1="86" x2="404" y2="86"/>
+    <circle cx="420" cy="86" r="12"/><text class="num" x="420" y="90.5">1</text>
+    <text class="lt" x="442" y="82">YAML header</text>
+    <text class="ld" x="442" y="100">Title, author, date, and output format</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="164" x2="404" y2="164"/>
+    <circle cx="420" cy="164" r="12"/><text class="num" x="420" y="168.5">2</text>
+    <text class="lt" x="442" y="160">Global knit options</text>
+    <text class="ld" x="442" y="178">Default settings for every code chunk</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="224" x2="404" y2="224"/>
+    <circle cx="420" cy="224" r="12"/><text class="num" x="420" y="228.5">3</text>
+    <text class="lt" x="442" y="220">Load packages</text>
+    <text class="ld" x="442" y="238">library() calls and source() for your own code</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="284" x2="404" y2="284"/>
+    <circle cx="420" cy="284" r="12"/><text class="num" x="420" y="288.5">4</text>
+    <text class="lt" x="442" y="280">Load data</text>
+    <text class="ld" x="442" y="298">Read files once, near the top</text>
+  </g>
+  <g class="label">
+    <line x1="380" y1="360" x2="404" y2="360"/>
+    <circle cx="420" cy="360" r="12"/><text class="num" x="420" y="364.5">5</text>
+    <text class="lt" x="442" y="356">Text and math</text>
+    <text class="ld" x="442" y="374">Markdown prose with LaTeX equations</text>
+  </g>
+  <g class="label">
+    <line x1="380" y1="432" x2="404" y2="432"/>
+    <circle cx="420" cy="432" r="12"/><text class="num" x="420" y="436.5">6</text>
+    <text class="lt" x="442" y="428">Code chunks</text>
+    <text class="ld" x="442" y="446">Analysis, tables, and figures woven into the text</text>
+  </g>
+  <g class="label">
+    <line x1="360" y1="612" x2="404" y2="612"/>
+    <circle cx="420" cy="612" r="12"/><text class="num" x="420" y="616.5">7</text>
+    <text class="lt" x="442" y="608">Embedded CSS style sheet</text>
+    <text class="ld" x="442" y="626">Page styles for HTML output</text>
+  </g>
+</svg>
+</figure>
+<p>Here is the same skeleton as plain text. The <a
+href="rmd-template.rmd">starter template</a> is a complete version you
+can knit right away.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;My Report&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="an">output:</span><span class="co"> html_document</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="in">```{r setup, include=FALSE}</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="in">knitr::opts_chunk$set( echo=TRUE, message=FALSE, warning=FALSE )</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="in">```{r packages}</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="in">library( dplyr )</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="in">source( &quot;utils.R&quot; )</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="in">```{r data}</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="in">dat &lt;- read.csv( &quot;data/my-data.csv&quot; )</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>Prose in markdown, with math like $y = \beta_0 + \beta_1 x$.</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="in">```{r model}</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="in">m &lt;- lm( y ~ x, data=dat )</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="in">summary( m )</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="in">```{css, echo=FALSE}</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="in">h1 { color: #bd5416; }</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://rmarkdown.rstudio.com/lesson-1.html">Getting Started with
+R Markdown</a> · <a href="https://bookdown.org/yihui/rmarkdown/">R
+Markdown: The Definitive Guide</a> · <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/">R Markdown
+Cookbook</a></p>
+</blockquote>
+</div>
+<div id="basics" class="section level1">
+<h1>The basics</h1>
+<div id="yaml-headers-and-document-types" class="section level2">
+<h2>YAML headers and document types</h2>
+<p>The YAML header sits between two lines of three dashes at the very
+top of the file. It holds the document’s metadata (title, author, date)
+and, most importantly, the <strong>output format</strong>. Indentation
+matters: nested options are indented two spaces under their parent.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Program Evaluation Report&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Your Name&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;2026-09-30&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">  </span><span class="fu">html_document</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="at">    </span><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">            # table of contents</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="at">    </span><span class="fu">toc_float</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">      # keep it visible while scrolling</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">    </span><span class="fu">code_folding</span><span class="kw">:</span><span class="at"> hide</span><span class="co">   # let readers show or hide code</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
+<p>Swap <code>html_document</code> for <code>pdf_document</code> or
+<code>word_document</code> to change the output type (see <a
+href="#html-pdf-or-word">HTML, PDF, or Word</a>). Quarto files
+(<code>.qmd</code>) use the same idea but call the field
+<code>format:</code> instead of <code>output:</code>.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown/html-document.html">HTML
+document options</a> · <a
+href="https://quarto.org/docs/output-formats/html-basics.html">Quarto
+HTML options</a></p>
+</blockquote>
+</div>
+<div id="loading-packages-and-sourcing-custom-code"
+class="section level2">
+<h2>Loading packages and sourcing custom code</h2>
+<p>Load every package in one chunk near the top, so a reader can see all
+of the document’s dependencies at a glance.</p>
+<ul>
+<li><strong>Install packages in the console, not in the
+document.</strong> An <code>install.packages()</code> call inside an RMD
+file reinstalls the package every time you knit.</li>
+<li><strong>Use <code>source()</code> for your own functions.</strong>
+Keep helper functions in a separate <code>.R</code> file and pull them
+in with one line. <code>source()</code> also works with a URL, which
+makes it easy to share code across projects.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>( dplyr )</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">library</span>( stargazer )</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">source</span>( <span class="st">&quot;R/helper-functions.R&quot;</span> )                                   <span class="co"># local file</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">source</span>( <span class="st">&quot;https://raw.githubusercontent.com/user/repo/main/utils.R&quot;</span> ) <span class="co"># on the web</span></span></code></pre></div>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://r4ds.hadley.nz/workflow-basics">Packages chapter of R for
+Data Science</a> · <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/source-script.html">Sourcing
+code in the Cookbook</a></p>
+</blockquote>
+</div>
+<div id="loading-data-local-files-versus-urls" class="section level2">
+<h2>Loading data: local files versus URLs</h2>
+<p>When you knit, R sets the working directory to <strong>the folder
+that holds the RMD file</strong>. Local paths are read relative to that
+folder, so a data file in a <code>data</code> subfolder is simply
+<code>"data/my-data.csv"</code>. Avoid <code>setwd()</code> and full
+paths like <code>C:/Users/...</code>: they break as soon as the file
+moves to another computer.</p>
+<p>Data stored online can be read straight from a URL. On GitHub, click
+<strong>Raw</strong> to get the address of the file itself rather than
+the web page around it.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>( <span class="st">&quot;data/my-data.csv&quot;</span> )                                  <span class="co"># local</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>( <span class="st">&quot;https://raw.githubusercontent.com/user/repo/main/data.csv&quot;</span> ) <span class="co"># URL</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>( <span class="fu">gzcon</span>( <span class="fu">url</span>( <span class="st">&quot;https://example.com/data.rds&quot;</span> ) ) )       <span class="co"># .rds from a URL</span></span></code></pre></div>
+<p>For large downloads, add <code>cache=TRUE</code> to the chunk so the
+file is fetched once instead of on every knit.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://here.r-lib.org/">Project-oriented workflow and the here
+package</a> · <a href="https://r4ds.hadley.nz/data-import">Data import
+chapter of R for Data Science</a></p>
+</blockquote>
+</div>
+<div id="markdown-rules" class="section level2">
+<h2>Markdown rules</h2>
+<p>Markdown is a set of light formatting conventions for plain text. A
+handful of rules cover almost everything you will write:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">You type</th>
+<th align="left">You get</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code># Heading</code> /
+<code>## Subheading</code></td>
+<td align="left">section headings</td>
+</tr>
+<tr class="even">
+<td align="left"><code>**bold**</code> and <code>*italic*</code></td>
+<td align="left"><strong>bold</strong> and <em>italic</em></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>* item</code> or <code>1. item</code></td>
+<td align="left">bulleted or numbered lists</td>
+</tr>
+<tr class="even">
+<td align="left"><code>[link text](https://...)</code></td>
+<td align="left">a hyperlink</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>`code`</code></td>
+<td align="left">inline <code>code</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>&gt; quote</code></td>
+<td align="left">an indented call-out block</td>
+</tr>
+<tr class="odd">
+<td align="left">a blank line</td>
+<td align="left">a new paragraph</td>
+</tr>
+</tbody>
+</table>
+<p>You can also drop R results into a sentence with inline code: typing
+<code>`r nrow(dat)`</code> prints the number of rows, so the text
+updates whenever the data changes.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://ds4ps.org/data-driven-management-textbook/markdown/">Markdown
+overview (DS4PS textbook)</a> · <a
+href="https://bookdown.org/yihui/rmarkdown/markdown-syntax.html">Pandoc’s
+Markdown in the Definitive Guide</a></p>
+</blockquote>
+</div>
+<div id="code-chunk-arguments-and-global-settings"
+class="section level2">
+<h2>Code chunk arguments and global settings</h2>
+<p>A code chunk opens with <code>```{r}</code> and closes with
+<code>```</code>. Inside the braces you can add a <strong>label</strong>
+(a short name, which helps with debugging and file names for figures)
+and <strong>options</strong> that control what shows up in the
+output.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="in">```{r model-results, echo=FALSE, fig.width=8}</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="in">plot( dat$x, dat$y )</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<p>The options you will use most:</p>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Option</th>
+<th align="left">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>echo=FALSE</code></td>
+<td align="left">runs the code but hides it; only results appear</td>
+</tr>
+<tr class="even">
+<td align="left"><code>eval=FALSE</code></td>
+<td align="left">shows the code but does not run it</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>include=FALSE</code></td>
+<td align="left">runs the code, shows nothing (good for setup)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>message=FALSE</code>,
+<code>warning=FALSE</code></td>
+<td align="left">hide package messages and warnings</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>results="asis"</code></td>
+<td align="left">passes output through as raw markdown or HTML</td>
+</tr>
+<tr class="even">
+<td align="left"><code>fig.width</code>, <code>fig.height</code></td>
+<td align="left">figure size in inches</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>fig.cap</code></td>
+<td align="left">figure caption</td>
+</tr>
+<tr class="even">
+<td align="left"><code>cache=TRUE</code></td>
+<td align="left">save results and skip re-running slow chunks</td>
+</tr>
+</tbody>
+</table>
+<p>Set defaults for the whole document once, in the setup chunk, with
+<code>knitr::opts_chunk$set()</code>. Any option written on an
+individual chunk overrides the default. In Quarto, options move inside
+the chunk as special comments: <code>#| echo: false</code>.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://yihui.org/knitr/options/">Complete list of chunk options
+(Yihui Xie)</a> · <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html">Chunk
+options in the Cookbook</a></p>
+</blockquote>
+</div>
+<div id="mathematical-formulas" class="section level2">
+<h2>Mathematical formulas</h2>
+<p>R Markdown understands LaTeX math. Wrap an expression in single
+dollar signs for inline math, like <code>$\bar{x}$</code>, or double
+dollar signs for an equation on its own line:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ss">$$</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ss">Y_i = </span><span class="sc">\beta</span><span class="ss">_0 + </span><span class="sc">\beta</span><span class="ss">_1 X_i + </span><span class="sc">\epsilon</span><span class="ss">_i</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="ss">$$</span></span></code></pre></div>
+<p><span class="math display">\[
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i
+\]</span></p>
+<p>Greek letters (<code>\alpha</code>, <code>\beta</code>), hats
+(<code>\hat{\beta}</code>), subscripts (<code>x_i</code>), superscripts
+(<code>x^2</code>), and fractions (<code>\frac{a}{b}</code>) cover most
+of what you need for regression models.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html">Math
+in R Markdown (R. Pruim)</a> · <a
+href="https://en.wikibooks.org/wiki/LaTeX/Mathematics">LaTeX mathematics
+(Wikibooks)</a></p>
+</blockquote>
+</div>
+<div id="embedding-images-image-options-and-captions"
+class="section level2">
+<h2>Embedding images, image options, and captions</h2>
+<p>There are two ways to add an image that is not produced by R
+code:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="al">![Caption text shown under the image](images/logic-model.png)</span>{width=60%}</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="in">```{r, echo=FALSE, out.width=&quot;60%&quot;, fig.align=&quot;center&quot;, fig.cap=&quot;Caption text&quot;}</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="in">knitr::include_graphics( &quot;images/logic-model.png&quot; )</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<p>The markdown version is quickest. The chunk version gives you the
+full set of figure options, and it treats pictures and R plots the same
+way. For plots made in R, remember the difference between two sizes:
+<code>fig.width</code> and <code>fig.height</code> set the size R draws
+the plot at (which controls text size), while <code>out.width</code>
+sets how large it is displayed on the page.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html">Figures
+in the Cookbook</a> · <a
+href="https://quarto.org/docs/authoring/figures.html">Figure options in
+Quarto</a></p>
+</blockquote>
+</div>
+<div id="citation-management" class="section level2">
+<h2>Citation management</h2>
+<p>Citations need two things in the YAML header: a bibliography file
+(BibTeX, <code>.bib</code>) and, optionally, a citation style file
+(<code>.csl</code>). Cite a source with its key, and pandoc formats the
+citation and adds the reference list at the end of the document.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">bibliography</span><span class="kw">:</span><span class="at"> references.bib</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">csl</span><span class="kw">:</span><span class="at"> apa.csl</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>Class size effects fade over time <span class="co">[</span><span class="ot">@finn1990</span><span class="co">]</span>. As @krueger1999 shows, ...</span></code></pre></div>
+<p>You do not have to build the <code>.bib</code> file by hand. The
+RStudio <strong>visual editor</strong> can insert citations from Zotero,
+a DOI, or a search, and it adds them to your bibliography automatically.
+Thousands of journal styles are available as <code>.csl</code>
+files.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/bibliography.html">Bibliographies
+in the Cookbook</a> · <a
+href="https://rstudio.github.io/visual-markdown-editing/citations.html">Citations
+in the RStudio visual editor</a> · <a
+href="https://www.zotero.org/styles">Zotero style repository</a></p>
+</blockquote>
+</div>
+</div>
+<div id="style" class="section level1">
+<h1>Style and output</h1>
+<div id="syntax-highlighting-styles" class="section level2">
+<h2>Syntax highlighting styles</h2>
+<p>The <code>highlight</code> option in the YAML header controls the
+colors used for code. Built-in choices include <code>default</code>,
+<code>tango</code>, <code>pygments</code>, <code>kate</code>,
+<code>monochrome</code>, <code>espresso</code>, <code>zenburn</code>,
+<code>haddock</code>, <code>breezedark</code>, and
+<code>textmate</code>.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="at">  </span><span class="fu">html_document</span><span class="kw">:</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="at">    </span><span class="fu">highlight</span><span class="kw">:</span><span class="at"> tango</span></span></code></pre></div>
+<p>In Quarto the option is <code>highlight-style:</code> and it accepts
+many more themes (for example <code>github</code> or
+<code>atom-one</code>).</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/">Pandoc
+syntax highlighting examples (Garrick Aden-Buie)</a> · <a
+href="https://quarto.org/docs/output-formats/html-code.html#highlighting">Quarto
+code highlighting</a></p>
+</blockquote>
+</div>
+<div id="r-to-html-functions-and-resultsasis" class="section level2">
+<h2>R-to-HTML functions and <code>results="asis"</code></h2>
+<p>By default, knitr treats printed output as plain text and places it
+in a gray output box. Many packages instead write formatted markdown or
+HTML for you: <code>pander()</code>, <code>knitr::kable()</code>,
+<code>stargazer( type="html" )</code>, and <code>kableExtra</code>. Some
+return output that knitr already knows how to display; others (such as
+<code>stargazer</code>) print raw HTML and need the chunk option
+<code>results="asis"</code> so it is passed through untouched.</p>
+<p>The same trick lets you write text with code. The chunk below uses
+<code>cat()</code> to build a markdown list, and
+<code>results="asis"</code> turns it into a real list:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="cf">for</span>( v <span class="cf">in</span> <span class="fu">c</span>(<span class="st">&quot;mpg&quot;</span>,<span class="st">&quot;hp&quot;</span>,<span class="st">&quot;wt&quot;</span>) )</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>{</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">cat</span>( <span class="st">&quot;* Mean of **&quot;</span>, v, <span class="st">&quot;**: &quot;</span>, <span class="fu">round</span>( <span class="fu">mean</span>( mtcars[[v]] ), <span class="dv">1</span> ), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="at">sep=</span><span class="st">&quot;&quot;</span> )</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>}</span></code></pre></div>
+<ul>
+<li>Mean of <strong>mpg</strong>: 20.1</li>
+<li>Mean of <strong>hp</strong>: 146.7</li>
+<li>Mean of <strong>wt</strong>: 3.2</li>
+</ul>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/results-asis.html">results=“asis”
+in the Cookbook</a> · <a
+href="https://haozhu233.github.io/kableExtra/awesome_table_in_html.html">kableExtra
+for HTML tables</a> · <a
+href="https://www.jakeruss.com/cheatsheets/stargazer/">stargazer
+cheatsheet</a></p>
+</blockquote>
+</div>
+<div id="custom-style-sheets-embedded-versus-imported"
+class="section level2">
+<h2>Custom style sheets: embedded versus imported</h2>
+<p>HTML output is styled with CSS, so you can change fonts, colors, and
+spacing. There are two ways to add your own rules.</p>
+<ul>
+<li><strong>Embedded:</strong> a <code>css</code> chunk inside the
+document. The rules travel with the file, which is handy for a few quick
+changes. Use <code>echo=FALSE</code> so the CSS does not print.</li>
+<li><strong>Imported:</strong> a separate <code>.css</code> file named
+in the YAML header. One file can style a whole collection of documents,
+and a change in one place updates all of them.</li>
+</ul>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="in">```{css, echo=FALSE}</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="in">h1, h2 { color: #153243; }</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="in">p { max-width: 45em; }</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="in">```</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">output</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="at">  </span><span class="fu">html_document</span><span class="kw">:</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="at">    </span><span class="fu">css</span><span class="kw">:</span><span class="at"> styles.css</span></span></code></pre></div>
+<p>This page uses both: an imported style sheet shared by the course
+lecture notes, plus an embedded chunk at the bottom of the file that
+styles the anatomy diagram. CSS only affects HTML output; it has no
+effect on PDF or Word documents.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html">HTML
+and CSS in the Cookbook</a> · <a
+href="https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps">CSS
+basics (MDN)</a></p>
+</blockquote>
+</div>
+</div>
+<div id="formats" class="section level1">
+<h1>Formats and templates</h1>
+<div id="html-pdf-or-word" class="section level2">
+<h2>HTML, PDF, or Word</h2>
+<p>The same RMD file can produce several document types, but they are
+not equally forgiving. <strong>HTML is the most stable choice</strong>:
+everything in this guide works there, it needs no extra software, and it
+is the format we use for labs.</p>
+<table>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">HTML</th>
+<th align="left">PDF</th>
+<th align="left">Word</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Extra software</td>
+<td align="left">none</td>
+<td align="left">LaTeX (<code>tinytex</code>)</td>
+<td align="left">Word or LibreOffice</td>
+</tr>
+<tr class="even">
+<td align="left">Custom CSS</td>
+<td align="left">yes</td>
+<td align="left">no</td>
+<td align="left">no</td>
+</tr>
+<tr class="odd">
+<td align="left">HTML tables (<code>stargazer</code>,
+<code>kableExtra</code> HTML)</td>
+<td align="left">yes</td>
+<td align="left">no, use LaTeX versions</td>
+<td align="left">no</td>
+</tr>
+<tr class="even">
+<td align="left">Interactive widgets</td>
+<td align="left">yes</td>
+<td align="left">no</td>
+<td align="left">no</td>
+</tr>
+<tr class="odd">
+<td align="left">Styling</td>
+<td align="left">CSS</td>
+<td align="left">LaTeX templates</td>
+<td align="left">a reference <code>.docx</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>PDF</strong> output runs through LaTeX. Install it once with
+<code>tinytex::install_tinytex()</code>. Code that prints HTML will fail
+or disappear.</li>
+<li><strong>Word</strong> output is useful when collaborators need track
+changes. Style it by supplying a reference document whose styles you
+have edited (<code>reference_docx:</code>).</li>
+</ul>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown/pdf-document.html">PDF
+documents</a> · <a href="https://yihui.org/tinytex/">TinyTeX</a> · <a
+href="https://bookdown.org/yihui/rmarkdown-cookbook/word-template.html">Styling
+Word output</a></p>
+</blockquote>
+</div>
+<div id="advanced-document-types" class="section level2">
+<h2>Advanced document types</h2>
+<p>Beyond reports, R Markdown can produce slides, dashboards, and more.
+Each is a different <code>output:</code> value, and most come from an
+add-on package.</p>
+<ul>
+<li><strong>PowerPoint</strong> (<code>powerpoint_presentation</code>):
+editable slides, styled with a reference <code>.pptx</code>.</li>
+<li><strong>HTML slides</strong>: <code>ioslides_presentation</code> and
+<code>slidy_presentation</code> are built in; <code>xaringan</code> and
+Quarto’s <code>revealjs</code> are more flexible.</li>
+<li><strong>Dashboards</strong> (<code>flexdashboard</code>): arrange
+charts, tables, and value boxes in rows and columns.</li>
+<li><strong>Storyboards</strong> (a <code>flexdashboard</code> layout):
+a sequence of frames, each with a chart and commentary, for walking a
+reader through an analysis.</li>
+<li><strong>Books and websites</strong> (<code>bookdown</code>,
+<code>distill</code>, Quarto projects): many files knit into one
+connected site.</li>
+</ul>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://bookdown.org/yihui/rmarkdown/powerpoint-presentation.html">PowerPoint
+presentations</a> · <a
+href="https://pkgs.rstudio.com/flexdashboard/">flexdashboard</a> · <a
+href="https://pkgs.rstudio.com/flexdashboard/articles/using.html#storyboards">Storyboards</a>
+· <a href="https://quarto.org/docs/presentations/">Quarto
+presentations</a></p>
+</blockquote>
+</div>
+<div id="the-r-markdown-template-gallery" class="section level2">
+<h2>The R Markdown template gallery</h2>
+<p>You do not need to design a template from scratch. The format gallery
+shows dozens of ready-made output types, and several packages add
+polished HTML themes: <code>rmdformats</code>, <code>prettydoc</code>,
+and <code>tufte</code> are good places to start. After installing one,
+its templates appear in RStudio under <strong>File &gt; New File &gt; R
+Markdown &gt; From Template</strong>.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://rmarkdown.rstudio.com/formats.html">R Markdown formats
+gallery</a> · <a
+href="https://github.com/juba/rmdformats">rmdformats</a> · <a
+href="https://prettydoc.statr.me/">prettydoc</a> · <a
+href="https://rstudio.github.io/tufte/">tufte</a></p>
+</blockquote>
+</div>
+<div id="quarto-academic-journal-templates" class="section level2">
+<h2>Quarto academic journal templates</h2>
+<p>Quarto is the next generation of R Markdown. A <code>.qmd</code> file
+looks almost the same as an <code>.rmd</code> file, and Quarto can also
+knit Python and Julia. Its main advantage for research is a set of
+<strong>journal templates</strong> that format a manuscript to a
+publisher’s specifications (Elsevier, PLOS, the American Chemical
+Society, the Journal of Statistical Software, and others). Start a new
+paper from a template with one command in the terminal:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="ex">quarto</span> use template quarto-journals/elsevier</span></code></pre></div>
+<p>The <code>rticles</code> package offers the same service for
+<code>.rmd</code> files.</p>
+<blockquote>
+<p><strong>Learn more:</strong> <a
+href="https://quarto.org/docs/extensions/listing-journals.html">Quarto
+journal templates</a> · <a
+href="https://github.com/quarto-journals">quarto-journals on GitHub</a>
+· <a href="https://pkgs.rstudio.com/rticles/">rticles</a> · <a
+href="https://quarto.org/docs/faq/rmarkdown.html">Moving from R Markdown
+to Quarto</a></p>
+</blockquote>
+<footer class="notes-footer">
+  <p>Written by <a href="http://lecy.info">Jesse Lecy</a>. Content licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  <p><a href="https://lecy.github.io/econometrics/">Course home</a>.</p>
+</footer>
+<style type="text/css">
+/* embedded style sheet: the anatomy diagram */
+figure.anatomy{margin:1.75rem 0 2rem;max-width:54rem;}
+figure.anatomy svg{display:block;width:100%;height:auto;}
+.anatomy .page{fill:var(--ground);stroke:var(--rule-strong);stroke-width:1.5;}
+.anatomy .fold{fill:var(--surface);stroke:var(--rule-strong);stroke-width:1.5;}
+.anatomy .band{stroke-width:1;}
+.anatomy .yaml{fill:var(--accent-wash);stroke:var(--accent);}
+.anatomy .code{fill:var(--surface);stroke:var(--rule-strong);}
+.anatomy .prose{fill:var(--ground);stroke:var(--rule-strong);stroke-dasharray:4 3;}
+.anatomy .style{fill:var(--surface);stroke:var(--code-fn);}
+.anatomy .faint{opacity:.55;}
+.anatomy text{fill:var(--ink);}
+.anatomy .mono{font-family:var(--font-code);font-size:12px;}
+.anatomy .fence{fill:var(--ink-soft);}
+.anatomy .sans{font-family:var(--font-body);font-size:13px;fill:var(--ink-mid);}
+.anatomy .head{font-family:var(--font-display);font-size:14px;font-weight:600;}
+.anatomy .note{font-style:italic;fill:var(--ink-soft);font-size:12px;}
+.anatomy .brace{fill:none;stroke:var(--ink-soft);stroke-width:1;}
+.anatomy .label line{stroke:var(--rule-strong);stroke-width:1;}
+.anatomy .label circle{fill:var(--accent);}
+.anatomy .num{fill:var(--ground);font-family:var(--font-body);font-size:13px;font-weight:700;text-anchor:middle;}
+.anatomy .lt{font-family:var(--font-body);font-size:15px;font-weight:700;}
+.anatomy .ld{font-family:var(--font-body);font-size:13px;fill:var(--ink-mid);}
+</style>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
