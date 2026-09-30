@@ -54,9 +54,13 @@ parts.each_with_index do |(part, part_units), i|
     end
     lectures = %(<li class="syl-none">None this unit</li>) if lectures.empty?
 
-    refs = (u["readings"] || []).map do |r|
+    grouped = (u["reading_groups"] || []).flat_map do |g|
+      g["items"].map { |r| r.merge("group" => g["group"]) }
+    end
+    refs = ((u["readings"] || []) + grouped).map do |r|
       cite = r["cite"] ? %(<span class="syl-cite">#{h[r['cite']]}</span>) : ""
-      %(<li><a href="#{url[r]}">#{h[r['title']]}</a>#{cite}</li>)
+      tag  = r["group"] ? %(<span class="syl-tag">#{h[r['group']]}</span>) : ""
+      %(<li><a href="#{url[r]}">#{h[r['title']]}</a>#{tag}#{cite}</li>)
     end.join("\n")
     refs = %(<li class="syl-none">None this unit</li>) if refs.empty?
 

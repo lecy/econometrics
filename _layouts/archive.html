@@ -340,6 +340,24 @@
     line-height:1.45;
     margin-top:.15rem;
   }
+  .readings .note{
+    display:block;
+    color:var(--ink-mid);
+    font-size:var(--step--1);
+    line-height:1.5;
+    margin-top:.3rem;
+    max-width:44rem;
+  }
+
+  /* annotated bibliography */
+  .bib-group + .bib-group{margin-top:1.75rem;}
+  .bib-title{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-1);
+    margin:0 0 .3rem;
+  }
+  .bib-intro{margin:0 0 .5rem;color:var(--ink-soft);font-size:var(--step--1);max-width:44rem;}
 
   /* item rows */
   .item{
@@ -663,9 +681,31 @@
               <li>
                 <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
                 {% if r.cite %}<span class="cite">{{ r.cite }}</span>{% endif %}
+                {% if r.note %}<span class="note">{{ r.note }}</span>{% endif %}
               </li>
               {% endfor %}
             </ul>
+          </div>
+          {% endif %}
+
+          {% if u.reading_groups %}
+          <div class="block">
+            <h3 class="block-title">Annotated Bibliography</h3>
+            {% for g in u.reading_groups %}
+            <div class="bib-group">
+              <h4 class="bib-title">{{ g.group }}</h4>
+              {% if g.intro %}<p class="bib-intro">{{ g.intro }}</p>{% endif %}
+              <ul class="readings">
+                {% for r in g.items %}
+                <li>
+                  <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
+                  {% if r.cite %}<span class="cite">{{ r.cite }}</span>{% endif %}
+                  {% if r.note %}<span class="note">{{ r.note }}</span>{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endfor %}
           </div>
           {% endif %}
 

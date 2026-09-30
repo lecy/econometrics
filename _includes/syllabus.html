@@ -163,9 +163,16 @@
             <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
             {% if r.cite %}<span class="syl-cite">{{ r.cite }}</span>{% endif %}
           </li>
-          {% else %}
-          <li class="syl-none">None this unit</li>
           {% endfor %}
+          {% for g in u.reading_groups %}
+          {% for r in g.items %}
+          <li>
+            <a href="{{ r.url | relative_url }}">{{ r.title }}</a><span class="syl-tag">{{ g.group }}</span>
+            {% if r.cite %}<span class="syl-cite">{{ r.cite }}</span>{% endif %}
+          </li>
+          {% endfor %}
+          {% endfor %}
+          {% if u.readings == nil and u.reading_groups == nil %}<li class="syl-none">None this unit</li>{% endif %}
         </ul>
       </div>
     </div>

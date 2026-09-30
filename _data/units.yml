@@ -9,6 +9,11 @@
 #   summary:        two-sentence description of the unit, used only by the syllabus
 #   review: true    on a lecture item that points back to earlier decks rather than
 #                   a new lecture; the syllabus lists its links as review material
+#
+# readings take title, cite, url, and an optional note (a one- or two-sentence
+# annotation shown under the citation). reading_groups renders an annotated
+# bibliography with subsections; each group has a group name, an optional intro,
+# and items shaped like readings. The syllabus lists group items with a group tag.
 # After editing this file, rebuild the standalone copy (handouts/syllabus.html) with:
 #   ruby scripts/build_syllabus.rb
 #
@@ -1358,9 +1363,120 @@
         - { label: Instructions, url: labs3/matching-lab.html, kind: html }
         - { label: RMD Template, url: labs3/matching-lab.rmd, kind: rmd, raw: true }
 
-- id: research-integrity
+- id: science-in-crisis
   part: "Part 4 — Research Integrity and Evidence Synthesis"
   number: "22"
+  title: Science in Crisis
+  tagline: Findings that do not replicate, results that cannot be reproduced, and data that were never real.
+  summary: >
+    Reviews the evidence behind three related crises: published findings that fail when the
+    study is run again, results that cannot be regenerated even from the authors' own data and
+    code, and outright fabrication. An annotated bibliography collects the large-scale projects
+    that measured each problem.
+  overview: |
+    Three different failures are often lumped together, and it helps to keep them apart.
+
+    A finding **replicates** when a new study with new data reaches the same conclusion. Large
+    replication projects recover roughly half of published findings, and many-analyst studies
+    show that dozens of competent teams given the *same* data and question can reach different
+    answers. A result is **reproducible** when rerunning the original code on the original data
+    regenerates the published numbers. Across economics, finance, and management, that simple
+    check fails far more often than most researchers expect, usually because of missing files,
+    broken code, or data that were never shared. **Fraud** is the deliberate case: fabricated
+    or manipulated data, and the incentives that make it pay.
+
+    Each bibliography entry below says in a sentence or two what the study found and why it
+    matters. Unit 23 turns to the tools a reader can use to check published work.
+  objectives:
+    - Distinguish replicability, robustness, and reproducibility, and give an example of a failure of each.
+    - Summarize what large replication, many-analyst, and reproducibility projects found about the reliability of published research.
+    - Explain why analytic choices that are never reported can change a study's conclusion.
+    - Describe the incentives that make fabrication and questionable research practices rational for individual researchers.
+  lectures:
+    - title: Research Fraud and the Reproducibility Crisis
+      blurb: Retraction trends, a timeline of high-profile cases, the new forensic tools, paper mills and pay-to-publish economics, and the incentives that make misconduct rational.
+      links:
+        - { label: Notes, url: lectures4/open-science/research-fraud-trends-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures4/open-science/trends_in_research_fraud.pdf, kind: pdf }
+        - { label: PPTX, url: lectures4/open-science/trends_in_research_fraud.pptx, kind: pptx, download: true }
+  reading_groups:
+    - group: Replication Crisis
+      intro: New data, the same question, a different answer. Includes many-analyst studies, where the data are held fixed and the analysts vary.
+      items:
+        - title: Replicability, Robustness, and Reproducibility in Psychological Science
+          cite: "Nosek, B. A., Hardwicke, T. E., Moshontz, H., et al. (2022). Annual Review of Psychology, 73, 719–748."
+          note: The field's own review of a decade of replication projects. It defines the three terms, summarizes how often findings held up, and lays out the reforms that followed; the best single overview of the crisis.
+          url: pubs/reproducibility/2022-annual-review-psychology.pdf
+        - title: Trouble at the Lab
+          cite: "The Economist (2013, October 19)."
+          note: A widely read account of why so much published science is wrong and the incentives that keep it that way. A good first reading for anyone new to the problem.
+          url: lectures4/open-science/pubs/Trouble-at-the-lab-The-Economist.pdf
+        - title: "Psychology's Replication Crisis Is Real, Many Labs 2 Says"
+          cite: "Yong, E. (2018, November 19). The Atlantic."
+          note: Nearly 200 psychologists reran 28 published experiments with volunteers from 36 countries, and only 14 replicated. Results barely differed across cultures, so the failures could not be blamed on who was in the sample.
+          url: lectures4/open-science/pubs/Psychology%27s%20Replication%20Crisis%20Is%20Real%20ATLANTIC.pdf
+        - title: When the Revolution Came for Amy Cuddy
+          cite: "Dominus, S. (2017, October 18). The New York Times Magazine."
+          note: The power-posing study, its failed replications, and what the reform movement cost the researcher at its center. A reminder that replication debates involve people as well as p-values.
+          url: lectures4/open-science/pubs/When%20the%20Revolution%20Came%20for%20Amy%20Cuddy.pdf
+        - title: "Bootstrapping in Applied Linguistics: Assessing Its Potential Using Shared Data"
+          cite: "Plonsky, L., Egbert, J., & LaFlair, G. T. (2015). Applied Linguistics, 36(5), 591–610."
+          note: Reanalyzing the raw data from 26 published studies, 4 of 16 significant results did not survive bootstrapping, a false-positive rate about five times the nominal .05. An early demonstration of what shared data allow others to check.
+          url: pubs/reproducibility/2015-computational-linguistics.pdf
+        - title: "Outliers in L2 Research in Applied Linguistics: A Synthesis and Data Re-Analysis"
+          cite: "Nicklin, C., & Plonsky, L. (2020). Annual Review of Applied Linguistics, 40, 26–55."
+          note: Across 104 studies, researchers used widely different rules for discarding outlying observations. Reanalysis of 19 shared datasets shows how much these small, rarely justified choices vary, and that a log transformation usually makes them unnecessary.
+          url: pubs/reproducibility/2020-computational-linguistics.pdf
+        - title: Observing Many Researchers Using the Same Data and Hypothesis Reveals a Hidden Universe of Uncertainty
+          cite: "Breznau, N., Rinke, E. M., Wuttke, A., et al. (2022). PNAS, 119(44), e2203150119."
+          note: Seventy-three teams tested whether immigration reduces public support for social policy using identical data, and reported widely diverging estimates and conclusions. More than 95% of the variation could not be explained by any coded analytic decision.
+          url: pubs/reproducibility/2022-pnas-many-results-same-data-and-question.pdf
+        - title: Variation Across Analysts in Statistical Significance, yet Consistently Small Effect Sizes
+          cite: "Mathur, M. B., Covington, C., & VanderWeele, T. J. (2023). PNAS, 120(3), e2218957120."
+          note: A reply to Breznau et al. arguing the teams' estimates barely differed; 90% of standardized effects fell within ±0.037 SD. The "variation" was mostly in which tiny estimates crossed p < .05, a lesson in reading effect sizes rather than significance.
+          url: pubs/reproducibility/2023-pnas-response-to-2022-pnas.pdf
+        - title: A Universe of Uncertainty Hiding in Plain Sight
+          cite: "Engzell, P. (2023). PNAS, 120(2), e2218530120."
+          note: A second reply. The teams were in effect testing several hypotheses, much of the spread is within teams, and the original study reported similar variation, so the project may count as a successful replication of a null finding.
+          url: pubs/reproducibility/2023-pnas-response-to-2022-pnas-part-two.pdf
+        - title: Nonstandard Errors
+          cite: "Menkveld, A. J., Dreber, A., Holzmeister, F., et al. (2024). Journal of Finance, 79(3), 2339–2390."
+          note: One hundred sixty-four teams tested the same hypotheses on the same market data. The spread across teams, which the authors call nonstandard errors, was sizable, smaller for better-rated research, and underestimated by the participants themselves.
+          url: pubs/reproducibility/2024-finance-nonstandard-errors.pdf
+    - group: Reproducibility Crisis
+      intro: The same data and the same code, run again. Does it return the published numbers?
+      items:
+        - title: A Large-Scale Study on Research Code Quality and Execution
+          cite: "Trisovic, A., Lau, M. K., Pasquier, T., & Crosas, M. (2022). Scientific Data, 9, 60."
+          note: Of more than 9,000 R scripts in Harvard Dataverse replication packages, 74% failed on a clean first run and 56% still failed after automated cleanup. Most failures came from missing files, hard-coded paths, and missing packages that good habits prevent.
+          url: pubs/reproducibility/2022-code-quality-and-execution-on-harvard-dataverse.pdf
+        - title: Reproducibility in Management Science
+          cite: "Fisar, M., Greiner, B., Huber, C., Katok, E., Ozkes, A. I., & the Management Science Reproducibility Collaboration (2024). Management Science, 70(3), 1343–1356."
+          note: More than 700 reviewers attempted to reproduce nearly 500 articles. Under the journal's 2019 data and code policy, over 95% of articles with accessible data reproduced, but inaccessible data brought the overall rate to 68%; before the policy only 12% of articles shared materials at all.
+          url: pubs/reproducibility/2024-management-science.pdf
+        - title: A Community Effort Towards Reproducible Management Science
+          cite: "Fisar, M., Greiner, B., Huber, C., Katok, E., & Ozkes, A. I. (2023). Management Science Review (INFORMS blog)."
+          note: A short, readable summary of the project above and its recommendations for journals. Read this first if you only have ten minutes.
+          url: pubs/reproducibility/2023-management-science.pdf
+        - title: "Computational Reproducibility in Finance: Evidence from 1,000 Tests"
+          cite: "Pérignon, C., Akmansoy, O., Hurlin, C., et al. (2024). Review of Financial Studies (forthcoming)."
+          note: Running 168 teams' own code on the same raw data regenerated exactly the same results only 52% of the time. Reproducibility tracked coding skill and effort rather than seniority, and researchers were strongly overconfident about their own.
+          url: pubs/reproducibility/2024-finance-computational-reproducibility.pdf
+        - title: "Mass Reproducibility and Replicability: A New Hope"
+          cite: "Brodeur, A., Mikola, D., Cook, N., et al. (2024). I4R Discussion Paper No. 107. Institute for Replication."
+          note: The Institute for Replication reproduced 110 papers from leading economics and political science journals. Over 85% were computationally reproducible, but about 25% contained coding errors and roughly 70% held up under robustness checks.
+          url: pubs/reproducibility/2024-economics-mass-reproducibility.pdf
+    - group: Research Fraud
+      intro: Data that were fabricated or manipulated. The lecture notes above cover retraction trends, recent cases, and the forensic tools that caught them.
+      items:
+        - title: A Mysterious Company's Coronavirus Papers in Top Medical Journals May Be Unraveling
+          cite: "Servick, K., & Enserink, M. (2020, June 2). Science."
+          note: The Surgisphere case, in which a hospital database no one could verify supported high-profile COVID-19 papers in The Lancet and NEJM. Researchers and amateur sleuths, not peer reviewers, flagged the implausible numbers, and both papers were retracted two days later.
+          url: pubs/open-science/a-mysterious-companys-coronavirus-papers-in-top-medical-journals-may-be-unraveling.pdf
+
+- id: research-integrity
+  part: "Part 4 — Research Integrity and Evidence Synthesis"
+  number: "23"
   title: Research Integrity and Open Science
   tagline: How published findings go wrong, and the tools any reader can use to check them.
   summary: >
@@ -1388,12 +1504,6 @@
     - Explain how p-hacking, the garden of forking paths, and publication bias inflate published effect sizes.
     - Describe the open-science practices — preregistration, registered reports, open data and code — that prevent each problem.
   lectures:
-    - title: Research Fraud and the Reproducibility Crisis
-      blurb: Retraction trends, a timeline of high-profile cases, the new forensic tools, paper mills and pay-to-publish economics, and the incentives that make misconduct rational.
-      links:
-        - { label: Notes, url: lectures4/open-science/research-fraud-trends-notes.html, kind: notes }
-        - { label: Slides (PDF), url: lectures4/open-science/trends_in_research_fraud.pdf, kind: pdf }
-        - { label: PPTX, url: lectures4/open-science/trends_in_research_fraud.pptx, kind: pptx, download: true }
     - title: A Research Integrity Toolkit
       blurb: >
         Seventeen problems organized from the individual to the field, each with its evidence of
@@ -1449,25 +1559,10 @@
     - title: The Influence of Hidden Researcher Decisions in Applied Microeconomics
       cite: "Huntington-Klein, N., et al. (2021). Economic Inquiry, 59(3), 944–960. Independent teams replicate published studies from the same data and get different answers."
       url: lectures4/open-science/pubs/The%20influence%20of%20hidden%20researcher%20decisions%20in%20applied%20microeconomics.pdf
-    - title: Trouble at the Lab
-      cite: "The Economist (2013). Why so much published science is wrong, and the incentives that keep it that way."
-      url: lectures4/open-science/pubs/Trouble-at-the-lab-The-Economist.pdf
-    - title: Psychology's Replication Crisis Is Real
-      cite: "Yong, E. (2018). The Atlantic. The Many Labs 2 replication project and what it found."
-      url: lectures4/open-science/pubs/Psychology%27s%20Replication%20Crisis%20Is%20Real%20ATLANTIC.pdf
-    - title: When the Revolution Came for Amy Cuddy
-      cite: "Dominus, S. (2017). The New York Times Magazine. The power-posing study, its failed replications, and the human cost of the reform movement."
-      url: lectures4/open-science/pubs/When%20the%20Revolution%20Came%20for%20Amy%20Cuddy.pdf
-    - title: A Mysterious Company's Coronavirus Papers in Top Medical Journals May Be Unraveling
-      cite: "Science (2020). The Surgisphere case: a fabricated hospital database behind two retracted COVID-19 papers."
-      url: pubs/open-science/a-mysterious-companys-coronavirus-papers-in-top-medical-journals-may-be-unraveling.pdf
-    - title: "Reproducible Research in R: How to Do the Same Thing More Than Once"
-      cite: "Peikert, A., van Lissa, C. J., & Brandmaier, A. M. (2021). Psych, 3(4), 836–867. A tutorial on making your own analysis reproducible."
-      url: lectures4/open-science/pubs/reproducibility-guide-r.pdf
 
 - id: meta-analysis
   part: "Part 4 — Research Integrity and Evidence Synthesis"
-  number: "23"
+  number: "24"
   title: "Meta-Analysis: The Class Size Debate"
   tagline: When dozens of studies disagree, put them on one scale and ask why.
   summary: >
@@ -1556,3 +1651,48 @@
     - title: "Class Size Reduction and Student Achievement: The Potential Tradeoff between Teacher Quality and Class Size"
       cite: "Jepsen, C., & Rivkin, S. (2009). Journal of Human Resources, 44(1), 223–250. What California's 1996 reform did to teacher quality."
       url: pubs/effect-size/Class-Size-Reduction-and-Student-Achievement.pdf
+
+- id: reproducible-workflows
+  part: "Part 4 — Research Integrity and Evidence Synthesis"
+  number: "25"
+  title: Reproducible Workflows
+  tagline: Organize code and data so that you, a coauthor, or a stranger can rerun the analysis and get the same answer.
+  summary: >
+    Turns the reproducibility evidence from Unit 22 into working habits: project structure,
+    scripts that run from raw data to final tables without manual steps, version control, and
+    documentation. The readings are practical guides written by researchers for researchers.
+  overview: |
+    Most reproducibility failures in Unit 22 were not fraud. They were missing files, hard-coded
+    paths, packages that changed, and steps someone did by hand and never wrote down. Those are
+    engineering problems, and software engineers solved most of them long ago.
+
+    A reproducible project keeps raw data read-only, builds every intermediate file from code,
+    runs from start to finish with one command, and records the software versions it used. None
+    of this requires new statistics; it requires treating your analysis as code that someone
+    else will have to run.
+  lectures:
+    - title: Emerging Data Citation Standards
+      blurb: >
+        Why datasets deserve citations of their own, how DOIs and Universal Numerical
+        Fingerprints identify a specific version of a dataset, semantic versioning for data that
+        change over time, and publishing replication files to Harvard Dataverse from R.
+      links:
+        - { label: Slides (PDF), url: lectures4/data-citation-standards.pdf, kind: pdf }
+        - { label: PPTX, url: lectures4/data-citation-standards.pptx, kind: pptx, download: true }
+  readings:
+    - title: "Code and Data for the Social Sciences: A Practitioner's Guide"
+      cite: "Gentzkow, M., & Shapiro, J. M. (2014). Chicago Booth and NBER."
+      note: >
+        Most empirical social science, day to day, is writing and debugging code, yet few
+        researchers are trained to do it, and the authors show how a self-taught approach breaks
+        down as projects grow: moved files that change results, merges that silently drop
+        observations, sample definitions copied inconsistently across dozens of scripts, and an
+        assistant's code no one can rerun. Their rule of thumb: when multi-billion-dollar firms
+        and whole university courses exist to solve your problem, learn what the experts do, and
+        the guide adapts their practices for automation, version control, directories, keys,
+        abstraction, documentation, and project management.
+      url: https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf
+    - title: "Reproducible Research in R: How to Do the Same Thing More Than Once"
+      cite: "Peikert, A., van Lissa, C. J., & Brandmaier, A. M. (2021). Psych, 3(4), 836–867."
+      note: A tutorial for the repro package, which combines R Markdown, Git, Make, and Docker so an entire analysis, from data to manuscript, rebuilds with one command on any machine. It extends the idea to preregistration written as code.
+      url: lectures4/open-science/pubs/reproducibility-guide-r.pdf
