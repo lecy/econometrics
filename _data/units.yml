@@ -1620,6 +1620,9 @@
         - { label: Notes, url: lectures4/meta_analysis/class_size/class-size-debate-notes.html, kind: notes }
         - { label: Evidence review (PDF), url: lectures4/meta_analysis/class_size/Class_Size_Evidence_Review.pdf, kind: pdf }
         - { label: DOCX, url: lectures4/meta_analysis/class_size/Class_Size_Evidence_Review.docx, kind: docx, download: true }
+        - { label: "Glass & Smith (1979)", url: lectures4/meta_analysis/class_size/META-1979-glass-and-smith.pdf, kind: pdf }
+        - { label: "Hanushek & Krueger (2002)", url: lectures4/meta_analysis/class_size/META-2002-hanushek-kreuger.pdf, kind: pdf }
+        - { label: "Shin & Chung (2009)", url: lectures4/meta_analysis/class_size/META-2009-shin-chung.pdf, kind: pdf }
     - title: "Case Study: Coding Class Size Studies"
       blurb: >
         Turning the literature into data: what to record about each study's design, treatment
