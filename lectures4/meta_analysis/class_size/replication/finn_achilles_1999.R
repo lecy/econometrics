@@ -172,7 +172,8 @@ coded$size_S     <- 15
 coded$size_L     <- 22
 coded$subject    <- subject_of[coded$scale]
 coded$published  <- 1
-coded$dup_of     <- ifelse(coded$grade == 1, "finn_achilles_1990", NA)
+coded$dup_of     <- ifelse(coded$grade == 1, "finn_achilles_1990",
+                    ifelse(coded$grade == 5, "nye_1992", NA))   # Table 2, grade 5 = Nye et al. (1992)
 coded$in_primary <- coded$grade %in% c(0, 2, 3)    # new, during-treatment rows
 coded$se_clust   <- sqrt(coded$var_d_clust)
 coded$notes      <- "d as printed; variance from total N with arm shares borrowed from 1990"
