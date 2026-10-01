@@ -1629,6 +1629,21 @@
         - { label: Notes, url: lectures4/meta_analysis/class_size/class-size-coding-notes.html, kind: notes }
         - { label: Evidence review (PDF), url: lectures4/meta_analysis/class_size/Class_Size_Evidence_Review.pdf, kind: pdf }
         - { label: DOCX, url: lectures4/meta_analysis/class_size/Class_Size_Evidence_Review.docx, kind: docx, download: true }
+    - title: "Replication: Examples from Shin & Chung (2009)"
+      blurb: >
+        Four studies from Shin and Chung's sample, coded step by step: where each statistic sits in the
+        paper, the decisions behind each effect size, and what the coding reveals about the
+        meta-analysis, from repeated reports of the same STAR children to a quasi-experiment with four
+        defensible estimates.
+      links:
+        - { label: "1. Finn & Achilles (1990)", url: lectures4/meta_analysis/class_size/replication/class-size-replication-finn-achilles.html, kind: notes }
+        - { label: "2. Finn & Achilles (1999)", url: lectures4/meta_analysis/class_size/replication/class-size-replication-finn-achilles-1999.html, kind: notes }
+        - { label: "3. Molnar et al. (1999)", url: lectures4/meta_analysis/class_size/replication/class-size-replication-molnar.html, kind: notes }
+        - { label: "4. Goldstein & Blatchford (1998)", url: lectures4/meta_analysis/class_size/replication/class-size-replication-goldstein-blatchford.html, kind: notes }
+        - { label: "R: case 1", url: lectures4/meta_analysis/class_size/replication/finn_achilles_1990.R, kind: rmd, raw: true }
+        - { label: "R: case 2", url: lectures4/meta_analysis/class_size/replication/finn_achilles_1999.R, kind: rmd, raw: true }
+        - { label: "R: case 3", url: lectures4/meta_analysis/class_size/replication/molnar_1999.R, kind: rmd, raw: true }
+        - { label: "R: case 4", url: lectures4/meta_analysis/class_size/replication/goldstein_blatchford_1998.R, kind: rmd, raw: true }
     - title: "Replication: A Meta-Analysis of the Omission Bias"
       blurb: >
         Yeung, Yay, and Feldman (2022) posted their whole review on the OSF. Trace it from search terms
