@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code and Data for the Social Sciences</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .overview{min-width:56rem;}
+  .overview td,.overview th{vertical-align:top;}
+  .overview tbody th{white-space:normal;width:11rem;}
+  .overview td:nth-child(2){width:30%;}
+  .overview td:last-child{color:var(--ink-mid);}
+  .toolkit{min-width:44rem;}
+  .toolkit td,.toolkit th{vertical-align:top;}
+  .toolkit td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    white-space:nowrap;
+  }
+  .toolkit td:nth-child(2){font-weight:600;width:22%;}
+  .toolkit td:nth-child(3){width:26%;color:var(--ink-mid);}
+  tr.tier-row th{
+    background:var(--surface);
+    color:var(--accent-ink);
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    white-space:normal;
+    width:auto;
+    padding:.55rem .85rem;
+  }
+  .overview a,.toolkit a,#references a,#toolkit a{color:var(--accent-ink);}
+  #references ul{max-width:44rem;padding-left:1.2rem;}
+  #references li{font-size:.97rem;}
+</style>
+<style>
+  pre.code{
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:.82rem;line-height:1.5;
+    background:var(--surface);color:var(--ink);
+    border-radius:3px;padding:.85rem 1rem;margin:.9rem 0 1.2rem;
+    max-width:40rem;overflow-x:auto;white-space:pre;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88em;background:var(--surface);padding:.05em .3em;border-radius:2px;}
+  .rules{min-width:44rem;}
+  .rules td{vertical-align:top;}
+  .rules td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
+  .rules td:nth-child(2){color:var(--accent-ink);font-weight:600;}
+  .rules td:last-child{color:var(--ink-mid);}
+  .ours{font-size:var(--step--1);color:var(--ink-soft);font-style:italic;}
+  #references a{overflow-wrap:anywhere;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Code and Data for the Social Sciences</h1>
+    <p class="dek">An executive summary of Gentzkow and Shapiro&rsquo;s practitioner&rsquo;s guide (2014) for Unit 25.
+      Most empirical research is writing and debugging code, and most researchers never learned to do it
+      well. The guide takes seven practices from software engineering and database design and translates
+      them for social scientists. This page summarizes each practice, shows what it looks like in R, and
+      connects it to the replication problems from earlier units.
+      <a href="https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf">Read the guide (PDF, 44 pages)</a>.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#problem">The problem</a>
+      <a href="#rules">The rules at a glance</a>
+      <a href="#chapters">Chapter by chapter</a>
+      <a href="#style">Code style</a>
+      <a href="#course">Connections to the course</a>
+      <a href="#checklist">Checklist</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The argument of the guide in five claims.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">Most reproducibility failures are engineering failures.</p>
+      <p>Files that moved, merges that silently dropped rows, sample definitions copied into dozens of scripts,
+        a research assistant&rsquo;s directory no one can rerun. None of these is fraud or bad statistics. Each is
+        a problem that software engineers and database designers solved decades ago.</p>
+
+      <p class="claim">If an industry exists to solve your problem, learn what it does.</p>
+      <p>The authors&rsquo; rule of thumb: when billion-dollar firms and whole university courses are devoted to a
+        problem you face, find out what the experts do before inventing your own fix.</p>
+
+      <p class="claim">The code is the record of what was done.</p>
+      <p>A result produced by pointing and clicking has no authoritative definition. A result produced by a script
+        that runs from raw data to final table does. The script can&rsquo;t be incomplete or out of date in the
+        way a readme can.</p>
+
+      <p class="claim">Every second copy of a fact is a future contradiction.</p>
+      <div class="chain">copied code &rarr; inconsistent samples &nbsp;&middot;&nbsp; stale comments &rarr; code and notes disagree &nbsp;&middot;&nbsp; repeated attributes &rarr; conflicting values</div>
+      <p>Abstraction, normalized data, and self-documenting code are three versions of one idea: store each piece
+        of information once.</p>
+
+      <p class="claim">Small fixed costs beat large repeated ones.</p>
+      <p>You will run every step more times than you expect. Automating, versioning, and testing cost a few days
+        up front and pay for themselves within a project.</p>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The problem: a self-taught approach that stops scaling</h2>
+      <p class="sub">Chapter 1. Five situations the authors kept running into.</p>
+    </div>
+
+    <p>Gentzkow and Shapiro note that few economists, political scientists, or psychologists have formal
+      training in computing. Most picked up programming along the way and never thought about it again. That
+      worked until their projects grew. They describe five situations that will be familiar to anyone who has
+      worked on a long project:</p>
+    <ol>
+      <li>Replicating an early draft fails because the code calls files that have since moved. Once the files are
+        found, the estimates come out different.</li>
+      <li>A regression has suspiciously few observations. A merge on county had dropped every row with a missing
+        county code, and restoring them changes the results a lot.</li>
+      <li>A referee asks for a different sample definition. The definition had been pasted into dozens of
+        scripts, and some copies had drifted, so different tables used different samples.</li>
+      <li>A research assistant leaves hundreds of files with long comments. Working out which to run, and in what
+        order, takes days. In the end the code is rewritten from scratch.</li>
+      <li>Three people share data files on a network drive, and every change one makes breaks the others&rsquo;
+        code.</li>
+    </ol>
+    <p>Their early response was to write more protocols, more comments, and more documentation for their
+      assistants. It didn&rsquo;t work. The turning point came when a computer scientist showed them how to
+      organize a large dataset, and they realized they had been re-solving, badly, problems with well-known
+      solutions.</p>
+  </section>
+
+  <section id="rules">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>The rules at a glance</h2>
+      <p class="sub">Seven chapters, sixteen rules. Each prevents a specific kind of failure.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="rules">
+        <thead><tr><th scope="col">Chapter</th><th scope="col">Rules</th><th scope="col">The failure it prevents</th></tr></thead>
+        <tbody>
+          <tr><td>2. Automation</td>
+            <td>(A) Automate everything that can be automated. (B) Write a single script that executes all code
+              from beginning to end.</td>
+            <td>Results with no record of how they were made; hours lost redoing manual steps.</td></tr>
+          <tr><td>3. Version control</td>
+            <td>(A) Store code and data under version control. (B) Run the whole directory before checking it
+              back in.</td>
+            <td>Files named <code>cleandata_022613_jms.do</code>; not knowing which script made which output; a
+              coauthor&rsquo;s change breaking your code.</td></tr>
+          <tr><td>4. Directories</td>
+            <td>(A) Separate directories by function. (B) Separate files into inputs and outputs. (C) Make
+              directories portable.</td>
+            <td>Rerunning the whole data build to change one regression; not knowing which files a script needs;
+              code that only runs on one computer.</td></tr>
+          <tr><td>5. Keys</td>
+            <td>(A) Store cleaned data in tables with unique, non-missing keys. (B) Keep data normalized as far into
+              your code pipeline as you can.</td>
+            <td>Datasets whose rows and columns can&rsquo;t be interpreted; silent merge errors; the same attribute
+              taking different values.</td></tr>
+          <tr><td>6. Abstraction</td>
+            <td>(A) Abstract to eliminate redundancy. (B) Abstract to improve clarity. (C) Otherwise, don&rsquo;t
+              abstract.</td>
+            <td>Copy-and-paste errors that run without complaint and give wrong answers.</td></tr>
+          <tr><td>7. Documentation</td>
+            <td>(A) Don&rsquo;t write documentation you will not maintain. (B) Code should be self-documenting.</td>
+            <td>Comments that contradict the code, leaving no way to tell which is right.</td></tr>
+          <tr><td>8. Management</td>
+            <td>(A) Manage tasks with a task management system. (B) E-mail is not a task management system.</td>
+            <td>Two people each thinking the other is doing a robustness check; no record of what was decided.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="chapters">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Chapter by chapter</h2>
+      <p class="sub">The guide works through one running example: did the arrival of television raise potato chip sales? Its code is in Stata. The R versions here are ours.</p>
+    </div>
+
+    <h3>Automation</h3>
+    <p>Most researchers learn early to put their analysis in scripts. The guide pushes further: every step, from
+      converting the raw file to compiling the paper, should run from <em>one</em> master script. That script
+      is both the build instructions and the documentation of the build order. Unlike a readme, it can&rsquo;t
+      be incomplete or out of date. The test is simple: delete every output file, run the master script, and
+      get everything back. The authors learned this the hard way. They exported 200 files from a spreadsheet by
+      hand, and then the provider sent an update.</p>
+    <pre class="code"># run_all.R: rebuilds every output from raw data
+unlink(c("output", "temp"), recursive = TRUE)   # nothing survives from earlier runs
+dir.create("output"); dir.create("temp")
+source("code/01_import.R")
+source("code/02_clean.R")
+source("code/03_merge.R")
+source("code/04_models.R")
+source("code/05_tables.R")
+quarto::quarto_render("paper.qmd")</pre>
+
+    <h3>Version control</h3>
+    <p>Dating and initialing files (<code>regressions_022713_mg.do</code>) is meant to preserve history. In
+      practice it creates confusion about which script produced which log and which data. Version control keeps
+      one authoritative version, records every change and its author, and lets you undo anything. The second rule
+      matters as much as the first: before committing, run the whole project from the top. If every committed
+      version has been run end to end, checking it out later returns exactly the same results. The guide
+      (2014) used Subversion and mentions Git as worth a look. Today Git with GitHub is the default.</p>
+
+    <h3>Directories</h3>
+    <p>Split the project by function, for example a <code>build</code> directory that turns raw data into a clean
+      file and an <code>analysis</code> directory that turns the clean file into tables and figures. Give each the
+      same subfolders: <code>input</code>, <code>code</code>, <code>output</code>, <code>temp</code>. Now you can
+      change a regression without rebuilding the data, and anyone can see which files the analysis depends on. Use
+      relative paths so the project runs on any machine. The authors also point the analysis at a <em>fixed
+      revision</em> of the data, so an upstream change can&rsquo;t break downstream code without warning.</p>
+    <pre class="code">project/
+  build/      input/  code/  output/  temp/
+  analysis/   input/  code/  output/  temp/
+
+# paths relative to the project root, not C:/Users/...
+library(here)
+counties &lt;- read.csv(here("build", "output", "counties.csv"))</pre>
+
+    <h3>Keys</h3>
+    <p>The chapter&rsquo;s example is a population file that mixes county and state variables. The state population
+      is filled in for some counties and missing for others, and two counties in one state sit in different
+      regions. No one can say what the file means. The database answer is to store each kind of entity in its own
+      table. Each table has a <strong>key</strong>, a variable (or set of variables) that is unique and never
+      missing, and each variable lives in the table whose entity it describes. County population goes in the
+      county table, state population in the state table, and the county table carries <code>state</code> as a
+      <em>foreign key</em>. Data stored this way are <em>normalized</em>. The recommended pipeline has three
+      steps:</p>
+    <ol>
+      <li>Store the raw data in normalized tables that preserve everything in the source.</li>
+      <li>Add derived variables, and variables from other sources, still in normalized tables.</li>
+      <li>Merge into the one rectangular file the model needs, and do no data manipulation at this step.</li>
+    </ol>
+    <pre class="code">stopifnot(!anyNA(county$county_id), !anyDuplicated(county$county_id))
+stopifnot(!anyNA(state$state),      !anyDuplicated(state$state))
+
+analysis &lt;- dplyr::left_join(county, state, by = "state",
+                             relationship = "many-to-one")   # errors if state is not a key
+stopifnot(nrow(analysis) == nrow(county))                      # no rows gained or lost</pre>
+
+    <h3>Abstraction</h3>
+    <p>The guide&rsquo;s example computes a leave-out mean three times by copying and editing code. Two of the three
+      copies carry editing errors, the code still runs, and the results are silently wrong. A single function
+      called three times removes both the redundancy and the chance of error, and its name says what it does.
+      The third rule is a brake: don&rsquo;t write general tools for things you will do once. For functions you
+      will reuse, write <em>unit tests</em>, small scripts that check the function on known inputs, so it can be
+      changed safely later.</p>
+    <pre class="code">leaveout_mean &lt;- function(x, group) {
+  total &lt;- ave(x, group, FUN = function(v) sum(v, na.rm = TRUE))
+  count &lt;- ave(!is.na(x), group, FUN = sum)
+  (total - x) / (count - 1)
+}
+
+# unit test: the leave-out mean of (1, 2, 3) is (2.5, 2, 1.5)
+stopifnot(all.equal(leaveout_mean(c(1, 2, 3), c(1, 1, 1)), c(2.5, 2, 1.5)))</pre>
+
+    <h3>Documentation</h3>
+    <p>This chapter argues for <em>less</em> documentation. A comment explaining that an elasticity equals 0.4 /
+      0.2 = 2 sits above code that now passes 3. Whichever was updated last, nobody can tell which is right. Any
+      second representation of a fact will eventually disagree with the first, and comments are the worst case,
+      because nothing breaks when they go stale. So write only documentation you will keep as current as the code,
+      and put the information in the code itself: compute the elasticity from named quantities, so the number
+      and its derivation can&rsquo;t drift apart. Comments still earn their place for things code can&rsquo;t
+      hold, such as the source of a number or why a formula that looks wrong is right. And if an input must
+      never be allowed, write code that rejects it rather than a comment that warns against it.</p>
+    <pre class="code"># Source: Shapiro (2005), Table 2A
+pct_change_quantity &lt;- -0.4
+pct_change_price    &lt;-  0.2
+elasticity &lt;- pct_change_quantity / pct_change_price</pre>
+
+    <h3>Management</h3>
+    <p>An e-mail thread among three coauthors ends with nobody sure who is running which robustness check, or
+      whether the salsa control was meant to enter in logs or levels. A task tracker fixes this. Each task has an
+      owner, a description, a status, and its own discussion, and that record is still there months later. The
+      guide names Asana, Wrike, Flow, and JIRA, plus a shared notebook for less structured notes. For a project
+      already on GitHub, GitHub Issues does the same job.</p>
+  </section>
+
+  <section id="style">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>The appendix on code style</h2>
+      <p class="sub">Code has two audiences: the computer, and the next person who has to read it.</p>
+    </div>
+    <ul>
+      <li><strong>Keep it short and purposeful.</strong> Lines under about 100 characters, functions under about
+        80 lines, scripts no more than a few hundred. Every script and function should have one clear purpose.</li>
+      <li><strong>Make functions &ldquo;shy.&rdquo;</strong> Declare inputs and outputs, pass only what is needed,
+        and avoid global variables.</li>
+      <li><strong>Order code for reading top to bottom.</strong> Put helper functions right after the functions
+        that call them.</li>
+      <li><strong>Use descriptive names.</strong> Good names replace comments. Avoid pairs like
+        <code>x</code> and <code>xx</code>. Short names are fine for algebra kept close to where they are
+        defined.</li>
+      <li><strong>Set off the key calculations.</strong> Break long formulas into named steps, and keep the full
+        derivation in a separate document when it is complicated.</li>
+      <li><strong>Write logical tests the way you would say them.</strong> &ldquo;All entries are zero&rdquo; is
+        clearer than &ldquo;the maximum is zero.&rdquo;</li>
+      <li><strong>Be consistent.</strong> The team&rsquo;s convention matters more than which convention it is.</li>
+      <li><strong>Check for errors where it pays.</strong> That means guarding against infinite loops and
+        destructive inputs, and replacing cryptic error messages with clear ones. Turn &ldquo;x must be a
+        vector&rdquo; comments into code that stops.</li>
+      <li><strong>Write tests.</strong> Economists test code by hand. Writing the test down takes no longer and
+        never has to be repeated.</li>
+      <li><strong>Profile slow code, store &ldquo;too much&rdquo; output from it, and keep it apart from fast
+        code.</strong> Rerunning an hour-long estimation to reorder a table is waste.</li>
+    </ul>
+  </section>
+
+  <section id="course">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>Connections to the course</h2>
+      <p class="sub">The failures in earlier units were often failures of these practices.</p>
+    </div>
+    <ul>
+      <li><strong>Two copies of one fact.</strong> In the
+        <a href="../meta_analysis/class_size/replication/class-size-replication-nye.html">Nye et al. replication</a>, a
+        report&rsquo;s appendix repeated one table row under the wrong heading. Shin and Chung&rsquo;s
+        meta-analysis gives different counts of published studies in its abstract and its methods. Each is the
+        documentation problem in Chapter 7: the same information stored twice, with nothing forcing the copies to
+        agree.</li>
+      <li><strong>Results with no build record.</strong> Shin and Chung publish no list of their 120 effect sizes.
+        Their Grade 5 row could be reverse-engineered only because one study supplied all of it. A coded-data file
+        and the script that pools it would have made every row checkable.</li>
+      <li><strong>Keys and dependence.</strong> Seven of Shin and Chung&rsquo;s 17 &ldquo;studies&rdquo; report the
+        same STAR first graders. A coding sheet with a <code>dataset</code> and <code>cohort</code> key, as in
+        the replication case studies, is the database fix: one table of samples, and effect sizes that point to
+        it.</li>
+      <li><strong>Automation in the replications.</strong> Each class size case study is one R script. It enters
+        every number with its table and page, rebuilds every effect size from those numbers, and writes the coded
+        CSV. Rerunning it reproduces the guide&rsquo;s tables, and changing one decision changes every number that
+        depends on it.</li>
+      <li><strong>The omission bias replication.</strong> The authors posted their data and code, which made the
+        replication possible. It also made it possible to find what their published code got wrong.</li>
+    </ul>
+    <div class="callout">
+      <p><strong>What has changed since 2014.</strong> The guide&rsquo;s practices have held up; the tools have
+        moved on. In R, an RStudio project or the <code>here</code> package handles relative paths, Git and GitHub
+        handle version control and issues, <code>testthat</code> handles unit tests, and <code>targets</code> or a
+        Makefile handles the build. <code>renv</code> records package versions, which the guide does not
+        cover. Peikert, van Lissa, and Brandmaier (2021), the other reading this unit,
+        combine these tools into one workflow. <span class="ours">These tool names are this page&rsquo;s
+        additions, not the guide&rsquo;s.</span></p>
+    </div>
+  </section>
+
+  <section id="checklist">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>A checklist for your own project</h2>
+      <p class="sub">If you can answer yes to each, a stranger can rerun your analysis.</p>
+    </div>
+    <ol class="checklist">
+      <li>Can you delete every output file and get it all back by running one script?</li>
+      <li>Is the project under version control, and did you run it end to end before your last commit?</li>
+      <li>Are raw data read-only, and are inputs, code, outputs, and temporary files in separate folders?</li>
+      <li>Does every path work on someone else&rsquo;s computer?</li>
+      <li>Does every cleaned table have a key that is unique and never missing, and does every merge check that no
+        rows were gained or lost?</li>
+      <li>Is any piece of code, sample definition, or parameter written in more than one place?</li>
+      <li>Is there a comment that would be wrong if someone changed the code beneath it?</li>
+      <li>Is there one place that records who is doing what, other than your inbox?</li>
+    </ol>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>References</h2>
+      <p class="sub">The guide and the companion reading for this unit.</p>
+    </div>
+    <ul>
+      <li>Gentzkow, M., &amp; Shapiro, J. M. (2014). <em>Code and data for the social sciences: A practitioner&rsquo;s
+        guide</em>. University of Chicago mimeo.
+        <a href="https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf">https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf</a></li>
+      <li>Peikert, A., van Lissa, C. J., &amp; Brandmaier, A. M. (2021). <a href="pubs/reproducibility-guide-r.pdf">Reproducible
+        research in R: How to do the same thing more than once</a>. <em>Psych, 3</em>(4), 836&ndash;867.</li>
+      <li>Software Carpentry. <a href="https://software-carpentry.org/">https://software-carpentry.org/</a>. The
+        guide&rsquo;s recommended starting point for learning these skills.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Executive summary for <span class="m">Unit 25: Reproducible Workflows</span>. Summarizes Gentzkow and
+      Shapiro (2014). The R code examples are this page&rsquo;s adaptations of the guide&rsquo;s Stata examples.</p>
+  </footer>
+
+</div>
+</body>
+</html>

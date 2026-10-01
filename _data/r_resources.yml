@@ -24,13 +24,6 @@
 
 - group: R Markdown
   items:
-    - title: Building an R Markdown Template — guide
-      url: handouts/rmd-template-guide.html
-      kind: html
-    - title: R Markdown starter template
-      url: handouts/rmd-template.rmd
-      kind: rmd
-      raw: true
     - title: Markdown overview (DS4PS)
       url: https://ds4ps.org/data-driven-management-textbook/markdown/
       kind: link

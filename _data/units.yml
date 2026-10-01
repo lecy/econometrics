@@ -1687,7 +1687,7 @@
   summary: >
     Turns the reproducibility evidence from Unit 22 into working habits: project structure,
     scripts that run from raw data to final tables without manual steps, version control, and
-    documentation. The readings are practical guides written by researchers for researchers.
+    documentation, drawn from practical guides written by researchers for researchers.
   overview: |
     Most reproducibility failures in Unit 22 were not fraud. They were missing files, hard-coded
     paths, packages that changed, and steps someone did by hand and never wrote down. Those are
@@ -1706,20 +1706,26 @@
       links:
         - { label: Slides (PDF), url: lectures4/data-citation-standards.pdf, kind: pdf }
         - { label: PPTX, url: lectures4/data-citation-standards.pptx, kind: pptx, download: true }
-  readings:
-    - title: "Code and Data for the Social Sciences: A Practitioner's Guide"
-      cite: "Gentzkow, M., & Shapiro, J. M. (2014). Chicago Booth and NBER."
-      note: >
-        Most empirical social science, day to day, is writing and debugging code, yet few
-        researchers are trained to do it, and the authors show how a self-taught approach breaks
-        down as projects grow: moved files that change results, merges that silently drop
-        observations, sample definitions copied inconsistently across dozens of scripts, and an
-        assistant's code no one can rerun. Their rule of thumb: when multi-billion-dollar firms
-        and whole university courses exist to solve your problem, learn what the experts do, and
-        the guide adapts their practices for automation, version control, directories, keys,
-        abstraction, documentation, and project management.
-      url: https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf
-    - title: "Reproducible Research in R: How to Do the Same Thing More Than Once"
-      cite: "Peikert, A., van Lissa, C. J., & Brandmaier, A. M. (2021). Psych, 3(4), 836–867."
-      note: A tutorial for the repro package, which combines R Markdown, Git, Make, and Docker so an entire analysis, from data to manuscript, rebuilds with one command on any machine. It extends the idea to preregistration written as code.
-      url: lectures4/open-science/pubs/reproducibility-guide-r.pdf
+    - title: "Code and Data for the Social Sciences"
+      blurb: >
+        Gentzkow and Shapiro's (2014) practitioner's guide: seven practices from software
+        engineering and database design (automation, version control, directories, keys,
+        abstraction, documentation, and task management) that stop moved files, silent merge
+        errors, and copied code from changing your results.
+      links:
+        - { label: Notes, url: lectures4/open-science/code-and-data-notes.html, kind: notes }
+        - { label: Guide (PDF), url: "https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf", kind: pdf }
+    - title: "Reproducible Research in R"
+      blurb: >
+        Peikert, van Lissa, and Brandmaier (2021): a tutorial for the repro package, which combines
+        R Markdown, Git, Make, and Docker so an entire analysis, from data to manuscript, rebuilds
+        with one command on any machine. It extends the idea to preregistration written as code.
+      links:
+        - { label: Paper (PDF), url: lectures4/open-science/pubs/reproducibility-guide-r.pdf, kind: pdf }
+    - title: "Building an R Markdown Template"
+      blurb: >
+        The pieces of a good RMD or QMD template, so every report starts from the same structure
+        and knits from top to bottom, with a starter template to download and knit.
+      links:
+        - { label: Guide, url: handouts/rmd-template-guide.html, kind: notes }
+        - { label: Template (RMD), url: handouts/rmd-template.rmd, kind: rmd, raw: true }

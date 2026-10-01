@@ -458,6 +458,7 @@
       <a href="#unit">Hanushek vs. Krueger</a>
       <a href="#star">STAR and Shin &amp; Chung</a>
       <a href="#moderators">Moderators compared</a>
+      <a href="#replication">Replication case studies</a>
       <a href="#consensus">Consensus and limits</a>
       <a href="#modeling">The modeling exercise</a>
       <a href="#questions">Questions</a>
@@ -638,7 +639,7 @@
     <p>Keep the riddle in mind as you read. <a href="#confusion">Section four</a> explains why the primary
       studies disagree, <a href="#glass-smith">Section five</a> and <a href="#star">Section seven</a> take
       each meta-analysis apart, and <a href="#moderators">Section eight</a> sets their moderators side by side.
-      The last question in <a href="#questions">Section eleven</a> asks for your answer.</p>
+      The last question in <a href="#questions">Section twelve</a> asks for your answer.</p>
   </section>
 
   <!-- ============================================================ -->
@@ -1162,9 +1163,86 @@
   </section>
 
   <!-- ============================================================ -->
-  <section id="consensus">
+  <section id="replication">
     <div class="sec-head">
       <p class="num">Section nine</p>
+      <h2>Replicating Shin and Chung: five case studies</h2>
+      <p class="sub">What coding the primary studies by hand reveals about the pooled estimate.</p>
+    </div>
+
+    <p>Shin and Chung publish no list of their 120 effect sizes, so the only way to check their meta-analysis
+      is to recode its studies. Five of their 17 studies have been coded from the original reports, one per
+      case study. Each case study shows where every statistic sits in the report and which decisions turn
+      it into an effect size. Each has an R script that rebuilds the numbers and writes a coded data file, and
+      each is checked against what Shin and Chung recorded.</p>
+
+    <div class="table-scroll">
+      <table class="compare">
+        <thead><tr><th scope="col">Case study</th><th scope="col">What it teaches</th><th scope="col">What it found</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><a href="replication/class-size-replication-finn-achilles.html">1. Finn &amp; Achilles (1990)</a></th>
+            <td>STAR Grade 1, a randomized experiment that reports means and SDs. How to reproduce the
+              authors&rsquo; effect sizes, then choose the comparison group, the SD, and an allowance for
+              clustering.</td>
+            <td>Small vs. regular classes: 0.29&ndash;0.32 SD. Dividing by the SD of class means instead
+              nearly triples the effect. Clustering raises the SE by 1.7 times.</td></tr>
+          <tr><th scope="row"><a href="replication/class-size-replication-finn-achilles-1999.html">2. Finn &amp; Achilles (1999)</a></th>
+            <td>A review that prints only effect sizes. How to recognize duplicate reports and build variances
+              from a total sample size.</td>
+            <td>Its Grade 1 results are the same children as case 1. Seven of Shin and Chung&rsquo;s 17 studies
+              include those children. Treating the rows as independent understates the SE 5.5-fold.</td></tr>
+          <tr><th scope="row"><a href="replication/class-size-replication-molnar.html">3. Molnar et al. (1999)</a></th>
+            <td>Wisconsin&rsquo;s SAGE program, a quasi-experiment. How to choose among posttest, gain-score,
+              regression-adjusted, and multilevel estimates, and how to cluster by school.</td>
+            <td>The raw posttest difference gives 0.31 SD; the adjusted difference gives 0.17. SAGE cut the
+              pupil&ndash;teacher ratio, not always class size. Shin and Chung record the wrong year and
+              grades.</td></tr>
+          <tr><th scope="row"><a href="replication/class-size-replication-goldstein-blatchford.html">4. Goldstein &amp; Blatchford (1998)</a></th>
+            <td>A multilevel reanalysis of STAR with results only by race. Effects that are already
+              standardized, and adjustment for a &ldquo;pretest&rdquo; taken after treatment began.</td>
+            <td>Adjusting for kindergarten scores removes the kindergarten effect and lowers each estimate by
+              0.05&ndash;0.11. For the same children, these effects differ from Finn and Achilles&rsquo; by up to
+              0.09 SD.</td></tr>
+          <tr><th scope="row"><a href="replication/class-size-replication-nye.html">5. Nye et al. (1992)</a></th>
+            <td>The Lasting Benefits Study, Grade 5. How to recover missing SDs, adjust for composition at
+              follow-up, and reverse-engineer a meta-analysis.</td>
+            <td>Shin and Chung&rsquo;s Grade 5 row is reproduced exactly by dropping one outcome. Its SE treats
+              seven tests on the same pupils as independent, and its &ldquo;Grade 5&rdquo; effect measures
+              persistence, not a Grade 5 treatment.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What the five add up to</h3>
+    <ul>
+      <li><strong>One experiment, counted many times.</strong> Cases 2, 4, and 5 report the same STAR
+        children as case 1. Shin and Chung count each as a separate study and each outcome as a separate effect.
+        The pooled mean barely moves, but its precision is overstated several times over. That is why their
+        state-level estimate (0.08) is the more honest summary of how much independent evidence exists.</li>
+      <li><strong>The route to an effect size is a choice.</strong> Case 3 shows that one quasi-experiment
+        supports estimates from 0.17 to 0.33. A formula based on group means and a pooled SD, which is what Shin
+        and Chung describe, picks the largest.</li>
+      <li><strong>The grade trend mixes two questions.</strong> Case 5 shows that the Grade 5 effect is a
+        K&ndash;3 effect measured two years later. A meta-regression on grade can&rsquo;t tell whether small
+        classes work less well in later grades or whether early benefits fade.</li>
+      <li><strong>Small coding errors add up to a case for open data.</strong> A misspelled author, a wrong year,
+        grades that were never reported, and an unexplained dropped outcome each change the pooled estimate very
+        little. Together they show why the coded data behind a meta-analysis should be published with it.</li>
+    </ul>
+    <div class="callout">
+      <p><strong>Back to the riddle.</strong> The case studies bear on two of the clues in
+        <a href="#riddle">Section one</a>. <em>Dependence:</em> once repeated reports of the same STAR children
+        count once, Shin and Chung&rsquo;s precision shrinks. Their state-level 0.08 then looks like the better
+        summary, and it is the figure Glass and Smith&rsquo;s elementary regression predicts. <em>Timing:</em>
+        their grade trend mixes treatment effects with persistence effects (case 5). The R scripts and coded CSVs
+        are in the <span class="m">replication</span> folder next to this page.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="consensus">
+    <div class="sec-head">
+      <p class="num">Section ten</p>
       <h2>The post-meta-analysis consensus, and its limits</h2>
       <p class="sub">What most researchers now accept, what remains disputed, and what it means for
         policy.</p>
@@ -1229,7 +1307,7 @@
   <!-- ============================================================ -->
   <section id="modeling">
     <div class="sec-head">
-      <p class="num">Section ten</p>
+      <p class="num">Section eleven</p>
       <h2>From the meta-analysis to the modeling exercise</h2>
       <p class="sub">A synthetic panel built so you can watch each problem in the literature happen in
         your own regressions.</p>
@@ -1359,7 +1437,7 @@
   <!-- ============================================================ -->
   <section id="questions">
     <div class="sec-head">
-      <p class="num">Section eleven</p>
+      <p class="num">Section twelve</p>
       <h2>Questions to work through</h2>
       <p class="sub">For the modeling exercise. Write down your answer before you run the model.</p>
     </div>
@@ -1402,7 +1480,7 @@
   <!-- ============================================================ -->
   <section id="clear">
     <div class="sec-head">
-      <p class="num">Section twelve</p>
+      <p class="num">Section thirteen</p>
       <h2>What should be clear in my mind?</h2>
       <p class="sub">If you can explain each of these without notes, you have the unit.</p>
     </div>
@@ -1454,7 +1532,7 @@
   <!-- ============================================================ -->
   <section id="references">
     <div class="sec-head">
-      <p class="num">Section thirteen</p>
+      <p class="num">Section fourteen</p>
       <h2>References</h2>
       <p class="sub">Linked titles open the PDF in the course repository.</p>
     </div>
