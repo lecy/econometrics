@@ -211,8 +211,7 @@ html <- function(...) cat("\n```{=html}\n", ..., "\n```\n", sep = "")
   section{padding-top:3.25rem;}
 
   .sec-head{margin-bottom:1.75rem;}
-  /* full-width navy band marks the start of each section */
-  html,body{overflow-x:clip;}
+  /* navy band marks the start of each section; it spans the text column, like the concepts panel */
   .sec-head .num{
     font-family:var(--font-body);
     font-size:var(--step--1);
@@ -221,10 +220,10 @@ html <- function(...) cat("\n```{=html}\n", ..., "\n```\n", sep = "")
     font-weight:700;
     color:rgba(255,255,255,.78);
     background:var(--navy);
-    width:100vw;
     max-width:none;
-    margin:0 0 1.75rem calc(50% - 50vw);
-    padding:.85rem max(1.5rem, calc(50vw - 30rem + 1.5rem));
+    margin:0 0 1.75rem;
+    padding:.85rem 1.5rem;
+    border-radius:10px;
   }
   .sec-head h2{
     font-family:var(--font-display);
