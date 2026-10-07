@@ -17,3 +17,8 @@ __preview.html
 #   xaringan - slide-template sandbox (mostly large demo GIFs)
 lectures2/CPP-523/
 lectures2/xaringan/
+#   books    - draft book manuscript, not published with the site
+books/
+
+# Dropbox crash log
+debug.log
