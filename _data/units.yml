@@ -839,12 +839,12 @@
         - { label: Counterfactuals, url: lectures2/p-01-intro-to-counterfactuals-notes.html, kind: notes }
         - { label: CF validity, url: lectures2/p-02-tests-for-cf-validity-notes.html, kind: notes }
         - { label: Three estimators, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+        - { label: Campbell Scores, url: lectures2/p-07-campbell-scores-v2-notes.html, kind: notes }
     - title: Hypothesis Testing with Dummy Variables
       blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
       links:
         - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
-        - { label: Campbell Scores, url: lectures2/p-07-campbell-scores-v2-notes.html, kind: notes }
   labs:
     - title: Lab P204 — Campbell Scores on Competing Studies
       blurb: >
