@@ -633,9 +633,9 @@
         - url: assets/animations/sampling-distribution-n50.gif
           caption: "The same simulation at n = 50 — same true slope, a visibly tighter sampling distribution."
     - title: Happy Randomization
-      blurb: Short companion piece on why balance fails 5% of the time by construction.
+      blurb: Simulations showing why random assignment does not guarantee balance in small groups, and why a balance table with many rows needs a Bonferroni or joint-test decision rule.
       links:
-        - { label: Lecture, url: lectures2/happy-randomization/, kind: html }
+        - { label: Notes, url: lectures2/happy-randomization.html, kind: notes }
   labs:
     - title: Lab P202 — Tests for Group Equivalence
       blurb: >

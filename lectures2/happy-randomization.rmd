@@ -1,0 +1,1305 @@
+---
+pagetitle: "Happy Randomization"
+output:
+  html_document:
+    theme: null
+    highlight: null
+    mathjax: null
+    self_contained: true
+    md_extensions: -implicit_figures
+---
+
+<!--
+  Unit 09 · Happy Randomization
+
+  Three simulations that show why random assignment does not guarantee balanced groups,
+  and why a balance table with many rows needs an adjusted decision rule.
+
+  Every number and figure on the page is computed by the R code in this file, with fixed
+  seeds, so the page re-renders identically. The page body is written as raw HTML blocks
+  (```{=html}) so it shares the styling of the course notes pages; figures, tables, and
+  code sit between those blocks as ordinary R chunks.
+
+  Render with:  rmarkdown::render("happy-randomization.rmd")
+-->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE,
+  dev = "png", dpi = 200, fig.retina = 1,
+  fig.width = 6.5, fig.height = 3.2
+)
+
+# ---- palette and plot scaffolding --------------------------------------------
+
+blue   <- "#3f77b1"
+orange <- "#dd7a35"
+slate  <- "#5e6878"
+red    <- "#b23a48"
+light  <- "#b1b8bf"
+gridc  <- "#ececec"
+
+fig_par <- function() {
+  par(mar = c(3.1, 3.6, 0.6, 0.8), mgp = c(2.1, 0.55, 0), las = 1,
+      tcl = -0.3, cex.axis = 0.8, cex.lab = 0.85, bty = "l")
+}
+
+# Empty plot with light gridlines, left/bottom axes only.
+# Pass xat + xlabels for a categorical x-axis.
+fig_frame <- function(xlim, ylim, xlab, ylab, yat = pretty(ylim),
+                      xat = NULL, xlabels = NULL) {
+  fig_par()
+  plot(NA, xlim = xlim, ylim = ylim, xlab = xlab, ylab = ylab,
+       axes = FALSE, xaxs = "i", yaxs = "i")
+  abline(h = yat, col = gridc, lwd = 0.8)
+  if (is.null(xlabels)) {
+    xt <- pretty(xlim)
+    abline(v = xt, col = gridc, lwd = 0.8)
+    axis(1, at = xt, lwd = 0, lwd.ticks = 1)
+  } else {
+    abline(v = xat, col = gridc, lwd = 0.8)
+    axis(1, at = xat, labels = xlabels, lwd = 0, lwd.ticks = 1)
+  }
+  axis(2, at = yat, lwd = 0, lwd.ticks = 1)
+  box(bty = "l")
+}
+
+dot <- function(x, y, col, cex = 1.5) {
+  points(x, y, pch = 21, bg = col, col = "white", cex = cex, lwd = 1.2)
+}
+
+legend_tl <- function(labels, cols, lty = 1, lwd = 3, pch = NA, pt.bg = NA,
+                      where = "topleft") {
+  legend(where, legend = labels, col = cols, lty = lty, lwd = lwd,
+         pch = pch, pt.bg = pt.bg, bty = "n", cex = 0.75, seg.len = 1.6,
+         inset = c(0.01, 0.02))
+}
+
+# ---- formatting helpers for inline numbers and HTML tables ---------------------
+
+pct  <- function(x, d = 0) paste0(formatC(100 * x, format = "f", digits = d), "%")
+num  <- function(x, d = 1) formatC(x, format = "f", digits = d, big.mark = ",")
+pval <- function(p) ifelse(p < 0.001, "&lt; 0.001", formatC(p, format = "f", digits = 3))
+
+# Emit a raw HTML block from inside an R chunk (use with results = "asis").
+html <- function(...) cat("\n```{=html}\n", ..., "\n```\n", sep = "")
+```
+
+<!-- Web fonts load at view time; data-external keeps them out of the self-contained file -->
+<link rel="stylesheet" data-external="1" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+
+```{css, echo=FALSE}
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  /* full-width navy band marks the start of each section */
+  html,body{overflow-x:clip;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.78);
+    background:var(--navy);
+    width:100vw;
+    max-width:none;
+    margin:0 0 1.75rem calc(50% - 50vw);
+    padding:.85rem max(1.5rem, calc(50vw - 30rem + 1.5rem));
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child,.callout ul:last-child,.callout ol:last-child{margin-bottom:0;}
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+
+  /* ---------- page-specific additions ---------- */
+  figure.fig{
+    margin:1.1rem 0 .5rem;
+    max-width:40rem;
+    background:#ffffff;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:.35rem;
+  }
+  figure.fig img{display:block;width:100%;height:auto;}
+  figure.fig.wide{max-width:46rem;}
+  figure.fig p{margin:0;max-width:none;}
+  .figcap{font-size:var(--step--1);color:var(--ink-mid);max-width:40rem;margin:0 0 1.6rem;}
+
+  .lbl{
+    display:block;
+    font-size:.72rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .4rem;
+  }
+  .callout .lbl{color:var(--accent-ink);}
+
+  h4{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:1.9rem 0 .6rem;
+  }
+
+  /* numeric tables */
+  .num-table{width:auto;min-width:min(100%,30rem);}
+  .num-table th,.num-table td{padding:.5rem .85rem;}
+  .num-table td{font-variant-numeric:tabular-nums;text-align:right;}
+  .num-table thead th{text-align:right;white-space:normal;vertical-align:bottom;}
+  .num-table thead th:first-child,.num-table td.l{text-align:left;}
+  .num-table td.hi{font-weight:700;color:var(--accent-ink);}
+  .num-table td.ok{font-weight:600;color:var(--ink);}
+  .num-table tr.flag td{background:var(--accent-wash);}
+  .num-table tr.flag td:first-child{font-weight:700;}
+
+  /* published-style balance table */
+  .num-table.pub thead th{text-transform:none;letter-spacing:0;font-size:var(--step--1);color:var(--ink);
+    background:var(--surface);border-top:1.5px solid var(--ink);white-space:nowrap;}
+  .num-table.pub td{white-space:nowrap;}
+  .num-table.pub td.l{white-space:normal;}
+  .num-table.pub tfoot td{border-bottom:1.5px solid var(--ink);font-weight:600;}
+  .num-table.pub tbody tr:last-child td{border-bottom:1.5px solid var(--ink);}
+  .num-table.pub caption{text-transform:none;letter-spacing:0;font-size:var(--step-0);color:var(--ink);}
+  .tnote{font-size:var(--step--1);color:var(--ink-mid);margin:.6rem 0 0;}
+
+  /* stat row */
+  .stats{display:flex;flex-wrap:wrap;gap:1rem;margin:1.4rem 0 1.6rem;max-width:44rem;}
+  .stat{flex:1 1 12rem;background:var(--surface);border-radius:4px;padding:.9rem 1.1rem;}
+  .stat .big{font-family:var(--font-display);font-weight:700;font-size:var(--step-3);line-height:1;color:var(--accent-ink);display:block;margin-bottom:.35rem;}
+  .stat .what{font-size:var(--step--1);color:var(--ink-mid);display:block;line-height:1.4;}
+
+  /* R code, collapsed by default */
+  details.code{margin:1.2rem 0 1.6rem;max-width:44rem;}
+  details.code summary{
+    cursor:pointer;
+    font-size:var(--step--1);
+    font-weight:600;
+    color:var(--accent-ink);
+    list-style-position:outside;
+  }
+  details.code[open] summary{margin-bottom:.6rem;}
+  pre{
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    overflow-x:auto;
+    font-size:.82rem;
+    line-height:1.5;
+    margin:0 0 .8rem;
+  }
+  code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;}
+  p code,li code{font-size:.88em;background:var(--surface);padding:.08em .3em;border-radius:2px;}
+
+  /* ---------- R Markdown wrapper ---------- */
+  .main-container{max-width:none;margin:0;padding:0;}
+```
+
+```{r sim-functions, include=FALSE}
+# ---- shared simulation functions (shown again in the code boxes below) ---------
+
+# Random assignment: shuffle equal numbers of each group label across the blocks.
+assign_groups <- function(n.blocks, n.groups = 5) {
+  sample(rep(paste("Group", 1:n.groups), length.out = n.blocks))
+}
+
+# Every pairwise t-test between groups: n(n - 1) / 2 contrasts.
+pairwise_tests <- function(y, group) {
+  pairs <- combn(sort(unique(group)), 2)
+  data.frame(
+    g1      = pairs[1, ],
+    g2      = pairs[2, ],
+    diff    = apply(pairs, 2, function(p) mean(y[group == p[1]]) - mean(y[group == p[2]])),
+    p.value = apply(pairs, 2, function(p) t.test(y[group == p[1]], y[group == p[2]])$p.value)
+  )
+}
+```
+
+```{r part1, include=FALSE}
+# ---- Part 1: five groups of ten blocks -----------------------------------------
+
+set.seed(2026)
+blocks <- data.frame(block = 1:50, score = round(rnorm(50, mean = 50, sd = 10)))
+
+# One randomization to look at closely. We search for the first seed whose draw
+# contains exactly one significant contrast, so the example shows a false alarm.
+seed <- 1
+repeat {
+  set.seed(seed)
+  blocks$group <- assign_groups(50)
+  tests <- pairwise_tests(blocks$score, blocks$group)
+  if (sum(tests$p.value < 0.05) == 1) break
+  seed <- seed + 1
+}
+group.means <- tapply(blocks$score, blocks$group, mean)
+sig.row     <- tests[tests$p.value < 0.05, ]
+
+# The same randomization repeated 5,000 times.
+set.seed(1)
+n.sig <- replicate(5000, {
+  group <- assign_groups(50)
+  sum(pairwise_tests(blocks$score, group)$p.value < 0.05)
+})
+# Keep the full results of the first 100 lotteries to draw as a grid.
+set.seed(100)
+grid.tests <- replicate(100, simplify = FALSE,
+                        pairwise_tests(blocks$score, assign_groups(50)))
+grid.any   <- sapply(grid.tests, function(t) any(t$p.value < 0.05))
+
+avg.sig  <- mean(n.sig)
+any.sig  <- mean(n.sig > 0)
+dist.sig <- table(factor(pmin(n.sig, 3), levels = 0:3)) / length(n.sig)
+```
+
+```{r part1b, include=FALSE}
+# ---- Part 1b: the same design with larger groups -------------------------------
+
+sizes <- c(10, 25, 50, 100, 250, 1000)          # blocks per group
+
+converge <- lapply(sizes, function(n) {
+  set.seed(n)
+  score <- rnorm(5 * n, mean = 50, sd = 10)      # a population of 5n blocks
+  sims <- replicate(1000, {
+    group <- assign_groups(5 * n)
+    means <- tapply(score, group, mean) - mean(score)
+    c(gap = max(means) - min(means),
+      any.sig = any(pairwise_tests(score, group)$p.value < 0.05),
+      means)
+  })
+  list(n = n, gap = mean(sims["gap", ]), any.sig = mean(sims["any.sig", ]),
+       se = sd(score) / sqrt(n),
+       deviations = as.vector(sims[-(1:2), 1:200]))  # group means from 200 draws
+})
+conv <- do.call(rbind, lapply(converge, function(x)
+  data.frame(n = x$n, gap = x$gap, se = x$se, any.sig = x$any.sig)))
+```
+
+```{r part2, include=FALSE}
+# ---- Part 2: treatment vs control, 1 to 20 covariates --------------------------
+
+# One simulated study population: n students and 20 baseline attributes.
+make_students <- function(n) {
+  data.frame(
+    mother.educ     = rnorm(n, 13, 2.5),          # years of schooling
+    father.educ     = rnorm(n, 13, 2.8),
+    family.income   = rlnorm(n, log(55), 0.6),    # $1,000s
+    black           = rbinom(n, 1, 0.15),
+    hispanic        = rbinom(n, 1, 0.25),
+    asian           = rbinom(n, 1, 0.06),
+    female          = rbinom(n, 1, 0.50),
+    free.lunch      = rbinom(n, 1, 0.45),
+    english.learner = rbinom(n, 1, 0.10),
+    special.ed      = rbinom(n, 1, 0.13),
+    prior.math      = rnorm(n, 50, 10),
+    prior.reading   = rnorm(n, 50, 10),
+    age.months      = rnorm(n, 120, 4),
+    days.absent     = rpois(n, 8),
+    household.size  = 2 + rpois(n, 2),
+    single.parent   = rbinom(n, 1, 0.30),
+    changed.school  = rbinom(n, 1, 0.12),
+    books.at.home   = rpois(n, 40),
+    homework.hours  = rgamma(n, 2, 0.4),
+    preschool       = rbinom(n, 1, 0.60)
+  )
+}
+
+set.seed(2026)
+studies <- replicate(1000, simplify = FALSE, {
+  students <- make_students(200)
+  treat    <- sample(rep(0:1, each = 100))       # 100 treated, 100 controls
+
+  # one t-test per covariate
+  p <- sapply(students, function(x) t.test(x[treat == 1], x[treat == 0])$p.value)
+
+  # omnibus alternative: regress treatment on the first k covariates, joint F-test
+  f.p <- sapply(1:20, function(k) {
+    f <- summary(lm(treat ~ ., data = students[1:k]))$fstatistic
+    pf(f[1], f[2], f[3], lower.tail = FALSE)
+  })
+  list(p = p, f.p = f.p)
+})
+
+P  <- t(sapply(studies, `[[`, "p"))    # 1,000 studies x 20 covariates
+FP <- t(sapply(studies, `[[`, "f.p"))  # 1,000 studies x 20 joint tests
+
+k <- 1:20
+n.sig.k  <- lapply(k, function(j) rowSums(P[, 1:j, drop = FALSE] < 0.05))
+n.bonf.k <- lapply(k, function(j) rowSums(P[, 1:j, drop = FALSE] < 0.05 / j))
+
+results <- data.frame(
+  k        = k,
+  any.sig  = sapply(n.sig.k, function(x) mean(x > 0)),
+  avg.sig  = sapply(n.sig.k, mean),
+  expected = 1 - 0.95^k,
+  bonf     = sapply(n.bonf.k, function(x) mean(x > 0)),
+  joint.F  = colMeans(FP < 0.05)
+)
+```
+
+```{r demo-table, include=FALSE}
+# ---- One study for the demo balance table (5 covariates) -----------------------
+
+# Search for the first seed whose table has exactly one row significant at .05
+# that does not survive the Bonferroni threshold of .05 / 5 = .01.
+demo.vars <- c("mother.educ", "family.income", "black", "free.lunch", "prior.math")
+seed <- 1
+repeat {
+  set.seed(seed)
+  students <- make_students(200)[demo.vars]
+  treat    <- sample(rep(0:1, each = 100))
+  demo <- data.frame(
+    treat.mean = sapply(students, function(x) mean(x[treat == 1])),
+    ctrl.mean  = sapply(students, function(x) mean(x[treat == 0])),
+    p.value    = sapply(students, function(x) t.test(x[treat == 1], x[treat == 0])$p.value)
+  )
+  if (sum(demo$p.value < 0.05) == 1 && all(demo$p.value >= 0.01)) break
+  seed <- seed + 1
+}
+
+# Joint F-test: do the five covariates together predict treatment assignment?
+demo.f   <- summary(lm(treat ~ ., data = students))$fstatistic
+demo.f.p <- pf(demo.f[1], demo.f[2], demo.f[3], lower.tail = FALSE)
+```
+
+```{r figures, include=FALSE}
+# ---- figure functions ----------------------------------------------------------
+
+fig_one_draw <- function() {
+  set.seed(11)
+  gx <- as.integer(sub("Group ", "", blocks$group))
+  fig_frame(c(0.4, 5.6), c(20, 80), "", "Block average prior score",
+            yat = seq(20, 80, 10), xat = 1:5, xlabels = names(group.means))
+  abline(h = mean(blocks$score), col = slate, lty = 2, lwd = 1.5)
+  points(gx + runif(50, -0.18, 0.18), blocks$score, pch = 16,
+         col = adjustcolor(blue, 0.5), cex = 0.95)
+  segments(1:5 - 0.3, group.means, 1:5 + 0.3, group.means, col = orange, lwd = 3)
+  text(1:5, 76, paste("mean", num(group.means)), cex = 0.75, col = orange, font = 2)
+}
+
+# ---- contrast diagrams: 5 groups as a pentagon, 10 contrasts as its sides and star ----
+
+gray.edge <- "#9aa1a9"
+node.fill <- "#d4d7db"
+
+# Node positions: Group 1 at the top, then clockwise.
+k5_xy <- function(cx = 0, cy = 0, r = 1) {
+  a <- (90 - 72 * (0:4)) * pi / 180
+  cbind(x = cx + r * cos(a), y = cy + r * sin(a))
+}
+
+# Draw the 10 contrasts of one lottery: gray if p >= .05, red if p < .05.
+draw_k5 <- function(tests, cx = 0, cy = 0, r = 1, lwd = c(1.6, 4), node.cex = 4.2,
+                    node.labels = TRUE) {
+  xy  <- k5_xy(cx, cy, r)
+  i1  <- as.integer(sub("Group ", "", tests$g1))
+  i2  <- as.integer(sub("Group ", "", tests$g2))
+  sig <- tests$p.value < 0.05
+  ord <- order(sig)                                # draw red lines on top
+  segments(xy[i1[ord], 1], xy[i1[ord], 2], xy[i2[ord], 1], xy[i2[ord], 2],
+           col = ifelse(sig[ord], red, gray.edge), lwd = ifelse(sig[ord], lwd[2], lwd[1]))
+  points(xy, pch = 21, bg = node.fill, col = "#4d565f", cex = node.cex, lwd = 1.2)
+  if (node.labels) text(xy, labels = 1:5, cex = 0.95, font = 2, col = "#1f2429")
+  invisible(xy)
+}
+
+fig_k5_big <- function() {
+  par(mar = c(0, 0, 0, 0))
+  plot(NA, xlim = c(-3, 3), ylim = c(-1.62, 1.66), asp = 1, axes = FALSE, xlab = "", ylab = "")
+  xy <- draw_k5(tests)
+
+  # group means just outside each node
+  lab.xy <- k5_xy(r = 1.34)
+  text(lab.xy, labels = num(group.means), cex = 0.8, font = 2, col = orange)
+
+  note <- function(x, y, label, adj) text(x, y, label, adj = adj, cex = 0.72, col = slate)
+  pointer <- function(x0, y0, x1, y1) arrows(x0, y0, x1, y1, length = 0.06, col = slate, lwd = 1)
+
+  # the significant contrast (left, top)
+  s  <- tests[tests$p.value < 0.05, ][1, ]
+  i1 <- as.integer(sub("Group ", "", s$g1)); i2 <- as.integer(sub("Group ", "", s$g2))
+  mid <- colMeans(xy[c(i1, i2), ])
+  text(-2.95, 1.42, "Red line = significant contrast", adj = c(0, 0.5), cex = 0.74,
+       col = red, font = 2)
+  note(-2.95, 1.2, paste0(s$g1, " vs ", s$g2, ": gap of ", num(abs(s$diff)),
+                          " points,\np = ", pval(s$p.value)), adj = c(0, 1))
+  pointer(-1.75, 1.05, mid[1] - 0.04, mid[2] + 0.04)
+
+  # a non-significant contrast (left, bottom): the bottom side, 3 vs 4
+  text(-2.95, -1.12, "Gray line = contrast not\nsignificant (p ≥ .05)", adj = c(0, 1),
+       cex = 0.74, col = "#4d565f", font = 2)
+  pointer(-1.6, -1.2, -0.15, -0.83)
+
+  # a node (right, top)
+  text(2.95, 1.42, "Circle = one study group", adj = c(1, 0.5), cex = 0.74,
+       col = "#1f2429", font = 2)
+  note(2.95, 1.2, "10 classroom blocks,\nrandomly assigned", adj = c(1, 1))
+  pointer(1.6, 1.3, 0.2, 1.02)
+
+  # a mean label (right, middle)
+  text(2.95, -0.2, "Orange number = the group's\nmean prior score", adj = c(1, 1),
+       cex = 0.74, col = orange, font = 2)
+  pointer(1.75, -0.12, 1.42, 0.3)
+
+  # the count (right, bottom)
+  note(2.95, -1.12, "Every line is one t-test.\n5 groups × 4 / 2 = 10 lines", adj = c(1, 1))
+}
+
+fig_k5_grid <- function() {
+  par(mar = c(0, 0, 0, 0))
+  plot(NA, xlim = c(0.45, 10.55), ylim = c(-10.55, -0.45), asp = 1, axes = FALSE,
+       xlab = "", ylab = "")
+  for (j in seq_along(grid.tests)) {
+    col <- (j - 1) %% 10 + 1; row <- (j - 1) %/% 10 + 1
+    if (grid.any[j]) rect(col - 0.47, -row - 0.47, col + 0.47, -row + 0.47,
+                          col = adjustcolor(red, 0.08), border = adjustcolor(red, 0.45), lwd = 0.8)
+    draw_k5(grid.tests[[j]], cx = col, cy = -row + 0.02, r = 0.34, lwd = c(0.7, 1.9),
+            node.cex = 0.6, node.labels = FALSE)
+  }
+}
+
+fig_converge <- function() {
+  fig_frame(c(0.4, 6.6), c(-10, 10), "Blocks per group", "Group mean minus overall mean",
+            yat = seq(-10, 10, 5), xat = seq_along(sizes), xlabels = sizes)
+  abline(h = 0, col = slate, lwd = 1.5)
+  set.seed(3)
+  for (i in seq_along(converge)) {
+    d <- converge[[i]]$deviations
+    points(i + runif(length(d), -0.28, 0.28), d, pch = 16,
+           col = adjustcolor(blue, 0.18), cex = 0.55)
+    segments(i - 0.32, c(-2, 2) * converge[[i]]$se * sqrt(4 / 5),
+             i + 0.32, c(-2, 2) * converge[[i]]$se * sqrt(4 / 5), col = orange, lwd = 2.5)
+  }
+  legend_tl(c("One group's mean, one randomization", "About 95% of group means fall inside"),
+            c(adjustcolor(blue, 0.6), orange), lty = c(NA, 1), lwd = c(NA, 2.5),
+            pch = c(16, NA), where = "topright")
+}
+
+fig_covariates <- function() {
+  fig_frame(c(0.5, 20.5), c(0, 70), "Number of covariates in the balance table",
+            "Studies flagged as unbalanced (%)", yat = seq(0, 70, 10),
+            xat = c(1, 5, 10, 15, 20), xlabels = c(1, 5, 10, 15, 20))
+  abline(h = 5, col = red, lty = 3, lwd = 1.5)
+  lines(k, 100 * results$expected, col = light, lwd = 2, lty = 2)
+  lines(k, 100 * results$any.sig, col = orange, lwd = 3); dot(k, 100 * results$any.sig, orange, cex = 0.9)
+  lines(k, 100 * results$bonf, col = blue, lwd = 3);      dot(k, 100 * results$bonf, blue, cex = 0.9)
+  lines(k, 100 * results$joint.F, col = slate, lwd = 2)
+  legend_tl(c("Any t-test at p < .05", "Theory: 1 - 0.95^k",
+              "Any t-test at p < .05 / k (Bonferroni)", "Joint F-test at p < .05",
+              "Target: 5%"),
+            c(orange, light, blue, slate, red), lty = c(1, 2, 1, 1, 3),
+            lwd = c(3, 2, 3, 2, 1.5))
+}
+```
+
+```{=html}
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Design</p>
+    <h1>Happy Randomization</h1>
+    <p class="dek">Random assignment balances groups <em>on average</em>, not in every study. Three
+      simulations show how often a perfectly fair lottery produces groups that look different, why
+      small groups make it worse, and how to test for balance without fooling yourself when the
+      balance table has many rows.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#group-differences">Group differences</a>
+      <a href="#bonferroni">Bonferroni corrections</a>
+      <a href="#takeaways">Takeaways</a>
+    </nav>
+  </header>
+
+  <!-- ================================================================== -->
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Overview</p>
+      <h2>Key concepts</h2>
+      <p class="sub">Why a study that randomized correctly still has to check its groups.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">The argument in four claims</p>
+
+      <p class="claim">Randomization is fair, not perfect.</p>
+      <p>Random assignment guarantees that groups are equal <strong>in expectation</strong>: averaged
+        over every possible lottery, no group is favored. Any single lottery can still deal one group
+        the stronger students. A study that randomized correctly can be unlucky. When the groups turn
+        out comparable we call it <strong>happy randomization</strong>.</p>
+
+      <p class="claim">A 5% test raises a false alarm 5% of the time, by design.</p>
+      <p>When the groups really are equivalent in the population, a t-test at
+        <span class="m">α = 0.05</span> will still call one contrast in twenty "significant." That is
+        what the 0.05 means.</p>
+
+      <p class="claim">More tests, more false alarms.</p>
+      <p>Five study groups produce 10 pairwise contrasts, and a balance table with 20 covariates
+        produces 20 tests. The chance that <em>at least one</em> of them comes out significant grows
+        quickly. When the tests are an omnibus check of equivalence across many covariates, the
+        decision rule for the whole table has to be adjusted: divide <span class="m">α</span> by the
+        number of tests (Bonferroni), or run one joint test.</p>
+
+      <p class="claim">Big samples shrink imbalances, not false alarms.</p>
+      <p>As groups grow, their means converge on each other and the <strong>size</strong> of any chance
+        imbalance falls. The <strong>false-alarm rate</strong> of each test stays at 5% at every sample
+        size. Small studies are the ones that get substantively unbalanced groups, which is why they
+        often stratify the lottery instead of relying on luck.</p>
+    </div>
+
+    <h3>Where the question comes from</h3>
+    <p>The study described in the Chapter 1 reading randomizes <em>blocks</em> of students (classrooms)
+      rather than individual students, and it has only a handful of blocks per study group. Instead of a
+      single lottery, it assigns blocks in <strong>tranches</strong>: rank the blocks by prior academic
+      performance, take the top tranche and randomly give one block to each study group, then do the
+      same with the next tranche, and so on down the list.</p>
+    <p>Why go to the trouble? If assignment is random, shouldn't the groups come out balanced anyway?
+      The simulations below answer that question.</p>
+  </section>
+
+  <!-- ================================================================== -->
+  <section id="group-differences">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Group differences after random assignment</h2>
+      <p class="sub">Five study groups of ten blocks each: how often a fair lottery produces groups
+        that differ, and what changes as the groups grow.</p>
+    </div>
+
+    <h3>The setup</h3>
+    <p>A district has 50 classroom blocks. For each block we know its average prior-year test score.
+      Across all 50 blocks the scores average `r num(mean(blocks$score))` with a standard deviation of
+      `r num(sd(blocks$score))`. We randomly assign 10 blocks to each of 5 study groups, and nothing
+      about the lottery depends on the scores.</p>
+
+    <figure class="fig">
+```
+
+```{r fig-one-draw, fig.alt="Fifty block scores split into five randomly assigned groups of ten, with each group's mean marked."}
+fig_one_draw()
+```
+
+```{=html}
+    </figure>
+    <p class="figcap">One random assignment of 50 blocks to 5 groups. Dots are blocks; orange bars are
+      group means; the dashed line is the mean of all 50 blocks.</p>
+```
+
+```{r tbl-means, results="asis"}
+rows <- paste0("<tr><td class=\"l\">", names(group.means), "</td><td>", num(group.means),
+               "</td><td>", num(group.means - mean(blocks$score)), "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>Group means after one lottery</caption>',
+     '<thead><tr><th>Study group</th><th>Mean prior score</th><th>Gap from overall mean</th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <p>Same population, same lottery rules, yet the group means span
+      `r num(max(group.means) - min(group.means))` points, from `r num(min(group.means))` to
+      `r num(max(group.means))`.</p>
+
+    <div class="callout">
+      <span class="lbl">Why a group that is too high or too low matters</span>
+      <p>Suppose `r names(which.min(group.means))` happened to be the <strong>control group</strong>.
+        It starts `r num(mean(blocks$score) - min(group.means))` points below the average block, about
+        `r num((mean(blocks$score) - min(group.means)) / sd(blocks$score), 2)` standard deviations. Every
+        treatment group would then look better than the control before the program did anything, and the
+        study would report that head start as a program effect. If the unlucky draw had put the strongest
+        blocks in the control group instead, a real effect could be hidden. In a post-test-only design,
+        the comparison groups have to be equivalent at baseline, because the control group is the
+        counterfactual.</p>
+    </div>
+
+    <p>Is a gap this size unusual, or is it what fair lotteries normally produce? To find out, compare
+      every group with every other group.</p>
+
+    <h3>How many contrasts?</h3>
+    <p>With <span class="m"><i>g</i></span> groups, the number of distinct pairs is</p>
+    <div class="eq center">
+      <span class="m">number of contrasts = <i>g</i>(<i>g</i> &minus; 1) / 2</span>
+    </div>
+    <p>Each group is paired with the <span class="m"><i>g</i> &minus; 1</span> others, and dividing by
+      2 removes duplicates (Group 1 vs Group 2 is the same contrast as Group 2 vs Group 1). Five groups
+      give <span class="m">5 &times; 4 / 2 = 10</span> contrasts. The count grows much faster than the
+      number of groups:</p>
+```
+
+```{r tbl-contrasts, results="asis"}
+g <- c(2, 3, 4, 5, 6, 10)
+cc <- g * (g - 1) / 2
+rows <- paste0("<tr", ifelse(g == 5, ' class="flag"', ""), "><td class=\"l\">", g, "</td><td>", cc,
+               "</td><td>", num(0.05 * cc, 2), "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>Contrasts grow with the square of the number of groups</caption>',
+     '<thead><tr><th>Groups</th><th>Pairwise contrasts</th>',
+     '<th>Contrasts expected to be significant by chance at <span class="m">α = .05</span></th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <h3>Testing all ten contrasts</h3>
+    <p>The 10 contrasts are easiest to see as a picture. Put the five groups at the corners of a
+      pentagon and draw a line between every pair: the five sides plus the five-pointed star inside
+      (a pentagram) are exactly the 10 contrasts. Each line is one t-test of the difference in mean
+      prior scores between the two groups it connects.</p>
+
+    <figure class="fig wide">
+```
+
+```{r fig-k5-big, fig.width=7.5, fig.height=4.1, fig.alt="Five numbered circles at the corners of a pentagon, joined by ten lines. Nine lines are gray; the line between Group 1 and Group 5 is red, marking the one significant contrast."}
+fig_k5_big()
+```
+
+```{=html}
+    </figure>
+    <p class="figcap">The lottery shown above, drawn as a contrast diagram. Each of the 10 lines is a
+      two-sample t-test between the groups at its ends.</p>
+```
+
+```{r tbl-pairs, results="asis"}
+flag <- tests$p.value < 0.05
+rows <- paste0("<tr", ifelse(flag, ' class="flag"', ""), "><td class=\"l\">", tests$g1, " vs ",
+               tests$g2, "</td><td>", num(tests$diff), "</td><td", ifelse(flag, ' class="hi"', ""),
+               ">", pval(tests$p.value), "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>The same 10 contrasts as a table</caption>',
+     '<thead><tr><th>Contrast</th><th>Difference in means</th><th>p-value</th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <p>One contrast, `r sig.row$g1` vs `r sig.row$g2`, is significant at the 5% level
+      (p = `r pval(sig.row$p.value)`). `r names(which.min(group.means))` drew mostly low-scoring blocks
+      and `r names(which.max(group.means))` drew mostly high-scoring ones. Nothing went wrong: every
+      group came from the same 50 blocks through a fair process. That is simply what happens in some
+      lotteries. (We chose this lottery because it contains a significant contrast, so the example has
+      something to show. The next step reports how often that happens.)</p>
+
+    <h3>Repeat the lottery 5,000 times</h3>
+    <p>To see what is typical, we rerun the random assignment 5,000 times on the same 50 blocks and
+      count how many of the 10 contrasts come out significant each time.</p>
+
+    <div class="stats">
+      <div class="stat"><span class="big">`r num(avg.sig, 2)`</span>
+        <span class="what">significant contrasts per lottery, on average (expected:
+          10 &times; 0.05 = 0.50)</span></div>
+      <div class="stat"><span class="big">`r pct(any.sig)`</span>
+        <span class="what">of lotteries show at least one significant contrast</span></div>
+      <div class="stat"><span class="big">`r pct(dist.sig[["0"]])`</span>
+        <span class="what">of lotteries pass all 10 tests</span></div>
+    </div>
+
+    <p>Here are the first 100 of those lotteries, each drawn as its own contrast diagram. In
+      `r sum(grid.any)` of the 100, at least one line is red (shaded panels).</p>
+
+    <figure class="fig wide">
+```
+
+```{r fig-k5-grid, fig.width=7, fig.height=7, fig.alt="A ten by ten grid of small pentagon contrast diagrams. Most have only gray lines; roughly a quarter are shaded and contain one or more red lines."}
+fig_k5_grid()
+```
+
+```{=html}
+    </figure>
+    <p class="figcap">100 random assignments of the same 50 blocks. Red lines are contrasts significant
+      at p &lt; .05; shaded panels contain at least one. Every one of these lotteries was fair.</p>
+```
+
+```{r tbl-dist, results="asis"}
+labs <- c("0", "1", "2", "3 or more")
+rows <- paste0("<tr><td class=\"l\">", labs, "</td><td>", pct(as.numeric(dist.sig), 1),
+               "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>Significant contrasts per lottery, 5,000 lotteries</caption>',
+     '<thead><tr><th>Number significant (of 10)</th><th>Share of lotteries</th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <p>The average of `r num(avg.sig, 2)` is what the arithmetic predicts: 10 tests, each with
+      a 5% chance of a false alarm, gives 0.5 expected false alarms. Put another way, <strong>roughly
+      `r pct(any.sig)` of perfectly valid randomizations would "fail" a balance check that uses
+      p &lt; .05 for each contrast.</strong></p>
+
+    <div class="callout">
+      <span class="lbl">Why `r pct(any.sig)` and not 40%?</span>
+      <p>If the 10 tests were independent, the chance of at least one false alarm would be
+        <span class="m">1 &minus; 0.95<sup>10</sup> = 40%</span>. They are not independent: every group
+        appears in four contrasts, so one unusual group tends to set off several tests at once (note the
+        lotteries with 2 or more). Overlapping tests produce fewer lotteries with
+        <em>any</em> alarm, but the <em>average</em> number of alarms is still 0.5.</p>
+    </div>
+```
+
+```{=html}
+    <details class="code">
+      <summary>R code: one lottery and 5,000 repeats</summary>
+```
+
+```{r show-part1, ref.label=c("sim-functions", "part1"), echo=TRUE, eval=FALSE}
+```
+
+```{=html}
+    </details>
+
+    <h3 id="bigger">What changes when the groups get bigger</h3>
+    <p>Now keep the design (5 groups, random assignment) but vary the number of blocks per group from 10
+      to 1,000. For each size we draw a population of blocks with mean 50 and standard deviation 10, run
+      the lottery 1,000 times, and record two things: how far apart the group means land, and whether
+      any of the 10 contrasts is significant.</p>
+
+    <figure class="fig">
+```
+
+```{r fig-converge, fig.alt="Group means scattered around the overall mean, with the scatter shrinking sharply as blocks per group rise from 10 to 1000."}
+fig_converge()
+```
+
+```{=html}
+    </figure>
+    <p class="figcap">Each dot is one group's mean (minus the overall mean) from one of 200 lotteries.
+      The spread shrinks in proportion to <span class="m">1 / &radic;<i>n</i></span>.</p>
+```
+
+```{r tbl-converge, results="asis"}
+rows <- paste0("<tr><td class=\"l\">", conv$n, "</td><td>", num(conv$se, 2), "</td><td class=\"ok\">",
+               num(conv$gap, 2), "</td><td>", pct(conv$any.sig), "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>Five groups, 1,000 lotteries at each size</caption>',
+     '<thead><tr><th>Blocks per group</th><th>Standard error of a group mean</th>',
+     '<th>Average gap, highest minus lowest group mean</th>',
+     '<th>Lotteries with at least one significant contrast</th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <p>Read the two right-hand columns together:</p>
+    <ul>
+      <li><strong>The gap shrinks.</strong> With 10 blocks per group, the best and worst groups differ
+        by about `r num(conv$gap[1], 1)` points on average, which is
+        `r num(conv$gap[1] / 10, 2)` standard deviations, large enough to swamp a modest program effect.
+        With 1,000 blocks per group the gap is `r num(conv$gap[6], 2)` points. This is the law of large
+        numbers at work: every group mean converges on the population mean, so they converge on each
+        other.</li>
+      <li><strong>The false-alarm rate does not.</strong> About `r pct(mean(conv$any.sig))` of lotteries
+        show a significant contrast at every size. The t-test measures differences relative to their
+        standard error, and the standard error shrinks just as fast as the gap does.</li>
+    </ul>
+
+    <div class="callout">
+      <span class="lbl">The lesson for small studies</span>
+      <p>Large samples do not make the balance test easier to pass. They make the imbalances you
+        <em>do</em> get too small to matter. In a study with only 10 blocks per group, a chance gap of
+        several points is common, and the outcome comparison inherits it. That is why the study in the
+        reading assigned blocks in tranches: <strong>stratified (blocked) randomization</strong> forces
+        each group to get one block from each performance level, so balance on prior scores is
+        guaranteed by construction rather than left to luck.</p>
+    </div>
+
+    <details class="code">
+      <summary>R code: larger groups</summary>
+```
+
+```{r show-part1b, ref.label="part1b", echo=TRUE, eval=FALSE}
+```
+
+```{=html}
+    </details>
+  </section>
+
+  <!-- ================================================================== -->
+  <section id="bonferroni">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Bonferroni corrections for balance tables</h2>
+      <p class="sub">Two groups, many covariates. A balance table is a set of tests run together, and
+        its decision rule has to account for how many there are.</p>
+    </div>
+
+    <h3>A typical balance table</h3>
+    <p>A study of a tutoring program randomly assigns 200 students: 100 to treatment and 100 to
+      control. Before the program starts, it measures baseline attributes that could affect test
+      scores, to check balance and to use as controls later. Published studies report this check as a
+      balance table: one row per attribute, the mean in each group, the difference, and a test of that
+      difference. Here is one for five of the attributes.</p>
+```
+
+```{r tbl-demo, results="asis"}
+demo.lab <- c("Mother's education (years)", "Family income ($1,000s)", "Black = 1",
+              "Free or reduced-price lunch = 1", "Prior math score")
+demo.dig <- c(1, 1, 2, 2, 1)
+demo.short <- c("mother's education", "family income", "the share of Black students",
+                "free or reduced-price lunch eligibility", "prior math scores")
+star <- ifelse(demo$p.value < 0.05, "*", "")
+rows <- paste0("<tr", ifelse(star == "*", ' class="flag"', ""), "><td class=\"l\">", demo.lab,
+               "</td><td>", mapply(num, demo$treat.mean, demo.dig), "</td><td>",
+               mapply(num, demo$ctrl.mean, demo.dig), "</td><td>",
+               mapply(num, demo$treat.mean - demo$ctrl.mean, demo.dig), "</td><td",
+               ifelse(star == "*", ' class="hi"', ""), ">", formatC(demo$p.value, format = "f", digits = 3),
+               star, "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table pub">',
+     '<caption>Table 1. Balance between treatment and control students at baseline</caption>',
+     '<thead><tr><th>Student characteristic</th><th>Treatment<br>(N = 100)</th>',
+     '<th>Control<br>(N = 100)</th><th>Difference</th><th>p-value</th></tr></thead>',
+     '<tbody>', rows, '</tbody>',
+     '<tfoot><tr><td class="l" colspan="4">Joint F-test of all five characteristics, F(',
+     demo.f[2], ', ', demo.f[3], ') = ', num(demo.f[1], 2), '</td><td>',
+     formatC(demo.f.p, format = "f", digits = 3), '</td></tr></tfoot></table>',
+     '<p class="tnote"><em>Source:</em> simulated data.<br>* Significant at the 5 percent level.<br>',
+     'The joint F-test regresses the treatment indicator on all five characteristics and tests whether ',
+     'they jointly predict assignment.</p></div>')
+```
+
+```{=html}
+    <p>Read the way most balance tables are read, the star says the groups differ on
+      `r demo.short[demo$p.value < 0.05]`, so the randomization looks unhappy. But this table
+      runs five tests at once. Even if the lottery worked perfectly, the chance that at least one of five
+      independent tests comes out significant at the 5% level is</p>
+    <div class="eq center">
+      <span class="m">1 &minus; (1 &minus; 0.05)<sup>5</sup> = 1 &minus; 0.95<sup>5</sup> = 0.23</span>
+    </div>
+    <p>So a "starred" row shows up in nearly a quarter of balance tables like this one when nothing is
+      wrong. The question a balance table is meant to answer is about the whole table (are the groups
+      equivalent?), so the error rate has to be controlled for the whole table, not row by row.</p>
+
+    <h3>The Bonferroni correction</h3>
+    <p>The Bonferroni correction keeps the overall false-alarm rate at
+      <span class="m">α</span> by dividing it among the <span class="m"><i>k</i></span> tests:</p>
+    <div class="eq center">
+      <span class="m"><i>α</i><sub>adjusted</sub> = <i>α</i> / <i>k</i> = 0.05 / 5 = 0.01</span>
+    </div>
+    <p>A row now counts as a meaningful imbalance only if its p-value is below 0.01. In Table 1 the
+      smallest p-value is `r formatC(min(demo$p.value), format = "f", digits = 3)`, which is above 0.01, so
+      the table as a whole gives no evidence that the groups differ. The star was a false alarm of the
+      kind we should expect to see in about one row out of every twenty.</p>
+
+    <p>The joint F-test in the last row of Table 1 reaches the same conclusion in a single step. Instead
+      of five tests, it asks one question: do the five characteristics, taken together, predict which
+      students were assigned to treatment? With p = `r formatC(demo.f.p, format = "f", digits = 3)`
+      `r if (demo.f.p >= 0.05) "(above 0.05), they do not, so there is no evidence of imbalance." else "(below 0.05), they do, which would point to a real imbalance."`
+      Because it is one test, it is compared with the ordinary <span class="m">α = 0.05</span>, with no
+      correction needed.</p>
+
+    <div class="callout">
+      <span class="lbl">Where the correction applies</span>
+      <p>Bonferroni is a rule for an <strong>omnibus test</strong>: many tests run together to answer one
+        yes-or-no question, such as "are these groups equivalent at baseline?" It is not needed for
+        the group contrasts in Section one, where each difference between study groups matters in its own
+        right. A control group that started out low is a problem whatever the other contrasts show.</p>
+    </div>
+
+    <h3>Simulating 1,000 balance tables</h3>
+    <p>How often does the unadjusted rule (any row with p &lt; .05) flag a perfectly randomized study,
+      and how does that change as the table gets longer? We simulate 20 baseline attributes, added to the
+      balance table in this order:</p>
+```
+
+```{r tbl-covlist, results="asis"}
+cov.desc <- c(
+  "Mother's education (years)", "Father's education (years)", "Family income ($1,000s)",
+  "Black (0/1)", "Hispanic (0/1)", "Asian (0/1)", "Female (0/1)",
+  "Free or reduced-price lunch (0/1)", "English learner (0/1)", "Special education (0/1)",
+  "Prior math score", "Prior reading score", "Age (months)", "Days absent last year",
+  "Household size", "Single-parent household (0/1)", "Changed schools last year (0/1)",
+  "Books at home", "Homework hours per week", "Attended preschool (0/1)")
+half <- 10
+rows <- paste0("<tr><td class=\"l\">", 1:half, ". ", cov.desc[1:half], "</td><td class=\"l\">",
+               (half + 1):20, ". ", cov.desc[(half + 1):20], "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>Baseline covariates</caption>',
+     '<thead><tr><th>Covariates 1&ndash;10</th><th style="text-align:left">Covariates 11&ndash;20</th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <p>For each covariate we run a two-sample t-test of the difference in means between treatment and
+      control. The standard rule is: if any test is significant at p &lt; .05, the groups are "not
+      equivalent." We simulate 1,000 separate studies. Each one draws a fresh set of 200 students and
+      a fresh lottery, so every difference is due to chance alone. A balance table with
+      <span class="m"><i>k</i></span> rows uses the first <span class="m"><i>k</i></span> covariates.</p>
+
+    <p>We also apply two corrected rules:</p>
+    <ul>
+      <li><strong>Bonferroni:</strong> a row counts as significant only if
+        <span class="m">p &lt; 0.05 / <i>k</i></span>. With 10 covariates the threshold is 0.005.</li>
+      <li><strong>Joint F-test:</strong> regress the treatment indicator on all
+        <span class="m"><i>k</i></span> covariates and test whether they jointly predict assignment.
+        One omnibus test, one p-value, compared with 0.05.</li>
+    </ul>
+
+    <figure class="fig">
+```
+
+```{r fig-covariates, fig.alt="The share of studies flagged as unbalanced rises from 5% with one covariate to over 60% with twenty under the unadjusted rule, while the Bonferroni and joint F-test rules stay near 5%."}
+fig_covariates()
+```
+
+```{=html}
+    </figure>
+    <p class="figcap">Share of 1,000 perfectly randomized studies that the balance check would declare
+      unbalanced, by number of covariates tested.</p>
+```
+
+```{r tbl-covariates, results="asis"}
+show <- results
+rows <- paste0("<tr", ifelse(show$k %in% c(1, 5, 10, 20), ' class="flag"', ""), "><td class=\"l\">",
+               show$k, "</td><td class=\"hi\">", pct(show$any.sig, 1), "</td><td>",
+               pct(show$expected, 1), "</td><td>", num(show$avg.sig, 2), "</td><td class=\"ok\">",
+               pct(show$bonf, 1), "</td><td>", pct(show$joint.F, 1), "</td></tr>", collapse = "\n")
+html('<div class="table-scroll"><table class="num-table">',
+     '<caption>1,000 randomized studies per row, 100 treated and 100 controls</caption>',
+     '<thead><tr><th>Covariates tested (<span class="m"><i>k</i></span>)</th>',
+     '<th>Studies with any difference at p &lt; .05</th>',
+     '<th>Theory: <span class="m">1 &minus; 0.95<sup><i>k</i></sup></span></th>',
+     '<th>Average number of significant differences</th>',
+     '<th>Studies with any difference, Bonferroni (p &lt; .05 / <span class="m"><i>k</i></span>)</th>',
+     '<th>Studies failing joint F-test (p &lt; .05)</th></tr></thead>',
+     '<tbody>', rows, '</tbody></table></div>')
+```
+
+```{=html}
+    <h3>Reading the table</h3>
+    <ul>
+      <li><strong>The unadjusted rule fails more and more valid studies.</strong> With one covariate, a
+        study is flagged `r pct(results$any.sig[1])` of the time, close to the nominal 5% (the gap is simulation noise). With 10 covariates,
+        `r pct(results$any.sig[10])` of perfectly randomized studies show at least one "significant"
+        imbalance; with 20, `r pct(results$any.sig[20])` do. Here the tests are nearly independent
+        (the covariates are simulated independently), so the rate tracks the formula
+        <span class="m">1 &minus; 0.95<sup><i>k</i></sup></span>.</li>
+      <li><strong>The average count rises in a straight line:</strong> about
+        <span class="m">0.05 &times; <i>k</i></span>, or one false alarm for every 20 covariates.
+        Finding one significant row in a 20-row balance table is exactly what a successful
+        randomization looks like.</li>
+      <li><strong>Both corrected rules hold the error rate near 5%</strong> no matter how many
+        covariates are tested. They answer the question we actually care about: <em>is there evidence
+        that the groups differ, taking the whole table into account?</em></li>
+    </ul>
+
+    <div class="callout">
+      <span class="lbl">Bonferroni or joint F-test?</span>
+      <p>Bonferroni is simple and is the rule used in the lab: compare each p-value with
+        <span class="m">α / <i>k</i></span>. It is conservative when covariates are correlated (parents'
+        education and family income usually are), because it treats overlapping tests as separate
+        chances to err. The joint F-test accounts for correlation automatically and gives one answer for
+        the whole table. Either is defensible. Testing each row at 0.05 is not.</p>
+    </div>
+
+    <details class="code">
+      <summary>R code for this section</summary>
+```
+
+```{r show-part2, ref.label=c("part2", "demo-table"), echo=TRUE, eval=FALSE}
+```
+
+```{=html}
+    </details>
+  </section>
+
+  <!-- ================================================================== -->
+  <section id="takeaways">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Takeaways</h2>
+      <p class="sub">How to check whether a randomization was happy.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>Always check balance, even after random assignment.</strong> Randomization makes the
+        groups equal on average across all possible lotteries, not in the one lottery your study got.</li>
+      <li><strong>Count your tests before you read them.</strong> Five groups means 10 contrasts; 20
+        covariates means 20 tests. At <span class="m">α = .05</span>, expect about one false alarm per 20
+        tests.</li>
+      <li><strong>Adjust the decision rule for the whole table.</strong> Use
+        <span class="m">α / <i>k</i></span> (Bonferroni) or a single joint F-test. The unadjusted rule
+        rejects most valid randomizations once the table has more than about 14 rows.</li>
+      <li><strong>Look at the size of differences, not just their significance.</strong> In a large
+        study a trivial difference can be significant; in a small study a substantively large difference
+        can fail to reach significance. Report standardized differences (difference in means divided by
+        the standard deviation) alongside p-values.</li>
+      <li><strong>Small studies should not rely on luck.</strong> With few units per group, use
+        stratified or blocked randomization (like the tranches in the reading) to guarantee balance on
+        the variables that matter most.</li>
+      <li><strong>Include baseline covariates as controls.</strong> Adjusting for them in the outcome
+        regression corrects for whatever chance imbalance remains and makes the impact estimate more
+        precise.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>Research Design &middot; Happy Randomization. Source:
+      <span class="m">happy-randomization.rmd</span>; every number, table, and figure is computed by the
+      R code in that file.</p>
+  </footer>
+
+</div>
+```

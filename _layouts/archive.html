@@ -164,25 +164,62 @@
     color:var(--ink-soft);
     margin:0 0 1.1rem;
   }
+  /* Each row: unit (jumps to its section) on the left, its lectures and labs
+     with one small button per asset on the right. */
   .toc{
     list-style:none;
     margin:0;
     padding:0;
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));
-    gap:0;
     border-top:1px solid var(--rule);
   }
-  .toc li{border-bottom:1px solid var(--rule);}
-  .toc a{
+  .toc > li{
+    border-bottom:1px solid var(--rule);
+    display:grid;
+    gap:.35rem 2rem;
+    padding:.7rem .2rem;
+  }
+  @media (min-width:46rem){
+    .toc > li{grid-template-columns:15rem 1fr;}
+  }
+  .toc-unit{
     display:flex;
     gap:.7rem;
     align-items:baseline;
-    padding:.7rem .2rem;
     text-decoration:none;
     color:var(--ink);
+    align-self:start;
   }
-  .toc a:hover{color:var(--accent-ink);}
+  .toc-unit:hover{color:var(--accent-ink);}
+  .toc-items{list-style:none;margin:0;padding:0;}
+  .toc-items li{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:.25rem .5rem;
+    padding:.12rem 0;
+  }
+  .toc-items .it{
+    font-size:var(--step--1);
+    color:var(--ink-mid);
+    line-height:1.35;
+  }
+  .toc-items .chips{display:inline-flex;flex-wrap:wrap;gap:.25rem;}
+  .chip{
+    font-size:var(--step--2);
+    font-weight:600;
+    line-height:1;
+    text-decoration:none;
+    white-space:nowrap;
+    padding:.22rem .4rem;
+    border-radius:2px;
+    border:1px solid var(--rule-strong);
+    color:var(--ink-soft);
+    background:var(--ground);
+  }
+  .chip:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-wash);}
+  .chip--notes,.chip--html{border-color:var(--accent);color:var(--accent-ink);}
+  .chip--rmd{background:var(--navy);border-color:var(--navy);color:var(--navy-ink);}
+  .chip--rmd:hover{background:var(--navy);border-color:var(--accent);color:#fff;}
   .toc .n{
     font-family:var(--font-math);
     font-variant-numeric:tabular-nums;
@@ -532,6 +569,7 @@
   <div class="bar-inner">
     <a class="bar-brand" href="#top">{{ site.title | default: "Applied Econometrics" }}</a>
     <nav class="bar-nav">
+      <a href="#contents">Table of Contents</a>
       {% assign nav_parts = site.data.units | group_by: "part" %}
       {% for g in nav_parts %}<a href="#{{ g.items.first.id }}">{{ g.name | split: " — " | first }}</a>{% endfor %}
       <a href="#r-resources">R Resources</a>
@@ -550,7 +588,7 @@
     {% if page.fine %}<p class="fine">{{ page.fine }}</p>{% endif %}
   </header>
 
-  <nav class="contents">
+  <nav class="contents" id="contents">
     <h2>Contents</h2>
     {% assign by_part = site.data.units | group_by: "part" %}
     {% for g in by_part %}
@@ -558,23 +596,43 @@
     <ul class="toc">
       {% for u in g.items %}
       <li>
-        <a href="#{{ u.id }}">
+        <a class="toc-unit" href="#{{ u.id }}">
           <span class="n">{{ u.number }}</span>
           <span class="t">{{ u.title }}</span>
         </a>
+        <ul class="toc-items">
+          {% for item in u.lectures %}
+          <li>
+            <span class="it">{{ item.title }}</span>
+            <span class="chips">{% for l in item.links %}{% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}<a class="chip chip--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{{ l.label }}</a>{% endfor %}</span>
+          </li>
+          {% endfor %}
+          {% for item in u.walkthroughs %}
+          <li>
+            <span class="it">{{ item.title }}</span>
+            <span class="chips">{% for l in item.links %}{% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}<a class="chip chip--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{{ l.label }}</a>{% endfor %}</span>
+          </li>
+          {% endfor %}
+          {% for item in u.labs %}
+          <li>
+            <span class="it">{{ item.title }}</span>
+            <span class="chips">{% for l in item.links %}{% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}<a class="chip chip--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{{ l.label }}</a>{% endfor %}</span>
+          </li>
+          {% endfor %}
+        </ul>
       </li>
       {% endfor %}
     </ul>
     {% endfor %}
     <ul class="toc">
       <li>
-        <a href="#r-resources">
+        <a class="toc-unit" href="#r-resources">
           <span class="n">&#9679;</span>
           <span class="t">R Resources</span>
         </a>
       </li>
       <li>
-        <a href="#reference">
+        <a class="toc-unit" href="#reference">
           <span class="n">&#9679;</span>
           <span class="t">Reference Shelf</span>
         </a>
