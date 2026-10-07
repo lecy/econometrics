@@ -601,13 +601,13 @@
       blurb: Three estimators, the parallel-lines assumption, and the gender pay gap worked example.
       links:
         - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
+        - { label: PPTX, url: lectures2/p-03-varieties-of-counterfactuals.pptx, kind: pptx, download: true }
     - title: Hypothesis Testing with Dummy Variables
       blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
       links:
         - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
-        - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
-        - { label: PPTX, url: lectures2/p-03-varieties-of-counterfactuals.pptx, kind: pptx, download: true }
     - title: "Effect Size: ATE, ITT, and TOT"
       blurb: What counts as an effect, and the difference between being offered a treatment and taking it.
       links:
@@ -889,12 +889,12 @@
       blurb: The reference for this lab — formulas, assumptions, and the parallel-lines test.
       links:
         - { label: Notes, url: lectures2/p-03-varieties-of-counterfactuals-notes.html, kind: notes }
+        - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
     - title: Hypothesis Testing with Dummy Variables
       blurb: Review — the group-mean contrasts that the diff-in-diff coefficients are built from.
       links:
         - { label: Notes, url: lectures1/hypotheses-tests-with-dummy-variables-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/hypotheses-tests-with-dummy-variables.pdf, kind: pdf }
-        - { label: Slides (PDF), url: lectures2/p-03-varieties-of-counterfactuals.pdf, kind: pdf }
   labs:
     - title: Lab P205 — Difference-in-Difference
       blurb: >
