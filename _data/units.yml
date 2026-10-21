@@ -1366,8 +1366,8 @@
 - id: science-in-crisis
   part: "Part 4 — Research Integrity and Evidence Synthesis"
   number: "22"
-  title: Science in Crisis
-  tagline: Findings that do not replicate, results that cannot be reproduced, and data that were never real.
+  title: Updating Science in the Modern Era
+  tagline: How researchers discovered that many findings did not hold up, and the reforms that are making science more reliable.
   summary: >
     Reviews the evidence behind three related crises: published findings that fail when the
     study is run again, results that cannot be regenerated even from the authors' own data and
@@ -1393,6 +1393,10 @@
     - Explain why analytic choices that are never reported can change a study's conclusion.
     - Describe the incentives that make fabrication and questionable research practices rational for individual researchers.
   lectures:
+    - title: "Introduction to Part IV: Updating Science in the Modern Era"
+      blurb: What the first large replication and reproducibility checks found, why so many findings failed, and the reforms that have since raised reproducibility above 85% where they are used.
+      links:
+        - { label: Notes, url: lectures4/open-science/updating-science-intro-notes.html, kind: notes }
     - title: Research Fraud and the Reproducibility Crisis
       blurb: Retraction trends, a timeline of high-profile cases, the new forensic tools, paper mills and pay-to-publish economics, and the incentives that make misconduct rational.
       links:

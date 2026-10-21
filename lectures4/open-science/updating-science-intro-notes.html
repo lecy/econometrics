@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Updating Science in the Modern Era</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .timeline{min-width:40rem;max-width:52rem;}
+  .timeline td{vertical-align:top;}
+  .timeline td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+  }
+  .timeline td:nth-child(2){font-weight:600;width:30%;}
+  .timeline td:last-child{color:var(--ink);}
+  .terms{min-width:36rem;max-width:48rem;}
+  .terms td{vertical-align:top;color:var(--ink-mid);}
+  .terms tbody th{vertical-align:top;}
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
+    gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+    border-radius:6px;
+    overflow:hidden;
+    margin:1.6rem 0 1.9rem;
+    max-width:52rem;
+  }
+  .stat{background:var(--ground);padding:1.1rem 1.15rem 1.2rem;}
+  .stat .big{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:2.35rem;
+    line-height:1;
+    color:var(--accent-ink);
+    margin:0 0 .5rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat .what{font-size:var(--step--1);line-height:1.45;color:var(--ink-mid);margin:0;}
+  .stat .what strong{color:var(--ink);}
+  .stat .src{font-size:.75rem;color:var(--ink-soft);margin:.5rem 0 0;}
+
+  .then-now{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));
+    gap:1rem;
+    margin:1.6rem 0 1.9rem;
+    max-width:52rem;
+  }
+  .tn{border:1px solid var(--rule);border-radius:6px;padding:1.1rem 1.2rem 1.15rem;background:var(--ground);}
+  .tn .lbl{
+    font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+    color:var(--ink-soft);margin:0 0 .7rem;
+  }
+  .tn .row{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin:0 0 .55rem;}
+  .tn .from,.tn .to{font-family:var(--font-display);font-weight:700;font-size:1.9rem;line-height:1;font-variant-numeric:tabular-nums;}
+  .tn .from{color:var(--ink-soft);}
+  .tn .to{color:var(--accent-ink);}
+  .tn .arrow{color:var(--ink-soft);}
+  .tn p{font-size:var(--step--1);line-height:1.45;color:var(--ink-mid);margin:0;}
+
+  .roadmap-list{list-style:none;padding:0;margin:1.2rem 0 1.5rem;max-width:44rem;}
+  .roadmap-list li{
+    display:grid;grid-template-columns:4.5rem 1fr;gap:.9rem;
+    padding:.85rem 0;border-bottom:1px solid var(--rule);margin:0;
+  }
+  .roadmap-list li:last-child{border-bottom:none;}
+  .roadmap-list .u{
+    font-family:var(--font-math);font-weight:600;color:var(--accent-ink);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .roadmap-list strong{display:block;}
+  .roadmap-list span.d{color:var(--ink-mid);font-size:var(--step--1);}
+
+  .refs li{margin-bottom:.8rem;}
+  .refs h4{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2rem 0 .8rem;
+  }
+  @media (max-width:640px){
+    .stat .big{font-size:2rem;}
+    .roadmap-list li{grid-template-columns:3.6rem 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Part IV &middot; Introduction</p>
+    <h1>Updating Science in the Modern Era</h1>
+    <p class="dek">An overview for Part IV, Research Integrity and Evidence Synthesis. Between
+      about 2005 and 2015, researchers began checking published findings at scale and learned that
+      many did not hold up. What followed was the fastest period of methodological reform in modern
+      science. This note covers what the early checks found, why it happened, and what has been
+      built since.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#terms">Three kinds of check</a>
+      <a href="#early">What the early studies found</a>
+      <a href="#why">Why it happened</a>
+      <a href="#response">How science responded</a>
+      <a href="#progress">Evidence of progress</a>
+      <a href="#ahead">The work ahead</a>
+      <a href="#roadmap">Part IV roadmap</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="terms">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Three ways to check a finding</h2>
+      <p class="sub">The field now keeps these apart, because each one fails for different reasons
+        and calls for a different fix.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="terms">
+        <thead><tr><th scope="col">Term</th><th scope="col">The test</th><th scope="col">What a failure looks like</th><th scope="col">Typical cause</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Reproducibility</th><td>Same data, same code, rerun</td><td>The published numbers do not come back</td><td>Missing files, broken code, undisclosed cleaning steps, data never shared</td></tr>
+          <tr><th scope="row">Replicability</th><td>New data, same design and question</td><td>A different answer, usually a smaller or null effect</td><td>Low power, publication bias, p-hacking, a false positive</td></tr>
+          <tr><th scope="row">Robustness</th><td>Same data, a different but defensible analysis</td><td>The conclusion flips under reasonable alternative choices</td><td>Analytic flexibility (the &ldquo;garden of forking paths&rdquo;)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>These definitions follow the 2019 National Academies report <em>Reproducibility and
+      Replicability in Science</em>: reproducibility is computational, replicability is empirical.
+      Some economists still say &ldquo;replication&rdquo; for the computational check, so watch for
+      it in the readings.</p>
+  </section>
+
+  <section id="early">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The wake-up call: what the early studies found</h2>
+      <p class="sub">The failure rates were not at the margin. They were large, and they showed up
+        in field after field.</p>
+    </div>
+
+    <p>The argument came first on paper. In 2005, John Ioannidis showed from first principles that
+      in a field with small samples, flexible analysis and long-shot hypotheses, most statistically
+      significant findings will be false. Over the next decade, industry labs and coordinated
+      replication teams put that claim to an empirical test.</p>
+
+    <div class="stats" role="list">
+      <div class="stat" role="listitem">
+        <p class="big">11%</p>
+        <p class="what">of 53 <strong>&ldquo;landmark&rdquo; cancer studies</strong> could be confirmed by Amgen scientists (6 of 53).</p>
+        <p class="src">Begley &amp; Ellis, 2012</p>
+      </div>
+      <div class="stat" role="listitem">
+        <p class="big">20&ndash;25%</p>
+        <p class="what">of 67 published <strong>drug targets</strong> were fully consistent with Bayer&rsquo;s in-house attempts.</p>
+        <p class="src">Prinz et al., 2011</p>
+      </div>
+      <div class="stat" role="listitem">
+        <p class="big">36%</p>
+        <p class="what">of 100 <strong>psychology replications</strong> were significant, against 97% of the originals.</p>
+        <p class="src">Open Science Collaboration, 2015</p>
+      </div>
+      <div class="stat" role="listitem">
+        <p class="big">33%</p>
+        <p class="what">of 67 <strong>economics papers</strong> could be reproduced from the authors&rsquo; own data and code without their help (43% with it).</p>
+        <p class="src">Chang &amp; Li, 2015</p>
+      </div>
+      <div class="stat" role="listitem">
+        <p class="big">&frac12;</p>
+        <p class="what">The typical size of a <strong>replicated effect</strong> relative to the original, even when it did replicate.</p>
+        <p class="src">OSC 2015; Camerer et al. 2018</p>
+      </div>
+      <div class="stat" role="listitem">
+        <p class="big">70%</p>
+        <p class="what">of 1,576 <strong>researchers surveyed</strong> had failed to reproduce someone else&rsquo;s result; half had failed to reproduce their own.</p>
+        <p class="src">Baker, <em>Nature</em>, 2016</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="timeline">
+        <caption>Key early studies</caption>
+        <thead><tr><th scope="col">Year</th><th scope="col">Study</th><th scope="col">What was checked</th><th scope="col">What was found</th></tr></thead>
+        <tbody>
+          <tr><td>1986</td><td>Dewald, Thursby &amp; Anderson, <em>AER</em></td><td>Code and data from <em>JMCB</em> authors</td><td>Most submissions could not be reproduced; many authors could not supply data</td></tr>
+          <tr><td>2005</td><td>Ioannidis, <em>PLOS Medicine</em></td><td>A model of how often a significant result is true</td><td>With typical power, priors and bias, most significant results are false positives</td></tr>
+          <tr><td>2010</td><td>Fanelli, <em>PLOS ONE</em></td><td>Share of papers supporting their own hypothesis</td><td>84% overall, 91.5% in psychology: too high to reflect honest testing</td></tr>
+          <tr><td>2011</td><td>Simmons, Nelson &amp; Simonsohn, &ldquo;False-Positive Psychology&rdquo;</td><td>Simulation of undisclosed analytic flexibility</td><td>Four ordinary choices raise the false-positive rate from 5% to over 60%</td></tr>
+          <tr><td>2011</td><td>Prinz, Schlange &amp; Asadullah (Bayer)</td><td>67 in-house attempts to confirm published drug targets</td><td>Only 20&ndash;25% fully consistent with the paper</td></tr>
+          <tr><td>2012</td><td>Begley &amp; Ellis (Amgen), <em>Nature</em></td><td>53 &ldquo;landmark&rdquo; preclinical cancer papers</td><td>6 confirmed (11%)</td></tr>
+          <tr><td>2014</td><td>Franco, Malhotra &amp; Simonovits, <em>Science</em></td><td>Fate of 221 NSF-funded survey experiments</td><td>60% of strong results published versus 20% of nulls; most nulls never written up</td></tr>
+          <tr><td>2015</td><td>Open Science Collaboration, <em>Science</em></td><td>100 studies from three top psychology journals</td><td>36% of replications significant (vs 97% of originals); mean effect about half the original</td></tr>
+          <tr><td>2015</td><td>Chang &amp; Li</td><td>67 economics papers in 13 journals</td><td>Reproduced 29 (43%) with author help; 33% without</td></tr>
+          <tr><td>2016</td><td>Camerer et al., <em>Science</em></td><td>18 lab experiments from <em>AER</em> and <em>QJE</em></td><td>11 replicated (61%); effects about two-thirds of the original</td></tr>
+          <tr><td>2018</td><td>Camerer et al., <em>Nature Human Behaviour</em></td><td>21 social science experiments from <em>Nature</em> and <em>Science</em></td><td>13 replicated (62%); effects about half the original</td></tr>
+          <tr><td>2018</td><td>Klein et al., Many Labs 2</td><td>28 effects, 60+ samples, 36 countries</td><td>14 replicated; where the sample came from explained almost none of the failures</td></tr>
+          <tr><td>2021</td><td>Errington et al., Cancer Biology project, <em>eLife</em></td><td>50 experiments from 23 papers</td><td>46% of positive effects replicated; median effect 85% smaller; most protocols needed author help just to run</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Four patterns that shaped everything after</h3>
+    <ul>
+      <li><strong>About half held up.</strong> Replication rates clustered near 50% across very
+        different fields, and surviving effects were about half their published size.</li>
+      <li><strong>The failures were predictable.</strong> In Camerer&rsquo;s projects, peers betting
+        in prediction markets forecast which studies would fail with reasonable accuracy. The weak
+        studies were readable from the papers themselves.</li>
+      <li><strong>&ldquo;Hidden moderators&rdquo; were not the explanation.</strong> Running the same
+        study in 36 countries made almost no difference to whether it replicated.</li>
+      <li><strong>The file drawer was real.</strong> Because Franco&rsquo;s team knew every study
+        that had been funded, they could show that null results mostly went unwritten, not merely
+        unpublished.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Why this is a call to action, not a reason for cynicism.</strong> These numbers
+        exist because scientists went looking for them. Large teams spent years rerunning other
+        people&rsquo;s studies, and journals like <em>Science</em> and <em>Nature</em> published the
+        results. That is science correcting itself. Some scholars, notably Fanelli (2018), argue the
+        word &ldquo;crisis&rdquo; overstates the case. Most agree on the narrower claim: published
+        effects were too large, uncertainty was understated, and the system needed to change.</p>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>Why it happened</h2>
+      <p class="sub">Mostly honest researchers responding sensibly to a system that rewarded the
+        wrong thing.</p>
+    </div>
+
+    <p>Fraud is real, but it is the smallest source of unreliable findings. Most of the problem
+      came from three places:</p>
+    <ul>
+      <li><strong>Low statistical power.</strong> When a study has only a 20% chance of detecting a
+        true effect, the estimates that clear the significance bar are, by construction, the ones
+        that came out too large. That one fact explains most of the &ldquo;effects shrink by
+        half&rdquo; pattern. Median power in neuroscience was near 20% (Button et al., 2013).</li>
+      <li><strong>Analytic flexibility.</strong> Which outliers to drop, which controls to add, when
+        to stop collecting data. Each choice is defensible on its own, but choices made after seeing
+        the data turn a 1-in-20 fluke into a publishable result. When 29 teams were given the same
+        soccer data and the same question, their estimated odds ratios ran from 0.89 to 2.93
+        (Silberzahn et al., 2018).</li>
+      <li><strong>Incentives.</strong> Journals rewarded positive, novel results; careers ran on
+        publication counts; replications earned little credit (about 1% of psychology articles); and
+        no one was paid to rerun anyone else&rsquo;s code. Smaldino and McElreath (2016) called the
+        result &ldquo;the natural selection of bad science.&rdquo;</li>
+    </ul>
+    <p>Because the cause was mostly the system and not the people in it, the fix could be mostly
+      systemic too. That is the good news of the past fifteen years.</p>
+  </section>
+
+  <section id="response">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>How science responded</h2>
+      <p class="sub">One organizing idea: make the decisions that produce false positives visible,
+        and make them before the data arrive.</p>
+    </div>
+
+    <p>The reform movement started with a handful of researchers and journal editors and grew into
+      new institutions: the Center for Open Science (2013), the Institute for Replication (2022),
+      national reproducibility networks, and a new research field, <strong>metascience</strong>,
+      that studies how science itself works.</p>
+
+    <div class="table-scroll">
+      <table class="terms">
+        <caption>The main reforms</caption>
+        <thead><tr><th scope="col">Reform</th><th scope="col">What it changes</th><th scope="col">Where it stands</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Preregistration and pre-analysis plans</th><td>Hypotheses, sample size and analysis plan are time-stamped before data collection</td><td>Hundreds of thousands of registrations; required for RCTs by many journals and funders</td></tr>
+          <tr><th scope="row">Registered Reports</th><td>Journals accept a study on its design, before results exist</td><td>300+ journals by 2023; <em>Nature</em> adopted the format in 2023</td></tr>
+          <tr><th scope="row">Open data and code policies</th><td>A replication package is required, and some journals verify it</td><td><em>AJPS</em> (2015), the AEA data editor (2018), <em>Management Science</em> (2019)</td></tr>
+          <tr><th scope="row">Large-scale replication</th><td>Many labs run one protocol; volunteers rerun published code</td><td>Replication is now a publishable genre; I4R &ldquo;replication games&rdquo; have reproduced 250+ papers</td></tr>
+          <tr><th scope="row">Statistical reforms</th><td>Effect sizes and intervals, specification curves, multiverse analysis</td><td>Effect-size reporting is now standard</td></tr>
+          <tr><th scope="row">Forensic tools</th><td>GRIM, statcheck, p-curve, image forensics</td><td>Used by independent sleuths and, increasingly, by journals at submission</td></tr>
+          <tr><th scope="row">Transparency standards</th><td>TOP guidelines, open-practice badges, funder data-sharing mandates</td><td>5,000+ journal signatories; NIH data sharing policy since 2023</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What made the response work</h3>
+    <ul>
+      <li><strong>It targeted timing, not honesty.</strong> A preregistration does not forbid
+        dropping an outlier. It forbids deciding to drop it <em>after</em> seeing that doing so makes
+        the result significant. Because the reforms don&rsquo;t presume anyone is cheating, careful
+        researchers could adopt them without taking offense.</li>
+      <li><strong>It made verification somebody&rsquo;s job.</strong> Before 2015, no one was paid
+        to rerun a paper&rsquo;s code. Now data editors at the AEA, <em>AJPS</em> and
+        <em>Management Science</em> do exactly that before publication.</li>
+      <li><strong>It made correction public.</strong> Retraction Watch (2010) and PubPeer (2012)
+        created a public record, and retracted papers are now flagged automatically in Zotero and
+        Crossref.</li>
+    </ul>
+  </section>
+
+  <section id="progress">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>Evidence of progress</h2>
+      <p class="sub">Where the reforms are used, they work, and the gains are large.</p>
+    </div>
+
+    <div class="then-now">
+      <div class="tn">
+        <p class="lbl">Economics reproducibility</p>
+        <div class="row"><span class="from">33%</span><span class="arrow">&rarr;</span><span class="to">85%+</span></div>
+        <p>Chang &amp; Li (2015), versus Brodeur et al. (<em>Nature</em>, 2026) on economics and
+          political science papers. Median reanalyzed effect: 99% of the published one.</p>
+      </div>
+      <div class="tn">
+        <p class="lbl"><em>Management Science</em></p>
+        <div class="row"><span class="from">12%</span><span class="arrow">&rarr;</span><span class="to">95%</span></div>
+        <p>Share of papers sharing anything before the data policy, versus the share reproduced
+          once data were accessible under it (Fisar et al., 2024).</p>
+      </div>
+      <div class="tn">
+        <p class="lbl">Positive results</p>
+        <div class="row"><span class="from">96%</span><span class="arrow">&rarr;</span><span class="to">44%</span></div>
+        <p>Standard psychology papers versus Registered Reports. A 44% rate is what an honest
+          literature testing real hypotheses looks like (Scheel et al., 2021).</p>
+      </div>
+      <div class="tn">
+        <p class="lbl">Data sharing</p>
+        <div class="row"><span class="from">&lt;3%</span><span class="arrow">&rarr;</span><span class="to">~40%</span></div>
+        <p>At <em>Psychological Science</em>, within two years of introducing open-data badges
+          (Kidwell et al., 2016).</p>
+      </div>
+    </div>
+
+    <ul>
+      <li><strong>Pre-analysis plans reduce p-hacking.</strong> Across nearly 16,000 test statistics
+        from economics RCTs, studies with a full pre-analysis plan show less suspicious bunching just
+        above the significance threshold (Brodeur et al., 2024).</li>
+      <li><strong>Registered Reports are rated as more rigorous.</strong> When 353 researchers
+        blind-rated them against matched standard papers, the Registered Reports scored higher on
+        rigor and quality (Soderberg et al., 2021).</li>
+      <li><strong>Fraud is caught faster.</strong> The Surgisphere COVID papers fell within weeks.
+        High-profile cases in behavioral science were exposed by outsiders using forensic tools that
+        did not exist in 2010.</li>
+      <li><strong>The culture has shifted.</strong> A single significant result from a small sample
+        no longer carries the weight it did in 2010. Readers now ask about power, preregistration and
+        data availability before believing a claim, and the vocabulary of p-hacking, HARKing and the
+        file drawer is standard in methods courses, including this one.</li>
+    </ul>
+  </section>
+
+  <section id="ahead">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>The work ahead</h2>
+      <p class="sub">The reforms work where they are used. The next task is using them more widely.</p>
+    </div>
+
+    <ul>
+      <li><strong>Adoption is still thin.</strong> Registered Reports are offered by about 7% of
+        psychology journals and under 1% elsewhere. Many preregistrations are loose enough that
+        authors deviate from them without saying so.</li>
+      <li><strong>Incentives have moved only at the margin.</strong> Publication counts still drive
+        careers, and replications are still a small share of what gets published.</li>
+      <li><strong>Data access sets the ceiling.</strong> When data cannot be shared, reproducibility
+        drops to about 68%, and current reforms have little to say about confidential or proprietary
+        data.</li>
+      <li><strong>Observational social science has the furthest to go.</strong> The fields with the
+        longest chains of analytic choices, which includes most applied econometrics, adopted the
+        fewest reforms.</li>
+      <li><strong>Even the reformers need checking.</strong> A 2023 paper claiming that
+        rigor-enhancing practices yield high replicability was retracted in 2024, after critics
+        showed its central analysis was not preregistered as stated. The system caught it, which is
+        the point.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Where you come in.</strong> The most effective reforms were not imposed from above.
+        They were habits that individual researchers adopted and then made normal: writing down an
+        analysis plan before looking at the data, reporting every specification you ran, sharing
+        code that runs on someone else&rsquo;s machine. You can do all of these on your next project.
+        Part IV gives you the tools.</p>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>Part IV roadmap</h2>
+      <p class="sub">How the four units build on one another.</p>
+    </div>
+
+    <ul class="roadmap-list">
+      <li><span class="u">Unit 22</span><div><strong>Updating Science in the Modern Era</strong><span class="d">The evidence: replication, reproducibility and fraud, and how each was measured.</span></div></li>
+      <li><span class="u">Unit 23</span><div><strong>Research Integrity and Open Science</strong><span class="d">The tools a reader can use to check published work, and the practices that make your own work checkable.</span></div></li>
+      <li><span class="u">Unit 24</span><div><strong>Meta-Analysis: The Class Size Debate</strong><span class="d">Combining many studies into one estimate, and correcting for the publication bias described above.</span></div></li>
+      <li><span class="u">Unit 25</span><div><strong>Reproducible Workflows</strong><span class="d">Project structure, code and data practices so that your analysis can be rerun by anyone.</span></div></li>
+    </ul>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>References</h2>
+      <p class="sub">Start with the first group; the rest are the sources behind the numbers above.</p>
+    </div>
+
+    <div class="refs">
+      <h4>Start here</h4>
+      <ul>
+        <li>Nosek, B. A., Hardwicke, T. E., Moshontz, H., et al. (2022). <a href="../../pubs/reproducibility/2022-annual-review-psychology.pdf">Replicability, robustness, and reproducibility in psychological science</a>. <em>Annual Review of Psychology, 73</em>, 719&ndash;748. <a href="https://doi.org/10.1146/annurev-psych-020821-114157">https://doi.org/10.1146/annurev-psych-020821-114157</a></li>
+        <li>The Economist. (2013, October 19). <a href="pubs/Trouble-at-the-lab-The-Economist.pdf">Trouble at the lab</a>. <em>The Economist</em>.</li>
+        <li>Yong, E. (2018, November 19). <a href="pubs/Psychology%27s%20Replication%20Crisis%20Is%20Real%20ATLANTIC.pdf">Psychology&rsquo;s replication crisis is real, Many Labs 2 says</a>. <em>The Atlantic</em>.</li>
+        <li>Fanelli, D. (2018). Is science really facing a reproducibility crisis, and do we need it to? <em>PNAS, 115</em>(11), 2628&ndash;2631. <a href="https://doi.org/10.1073/pnas.1708272114">https://doi.org/10.1073/pnas.1708272114</a> (the main dissent).</li>
+      </ul>
+
+      <h4>Early studies</h4>
+      <ul>
+        <li>Baker, M. (2016). 1,500 scientists lift the lid on reproducibility. <em>Nature, 533</em>, 452&ndash;454. <a href="https://doi.org/10.1038/533452a">https://doi.org/10.1038/533452a</a></li>
+        <li>Begley, C. G., &amp; Ellis, L. M. (2012). Raise standards for preclinical cancer research. <em>Nature, 483</em>, 531&ndash;533. <a href="https://doi.org/10.1038/483531a">https://doi.org/10.1038/483531a</a></li>
+        <li>Camerer, C. F., et al. (2016). Evaluating replicability of laboratory experiments in economics. <em>Science, 351</em>(6280), 1433&ndash;1436. <a href="https://doi.org/10.1126/science.aaf0918">https://doi.org/10.1126/science.aaf0918</a></li>
+        <li>Camerer, C. F., et al. (2018). Evaluating the replicability of social science experiments in <em>Nature</em> and <em>Science</em> between 2010 and 2015. <em>Nature Human Behaviour, 2</em>, 637&ndash;644. <a href="https://doi.org/10.1038/s41562-018-0399-z">https://doi.org/10.1038/s41562-018-0399-z</a></li>
+        <li>Chang, A. C., &amp; Li, P. (2015). Is economics research replicable? Sixty published papers from thirteen journals say &ldquo;usually not.&rdquo; Finance and Economics Discussion Series 2015-083, Federal Reserve Board. Later published in <em>Critical Finance Review</em>.</li>
+        <li>Dewald, W. G., Thursby, J. G., &amp; Anderson, R. G. (1986). Replication in empirical economics: The <em>Journal of Money, Credit and Banking</em> project. <em>American Economic Review, 76</em>(4), 587&ndash;603.</li>
+        <li>Errington, T. M., et al. (2021). Investigating the replicability of preclinical cancer biology. <em>eLife, 10</em>, e71601. <a href="https://doi.org/10.7554/eLife.71601">https://doi.org/10.7554/eLife.71601</a></li>
+        <li>Fanelli, D. (2010). &ldquo;Positive&rdquo; results increase down the hierarchy of the sciences. <em>PLOS ONE, 5</em>(4), e10068. <a href="https://doi.org/10.1371/journal.pone.0010068">https://doi.org/10.1371/journal.pone.0010068</a></li>
+        <li>Franco, A., Malhotra, N., &amp; Simonovits, G. (2014). Publication bias in the social sciences: Unlocking the file drawer. <em>Science, 345</em>(6203), 1502&ndash;1505. <a href="https://doi.org/10.1126/science.1255484">https://doi.org/10.1126/science.1255484</a></li>
+        <li>Ioannidis, J. P. A. (2005). Why most published research findings are false. <em>PLOS Medicine, 2</em>(8), e124. <a href="https://doi.org/10.1371/journal.pmed.0020124">https://doi.org/10.1371/journal.pmed.0020124</a></li>
+        <li>Klein, R. A., et al. (2018). Many Labs 2: Investigating variation in replicability across samples and settings. <em>Advances in Methods and Practices in Psychological Science, 1</em>(4), 443&ndash;490. <a href="https://doi.org/10.1177/2515245918810225">https://doi.org/10.1177/2515245918810225</a></li>
+        <li>Open Science Collaboration. (2015). Estimating the reproducibility of psychological science. <em>Science, 349</em>(6251), aac4716. <a href="https://doi.org/10.1126/science.aac4716">https://doi.org/10.1126/science.aac4716</a></li>
+        <li>Prinz, F., Schlange, T., &amp; Asadullah, K. (2011). Believe it or not: How much can we rely on published data on potential drug targets? <em>Nature Reviews Drug Discovery, 10</em>, 712. <a href="https://doi.org/10.1038/nrd3439-c1">https://doi.org/10.1038/nrd3439-c1</a></li>
+        <li>Simmons, J. P., Nelson, L. D., &amp; Simonsohn, U. (2011). False-positive psychology. <em>Psychological Science, 22</em>(11), 1359&ndash;1366. <a href="https://doi.org/10.1177/0956797611417632">https://doi.org/10.1177/0956797611417632</a></li>
+      </ul>
+
+      <h4>Causes</h4>
+      <ul>
+        <li>Button, K. S., et al. (2013). Power failure: Why small sample size undermines the reliability of neuroscience. <em>Nature Reviews Neuroscience, 14</em>, 365&ndash;376. <a href="https://doi.org/10.1038/nrn3475">https://doi.org/10.1038/nrn3475</a></li>
+        <li>Silberzahn, R., et al. (2018). Many analysts, one data set. <em>Advances in Methods and Practices in Psychological Science, 1</em>(3), 337&ndash;356. <a href="https://doi.org/10.1177/2515245917747646">https://doi.org/10.1177/2515245917747646</a></li>
+        <li>Smaldino, P. E., &amp; McElreath, R. (2016). The natural selection of bad science. <em>Royal Society Open Science, 3</em>, 160384. <a href="https://doi.org/10.1098/rsos.160384">https://doi.org/10.1098/rsos.160384</a></li>
+      </ul>
+
+      <h4>The response and its evaluation</h4>
+      <ul>
+        <li>Brodeur, A., Cook, N., Hartley, J., &amp; Heyes, A. (2024). Do pre-registration and pre-analysis plans reduce p-hacking and publication bias? <em>Journal of Political Economy Microeconomics</em>.</li>
+        <li>Brodeur, A., et al. (2026). <a href="../../pubs/reproducibility/2024-economics-mass-reproducibility.pdf">Reproducibility and robustness of economics and political science research</a>. <em>Nature, 652</em>, 151&ndash;156. (Earlier version: I4R Discussion Paper 107, 2024.)</li>
+        <li>Fi&scaron;ar, M., et al. (2024). <a href="../../pubs/reproducibility/2024-management-science.pdf">Reproducibility in <em>Management Science</em></a>. <em>Management Science</em>.</li>
+        <li>Kidwell, M. C., et al. (2016). Badges to acknowledge open practices: A simple, low-cost, effective method for increasing transparency. <em>PLOS Biology, 14</em>(5), e1002456. <a href="https://doi.org/10.1371/journal.pbio.1002456">https://doi.org/10.1371/journal.pbio.1002456</a></li>
+        <li>National Academies of Sciences, Engineering, and Medicine. (2019). <em>Reproducibility and Replicability in Science</em>. The National Academies Press. <a href="https://doi.org/10.17226/25303">https://doi.org/10.17226/25303</a></li>
+        <li>Scheel, A. M., Schijen, M. R. M. J., &amp; Lakens, D. (2021). An excess of positive results: Comparing the standard psychology literature with Registered Reports. <em>Advances in Methods and Practices in Psychological Science, 4</em>(2). <a href="https://doi.org/10.1177/25152459211007467">https://doi.org/10.1177/25152459211007467</a></li>
+        <li>Soderberg, C. K., et al. (2021). Initial evidence of research quality of registered reports compared with the standard publishing model. <em>Nature Human Behaviour, 5</em>, 990&ndash;997. <a href="https://doi.org/10.1038/s41562-021-01142-4">https://doi.org/10.1038/s41562-021-01142-4</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>Introduction to Part IV. Adapted from the course document <em>The Reproducibility Crisis: An
+      Introduction</em> (October 2026).</p>
+  </footer>
+
+</div>
+</body>
+</html>
