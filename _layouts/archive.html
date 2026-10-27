@@ -418,6 +418,9 @@
     max-width:var(--measure);
   }
   .btns{display:flex;flex-wrap:wrap;gap:.4rem;}
+  .btns .row-break{flex:0 0 100%;height:0;margin:0;}
+  .item > .readings{margin-top:.7rem;}
+  .item > .readings li:last-child{border-bottom:0;padding-bottom:0;}
 
   /* buttons */
   .btn{
@@ -678,10 +681,22 @@
               {% if item.blurb %}<p>{{ item.blurb }}</p>{% endif %}
               <div class="btns">
                 {% for l in item.links %}
+                {% if l.newrow and forloop.first == false %}<span class="row-break"></span>{% endif %}
                 {% if l.raw %}{% assign href = site.raw_root | append: "/" | append: l.url %}{% else %}{% assign href = l.url | relative_url %}{% endif %}
                 <a class="btn btn--{{ l.kind }}" href="{{ href }}"{% if l.download %} download{% endif %}>{% if l.download or l.raw %}<span class="ico">&#8595;</span>{% endif %}{{ l.label }}</a>
                 {% endfor %}
               </div>
+              {% if item.readings %}
+              <ul class="readings">
+                {% for r in item.readings %}
+                <li>
+                  <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
+                  {% if r.cite %}<span class="cite">{{ r.cite }}</span>{% endif %}
+                  {% if r.note %}<span class="note">{{ r.note }}</span>{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
               {% if item.animations %}
               <details class="anims">
                 <summary>Animations <span class="count">({{ item.animations | size }})</span></summary>

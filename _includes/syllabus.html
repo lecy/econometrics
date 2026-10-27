@@ -158,11 +158,21 @@
       <div>
         <p class="syl-label">Reference material</p>
         <ul class="syl-list">
+          {% assign lecture_refs = 0 %}
+          {% for item in u.lectures %}{% if item.readings %}{% assign lecture_refs = lecture_refs | plus: 1 %}{% endif %}{% endfor %}
           {% for r in u.readings %}
           <li>
             <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
             {% if r.cite %}<span class="syl-cite">{{ r.cite }}</span>{% endif %}
           </li>
+          {% endfor %}
+          {% for item in u.lectures %}
+          {% for r in item.readings %}
+          <li>
+            <a href="{{ r.url | relative_url }}">{{ r.title }}</a>
+            {% if r.cite %}<span class="syl-cite">{{ r.cite }}</span>{% endif %}
+          </li>
+          {% endfor %}
           {% endfor %}
           {% for g in u.reading_groups %}
           {% for r in g.items %}
@@ -172,7 +182,7 @@
           </li>
           {% endfor %}
           {% endfor %}
-          {% if u.readings == nil and u.reading_groups == nil %}<li class="syl-none">None this unit</li>{% endif %}
+          {% if u.readings == nil and u.reading_groups == nil and lecture_refs == 0 %}<li class="syl-none">None this unit</li>{% endif %}
         </ul>
       </div>
     </div>

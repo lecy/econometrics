@@ -57,7 +57,8 @@ parts.each_with_index do |(part, part_units), i|
     grouped = (u["reading_groups"] || []).flat_map do |g|
       g["items"].map { |r| r.merge("group" => g["group"]) }
     end
-    refs = ((u["readings"] || []) + grouped).map do |r|
+    lecture_refs = (u["lectures"] || []).flat_map { |item| item["readings"] || [] }
+    refs = ((u["readings"] || []) + lecture_refs + grouped).map do |r|
       cite = r["cite"] ? %(<span class="syl-cite">#{h[r['cite']]}</span>) : ""
       tag  = r["group"] ? %(<span class="syl-tag">#{h[r['group']]}</span>) : ""
       %(<li><a href="#{url[r]}">#{h[r['title']]}</a>#{tag}#{cite}</li>)

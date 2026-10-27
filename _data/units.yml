@@ -1515,10 +1515,12 @@
         few pages.
       links:
         - { label: Notes, url: lectures4/open-science/research-integrity-toolkit-notes.html, kind: notes }
-        - { label: Slides (PDF), url: lectures4/open-science/research_integrity_slides.pdf, kind: pdf }
-        - { label: PPTX, url: lectures4/open-science/research_integrity_slides.pptx, kind: pptx, download: true }
-        - { label: Framework table (PDF), url: lectures4/open-science/research_integrity_framework.pdf, kind: pdf }
+        - { label: Toolkit contents (PDF), url: lectures4/open-science/guides/00_table_of_contents.pdf, kind: pdf }
+        - { label: All guides (ZIP), url: lectures4/open-science/guides/research-integrity-methods.zip, kind: data, download: true }
+        - { label: Framework table (PDF), url: lectures4/open-science/research_integrity_framework.pdf, kind: pdf, newrow: true }
         - { label: Framework (DOCX), url: lectures4/open-science/research_integrity_framework.docx, kind: docx, download: true }
+        - { label: Slides (PDF), url: lectures4/open-science/research_integrity_slides.pdf, kind: pdf, newrow: true }
+        - { label: PPTX, url: lectures4/open-science/research_integrity_slides.pptx, kind: pptx, download: true }
     - title: "Toolkit Guides: Checking Reported Statistics"
       blurb: >
         GRIM asks whether a reported mean is possible given N; SPRITE reconstructs the raw data a
@@ -1547,6 +1549,11 @@
       links:
         - { label: Forking paths (PDF), url: lectures4/open-science/guides/02a2_forking_paths.pdf, kind: pdf }
         - { label: Publication bias (PDF), url: lectures4/open-science/guides/02a3_publication_bias_guide.pdf, kind: pdf }
+      readings:
+        - title: The Influence of Hidden Researcher Decisions in Applied Microeconomics
+          cite: "Huntington-Klein, N., et al. (2021). Economic Inquiry, 59(3), 944–960."
+          note: Independent teams replicate published studies from the same data and get different answers.
+          url: lectures4/open-science/pubs/The%20influence%20of%20hidden%20researcher%20decisions%20in%20applied%20microeconomics.pdf
     - title: "Toolkit Guides: Networks, Data Stewardship, and What Comes Next"
       blurb: >
         Bibliometric tools for citation rings and editor networks, FAIR-compliance scoring for
@@ -1556,13 +1563,7 @@
         - { label: Bibliometrics (PDF), url: lectures4/open-science/guides/02b_bibliometric_guide.pdf, kind: pdf }
         - { label: FAIR data (PDF), url: lectures4/open-science/guides/03_fair_data_guide.pdf, kind: pdf }
         - { label: Future work (PDF), url: lectures4/open-science/guides/10_future_work.pdf, kind: pdf }
-        - { label: Toolkit contents (PDF), url: lectures4/open-science/guides/00_table_of_contents.pdf, kind: pdf }
         - { label: Complete toolkit (PDF), url: lectures4/open-science/guides/RESEARCH-INTEGRITY-TOOLKIT.pdf, kind: pdf }
-        - { label: All guides (ZIP), url: lectures4/open-science/guides/research-integrity-methods.zip, kind: data, download: true }
-  readings:
-    - title: The Influence of Hidden Researcher Decisions in Applied Microeconomics
-      cite: "Huntington-Klein, N., et al. (2021). Economic Inquiry, 59(3), 944–960. Independent teams replicate published studies from the same data and get different answers."
-      url: lectures4/open-science/pubs/The%20influence%20of%20hidden%20researcher%20decisions%20in%20applied%20microeconomics.pdf
 
 - id: meta-analysis
   part: "Part 4 — Research Integrity and Evidence Synthesis"
