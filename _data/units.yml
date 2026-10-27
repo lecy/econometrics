@@ -223,6 +223,14 @@
         - { label: Notes, url: lectures1/p-06-control-variables-notes.html, kind: notes }
         - { label: Slides (PDF), url: lectures1/p-06-control-variables.pdf, kind: pdf }
         - { label: PPTX, url: lectures1/p-06-control-variables.pptx, kind: pptx, download: true }
+    - title: Partitioned Regression
+      blurb: >
+        The mechanism behind the slope changes: clean the nuisance variance out of both the
+        outcome and the policy variable, then regress one residual on the other and recover the
+        multiple-regression coefficient exactly.
+      links:
+        - { label: Slides (PDF), url: lectures1/p-06-partitioned-regression.pdf, kind: pdf }
+        - { label: PPTX, url: lectures1/p-06-partitioned-regression.pptx, kind: pptx, download: true }
     - title: Control Variables in R
       blurb: Worked example with regression tables and partial-effect scatterplots.
       links:
@@ -1214,6 +1222,13 @@
         - { label: Lecture, url: lectures3/p-25-iv-example.html, kind: html }
         - { label: RMD Source, url: lectures3/p-25-iv-example.rmd, kind: rmd, raw: true }
         - { label: Data (CSV), url: lectures3/data/iv-reg-example.csv, kind: data }
+    - title: Instrumental Variables and Natural Experiments
+      blurb: >
+        Eleven instruments from the applied literature, sorted by whether a documented device
+        assigned them. Each row names the confound it addresses, who or what assigned the
+        instrument, and how strong the first stage is.
+      links:
+        - { label: Handout (PDF), url: handouts/instrumental_variable_examples.pdf, kind: pdf }
   labs:
     - title: Lab P304 — Instrumental Variables
       blurb: Estimate a naive model, build the first stage, and show what the instrument recovers.
