@@ -2,6 +2,8 @@
 title: "Lab-06 Specification"
 output:
   html_document:
+    includes:
+      in_header: '../_includes/google-analytics.html'
     theme: readable
     highlight: tango
     toc: true

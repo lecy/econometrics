@@ -2,6 +2,8 @@
 title: "Panel Model Selection"
 output: 
     html_document:
+      includes:
+        in_header: '../../_includes/google-analytics.html'
     theme: spacelab
     keep_md: true
     toc: yes

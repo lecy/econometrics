@@ -1,11 +1,23 @@
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7M9RJPFY20"></script>
+<!-- Shared by the Jekyll layouts, which include this file, and by the R Markdown
+     sources, which pull it in through includes: in_header. The loader is attached
+     from script rather than written as a src attribute on purpose: most of the
+     lectures and labs knit with self_contained: true, and pandoc would otherwise
+     download gtag.js and base64-inline it, dropping the ?id= the tag needs to
+     identify the property. Keep this plain HTML (no Liquid) so pandoc can inject
+     it verbatim. -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-7M9RJPFY20');
+
+  (function(){
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-7M9RJPFY20';
+    document.head.appendChild(s);
+  })();
 </script>
 
 <div class="footer">
