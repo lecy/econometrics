@@ -1,0 +1,694 @@
+---
+pagetitle: "Classifiers: Confusion Matrices and Thresholds"
+output:
+  html_document:
+    theme: null
+    highlight: pygments
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    self_contained: false
+    lib_dir: site_libs
+    css: '../../lectures3/assets/lecture-notes.css'
+    includes:
+      in_header: ../../lectures3/assets/lecture-head.html
+      after_body: footer.html
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
+                      fig.width = 7, fig.height = 4.2, fig.align = "center")
+f2 <- function(x) sprintf("%.2f", x)   # inline number formatting
+f3 <- function(x) sprintf("%.3f", x)
+```
+
+```{=html}
+<header class="masthead">
+    <p class="eyebrow">Unit 26 &middot; Classification Models</p>
+    <h1>Logistic Regression, Confusion Matrices, and Choosing a Threshold</h1>
+    <p class="dek">Turn predicted probabilities into yes/no calls, read the confusion matrix, and move the cutoff when the two kinds of error do not cost the same.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#the-data">The data</a>
+      <a href="#model-1-is-this-column-a-year">Model 1: years</a>
+      <a href="#model-2-is-this-column-an-identifier">Model 2: identifiers</a>
+      <a href="#improving-the-lopsided-model-by-changing-the-threshold">Changing the threshold</a>
+      <a href="#choosing-a-threshold-when-errors-have-different-costs">Unequal costs</a>
+      <a href="#summary">Summary</a>
+    </nav>
+</header>
+```
+
+Unit 20 used logistic regression for *inference*: what does a change in X do to the
+probability of the outcome? This tutorial uses the same model for *prediction*.
+Once a model produces a probability for every case, someone has to decide which
+cases to call "yes", and that decision has its own vocabulary and its own
+mistakes. The example comes from data-quality work, deciding automatically what
+kind of information each column of a spreadsheet holds, using a column-level
+feature dataset built for the
+[formex](https://lecy.github.io/formex/articles/feature-dataset.html) R package.
+The steps are:
+
+1. fit a logistic regression with `glm()`,
+2. turn predicted probabilities into class predictions with a cutoff of 0.5,
+3. build a confusion matrix,
+4. read the model's performance through several accuracy metrics, and
+5. move the cutoff --- including how to pick it when a false positive and a false
+   negative do not cost the same.
+
+We fit two models on the same data. The first is a **strong model**: it is right
+about almost everything it flags and finds most of what it is looking for. The
+second is a **lopsided model**: it is excellent at saying "no" and poor at saying
+"yes", and the headline accuracy number hides that completely. The second model is
+the one a threshold can fix.
+
+## The data
+
+Each row of the dataset is one *column* of a real table, described by numbers
+computed from its values by formex's `fx_extract_features()`. The full dataset has
+477 features; the teaching extract keeps a dozen interpretable ones plus the labels.
+You don't need the formex package to follow along: the code below uses only base R,
+and the data file loads straight from the course site.
+
+```{r data}
+path <- "data/type_features_logit.rds"   # the copy next to this file
+if (!file.exists(path)) {
+  path <- url("https://github.com/lecy/econometrics/raw/main/lectures4/classifiers/data/type_features_logit.rds")
+}
+d <- readRDS(path)
+dim(d)
+```
+
+A few rows, showing the example values and some of the features:
+
+```{r peek}
+d[c(1, 2000, 4000), c("sample_values", "data_type", "semantic_type",
+                      "n_digits_mean", "pct_all_digits", "unique_ratio")]
+```
+
+The features we use (all computed from the values alone --- the column header
+never enters):
+
+| Feature | Meaning |
+|---------|---------|
+| `n_digits_mean` | Average number of digits in the integer part of numeric values. |
+| `log10_range` | Spread of numeric values, $\log_{10}$ of (max − min) relative to the scale of the values. |
+| `pct_all_digits` | Share of values made entirely of digits. |
+| `dig_entropy` | How evenly the digits 0--9 are used. Codes and serial numbers use all ten digits evenly; counts and prices do not. |
+| `unique_ratio` | Distinct values / total values. Identifiers are (nearly) all unique. |
+| `pct_chr_digit` | Share of characters that are digits. |
+| `len_mean` | Average string length. |
+| `pct_alnum_mixed` | Share of values mixing letters and digits (e.g. `089608776X`). |
+| `lcp_frac` | Length of the prefix all values share, relative to value length (e.g. every value starts with `isbn `). |
+
+Missing feature values (a numeric statistic on a text column, for instance) were
+already imputed in the extract, following the per-feature rules described in the
+[feature dataset guide](https://lecy.github.io/formex/articles/feature-dataset.html).
+
+### Two binary outcomes
+
+We create two yes/no outcomes:
+
+- **`is_year`** --- is the column a calendar year (`1995, 2003, 2011, ...`)?
+- **`is_id`** --- is the column an identifier (ISBNs, record IDs, DOIs, hashes)?
+
+```{r outcomes}
+d$is_year <- as.integer(d$semantic_type %in% "year")
+d$is_id   <- as.integer(d$data_type == "identifier")
+
+c(years = sum(d$is_year), ids = sum(d$is_id), all_columns = nrow(d))
+round(100 * c(year = mean(d$is_year), id = mean(d$is_id)), 1)   # base rates, %
+```
+
+Both outcomes are **rare**: under 3% of columns. Rarity is the normal situation in
+classification work (fraud, disease, defaults, and here, column types), and it is
+exactly what makes plain "accuracy" misleading, as we will see.
+
+### Train / test split
+
+We fit each model on 70% of the rows and judge it on the 30% it never saw. Judging
+a model on its own training data rewards memorization.
+
+```{r split}
+set.seed(2026)
+train_rows <- sample(nrow(d), size = round(0.7 * nrow(d)))
+train <- d[ train_rows, ]
+test  <- d[-train_rows, ]
+c(train = nrow(train), test = nrow(test))
+c(years_in_test = sum(test$is_year), ids_in_test = sum(test$is_id))
+```
+
+### A small toolkit
+
+Two helper functions do the bookkeeping for the rest of the tutorial. The first
+cross-tabulates truth against prediction; the second computes the metrics from the
+four cells of that table.
+
+```{r helpers}
+confusion <- function(actual, predicted) {
+  table(Actual    = factor(actual,    levels = c(1, 0), labels = c("Yes", "No")),
+        Predicted = factor(predicted, levels = c(1, 0), labels = c("Yes", "No")))
+}
+
+metrics <- function(actual, predicted) {
+  TP <- sum(predicted == 1 & actual == 1)
+  FP <- sum(predicted == 1 & actual == 0)
+  FN <- sum(predicted == 0 & actual == 1)
+  TN <- sum(predicted == 0 & actual == 0)
+  sens <- TP / (TP + FN)
+  spec <- TN / (TN + FP)
+  prec <- if (TP + FP > 0) TP / (TP + FP) else NA
+  c(TP = TP, FP = FP, FN = FN, TN = TN,
+    accuracy          = (TP + TN) / (TP + FP + FN + TN),
+    no_info_rate      = max(mean(actual), 1 - mean(actual)),
+    sensitivity       = sens,                  # a.k.a. recall, true positive rate
+    specificity       = spec,                  # true negative rate
+    precision         = prec,                  # a.k.a. positive predictive value
+    npv               = TN / (TN + FN),        # negative predictive value
+    F1                = 2 * TP / (2 * TP + FP + FN),
+    balanced_accuracy = (sens + spec) / 2)
+}
+```
+
+The confusion matrix is laid out with the positive class ("Yes") first:
+
+|               | Predicted Yes       | Predicted No        |
+|---------------|---------------------|---------------------|
+| **Actual Yes** | TP (true positive)  | FN (false negative) |
+| **Actual No**  | FP (false positive) | TN (true negative)  |
+
+Every metric is a ratio of these four counts --- they differ only in *which* cells
+they put in the numerator and denominator, which is to say which question they
+answer:
+
+| Metric | Formula | Question it answers |
+|--------|---------|---------------------|
+| Accuracy | (TP+TN) / all | What share of all calls were right? |
+| Sensitivity (recall) | TP / (TP+FN) | Of the real positives, how many did we catch? |
+| Specificity | TN / (TN+FP) | Of the real negatives, how many did we correctly leave alone? |
+| Precision (PPV) | TP / (TP+FP) | When the model says "yes", how often is it right? |
+| NPV | TN / (TN+FN) | When the model says "no", how often is it right? |
+| F1 | 2TP / (2TP+FP+FN) | Harmonic mean of precision and recall; ignores TN. |
+| Balanced accuracy | (sens+spec) / 2 | Accuracy with both classes weighted equally. |
+| No-information rate | share of the majority class | The accuracy of always guessing the most common class. |
+
+## Model 1: is this column a year?
+
+A year column has a distinctive numeric fingerprint: the values are all digits,
+they have four digits, and they sit in a narrow band (1900--2030), so their range
+is small relative to their size. A linear term in `n_digits_mean` can't express
+"close to 4" (both 2-digit and 9-digit columns are *not* years), so we build one
+feature that measures the distance from four digits.
+
+```{r year-feature}
+train$digits_from_4 <- abs(train$n_digits_mean - 4)
+test$digits_from_4  <- abs(test$n_digits_mean  - 4)
+```
+
+### Fit the model
+
+```{r m-year}
+m_year <- glm(is_year ~ digits_from_4 + log10_range + pct_all_digits,
+              data = train, family = binomial)
+summary(m_year)
+```
+
+The warning `fitted probabilities numerically 0 or 1 occurred` is not an error. It
+means some training columns are so clearly *not* years (text columns, nine-digit
+numbers) that the model gives them a probability indistinguishable from 0. That is
+common when a class is well separated, and it is a hint that this model will
+perform well.
+
+Coefficients are on the **log-odds** scale. Exponentiating gives **odds ratios**,
+which are easier to talk about:
+
+```{r m-year-or}
+round(exp(coef(m_year)), 4)
+```
+
+- `digits_from_4`: each extra digit away from four multiplies the odds of "year"
+  by about `r f2(exp(coef(m_year))[["digits_from_4"]])` --- the odds
+  collapse. This is the workhorse feature.
+- `log10_range`: a wider spread of values sharply lowers the odds. Years cluster
+  within a few decades.
+- `pct_all_digits` is **not significant** and its sign is even slightly negative.
+  That surprises people: aren't years all digits? They are --- but so are the
+  many non-year numeric columns. Once we already know a column has four-digit
+  numbers in a narrow range, *also* knowing that its values are all digits adds
+  nothing. Logistic coefficients are always read **holding the other features
+  constant**.
+
+### Predict with a 0.5 cutoff
+
+`predict(..., type = "response")` returns the model's estimated probability that
+each test column is a year. The default decision rule calls it a year when that
+probability exceeds 0.5.
+
+```{r p-year}
+test$p_year    <- predict(m_year, newdata = test, type = "response")
+test$yhat_year <- as.integer(test$p_year > 0.5)
+
+summary(test$p_year)
+```
+
+### Confusion matrix and metrics
+
+```{r cm-year}
+confusion(test$is_year, test$yhat_year)
+met_year <- metrics(test$is_year, test$yhat_year)
+round(met_year, 3)
+```
+
+```{r year-numbers, include = FALSE}
+my <- met_year
+```
+
+How to read this:
+
+- **Precision is high: `r f2(my["precision"])`.** When the model says a
+  column is a year, it is wrong only `r my["FP"]` time(s) out of
+  `r my["TP"] + my["FP"]`. A user acting on its "yes" calls can trust them.
+- **Sensitivity is good but not perfect: `r f2(my["sensitivity"])`.** It
+  finds `r my["TP"]` of the `r my["TP"] + my["FN"]` year columns in the test set
+  and misses `r my["FN"]`.
+- **Specificity and NPV are near 1.** With only
+  `r sum(test$is_year)` years among `r nrow(test)` test columns, almost every
+  column is a correct "no".
+- **Accuracy is `r f3(my["accuracy"])`** --- but the no-information rate is
+  `r f3(my["no_info_rate"])`: a "model" that always answers "not a year"
+  would score nearly as well. For a rare outcome, accuracy says very little; F1
+  (`r f2(my["F1"])`) and balanced accuracy (`r f2(my["balanced_accuracy"])`)
+  are more informative because they don't let the sea of true negatives dominate.
+
+It is worth looking at the mistakes. The misses are columns *labeled* "year" whose
+values are not plain four-digit years: class-year codes (`Fr, Sr`), spelled
+numbers, full dates, academic years (`2003/04`), Minguo-calendar years, and a
+couple of plain labeling errors (a list of countries, a list of names). A model of
+four-digit numbers *cannot* catch these --- and some of them it *should not*. The
+false positives are columns of four-digit numbers in a narrow range that happen to
+be ranks or codes: honest mistakes that look exactly like years.
+
+```{r year-errors}
+fn <- test$is_year == 1 & test$yhat_year == 0
+fp <- test$is_year == 0 & test$yhat_year == 1
+test[fn, c("sample_values", "p_year")]
+test[fp, c("sample_values", "semantic_type", "p_year")]
+```
+
+This is a **strong, balanced model**: high precision, high sensitivity. Moving the
+threshold would only trade a few misses for a few false alarms; there is not much
+to gain.
+
+## Model 2: is this column an identifier?
+
+Identifiers are (nearly) all unique, use every digit evenly, often mix letters and
+digits, often share a prefix, and tend to be long.
+
+```{r m-id}
+m_id <- glm(is_id ~ dig_entropy + unique_ratio + pct_chr_digit + len_mean +
+              pct_alnum_mixed + lcp_frac,
+            data = train, family = binomial)
+signif(cbind(coef = coef(m_id), odds_ratio = exp(coef(m_id)),
+             p_value = summary(m_id)$coefficients[, 4]), 3)
+```
+
+Digit entropy, digit share, mixed letters-and-digits, and a shared prefix all
+raise the odds strongly. `unique_ratio` and `len_mean` add little once the others
+are in the model (large p-values); we keep them to show that a non-significant
+coefficient is not a reason the model fails, it is just a feature that the others
+make redundant.
+
+### Predict, cross-tabulate, measure
+
+```{r cm-id}
+test$p_id    <- predict(m_id, newdata = test, type = "response")
+test$yhat_id <- as.integer(test$p_id > 0.5)
+
+confusion(test$is_id, test$yhat_id)
+met_id <- metrics(test$is_id, test$yhat_id)
+round(met_id, 3)
+```
+
+```{r id-numbers, include = FALSE}
+mi <- met_id
+```
+
+At a glance this model also looks excellent: **accuracy
+`r f3(mi["accuracy"])`**, specificity `r f3(mi["specificity"])`,
+precision `r f2(mi["precision"])`. But look at the first row of the matrix, the
+actual identifiers:
+
+- **Sensitivity is only `r f2(mi["sensitivity"])`.** Of the
+  `r mi["TP"] + mi["FN"]` identifier columns in the test set the model catches
+  `r mi["TP"]` and **misses `r mi["FN"]`**. It finds fewer than half of them.
+- **Accuracy hides this entirely.** The no-information rate is
+  `r f3(mi["no_info_rate"])` --- always answering "not an ID" scores
+  `r round(100 * mi["no_info_rate"], 1)`%, and the model beats that by barely a
+  point.
+- **Balanced accuracy (`r f2(mi["balanced_accuracy"])`) and F1
+  (`r f2(mi["F1"])`)** expose the problem: one class is handled
+  near-perfectly, the other poorly.
+
+This is the **lopsided** pattern: high specificity, low sensitivity. The model is
+conservative --- it only says "yes" when it is very sure, so its "yes" calls are
+usually right (decent precision) but it says "yes" too rarely.
+
+> **A note on the word "precision".** In everyday speech "a precise model" means a
+> good one. In classification, *precision* is one specific metric, TP / (TP + FP).
+> Notice that the lopsided model's *precision* is fairly high --- the problem is
+> its *sensitivity*. A model that is conservative on a rare class almost always
+> looks like this: high specificity, high precision, low recall. Always report
+> sensitivity and precision together.
+
+### Why it happens: the rare class and the 0.5 cutoff
+
+Logistic regression estimates probabilities that are, on average, faithful to the
+data. When only `r round(100 * mean(train$is_id), 1)`% of training columns are
+identifiers, the model's probabilities for real identifiers are pulled toward that
+low base rate --- many land at 0.2 or 0.3, well above what non-IDs get, but below 0.5.
+
+```{r id-hist, fig.height = 4.6}
+op <- par(mfrow = c(2, 1), mar = c(4.5, 4, 2, 1))
+brks <- seq(0, 1, by = 0.025)
+hist(test$p_id[test$is_id == 0], breaks = brks, col = "gray75", border = "white",
+     main = "Not an identifier", xlab = "", ylab = "columns")
+abline(v = 0.5, lty = 2, lwd = 2, col = "firebrick")
+hist(test$p_id[test$is_id == 1], breaks = brks, col = "steelblue", border = "white",
+     main = "Identifier", xlab = "predicted probability of 'identifier'",
+     ylab = "columns")
+abline(v = 0.5, lty = 2, lwd = 2, col = "firebrick")
+par(op)
+```
+
+The non-identifiers pile up near zero. The identifiers are spread out: the model
+never gets very confident about any of them (the highest scores are around
+`r f2(max(test$p_id[test$is_id == 1]))`), and more than half of them fall to the *left* of the red cutoff, many well above
+zero. The model is **ranking** the columns well (identifiers get higher scores
+than non-identifiers); the cutoff is just in the wrong place for this base rate.
+
+The area under the ROC curve (AUC) measures ranking quality independent of any
+cutoff: it is the probability that a randomly chosen identifier scores higher than
+a randomly chosen non-identifier.
+
+```{r auc}
+auc <- function(actual, score) {
+  r  <- rank(score)
+  n1 <- sum(actual == 1); n0 <- sum(actual == 0)
+  (sum(r[actual == 1]) - n1 * (n1 + 1) / 2) / (n1 * n0)
+}
+c(year_model = auc(test$is_year, test$p_year),
+  id_model   = auc(test$is_id,   test$p_id))
+```
+
+An AUC near 0.95 says the identifier model's scores are informative --- it is the
+0.5 rule that is throwing the information away. That is the signal that **changing
+the threshold will help**.
+
+## Improving the lopsided model by changing the threshold
+
+The cutoff is a choice, not a property of the model. Lowering it turns more
+columns into "yes" calls: sensitivity goes up, specificity (and usually precision)
+go down. Let's see the whole trade-off by sweeping the cutoff from 0.01 to 0.99.
+
+**Important:** the threshold is a tuning parameter, so we pick it using the
+*training* data and only then check it on the test data. Choosing it by peeking at
+the test set would make the test-set numbers optimistic.
+
+```{r sweep}
+train$p_id <- predict(m_id, newdata = train, type = "response")
+
+sweep_thresholds <- function(actual, prob, cutoffs = seq(0.01, 0.99, by = 0.01)) {
+  out <- t(sapply(cutoffs, function(k) metrics(actual, as.integer(prob > k))))
+  data.frame(cutoff = cutoffs, out)
+}
+sw <- sweep_thresholds(train$is_id, train$p_id)
+round(sw[round(sw$cutoff, 2) %in% c(0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.7),
+         c("cutoff", "TP", "FP", "FN", "sensitivity", "specificity",
+           "precision", "F1", "balanced_accuracy")], 3)
+```
+
+```{r sweep-plot}
+plot(sw$cutoff, sw$sensitivity, type = "l", lwd = 2, col = "steelblue",
+     ylim = c(0, 1.12), xlab = "probability cutoff", ylab = "metric (training data)",
+     main = "Identifier model: metrics across cutoffs")
+lines(sw$cutoff, sw$specificity, lwd = 2, col = "gray40")
+lines(sw$cutoff, sw$precision,   lwd = 2, col = "darkorange")
+lines(sw$cutoff, sw$F1,          lwd = 2, col = "forestgreen", lty = 2)
+abline(v = 0.5, lty = 3)
+legend("top", bty = "n", lwd = 2, ncol = 4, cex = 0.85,
+       col = c("steelblue", "gray40", "darkorange", "forestgreen"),
+       lty = c(1, 1, 1, 2),
+       legend = c("sensitivity", "specificity", "precision", "F1"))
+```
+
+Specificity barely moves across the whole range --- there are so many
+non-identifiers, and most score near zero, that even a low cutoff flags only a
+handful of them. Sensitivity, on the other hand, climbs steeply as the cutoff
+drops. Somewhere around 0.1--0.3 the model catches far more identifiers at a small
+cost in precision.
+
+### The ROC curve
+
+The ROC curve plots the same sweep as sensitivity against the false-positive rate
+(1 − specificity). Each cutoff is one point; the 0.5 cutoff is marked.
+
+```{r roc, fig.width = 5, fig.height = 5}
+roc <- sweep_thresholds(train$is_id, train$p_id, cutoffs = seq(0, 1, by = 0.005))
+plot(1 - roc$specificity, roc$sensitivity, type = "l", lwd = 2, col = "steelblue",
+     xlab = "false positive rate (1 - specificity)", ylab = "sensitivity",
+     main = "ROC curve, identifier model (training)")
+abline(0, 1, lty = 3, col = "gray50")
+at50 <- which.min(abs(roc$cutoff - 0.5))
+points(1 - roc$specificity[at50], roc$sensitivity[at50], pch = 19, col = "firebrick")
+text(1 - roc$specificity[at50], roc$sensitivity[at50], "cutoff 0.5",
+     pos = 4, col = "firebrick")
+```
+
+The 0.5 point sits low on the curve, where it is hugging the left axis. The curve
+rises steeply to its right: big gains in sensitivity are available for very little
+movement in the false-positive rate.
+
+### Two neutral ways to pick a cutoff
+
+When you have no cost information, two common rules are:
+
+- **Maximize F1** --- balances precision and recall; ignores true negatives, so it
+  is a good default for rare-positive problems.
+- **Maximize Youden's J** = sensitivity + specificity − 1, the point on the ROC
+  curve farthest above the diagonal (equivalently, maximum balanced accuracy).
+
+```{r neutral-cutoffs}
+k_f1    <- sw$cutoff[which.max(sw$F1)]
+k_youden <- sw$cutoff[which.max(sw$sensitivity + sw$specificity - 1)]
+c(max_F1 = k_f1, max_Youden = k_youden)
+```
+
+Youden's J treats a missed identifier and a false alarm as equally bad *in rate
+terms*, and because negatives vastly outnumber positives it tends to push the
+cutoff very low and accept many false positives. F1 is usually more conservative.
+Neither is "right" --- each encodes an implicit judgement about costs. The better
+approach is to make that judgement explicit.
+
+## Choosing a threshold when errors have different costs
+
+In practice the two kinds of mistakes rarely cost the same. For the identifier
+model:
+
+- A **false negative** --- an ID column treated as an ordinary number --- is
+  expensive. Downstream code may average it, round it, or strip its leading zeros
+  (`00721` → `721`), silently corrupting a key that other tables join on.
+- A **false positive** --- an ordinary column flagged as a possible ID --- is
+  cheap. A person glances at it and clears the flag.
+
+Suppose a missed ID costs **5 units** (say, 5 minutes of debugging, amortized) and a
+false alarm costs **1 unit** (a 1-minute review). The total cost of a cutoff is
+
+$$\text{cost}(k) = c_{FN}\cdot FN(k) + c_{FP}\cdot FP(k),$$
+
+and we choose the $k$ that minimizes it.
+
+```{r cost-sweep}
+c_fn <- 5
+c_fp <- 1
+sw$cost <- c_fn * sw$FN + c_fp * sw$FP
+k_cost  <- sw$cutoff[which.min(sw$cost)]
+k_cost
+```
+
+```{r cost-plot}
+plot(sw$cutoff, sw$cost, type = "l", lwd = 2, col = "purple",
+     xlab = "probability cutoff", ylab = "total cost (training data)",
+     main = sprintf("Cost of errors: FN = %d, FP = %d", c_fn, c_fp))
+abline(v = 0.5, lty = 3)
+abline(v = k_cost, lty = 2, col = "purple")
+text(k_cost, max(sw$cost) * 0.9, sprintf("min-cost cutoff = %.2f", k_cost),
+     pos = 4, col = "purple")
+```
+
+### A shortcut from decision theory
+
+If the model's probabilities are well calibrated, the cost-minimizing rule has a
+closed form. Call a column positive when the *expected* cost of saying "no" exceeds
+the expected cost of saying "yes":
+
+$$p \cdot c_{FN} > (1 - p)\cdot c_{FP}
+\quad\Longleftrightarrow\quad
+p > \frac{c_{FP}}{c_{FP} + c_{FN}}.$$
+
+With $c_{FN} = 5$ and $c_{FP} = 1$ the theoretical cutoff is
+$1/6 \approx `r f3(1 / 6)`$. The default 0.5 cutoff is just the special case
+$c_{FP} = c_{FN}$: it is optimal **only when both errors cost the same**.
+
+```{r cost-theory}
+c(theory = c_fp / (c_fp + c_fn), empirical = k_cost)
+```
+
+Here the two disagree: the formula says `r f2(c_fp / (c_fp + c_fn))`, the sweep
+says `r f2(k_cost)`. The formula is only as good as the probabilities fed into it,
+and this model's probabilities are **not perfectly calibrated**. You can check
+calibration directly by binning the predictions and comparing the average
+predicted probability with the observed share of identifiers in each bin:
+
+```{r calibration}
+bins <- cut(train$p_id, c(0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 1),
+            include.lowest = TRUE)
+round(cbind(columns        = table(bins),
+            mean_predicted = tapply(train$p_id,  bins, mean),
+            observed_rate  = tapply(train$is_id, bins, mean)), 3)
+```
+
+In the low-to-middle bins the model **over**-states the chance of an identifier
+(in the 0.2--0.3 bin it predicts about 25%, but only about 11% are IDs), and in
+the top bin it **under**-states it. Over-stated low scores mean a cutoff of
+`r f2(c_fp / (c_fp + c_fn))` lets in more false positives than the formula
+expects, so the real optimum sits higher. The difference matters: on the training
+data the total cost is
+`r with(sw[which.min(abs(sw$cutoff - 0.5)), ], c_fn * FN + c_fp * FP)` at the
+default 0.5,
+`r with(sw[which.min(abs(sw$cutoff - c_fp / (c_fp + c_fn))), ], c_fn * FN + c_fp * FP)`
+at the theoretical cutoff (barely an improvement, because the extra false positives
+eat up most of the gain), and `r min(sw$cost)` at the empirical one.
+
+The empirical sweep counts each kind of error at each cutoff, so it doesn't depend
+on the probabilities being calibrated. **When the formula and the sweep disagree,
+trust the sweep**, and treat the gap as a sign that the model's probabilities
+shouldn't be read literally. (With very few positives the sweep can be noisy too;
+cross-validation or a separate validation set gives a steadier estimate.)
+
+### Check the chosen cutoff on the test set
+
+Now --- and only now --- we apply the cutoffs chosen on training data to the
+held-out test set and compare them with the default.
+
+```{r compare-test}
+cutoffs <- c(default_0.5 = 0.5, max_F1 = k_f1,
+             min_cost_5to1 = k_cost, max_Youden = k_youden)
+cmp <- t(sapply(cutoffs, function(k) {
+  m <- metrics(test$is_id, as.integer(test$p_id > k))
+  c(cutoff = k, m[c("TP", "FP", "FN", "TN", "accuracy", "sensitivity",
+                    "specificity", "precision", "F1", "balanced_accuracy")],
+    cost = unname(c_fn * m["FN"] + c_fp * m["FP"]))
+}))
+round(cmp, 3)
+```
+
+```{r cmp-numbers, include = FALSE}
+d50 <- cmp["default_0.5", ]; dc <- cmp["min_cost_5to1", ]
+```
+
+The confusion matrix at the cost-minimizing cutoff:
+
+```{r cm-id-tuned}
+confusion(test$is_id, as.integer(test$p_id > k_cost))
+```
+
+Reading the comparison:
+
+- Moving the cutoff from 0.5 to `r f2(k_cost)` raises **sensitivity from
+  `r f2(d50["sensitivity"])` to `r f2(dc["sensitivity"])`** --- the
+  model now catches `r dc["TP"]` identifiers instead of `r d50["TP"]`.
+- The price is `r dc["FP"] - d50["FP"]` additional false positive(s);
+  **specificity stays at `r f3(dc["specificity"])`** and precision moves from
+  `r f2(d50["precision"])` to `r f2(dc["precision"])`.
+- **Total cost falls from `r d50["cost"]` to `r dc["cost"]`** on the test set,
+  and balanced accuracy rises from `r f2(d50["balanced_accuracy"])` to
+  `r f2(dc["balanced_accuracy"])`.
+- Accuracy barely changes. Had we judged the models by accuracy alone we would
+  never have noticed either the problem or the fix.
+
+### How the best cutoff depends on the cost ratio
+
+The cutoff is a policy decision. Different cost ratios lead to different cutoffs
+and different error mixes:
+
+```{r cost-ratios}
+ratios <- c(1, 2, 5, 10, 20)       # cost of a FN relative to a FP
+pol <- t(sapply(ratios, function(r) {
+  k <- sw$cutoff[which.min(r * sw$FN + 1 * sw$FP)]   # chosen on training data
+  m <- metrics(test$is_id, as.integer(test$p_id > k)) # evaluated on test data
+  c(FN_cost = r, theory = 1 / (1 + r), chosen = k,
+    m[c("TP", "FP", "FN", "sensitivity", "precision")])
+}))
+round(pol, 3)
+```
+
+As missing an identifier becomes more expensive, the cutoff falls, sensitivity
+rises, and we accept more false alarms to get there. Note that even at a 1:1 ratio
+the best cutoff on the training data is below 0.5 --- another symptom of the
+calibration gap --- while at high ratios (10:1, 20:1) the chosen cutoff tracks the
+theoretical one closely.
+
+### Does the year model need the same treatment?
+
+Not much. Its scores already separate the classes cleanly at 0.5, so there are few
+borderline cases for a new cutoff to rescue:
+
+```{r year-cost}
+train$p_year <- predict(m_year, newdata = train, type = "response")
+sw_y <- sweep_thresholds(train$is_year, train$p_year)
+k_year <- sw_y$cutoff[which.min(c_fn * sw_y$FN + c_fp * sw_y$FP)]
+rbind(default_0.5 = metrics(test$is_year, as.integer(test$p_year > 0.5)),
+      min_cost    = metrics(test$is_year, as.integer(test$p_year > k_year)))[
+  , c("TP", "FP", "FN", "sensitivity", "precision", "F1")]
+```
+
+Threshold tuning helps most when the model **ranks well but is mis-cut** --- high
+AUC with lopsided sensitivity and specificity. It cannot help a model whose scores
+don't separate the classes; that model needs better features, not a new cutoff.
+
+## Summary
+
+- `glm(y ~ ..., family = binomial)` fits a logistic regression;
+  `predict(..., type = "response")` returns probabilities; a cutoff turns them into
+  classes.
+- The **confusion matrix** is the source of every metric. Report several:
+  sensitivity and precision for the positive class, specificity for the negative
+  class, and F1 or balanced accuracy as a summary.
+- For a **rare outcome, accuracy is nearly useless**: compare it with the
+  no-information rate.
+- A model with **high AUC but low sensitivity** at 0.5 is ranking well and cutting
+  badly. Lower the cutoff.
+- **Choose the cutoff on training (or validation) data**, never on the test set.
+- When the two errors cost different amounts, minimize
+  $c_{FN}\cdot FN + c_{FP}\cdot FP$. With calibrated probabilities the answer is
+  $p > c_{FP} / (c_{FP} + c_{FN})$; 0.5 is the special case of equal costs.
+
+### Exercises
+
+1. Refit the identifier model without `dig_entropy`. How much do AUC and the
+   min-cost sensitivity fall?
+2. Add `is_fixed_width` to the year model. Do any of the missed years get caught?
+3. Suppose a false positive is the expensive error (every flagged column triggers
+   a costly manual audit), with $c_{FP} = 5$ and $c_{FN} = 1$. Where does the
+   cutoff move, and what happens to precision?
+
+## See also
+
+- [Unit 20: Logistic Regression](../../lectures3/p-070-logistic-regression.html) ---
+  the same model used for inference: log-odds, probabilities, and marginal effects.
+- [The feature dataset](https://lecy.github.io/formex/articles/feature-dataset.html)
+  --- how the full 477-feature dataset was built.
+- [Classifying columns with a decision tree](https://lecy.github.io/formex/articles/classifier-decision-tree.html)
+  --- classifying many types at once instead of one yes/no question.
+- [Engineered features](https://lecy.github.io/formex/articles/feature-engineering.html)
+  --- what each feature measures.
+
+The teaching extract is built by `data-raw/build_logit_tutorial_data.R` in the
+[formex repository](https://github.com/lecy/formex).

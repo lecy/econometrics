@@ -1752,3 +1752,41 @@
       links:
         - { label: Guide, url: handouts/rmd-template-guide.html, kind: notes }
         - { label: Template (RMD), url: handouts/rmd-template.rmd, kind: rmd, raw: true }
+
+- id: classifiers
+  part: "Part 4 — Research Integrity and Evidence Synthesis"
+  number: "26"
+  title: "Classifiers: Confusion Matrices and Thresholds"
+  tagline: Use logistic regression to predict, read the confusion matrix, and choose the cutoff that turns probabilities into decisions.
+  summary: >
+    Uses logistic regression for prediction rather than inference. Two models on the same data
+    show how accuracy can hide a classifier that misses most of what it is looking for, and how
+    moving the cutoff fixes it when false positives and false negatives carry different costs.
+  overview: |
+    Unit 20 asked what a change in X does to the probability of an outcome. A classifier asks a
+    different question: given the predicted probability, should this case be called a "yes"?
+    The answer depends on a cutoff, and the default of 0.5 is only right when both kinds of
+    mistake cost the same.
+
+    The example sorts spreadsheet columns by the kind of information they hold. A model for
+    calendar years is strong at the default cutoff. A model for identifiers scores 98% accuracy
+    while catching fewer than half of the identifiers, because both outcomes are rare and almost
+    every case is an easy "no". The confusion matrix exposes the problem, the ROC curve shows the
+    model ranks cases well, and a cutoff chosen to minimize the cost of errors on training data
+    raises the share of identifiers caught on the test data from 40% to 55% at the price of a
+    few false alarms.
+  objectives:
+    - Build a confusion matrix and compute sensitivity, specificity, precision, F1, and balanced accuracy from its four cells.
+    - Explain why accuracy is misleading for a rare outcome, and compare it with the no-information rate.
+    - Read an ROC curve and AUC as measures of how well a model ranks cases, independent of any cutoff.
+    - Choose a cutoff that minimizes the cost of errors when false positives and false negatives cost different amounts, selecting it on training data and checking it on test data.
+  lectures:
+    - title: "Logistic Regression, Confusion Matrices, and Choosing a Threshold"
+      blurb: >
+        Fit two logit classifiers with glm(), cross-tabulate predictions against the truth,
+        compare the metrics, sweep the cutoff, and pick a threshold from the relative cost of a
+        missed case and a false alarm. Base R only.
+      links:
+        - { label: Lecture, url: lectures4/classifiers/logistic-classifier-tutorial.html, kind: html }
+        - { label: RMD Source, url: lectures4/classifiers/logistic-classifier-tutorial.rmd, kind: rmd, raw: true }
+        - { label: Data (RDS), url: lectures4/classifiers/data/type_features_logit.rds, kind: data }

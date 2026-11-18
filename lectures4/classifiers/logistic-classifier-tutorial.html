@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Classifiers: Confusion Matrices and Thresholds</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Source+Code+Pro:wght@400;600&display=swap">
+
+<!-- Google tag (gtag.js) -->
+<!-- Shared by the Jekyll layouts, which include this file, and by the R Markdown
+     sources, which pull it in through includes: in_header. The loader is attached
+     from script rather than written as a src attribute on purpose: most of the
+     lectures and labs knit with self_contained: true, and pandoc would otherwise
+     download gtag.js and base64-inline it, dropping the ?id= the tag needs to
+     identify the property. Keep this plain HTML (no Liquid) so pandoc can inject
+     it verbatim. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7M9RJPFY20');
+
+  (function(){
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-7M9RJPFY20';
+    document.head.appendChild(s);
+  })();
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="../../lectures3/assets/lecture-notes.css" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+
+
+
+<header class="masthead">
+    <p class="eyebrow">Unit 26 &middot; Classification Models</p>
+    <h1>Logistic Regression, Confusion Matrices, and Choosing a Threshold</h1>
+    <p class="dek">Turn predicted probabilities into yes/no calls, read the confusion matrix, and move the cutoff when the two kinds of error do not cost the same.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#the-data">The data</a>
+      <a href="#model-1-is-this-column-a-year">Model 1: years</a>
+      <a href="#model-2-is-this-column-an-identifier">Model 2: identifiers</a>
+      <a href="#improving-the-lopsided-model-by-changing-the-threshold">Changing the threshold</a>
+      <a href="#choosing-a-threshold-when-errors-have-different-costs">Unequal costs</a>
+      <a href="#summary">Summary</a>
+    </nav>
+</header>
+<p>Unit 20 used logistic regression for <em>inference</em>: what does a
+change in X do to the probability of the outcome? This tutorial uses the
+same model for <em>prediction</em>. Once a model produces a probability
+for every case, someone has to decide which cases to call “yes”, and
+that decision has its own vocabulary and its own mistakes. The example
+comes from data-quality work, deciding automatically what kind of
+information each column of a spreadsheet holds, using a column-level
+feature dataset built for the <a
+href="https://lecy.github.io/formex/articles/feature-dataset.html">formex</a>
+R package. The steps are:</p>
+<ol style="list-style-type: decimal">
+<li>fit a logistic regression with <code>glm()</code>,</li>
+<li>turn predicted probabilities into class predictions with a cutoff of
+0.5,</li>
+<li>build a confusion matrix,</li>
+<li>read the model’s performance through several accuracy metrics,
+and</li>
+<li>move the cutoff — including how to pick it when a false positive and
+a false negative do not cost the same.</li>
+</ol>
+<p>We fit two models on the same data. The first is a <strong>strong
+model</strong>: it is right about almost everything it flags and finds
+most of what it is looking for. The second is a <strong>lopsided
+model</strong>: it is excellent at saying “no” and poor at saying “yes”,
+and the headline accuracy number hides that completely. The second model
+is the one a threshold can fix.</p>
+<div id="the-data" class="section level2">
+<h2>The data</h2>
+<p>Each row of the dataset is one <em>column</em> of a real table,
+described by numbers computed from its values by formex’s
+<code>fx_extract_features()</code>. The full dataset has 477 features;
+the teaching extract keeps a dozen interpretable ones plus the labels.
+You don’t need the formex package to follow along: the code below uses
+only base R, and the data file loads straight from the course site.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="st">&quot;data/type_features_logit.rds&quot;</span>   <span class="co"># the copy next to this file</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(path)) {</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  path <span class="ot">&lt;-</span> <span class="fu">url</span>(<span class="st">&quot;https://github.com/lecy/econometrics/raw/main/lectures4/classifiers/data/type_features_logit.rds&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>}</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(path)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">dim</span>(d)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; [1] 6390   19</span></span></code></pre></div>
+<p>A few rows, showing the example values and some of the features:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>d[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2000</span>, <span class="dv">4000</span>), <span class="fu">c</span>(<span class="st">&quot;sample_values&quot;</span>, <span class="st">&quot;data_type&quot;</span>, <span class="st">&quot;semantic_type&quot;</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                      <span class="st">&quot;n_digits_mean&quot;</span>, <span class="st">&quot;pct_all_digits&quot;</span>, <span class="st">&quot;unique_ratio&quot;</span>)]</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                            sample_values</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; 1    Wauconda Twp, Wauconda, 16-W-1;;Lake Eara, Rockefeller, 260-J-2;;Park Av, Grayslake, 75-R;;Robertson Av, Lake Zurich, 11-L;;Lake &amp; Brainart Ct, Libertyville, 127-J</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; 2000                                                                                                                                              62.1;;62.2;;62.0;;61.8</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 4000                                                                                                                                                  88;;41;;47;;54;;34</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;      data_type semantic_type n_digits_mean pct_all_digits unique_ratio</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; 1         text          full      2.000000              0    1.0000000</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; 2000    number   measurement      2.000000              0    0.2666667</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 4000    number         count      1.947368              1    0.9473684</span></span></code></pre></div>
+<p>The features we use (all computed from the values alone — the column
+header never enters):</p>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>n_digits_mean</code></td>
+<td>Average number of digits in the integer part of numeric values.</td>
+</tr>
+<tr class="even">
+<td><code>log10_range</code></td>
+<td>Spread of numeric values, <span
+class="math inline">\(\log_{10}\)</span> of (max − min) relative to the
+scale of the values.</td>
+</tr>
+<tr class="odd">
+<td><code>pct_all_digits</code></td>
+<td>Share of values made entirely of digits.</td>
+</tr>
+<tr class="even">
+<td><code>dig_entropy</code></td>
+<td>How evenly the digits 0–9 are used. Codes and serial numbers use all
+ten digits evenly; counts and prices do not.</td>
+</tr>
+<tr class="odd">
+<td><code>unique_ratio</code></td>
+<td>Distinct values / total values. Identifiers are (nearly) all
+unique.</td>
+</tr>
+<tr class="even">
+<td><code>pct_chr_digit</code></td>
+<td>Share of characters that are digits.</td>
+</tr>
+<tr class="odd">
+<td><code>len_mean</code></td>
+<td>Average string length.</td>
+</tr>
+<tr class="even">
+<td><code>pct_alnum_mixed</code></td>
+<td>Share of values mixing letters and digits
+(e.g. <code>089608776X</code>).</td>
+</tr>
+<tr class="odd">
+<td><code>lcp_frac</code></td>
+<td>Length of the prefix all values share, relative to value length
+(e.g. every value starts with <code>isbn</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>Missing feature values (a numeric statistic on a text column, for
+instance) were already imputed in the extract, following the per-feature
+rules described in the <a
+href="https://lecy.github.io/formex/articles/feature-dataset.html">feature
+dataset guide</a>.</p>
+<div id="two-binary-outcomes" class="section level3">
+<h3>Two binary outcomes</h3>
+<p>We create two yes/no outcomes:</p>
+<ul>
+<li><strong><code>is_year</code></strong> — is the column a calendar
+year (<code>1995, 2003, 2011, ...</code>)?</li>
+<li><strong><code>is_id</code></strong> — is the column an identifier
+(ISBNs, record IDs, DOIs, hashes)?</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>d<span class="sc">$</span>is_year <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(d<span class="sc">$</span>semantic_type <span class="sc">%in%</span> <span class="st">&quot;year&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>d<span class="sc">$</span>is_id   <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(d<span class="sc">$</span>data_type <span class="sc">==</span> <span class="st">&quot;identifier&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">c</span>(<span class="at">years =</span> <span class="fu">sum</span>(d<span class="sc">$</span>is_year), <span class="at">ids =</span> <span class="fu">sum</span>(d<span class="sc">$</span>is_id), <span class="at">all_columns =</span> <span class="fu">nrow</span>(d))</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;       years         ids all_columns </span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;         119         172        6390</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">c</span>(<span class="at">year =</span> <span class="fu">mean</span>(d<span class="sc">$</span>is_year), <span class="at">id =</span> <span class="fu">mean</span>(d<span class="sc">$</span>is_id)), <span class="dv">1</span>)   <span class="co"># base rates, %</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; year   id </span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;  1.9  2.7</span></span></code></pre></div>
+<p>Both outcomes are <strong>rare</strong>: under 3% of columns. Rarity
+is the normal situation in classification work (fraud, disease,
+defaults, and here, column types), and it is exactly what makes plain
+“accuracy” misleading, as we will see.</p>
+</div>
+<div id="train-test-split" class="section level3">
+<h3>Train / test split</h3>
+<p>We fit each model on 70% of the rows and judge it on the 30% it never
+saw. Judging a model on its own training data rewards memorization.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>train_rows <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(d), <span class="at">size =</span> <span class="fu">round</span>(<span class="fl">0.7</span> <span class="sc">*</span> <span class="fu">nrow</span>(d)))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>train <span class="ot">&lt;-</span> d[ train_rows, ]</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>test  <span class="ot">&lt;-</span> d[<span class="sc">-</span>train_rows, ]</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">c</span>(<span class="at">train =</span> <span class="fu">nrow</span>(train), <span class="at">test =</span> <span class="fu">nrow</span>(test))</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; train  test </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;  4473  1917</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">c</span>(<span class="at">years_in_test =</span> <span class="fu">sum</span>(test<span class="sc">$</span>is_year), <span class="at">ids_in_test =</span> <span class="fu">sum</span>(test<span class="sc">$</span>is_id))</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; years_in_test   ids_in_test </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;            37            55</span></span></code></pre></div>
+</div>
+<div id="a-small-toolkit" class="section level3">
+<h3>A small toolkit</h3>
+<p>Two helper functions do the bookkeeping for the rest of the tutorial.
+The first cross-tabulates truth against prediction; the second computes
+the metrics from the four cells of that table.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>confusion <span class="ot">&lt;-</span> <span class="cf">function</span>(actual, predicted) {</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">table</span>(<span class="at">Actual    =</span> <span class="fu">factor</span>(actual,    <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;No&quot;</span>)),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>        <span class="at">Predicted =</span> <span class="fu">factor</span>(predicted, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;No&quot;</span>)))</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>}</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>metrics <span class="ot">&lt;-</span> <span class="cf">function</span>(actual, predicted) {</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  TP <span class="ot">&lt;-</span> <span class="fu">sum</span>(predicted <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> actual <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  FP <span class="ot">&lt;-</span> <span class="fu">sum</span>(predicted <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> actual <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  FN <span class="ot">&lt;-</span> <span class="fu">sum</span>(predicted <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> actual <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  TN <span class="ot">&lt;-</span> <span class="fu">sum</span>(predicted <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> actual <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  sens <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FN)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  spec <span class="ot">&lt;-</span> TN <span class="sc">/</span> (TN <span class="sc">+</span> FP)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  prec <span class="ot">&lt;-</span> <span class="cf">if</span> (TP <span class="sc">+</span> FP <span class="sc">&gt;</span> <span class="dv">0</span>) TP <span class="sc">/</span> (TP <span class="sc">+</span> FP) <span class="cf">else</span> <span class="cn">NA</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">TP =</span> TP, <span class="at">FP =</span> FP, <span class="at">FN =</span> FN, <span class="at">TN =</span> TN,</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>    <span class="at">accuracy          =</span> (TP <span class="sc">+</span> TN) <span class="sc">/</span> (TP <span class="sc">+</span> FP <span class="sc">+</span> FN <span class="sc">+</span> TN),</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    <span class="at">no_info_rate      =</span> <span class="fu">max</span>(<span class="fu">mean</span>(actual), <span class="dv">1</span> <span class="sc">-</span> <span class="fu">mean</span>(actual)),</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>    <span class="at">sensitivity       =</span> sens,                  <span class="co"># a.k.a. recall, true positive rate</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>    <span class="at">specificity       =</span> spec,                  <span class="co"># true negative rate</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>    <span class="at">precision         =</span> prec,                  <span class="co"># a.k.a. positive predictive value</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    <span class="at">npv               =</span> TN <span class="sc">/</span> (TN <span class="sc">+</span> FN),        <span class="co"># negative predictive value</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>    <span class="at">F1                =</span> <span class="dv">2</span> <span class="sc">*</span> TP <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> TP <span class="sc">+</span> FP <span class="sc">+</span> FN),</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>    <span class="at">balanced_accuracy =</span> (sens <span class="sc">+</span> spec) <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>}</span></code></pre></div>
+<p>The confusion matrix is laid out with the positive class (“Yes”)
+first:</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Predicted Yes</th>
+<th>Predicted No</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Actual Yes</strong></td>
+<td>TP (true positive)</td>
+<td>FN (false negative)</td>
+</tr>
+<tr class="even">
+<td><strong>Actual No</strong></td>
+<td>FP (false positive)</td>
+<td>TN (true negative)</td>
+</tr>
+</tbody>
+</table>
+<p>Every metric is a ratio of these four counts — they differ only in
+<em>which</em> cells they put in the numerator and denominator, which is
+to say which question they answer:</p>
+<table>
+<colgroup>
+<col width="21%" />
+<col width="23%" />
+<col width="55%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Formula</th>
+<th>Question it answers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Accuracy</td>
+<td>(TP+TN) / all</td>
+<td>What share of all calls were right?</td>
+</tr>
+<tr class="even">
+<td>Sensitivity (recall)</td>
+<td>TP / (TP+FN)</td>
+<td>Of the real positives, how many did we catch?</td>
+</tr>
+<tr class="odd">
+<td>Specificity</td>
+<td>TN / (TN+FP)</td>
+<td>Of the real negatives, how many did we correctly leave alone?</td>
+</tr>
+<tr class="even">
+<td>Precision (PPV)</td>
+<td>TP / (TP+FP)</td>
+<td>When the model says “yes”, how often is it right?</td>
+</tr>
+<tr class="odd">
+<td>NPV</td>
+<td>TN / (TN+FN)</td>
+<td>When the model says “no”, how often is it right?</td>
+</tr>
+<tr class="even">
+<td>F1</td>
+<td>2TP / (2TP+FP+FN)</td>
+<td>Harmonic mean of precision and recall; ignores TN.</td>
+</tr>
+<tr class="odd">
+<td>Balanced accuracy</td>
+<td>(sens+spec) / 2</td>
+<td>Accuracy with both classes weighted equally.</td>
+</tr>
+<tr class="even">
+<td>No-information rate</td>
+<td>share of the majority class</td>
+<td>The accuracy of always guessing the most common class.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="model-1-is-this-column-a-year" class="section level2">
+<h2>Model 1: is this column a year?</h2>
+<p>A year column has a distinctive numeric fingerprint: the values are
+all digits, they have four digits, and they sit in a narrow band
+(1900–2030), so their range is small relative to their size. A linear
+term in <code>n_digits_mean</code> can’t express “close to 4” (both
+2-digit and 9-digit columns are <em>not</em> years), so we build one
+feature that measures the distance from four digits.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>train<span class="sc">$</span>digits_from_4 <span class="ot">&lt;-</span> <span class="fu">abs</span>(train<span class="sc">$</span>n_digits_mean <span class="sc">-</span> <span class="dv">4</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>test<span class="sc">$</span>digits_from_4  <span class="ot">&lt;-</span> <span class="fu">abs</span>(test<span class="sc">$</span>n_digits_mean  <span class="sc">-</span> <span class="dv">4</span>)</span></code></pre></div>
+<div id="fit-the-model" class="section level3">
+<h3>Fit the model</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>m_year <span class="ot">&lt;-</span> <span class="fu">glm</span>(is_year <span class="sc">~</span> digits_from_4 <span class="sc">+</span> log10_range <span class="sc">+</span> pct_all_digits,</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>              <span class="at">data =</span> train, <span class="at">family =</span> binomial)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">summary</span>(m_year)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; glm(formula = is_year ~ digits_from_4 + log10_range + pct_all_digits, </span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;     family = binomial, data = train)</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;                Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; (Intercept)      1.7774     0.5188   3.426 0.000613 ***</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; digits_from_4   -2.6909     0.3163  -8.507  &lt; 2e-16 ***</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; log10_range     -5.9552     1.0789  -5.520  3.4e-08 ***</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; pct_all_digits  -0.3003     0.5203  -0.577 0.563881    </span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; (Dispersion parameter for binomial family taken to be 1)</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt;     Null deviance: 818.34  on 4472  degrees of freedom</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; Residual deviance: 203.54  on 4469  degrees of freedom</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; AIC: 211.54</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; Number of Fisher Scoring iterations: 10</span></span></code></pre></div>
+<p>The warning
+<code>fitted probabilities numerically 0 or 1 occurred</code> is not an
+error. It means some training columns are so clearly <em>not</em> years
+(text columns, nine-digit numbers) that the model gives them a
+probability indistinguishable from 0. That is common when a class is
+well separated, and it is a hint that this model will perform well.</p>
+<p>Coefficients are on the <strong>log-odds</strong> scale.
+Exponentiating gives <strong>odds ratios</strong>, which are easier to
+talk about:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">exp</span>(<span class="fu">coef</span>(m_year)), <span class="dv">4</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt;    (Intercept)  digits_from_4    log10_range pct_all_digits </span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt;         5.9147         0.0678         0.0026         0.7406</span></span></code></pre></div>
+<ul>
+<li><code>digits_from_4</code>: each extra digit away from four
+multiplies the odds of “year” by about 0.07 — the odds collapse. This is
+the workhorse feature.</li>
+<li><code>log10_range</code>: a wider spread of values sharply lowers
+the odds. Years cluster within a few decades.</li>
+<li><code>pct_all_digits</code> is <strong>not significant</strong> and
+its sign is even slightly negative. That surprises people: aren’t years
+all digits? They are — but so are the many non-year numeric columns.
+Once we already know a column has four-digit numbers in a narrow range,
+<em>also</em> knowing that its values are all digits adds nothing.
+Logistic coefficients are always read <strong>holding the other features
+constant</strong>.</li>
+</ul>
+</div>
+<div id="predict-with-a-0.5-cutoff" class="section level3">
+<h3>Predict with a 0.5 cutoff</h3>
+<p><code>predict(..., type = "response")</code> returns the model’s
+estimated probability that each test column is a year. The default
+decision rule calls it a year when that probability exceeds 0.5.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>test<span class="sc">$</span>p_year    <span class="ot">&lt;-</span> <span class="fu">predict</span>(m_year, <span class="at">newdata =</span> test, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>test<span class="sc">$</span>yhat_year <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(test<span class="sc">$</span>p_year <span class="sc">&gt;</span> <span class="fl">0.5</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">summary</span>(test<span class="sc">$</span>p_year)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. </span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 0.0000000 0.0009949 0.0009949 0.0173320 0.0009949 0.8499915</span></span></code></pre></div>
+</div>
+<div id="confusion-matrix-and-metrics" class="section level3">
+<h3>Confusion matrix and metrics</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">confusion</span>(test<span class="sc">$</span>is_year, test<span class="sc">$</span>yhat_year)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt;       Predicted</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; Actual  Yes   No</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;    Yes   30    7</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;    No     4 1876</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>met_year <span class="ot">&lt;-</span> <span class="fu">metrics</span>(test<span class="sc">$</span>is_year, test<span class="sc">$</span>yhat_year)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="fu">round</span>(met_year, <span class="dv">3</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;                TP                FP                FN                TN </span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;            30.000             4.000             7.000          1876.000 </span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;          accuracy      no_info_rate       sensitivity       specificity </span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;             0.994             0.981             0.811             0.998 </span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;         precision               npv                F1 balanced_accuracy </span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt;             0.882             0.996             0.845             0.904</span></span></code></pre></div>
+<p>How to read this:</p>
+<ul>
+<li><strong>Precision is high: 0.88.</strong> When the model says a
+column is a year, it is wrong only 4 time(s) out of
+<ol start="34" style="list-style-type: decimal">
+<li>A user acting on its “yes” calls can trust them.</li>
+</ol></li>
+<li><strong>Sensitivity is good but not perfect: 0.81.</strong> It finds
+30 of the 37 year columns in the test set and misses 7.</li>
+<li><strong>Specificity and NPV are near 1.</strong> With only 37 years
+among 1917 test columns, almost every column is a correct “no”.</li>
+<li><strong>Accuracy is 0.994</strong> — but the no-information rate is
+0.981: a “model” that always answers “not a year” would score nearly as
+well. For a rare outcome, accuracy says very little; F1 (0.85) and
+balanced accuracy (0.90) are more informative because they don’t let the
+sea of true negatives dominate.</li>
+</ul>
+<p>It is worth looking at the mistakes. The misses are columns
+<em>labeled</em> “year” whose values are not plain four-digit years:
+class-year codes (<code>Fr, Sr</code>), spelled numbers, full dates,
+academic years (<code>2003/04</code>), Minguo-calendar years, and a
+couple of plain labeling errors (a list of countries, a list of names).
+A model of four-digit numbers <em>cannot</em> catch these — and some of
+them it <em>should not</em>. The false positives are columns of
+four-digit numbers in a narrow range that happen to be ranks or codes:
+honest mistakes that look exactly like years.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>fn <span class="ot">&lt;-</span> test<span class="sc">$</span>is_year <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> test<span class="sc">$</span>yhat_year <span class="sc">==</span> <span class="dv">0</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>fp <span class="ot">&lt;-</span> test<span class="sc">$</span>is_year <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> test<span class="sc">$</span>yhat_year <span class="sc">==</span> <span class="dv">1</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>test[fn, <span class="fu">c</span>(<span class="st">&quot;sample_values&quot;</span>, <span class="st">&quot;p_year&quot;</span>)]</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt;                                         sample_values       p_year</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; 5462                                   Fr;;Sr;;So;;Jr 0.0009948791</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; 5470                                         one;;two 0.0009948791</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; 5496             america;;Italy;;Isreal;;Ireland;;U.K 0.0009948791</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; 5500 1/1/2004;;1/1/2005;;1/1/2006;;1/1/2007;;1/1/2008 0.0009948791</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; 5506                 Lena;;Leonie;;Anna;;Sarah;;Julia 0.0009948791</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; 5517      2003/04;;2004/05;;2005/06;;2006/07;;2007/08 0.0009948791</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; 5522 民國74年;;民國75年;;民國76年;;民國77年;;民國78年 0.0009948791</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>test[fp, <span class="fu">c</span>(<span class="st">&quot;sample_values&quot;</span>, <span class="st">&quot;semantic_type&quot;</span>, <span class="st">&quot;p_year&quot;</span>)]</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt;                     sample_values semantic_type    p_year</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; 3484                      2010;;?          long 0.8141423</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; 4418 2727;;2686;;2646;;2612;;2611          rank 0.7565704</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; 4488 1156;;1137;;1132;;1127;;1159          rank 0.7068990</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; 4602 1091;;1090;;1089;;1088;;1087    geographic 0.8071751</span></span></code></pre></div>
+<p>This is a <strong>strong, balanced model</strong>: high precision,
+high sensitivity. Moving the threshold would only trade a few misses for
+a few false alarms; there is not much to gain.</p>
+</div>
+</div>
+<div id="model-2-is-this-column-an-identifier" class="section level2">
+<h2>Model 2: is this column an identifier?</h2>
+<p>Identifiers are (nearly) all unique, use every digit evenly, often
+mix letters and digits, often share a prefix, and tend to be long.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>m_id <span class="ot">&lt;-</span> <span class="fu">glm</span>(is_id <span class="sc">~</span> dig_entropy <span class="sc">+</span> unique_ratio <span class="sc">+</span> pct_chr_digit <span class="sc">+</span> len_mean <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>              pct_alnum_mixed <span class="sc">+</span> lcp_frac,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>            <span class="at">data =</span> train, <span class="at">family =</span> binomial)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">signif</span>(<span class="fu">cbind</span>(<span class="at">coef =</span> <span class="fu">coef</span>(m_id), <span class="at">odds_ratio =</span> <span class="fu">exp</span>(<span class="fu">coef</span>(m_id)),</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>             <span class="at">p_value =</span> <span class="fu">summary</span>(m_id)<span class="sc">$</span>coefficients[, <span class="dv">4</span>]), <span class="dv">3</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;                      coef odds_ratio  p_value</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; (Intercept)     -1.24e+01   4.30e-06 3.57e-32</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; dig_entropy      2.86e+00   1.75e+01 1.18e-07</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; unique_ratio     5.05e-01   1.66e+00 4.00e-01</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; pct_chr_digit    2.67e+00   1.44e+01 5.02e-05</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; len_mean        -3.03e-04   1.00e+00 9.29e-01</span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt; pct_alnum_mixed  3.38e+00   2.93e+01 7.87e-18</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt; lcp_frac         3.64e+00   3.81e+01 4.64e-14</span></span></code></pre></div>
+<p>Digit entropy, digit share, mixed letters-and-digits, and a shared
+prefix all raise the odds strongly. <code>unique_ratio</code> and
+<code>len_mean</code> add little once the others are in the model (large
+p-values); we keep them to show that a non-significant coefficient is
+not a reason the model fails, it is just a feature that the others make
+redundant.</p>
+<div id="predict-cross-tabulate-measure" class="section level3">
+<h3>Predict, cross-tabulate, measure</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>test<span class="sc">$</span>p_id    <span class="ot">&lt;-</span> <span class="fu">predict</span>(m_id, <span class="at">newdata =</span> test, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>test<span class="sc">$</span>yhat_id <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(test<span class="sc">$</span>p_id <span class="sc">&gt;</span> <span class="fl">0.5</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">confusion</span>(test<span class="sc">$</span>is_id, test<span class="sc">$</span>yhat_id)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;       Predicted</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; Actual  Yes   No</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt;    Yes   22   33</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt;    No     5 1857</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>met_id <span class="ot">&lt;-</span> <span class="fu">metrics</span>(test<span class="sc">$</span>is_id, test<span class="sc">$</span>yhat_id)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="fu">round</span>(met_id, <span class="dv">3</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt;                TP                FP                FN                TN </span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;            22.000             5.000            33.000          1857.000 </span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt;          accuracy      no_info_rate       sensitivity       specificity </span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt;             0.980             0.971             0.400             0.997 </span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt;         precision               npv                F1 balanced_accuracy </span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;             0.815             0.983             0.537             0.699</span></span></code></pre></div>
+<p>At a glance this model also looks excellent: <strong>accuracy
+0.980</strong>, specificity 0.997, precision 0.81. But look at the first
+row of the matrix, the actual identifiers:</p>
+<ul>
+<li><strong>Sensitivity is only 0.40.</strong> Of the 55 identifier
+columns in the test set the model catches 22 and <strong>misses
+33</strong>. It finds fewer than half of them.</li>
+<li><strong>Accuracy hides this entirely.</strong> The no-information
+rate is 0.971 — always answering “not an ID” scores 97.1%, and the model
+beats that by barely a point.</li>
+<li><strong>Balanced accuracy (0.70) and F1 (0.54)</strong> expose the
+problem: one class is handled near-perfectly, the other poorly.</li>
+</ul>
+<p>This is the <strong>lopsided</strong> pattern: high specificity, low
+sensitivity. The model is conservative — it only says “yes” when it is
+very sure, so its “yes” calls are usually right (decent precision) but
+it says “yes” too rarely.</p>
+<blockquote>
+<p><strong>A note on the word “precision”.</strong> In everyday speech
+“a precise model” means a good one. In classification,
+<em>precision</em> is one specific metric, TP / (TP + FP). Notice that
+the lopsided model’s <em>precision</em> is fairly high — the problem is
+its <em>sensitivity</em>. A model that is conservative on a rare class
+almost always looks like this: high specificity, high precision, low
+recall. Always report sensitivity and precision together.</p>
+</blockquote>
+</div>
+<div id="why-it-happens-the-rare-class-and-the-0.5-cutoff"
+class="section level3">
+<h3>Why it happens: the rare class and the 0.5 cutoff</h3>
+<p>Logistic regression estimates probabilities that are, on average,
+faithful to the data. When only 2.6% of training columns are
+identifiers, the model’s probabilities for real identifiers are pulled
+toward that low base rate — many land at 0.2 or 0.3, well above what
+non-IDs get, but below 0.5.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>op <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="fl">4.5</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>brks <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.025</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">hist</span>(test<span class="sc">$</span>p_id[test<span class="sc">$</span>is_id <span class="sc">==</span> <span class="dv">0</span>], <span class="at">breaks =</span> brks, <span class="at">col =</span> <span class="st">&quot;gray75&quot;</span>, <span class="at">border =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Not an identifier&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;columns&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="fu">hist</span>(test<span class="sc">$</span>p_id[test<span class="sc">$</span>is_id <span class="sc">==</span> <span class="dv">1</span>], <span class="at">breaks =</span> brks, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>, <span class="at">border =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Identifier&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;predicted probability of &#39;identifier&#39;&quot;</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;columns&quot;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span></code></pre></div>
+<p><img src="logistic-classifier-tutorial_files/figure-html/id-hist-1.png" alt="" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">par</span>(op)</span></code></pre></div>
+<p>The non-identifiers pile up near zero. The identifiers are spread
+out: the model never gets very confident about any of them (the highest
+scores are around 0.74), and more than half of them fall to the
+<em>left</em> of the red cutoff, many well above zero. The model is
+<strong>ranking</strong> the columns well (identifiers get higher scores
+than non-identifiers); the cutoff is just in the wrong place for this
+base rate.</p>
+<p>The area under the ROC curve (AUC) measures ranking quality
+independent of any cutoff: it is the probability that a randomly chosen
+identifier scores higher than a randomly chosen non-identifier.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>auc <span class="ot">&lt;-</span> <span class="cf">function</span>(actual, score) {</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  r  <span class="ot">&lt;-</span> <span class="fu">rank</span>(score)</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  n1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(actual <span class="sc">==</span> <span class="dv">1</span>); n0 <span class="ot">&lt;-</span> <span class="fu">sum</span>(actual <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  (<span class="fu">sum</span>(r[actual <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span> n1 <span class="sc">*</span> (n1 <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">/</span> (n1 <span class="sc">*</span> n0)</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>}</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">c</span>(<span class="at">year_model =</span> <span class="fu">auc</span>(test<span class="sc">$</span>is_year, test<span class="sc">$</span>p_year),</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="at">id_model   =</span> <span class="fu">auc</span>(test<span class="sc">$</span>is_id,   test<span class="sc">$</span>p_id))</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; year_model   id_model </span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt;  0.9100489  0.9462650</span></span></code></pre></div>
+<p>An AUC near 0.95 says the identifier model’s scores are informative —
+it is the 0.5 rule that is throwing the information away. That is the
+signal that <strong>changing the threshold will help</strong>.</p>
+</div>
+</div>
+<div id="improving-the-lopsided-model-by-changing-the-threshold"
+class="section level2">
+<h2>Improving the lopsided model by changing the threshold</h2>
+<p>The cutoff is a choice, not a property of the model. Lowering it
+turns more columns into “yes” calls: sensitivity goes up, specificity
+(and usually precision) go down. Let’s see the whole trade-off by
+sweeping the cutoff from 0.01 to 0.99.</p>
+<p><strong>Important:</strong> the threshold is a tuning parameter, so
+we pick it using the <em>training</em> data and only then check it on
+the test data. Choosing it by peeking at the test set would make the
+test-set numbers optimistic.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>train<span class="sc">$</span>p_id <span class="ot">&lt;-</span> <span class="fu">predict</span>(m_id, <span class="at">newdata =</span> train, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>sweep_thresholds <span class="ot">&lt;-</span> <span class="cf">function</span>(actual, prob, <span class="at">cutoffs =</span> <span class="fu">seq</span>(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="at">by =</span> <span class="fl">0.01</span>)) {</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">sapply</span>(cutoffs, <span class="cf">function</span>(k) <span class="fu">metrics</span>(actual, <span class="fu">as.integer</span>(prob <span class="sc">&gt;</span> k))))</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">cutoff =</span> cutoffs, out)</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>}</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>sw <span class="ot">&lt;-</span> <span class="fu">sweep_thresholds</span>(train<span class="sc">$</span>is_id, train<span class="sc">$</span>p_id)</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="fu">round</span>(sw[<span class="fu">round</span>(sw<span class="sc">$</span>cutoff, <span class="dv">2</span>) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.15</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span>),</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>         <span class="fu">c</span>(<span class="st">&quot;cutoff&quot;</span>, <span class="st">&quot;TP&quot;</span>, <span class="st">&quot;FP&quot;</span>, <span class="st">&quot;FN&quot;</span>, <span class="st">&quot;sensitivity&quot;</span>, <span class="st">&quot;specificity&quot;</span>,</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>           <span class="st">&quot;precision&quot;</span>, <span class="st">&quot;F1&quot;</span>, <span class="st">&quot;balanced_accuracy&quot;</span>)], <span class="dv">3</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt;    cutoff  TP  FP FN sensitivity specificity precision    F1 balanced_accuracy</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; 5    0.05 101 319 16       0.863       0.927     0.240 0.376             0.895</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; 10   0.10  95 164 22       0.812       0.962     0.367 0.505             0.887</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt; 15   0.15  86 119 31       0.735       0.973     0.420 0.534             0.854</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; 20   0.20  81  79 36       0.692       0.982     0.506 0.585             0.837</span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; 30   0.30  75  31 42       0.641       0.993     0.708 0.673             0.817</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="co">#&gt; 40   0.40  66  13 51       0.564       0.997     0.835 0.673             0.781</span></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt; 50   0.50  62  13 55       0.530       0.997     0.827 0.646             0.763</span></span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a><span class="co">#&gt; 70   0.70  29   5 88       0.248       0.999     0.853 0.384             0.623</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">plot</span>(sw<span class="sc">$</span>cutoff, sw<span class="sc">$</span>sensitivity, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.12</span>), <span class="at">xlab =</span> <span class="st">&quot;probability cutoff&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;metric (training data)&quot;</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Identifier model: metrics across cutoffs&quot;</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="fu">lines</span>(sw<span class="sc">$</span>cutoff, sw<span class="sc">$</span>specificity, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;gray40&quot;</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="fu">lines</span>(sw<span class="sc">$</span>cutoff, sw<span class="sc">$</span>precision,   <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="fu">lines</span>(sw<span class="sc">$</span>cutoff, sw<span class="sc">$</span>F1,          <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;forestgreen&quot;</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">3</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;top&quot;</span>, <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">cex =</span> <span class="fl">0.85</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;gray40&quot;</span>, <span class="st">&quot;darkorange&quot;</span>, <span class="st">&quot;forestgreen&quot;</span>),</span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;sensitivity&quot;</span>, <span class="st">&quot;specificity&quot;</span>, <span class="st">&quot;precision&quot;</span>, <span class="st">&quot;F1&quot;</span>))</span></code></pre></div>
+<p><img src="logistic-classifier-tutorial_files/figure-html/sweep-plot-1.png" alt="" width="672" style="display: block; margin: auto;" /></p>
+<p>Specificity barely moves across the whole range — there are so many
+non-identifiers, and most score near zero, that even a low cutoff flags
+only a handful of them. Sensitivity, on the other hand, climbs steeply
+as the cutoff drops. Somewhere around 0.1–0.3 the model catches far more
+identifiers at a small cost in precision.</p>
+<div id="the-roc-curve" class="section level3">
+<h3>The ROC curve</h3>
+<p>The ROC curve plots the same sweep as sensitivity against the
+false-positive rate (1 − specificity). Each cutoff is one point; the 0.5
+cutoff is marked.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>roc <span class="ot">&lt;-</span> <span class="fu">sweep_thresholds</span>(train<span class="sc">$</span>is_id, train<span class="sc">$</span>p_id, <span class="at">cutoffs =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.005</span>))</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span> <span class="sc">-</span> roc<span class="sc">$</span>specificity, roc<span class="sc">$</span>sensitivity, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;false positive rate (1 - specificity)&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;sensitivity&quot;</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;ROC curve, identifier model (training)&quot;</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">lty =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">&quot;gray50&quot;</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>at50 <span class="ot">&lt;-</span> <span class="fu">which.min</span>(<span class="fu">abs</span>(roc<span class="sc">$</span>cutoff <span class="sc">-</span> <span class="fl">0.5</span>))</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="fu">points</span>(<span class="dv">1</span> <span class="sc">-</span> roc<span class="sc">$</span>specificity[at50], roc<span class="sc">$</span>sensitivity[at50], <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">1</span> <span class="sc">-</span> roc<span class="sc">$</span>specificity[at50], roc<span class="sc">$</span>sensitivity[at50], <span class="st">&quot;cutoff 0.5&quot;</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>     <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="st">&quot;firebrick&quot;</span>)</span></code></pre></div>
+<p><img src="logistic-classifier-tutorial_files/figure-html/roc-1.png" alt="" width="480" style="display: block; margin: auto;" /></p>
+<p>The 0.5 point sits low on the curve, where it is hugging the left
+axis. The curve rises steeply to its right: big gains in sensitivity are
+available for very little movement in the false-positive rate.</p>
+</div>
+<div id="two-neutral-ways-to-pick-a-cutoff" class="section level3">
+<h3>Two neutral ways to pick a cutoff</h3>
+<p>When you have no cost information, two common rules are:</p>
+<ul>
+<li><strong>Maximize F1</strong> — balances precision and recall;
+ignores true negatives, so it is a good default for rare-positive
+problems.</li>
+<li><strong>Maximize Youden’s J</strong> = sensitivity + specificity −
+1, the point on the ROC curve farthest above the diagonal (equivalently,
+maximum balanced accuracy).</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>k_f1    <span class="ot">&lt;-</span> sw<span class="sc">$</span>cutoff[<span class="fu">which.max</span>(sw<span class="sc">$</span>F1)]</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>k_youden <span class="ot">&lt;-</span> sw<span class="sc">$</span>cutoff[<span class="fu">which.max</span>(sw<span class="sc">$</span>sensitivity <span class="sc">+</span> sw<span class="sc">$</span>specificity <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="fu">c</span>(<span class="at">max_F1 =</span> k_f1, <span class="at">max_Youden =</span> k_youden)</span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt;     max_F1 max_Youden </span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt;       0.31       0.06</span></span></code></pre></div>
+<p>Youden’s J treats a missed identifier and a false alarm as equally
+bad <em>in rate terms</em>, and because negatives vastly outnumber
+positives it tends to push the cutoff very low and accept many false
+positives. F1 is usually more conservative. Neither is “right” — each
+encodes an implicit judgement about costs. The better approach is to
+make that judgement explicit.</p>
+</div>
+</div>
+<div id="choosing-a-threshold-when-errors-have-different-costs"
+class="section level2">
+<h2>Choosing a threshold when errors have different costs</h2>
+<p>In practice the two kinds of mistakes rarely cost the same. For the
+identifier model:</p>
+<ul>
+<li>A <strong>false negative</strong> — an ID column treated as an
+ordinary number — is expensive. Downstream code may average it, round
+it, or strip its leading zeros (<code>00721</code> → <code>721</code>),
+silently corrupting a key that other tables join on.</li>
+<li>A <strong>false positive</strong> — an ordinary column flagged as a
+possible ID — is cheap. A person glances at it and clears the flag.</li>
+</ul>
+<p>Suppose a missed ID costs <strong>5 units</strong> (say, 5 minutes of
+debugging, amortized) and a false alarm costs <strong>1 unit</strong> (a
+1-minute review). The total cost of a cutoff is</p>
+<p><span class="math display">\[\text{cost}(k) = c_{FN}\cdot FN(k) +
+c_{FP}\cdot FP(k),\]</span></p>
+<p>and we choose the <span class="math inline">\(k\)</span> that
+minimizes it.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>c_fn <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>c_fp <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>sw<span class="sc">$</span>cost <span class="ot">&lt;-</span> c_fn <span class="sc">*</span> sw<span class="sc">$</span>FN <span class="sc">+</span> c_fp <span class="sc">*</span> sw<span class="sc">$</span>FP</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>k_cost  <span class="ot">&lt;-</span> sw<span class="sc">$</span>cutoff[<span class="fu">which.min</span>(sw<span class="sc">$</span>cost)]</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>k_cost</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; [1] 0.3</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">plot</span>(sw<span class="sc">$</span>cutoff, sw<span class="sc">$</span>cost, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;purple&quot;</span>,</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;probability cutoff&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;total cost (training data)&quot;</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>     <span class="at">main =</span> <span class="fu">sprintf</span>(<span class="st">&quot;Cost of errors: FN = %d, FP = %d&quot;</span>, c_fn, c_fp))</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.5</span>, <span class="at">lty =</span> <span class="dv">3</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> k_cost, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;purple&quot;</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="fu">text</span>(k_cost, <span class="fu">max</span>(sw<span class="sc">$</span>cost) <span class="sc">*</span> <span class="fl">0.9</span>, <span class="fu">sprintf</span>(<span class="st">&quot;min-cost cutoff = %.2f&quot;</span>, k_cost),</span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>     <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="st">&quot;purple&quot;</span>)</span></code></pre></div>
+<p><img src="logistic-classifier-tutorial_files/figure-html/cost-plot-1.png" alt="" width="672" style="display: block; margin: auto;" /></p>
+<div id="a-shortcut-from-decision-theory" class="section level3">
+<h3>A shortcut from decision theory</h3>
+<p>If the model’s probabilities are well calibrated, the cost-minimizing
+rule has a closed form. Call a column positive when the
+<em>expected</em> cost of saying “no” exceeds the expected cost of
+saying “yes”:</p>
+<p><span class="math display">\[p \cdot c_{FN} &gt; (1 - p)\cdot c_{FP}
+\quad\Longleftrightarrow\quad
+p &gt; \frac{c_{FP}}{c_{FP} + c_{FN}}.\]</span></p>
+<p>With <span class="math inline">\(c_{FN} = 5\)</span> and <span
+class="math inline">\(c_{FP} = 1\)</span> the theoretical cutoff is
+<span class="math inline">\(1/6 \approx 0.167\)</span>. The default 0.5
+cutoff is just the special case <span class="math inline">\(c_{FP} =
+c_{FN}\)</span>: it is optimal <strong>only when both errors cost the
+same</strong>.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">c</span>(<span class="at">theory =</span> c_fp <span class="sc">/</span> (c_fp <span class="sc">+</span> c_fn), <span class="at">empirical =</span> k_cost)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="co">#&gt;    theory empirical </span></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt; 0.1666667 0.3000000</span></span></code></pre></div>
+<p>Here the two disagree: the formula says 0.17, the sweep says 0.30.
+The formula is only as good as the probabilities fed into it, and this
+model’s probabilities are <strong>not perfectly calibrated</strong>. You
+can check calibration directly by binning the predictions and comparing
+the average predicted probability with the observed share of identifiers
+in each bin:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>bins <span class="ot">&lt;-</span> <span class="fu">cut</span>(train<span class="sc">$</span>p_id, <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="dv">1</span>),</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>            <span class="at">include.lowest =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cbind</span>(<span class="at">columns        =</span> <span class="fu">table</span>(bins),</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>            <span class="at">mean_predicted =</span> <span class="fu">tapply</span>(train<span class="sc">$</span>p_id,  bins, mean),</span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>            <span class="at">observed_rate  =</span> <span class="fu">tapply</span>(train<span class="sc">$</span>is_id, bins, mean)), <span class="dv">3</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="co">#&gt;             columns mean_predicted observed_rate</span></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="co">#&gt; [0,0.01]       3438          0.001         0.003</span></span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">#&gt; (0.01,0.05]     615          0.026         0.010</span></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="co">#&gt; (0.05,0.1]      161          0.067         0.037</span></span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co">#&gt; (0.1,0.2]        99          0.146         0.141</span></span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a><span class="co">#&gt; (0.2,0.3]        54          0.245         0.111</span></span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a><span class="co">#&gt; (0.3,0.5]        31          0.349         0.419</span></span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a><span class="co">#&gt; (0.5,1]          75          0.661         0.827</span></span></code></pre></div>
+<p>In the low-to-middle bins the model <strong>over</strong>-states the
+chance of an identifier (in the 0.2–0.3 bin it predicts about 25%, but
+only about 11% are IDs), and in the top bin it
+<strong>under</strong>-states it. Over-stated low scores mean a cutoff
+of 0.17 lets in more false positives than the formula expects, so the
+real optimum sits higher. The difference matters: on the training data
+the total cost is 288 at the default 0.5, 283 at the theoretical cutoff
+(barely an improvement, because the extra false positives eat up most of
+the gain), and 241 at the empirical one.</p>
+<p>The empirical sweep counts each kind of error at each cutoff, so it
+doesn’t depend on the probabilities being calibrated. <strong>When the
+formula and the sweep disagree, trust the sweep</strong>, and treat the
+gap as a sign that the model’s probabilities shouldn’t be read
+literally. (With very few positives the sweep can be noisy too;
+cross-validation or a separate validation set gives a steadier
+estimate.)</p>
+</div>
+<div id="check-the-chosen-cutoff-on-the-test-set"
+class="section level3">
+<h3>Check the chosen cutoff on the test set</h3>
+<p>Now — and only now — we apply the cutoffs chosen on training data to
+the held-out test set and compare them with the default.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>cutoffs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">default_0.5 =</span> <span class="fl">0.5</span>, <span class="at">max_F1 =</span> k_f1,</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>             <span class="at">min_cost_5to1 =</span> k_cost, <span class="at">max_Youden =</span> k_youden)</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>cmp <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">sapply</span>(cutoffs, <span class="cf">function</span>(k) {</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">metrics</span>(test<span class="sc">$</span>is_id, <span class="fu">as.integer</span>(test<span class="sc">$</span>p_id <span class="sc">&gt;</span> k))</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">cutoff =</span> k, m[<span class="fu">c</span>(<span class="st">&quot;TP&quot;</span>, <span class="st">&quot;FP&quot;</span>, <span class="st">&quot;FN&quot;</span>, <span class="st">&quot;TN&quot;</span>, <span class="st">&quot;accuracy&quot;</span>, <span class="st">&quot;sensitivity&quot;</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>                    <span class="st">&quot;specificity&quot;</span>, <span class="st">&quot;precision&quot;</span>, <span class="st">&quot;F1&quot;</span>, <span class="st">&quot;balanced_accuracy&quot;</span>)],</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>    <span class="at">cost =</span> <span class="fu">unname</span>(c_fn <span class="sc">*</span> m[<span class="st">&quot;FN&quot;</span>] <span class="sc">+</span> c_fp <span class="sc">*</span> m[<span class="st">&quot;FP&quot;</span>]))</span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a>}))</span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a><span class="fu">round</span>(cmp, <span class="dv">3</span>)</span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a><span class="co">#&gt;               cutoff TP  FP FN   TN accuracy sensitivity specificity precision</span></span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a><span class="co">#&gt; default_0.5     0.50 22   5 33 1857    0.980       0.400       0.997     0.815</span></span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a><span class="co">#&gt; max_F1          0.31 29  13 26 1849    0.980       0.527       0.993     0.690</span></span>
+<span id="cb25-13"><a href="#cb25-13" tabindex="-1"></a><span class="co">#&gt; min_cost_5to1   0.30 30  15 25 1847    0.979       0.545       0.992     0.667</span></span>
+<span id="cb25-14"><a href="#cb25-14" tabindex="-1"></a><span class="co">#&gt; max_Youden      0.06 43 113 12 1749    0.935       0.782       0.939     0.276</span></span>
+<span id="cb25-15"><a href="#cb25-15" tabindex="-1"></a><span class="co">#&gt;                  F1 balanced_accuracy cost</span></span>
+<span id="cb25-16"><a href="#cb25-16" tabindex="-1"></a><span class="co">#&gt; default_0.5   0.537             0.699  170</span></span>
+<span id="cb25-17"><a href="#cb25-17" tabindex="-1"></a><span class="co">#&gt; max_F1        0.598             0.760  143</span></span>
+<span id="cb25-18"><a href="#cb25-18" tabindex="-1"></a><span class="co">#&gt; min_cost_5to1 0.600             0.769  140</span></span>
+<span id="cb25-19"><a href="#cb25-19" tabindex="-1"></a><span class="co">#&gt; max_Youden    0.408             0.861  173</span></span></code></pre></div>
+<p>The confusion matrix at the cost-minimizing cutoff:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">confusion</span>(test<span class="sc">$</span>is_id, <span class="fu">as.integer</span>(test<span class="sc">$</span>p_id <span class="sc">&gt;</span> k_cost))</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="co">#&gt;       Predicted</span></span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="co">#&gt; Actual  Yes   No</span></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt;    Yes   30   25</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt;    No    15 1847</span></span></code></pre></div>
+<p>Reading the comparison:</p>
+<ul>
+<li>Moving the cutoff from 0.5 to 0.30 raises <strong>sensitivity from
+0.40 to 0.55</strong> — the model now catches 30 identifiers instead of
+22.</li>
+<li>The price is 10 additional false positive(s); <strong>specificity
+stays at 0.992</strong> and precision moves from 0.81 to 0.67.</li>
+<li><strong>Total cost falls from 170 to 140</strong> on the test set,
+and balanced accuracy rises from 0.70 to 0.77.</li>
+<li>Accuracy barely changes. Had we judged the models by accuracy alone
+we would never have noticed either the problem or the fix.</li>
+</ul>
+</div>
+<div id="how-the-best-cutoff-depends-on-the-cost-ratio"
+class="section level3">
+<h3>How the best cutoff depends on the cost ratio</h3>
+<p>The cutoff is a policy decision. Different cost ratios lead to
+different cutoffs and different error mixes:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>ratios <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>)       <span class="co"># cost of a FN relative to a FP</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>pol <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">sapply</span>(ratios, <span class="cf">function</span>(r) {</span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>  k <span class="ot">&lt;-</span> sw<span class="sc">$</span>cutoff[<span class="fu">which.min</span>(r <span class="sc">*</span> sw<span class="sc">$</span>FN <span class="sc">+</span> <span class="dv">1</span> <span class="sc">*</span> sw<span class="sc">$</span>FP)]   <span class="co"># chosen on training data</span></span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">metrics</span>(test<span class="sc">$</span>is_id, <span class="fu">as.integer</span>(test<span class="sc">$</span>p_id <span class="sc">&gt;</span> k)) <span class="co"># evaluated on test data</span></span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">FN_cost =</span> r, <span class="at">theory =</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> r), <span class="at">chosen =</span> k,</span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a>    m[<span class="fu">c</span>(<span class="st">&quot;TP&quot;</span>, <span class="st">&quot;FP&quot;</span>, <span class="st">&quot;FN&quot;</span>, <span class="st">&quot;sensitivity&quot;</span>, <span class="st">&quot;precision&quot;</span>)])</span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a>}))</span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="fu">round</span>(pol, <span class="dv">3</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt;      FN_cost theory chosen TP  FP FN sensitivity precision</span></span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; [1,]       1  0.500   0.38 26   7 29       0.473     0.788</span></span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt; [2,]       2  0.333   0.31 29  13 26       0.527     0.690</span></span>
+<span id="cb27-12"><a href="#cb27-12" tabindex="-1"></a><span class="co">#&gt; [3,]       5  0.167   0.30 30  15 25       0.545     0.667</span></span>
+<span id="cb27-13"><a href="#cb27-13" tabindex="-1"></a><span class="co">#&gt; [4,]      10  0.091   0.10 41  68 14       0.745     0.376</span></span>
+<span id="cb27-14"><a href="#cb27-14" tabindex="-1"></a><span class="co">#&gt; [5,]      20  0.048   0.07 43 100 12       0.782     0.301</span></span></code></pre></div>
+<p>As missing an identifier becomes more expensive, the cutoff falls,
+sensitivity rises, and we accept more false alarms to get there. Note
+that even at a 1:1 ratio the best cutoff on the training data is below
+0.5 — another symptom of the calibration gap — while at high ratios
+(10:1, 20:1) the chosen cutoff tracks the theoretical one closely.</p>
+</div>
+<div id="does-the-year-model-need-the-same-treatment"
+class="section level3">
+<h3>Does the year model need the same treatment?</h3>
+<p>Not much. Its scores already separate the classes cleanly at 0.5, so
+there are few borderline cases for a new cutoff to rescue:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>train<span class="sc">$</span>p_year <span class="ot">&lt;-</span> <span class="fu">predict</span>(m_year, <span class="at">newdata =</span> train, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>sw_y <span class="ot">&lt;-</span> <span class="fu">sweep_thresholds</span>(train<span class="sc">$</span>is_year, train<span class="sc">$</span>p_year)</span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>k_year <span class="ot">&lt;-</span> sw_y<span class="sc">$</span>cutoff[<span class="fu">which.min</span>(c_fn <span class="sc">*</span> sw_y<span class="sc">$</span>FN <span class="sc">+</span> c_fp <span class="sc">*</span> sw_y<span class="sc">$</span>FP)]</span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">default_0.5 =</span> <span class="fu">metrics</span>(test<span class="sc">$</span>is_year, <span class="fu">as.integer</span>(test<span class="sc">$</span>p_year <span class="sc">&gt;</span> <span class="fl">0.5</span>)),</span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>      <span class="at">min_cost    =</span> <span class="fu">metrics</span>(test<span class="sc">$</span>is_year, <span class="fu">as.integer</span>(test<span class="sc">$</span>p_year <span class="sc">&gt;</span> k_year)))[</span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a>  , <span class="fu">c</span>(<span class="st">&quot;TP&quot;</span>, <span class="st">&quot;FP&quot;</span>, <span class="st">&quot;FN&quot;</span>, <span class="st">&quot;sensitivity&quot;</span>, <span class="st">&quot;precision&quot;</span>, <span class="st">&quot;F1&quot;</span>)]</span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt;             TP FP FN sensitivity precision        F1</span></span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; default_0.5 30  4  7   0.8108108 0.8823529 0.8450704</span></span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt; min_cost    30  3  7   0.8108108 0.9090909 0.8571429</span></span></code></pre></div>
+<p>Threshold tuning helps most when the model <strong>ranks well but is
+mis-cut</strong> — high AUC with lopsided sensitivity and specificity.
+It cannot help a model whose scores don’t separate the classes; that
+model needs better features, not a new cutoff.</p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<ul>
+<li><code>glm(y ~ ..., family = binomial)</code> fits a logistic
+regression; <code>predict(..., type = "response")</code> returns
+probabilities; a cutoff turns them into classes.</li>
+<li>The <strong>confusion matrix</strong> is the source of every metric.
+Report several: sensitivity and precision for the positive class,
+specificity for the negative class, and F1 or balanced accuracy as a
+summary.</li>
+<li>For a <strong>rare outcome, accuracy is nearly useless</strong>:
+compare it with the no-information rate.</li>
+<li>A model with <strong>high AUC but low sensitivity</strong> at 0.5 is
+ranking well and cutting badly. Lower the cutoff.</li>
+<li><strong>Choose the cutoff on training (or validation) data</strong>,
+never on the test set.</li>
+<li>When the two errors cost different amounts, minimize <span
+class="math inline">\(c_{FN}\cdot FN + c_{FP}\cdot FP\)</span>. With
+calibrated probabilities the answer is <span class="math inline">\(p
+&gt; c_{FP} / (c_{FP} + c_{FN})\)</span>; 0.5 is the special case of
+equal costs.</li>
+</ul>
+<div id="exercises" class="section level3">
+<h3>Exercises</h3>
+<ol style="list-style-type: decimal">
+<li>Refit the identifier model without <code>dig_entropy</code>. How
+much do AUC and the min-cost sensitivity fall?</li>
+<li>Add <code>is_fixed_width</code> to the year model. Do any of the
+missed years get caught?</li>
+<li>Suppose a false positive is the expensive error (every flagged
+column triggers a costly manual audit), with <span
+class="math inline">\(c_{FP} = 5\)</span> and <span
+class="math inline">\(c_{FN} = 1\)</span>. Where does the cutoff move,
+and what happens to precision?</li>
+</ol>
+</div>
+</div>
+<div id="see-also" class="section level2">
+<h2>See also</h2>
+<ul>
+<li><a href="../../lectures3/p-070-logistic-regression.html">Unit 20:
+Logistic Regression</a> — the same model used for inference: log-odds,
+probabilities, and marginal effects.</li>
+<li><a
+href="https://lecy.github.io/formex/articles/feature-dataset.html">The
+feature dataset</a> — how the full 477-feature dataset was built.</li>
+<li><a
+href="https://lecy.github.io/formex/articles/classifier-decision-tree.html">Classifying
+columns with a decision tree</a> — classifying many types at once
+instead of one yes/no question.</li>
+<li><a
+href="https://lecy.github.io/formex/articles/feature-engineering.html">Engineered
+features</a> — what each feature measures.</li>
+</ul>
+<p>The teaching extract is built by
+<code>data-raw/build_logit_tutorial_data.R</code> in the <a
+href="https://github.com/lecy/formex">formex repository</a>.</p>
+</div>
+
+<footer class="notes-footer">
+  <p>Written by <a href="http://lecy.info">Jesse Lecy</a>. Adapted from the <a href="https://lecy.github.io/formex/">formex</a> package documentation. Content licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  <p>Part 4 &middot; Research Integrity and Evidence Synthesis. <a href="https://lecy.github.io/econometrics/">Course home</a>.</p>
+</footer>
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
