@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7M9RJPFY20"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7M9RJPFY20');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiverse Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .overview{min-width:56rem;}
+  .overview td,.overview th{vertical-align:top;}
+  .overview tbody th{white-space:normal;width:11rem;}
+  .overview td:nth-child(2){width:30%;}
+  .overview td:last-child{color:var(--ink-mid);}
+  .toolkit{min-width:44rem;}
+  .toolkit td,.toolkit th{vertical-align:top;}
+  .toolkit td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    white-space:nowrap;
+  }
+  .toolkit td:nth-child(2){font-weight:600;width:22%;}
+  .toolkit td:nth-child(3){width:26%;color:var(--ink-mid);}
+  tr.tier-row th{
+    background:var(--surface);
+    color:var(--accent-ink);
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    white-space:normal;
+    width:auto;
+    padding:.55rem .85rem;
+  }
+  .overview a,.toolkit a,#references a,#toolkit a{color:var(--accent-ink);}
+  #references ul{max-width:44rem;padding-left:1.2rem;}
+  #references li{font-size:.97rem;}
+</style>
+<style>
+  pre.code{
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:.82rem;line-height:1.5;
+    background:var(--surface);color:var(--ink);
+    border-radius:3px;padding:.85rem 1rem;margin:.9rem 0 1.2rem;
+    max-width:40rem;overflow-x:auto;white-space:pre;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88em;background:var(--surface);padding:.05em .3em;border-radius:2px;}
+  .rules{min-width:44rem;}
+  .rules td{vertical-align:top;}
+  .rules td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
+  .rules td:nth-child(2){color:var(--accent-ink);font-weight:600;}
+  .rules td:last-child{color:var(--ink-mid);}
+  .ours{font-size:var(--step--1);color:var(--ink-soft);font-style:italic;}
+  #references a{overflow-wrap:anywhere;}
+</style>
+<style>
+  .spec{min-width:40rem;}
+  .spec td,.spec th{text-align:center;}
+  .spec td:first-child,.spec th:first-child{text-align:left;}
+  .spec td.num{font-family:var(--font-math);font-variant-numeric:tabular-nums;}
+  .spec td.on{color:var(--accent-ink);font-weight:700;}
+  .spec td.off{color:var(--ink-soft);}
+  .spec tr.base td{background:var(--accent-wash);}
+  .roles{min-width:40rem;}
+  .roles td{vertical-align:top;}
+  .roles td:first-child{font-weight:600;white-space:nowrap;}
+  .roles td:last-child{color:var(--ink-mid);}
+  .lev{min-width:40rem;}
+  .lev td{vertical-align:top;}
+  .lev td.num{font-family:var(--font-math);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .lev td:first-child{font-weight:600;}
+  .demos li{margin-bottom:1rem;}
+  #references a,.callout a,section p a,.demos a{color:var(--accent-ink);}
+  #references a{overflow-wrap:anywhere;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Multiverse Analysis</h1>
+    <p class="dek">A note for Unit 23. Every empirical result rests on dozens of design decisions: which cases
+      to keep, which controls to include, how to measure the outcome. A multiverse analysis runs the study under
+      every defensible combination of those decisions and reports what happens to the result. It shows which
+      decisions matter and which don&rsquo;t. Applied across a literature, it shows a field which modeling choices
+      it needs to settle.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#idea">The idea</a>
+      <a href="#framework">The framework</a>
+      <a href="#measuring">Measuring impact</a>
+      <a href="#example">Worked example</a>
+      <a href="#field">Advancing a field</a>
+      <a href="#demos">Studies to read</a>
+      <a href="#prompt">Getting started</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The argument in five claims.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">A published estimate is one path through a garden of choices.</p>
+      <p>Each choice was defensible, but so were the alternatives. Readers usually see only the path the authors
+        took.</p>
+
+      <p class="claim">The multiverse is every path at once.</p>
+      <div class="chain">list the decisions &rarr; list the defensible options for each &rarr; run every combination</div>
+
+      <p class="claim">Forks are the decisions you vary on purpose.</p>
+      <p>Everything else is held fixed, as context or as standard controls, so that differences across models can be
+        traced to the forks.</p>
+
+      <p class="claim">Impact is measured on one scale.</p>
+      <p>Express the estimate in effect-size units (here, standard deviations of the outcome), then ask how much it
+        moves when a single fork changes.</p>
+
+      <p class="claim">The goal is a better default, not a better p-value.</p>
+      <p>Decisions with no impact can be settled by convention. Decisions with large impact need a strong argument,
+        and a field that makes those arguments can agree on a robust modeling framework.</p>
+    </div>
+  </section>
+
+  <section id="idea">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>The idea: from one model to all of them</h2>
+      <p class="sub">Why a single specification is not enough.</p>
+    </div>
+
+    <p>The <a href="guides/02a2_forking_paths.pdf">Forking Paths guide</a> describes the problem. Every study
+      involves choices that are rarely fully specified in advance: how to treat outliers, which covariates to adjust
+      for, how to measure the outcome, which subsample to use. Gelman and Loken called this a
+      <strong>garden of forking paths</strong>. A researcher can walk through it honestly, one reasonable step at a
+      time, and still end up at a result that depends on which path was taken.</p>
+    <p>A <strong>multiverse analysis</strong> (Steegen et al., 2016) turns the garden into the object of study.
+      Instead of reporting one specification as &ldquo;the&rdquo; result, the analyst lists the decisions that could
+      reasonably have gone another way, runs the model under every combination, and reports the whole distribution of
+      estimates. Specification curve analysis (Simonsohn, Simmons, &amp; Nelson, 2020) and vibration of effects (Patel,
+      Burford, &amp; Ioannidis, 2015) are close relatives that use the same logic.</p>
+    <p>The question changes from &ldquo;Is the effect significant?&rdquo; to two more useful ones:</p>
+    <ul>
+      <li><strong>How robust is the result?</strong> Does the estimate keep its sign and rough size across
+        defensible specifications, or does it appear only on a few paths?</li>
+      <li><strong>Which decisions drive it?</strong> Of all the choices an analyst makes, which ones actually move
+        the estimate?</li>
+    </ul>
+  </section>
+
+  <section id="framework">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>The framework</h2>
+      <p class="sub">Enumerate the choices, multiply them out, and sort every variable into a role.</p>
+    </div>
+
+    <h3>Step 1: Enumerate the decisions</h3>
+    <p>Start from a <strong>baseline model</strong>, usually the specification reported in the paper. Then list the
+      points where a defensible alternative exists. Decisions come in two broad kinds:</p>
+    <ul>
+      <li><strong>Data preparation:</strong> outlier rules, exclusion criteria, how missing values are handled, how
+        a variable is coded (raw counts or per capita, continuous or categorical), which waves or years are included.</li>
+      <li><strong>Model specification:</strong> which controls are included, the functional form of the outcome
+        (levels or logs), non-linear terms, interaction terms, the estimator itself.</li>
+    </ul>
+
+    <h3>Step 2: Multiply them out</h3>
+    <p>Every combination of one option per decision is one <strong>specification</strong>, one version of the
+      study. The set of all of them is the <strong>multiverse</strong>. Its size is the product of the number of
+      options at each decision:</p>
+    <div class="chain">3 decisions &times; 2 options each = 2 &times; 2 &times; 2 = 8 specifications
+      &nbsp;&middot;&nbsp; 6 decisions with 2 options = 2<sup>6</sup> = 64</div>
+    <p>The multiverse grows fast. Ten binary decisions produce 1,024 models, which is why it pays to be deliberate
+      about which decisions to include.</p>
+
+    <h3>Step 3: Assign every choice a role</h3>
+    <div class="table-scroll">
+      <table class="roles">
+        <thead><tr><th scope="col">Role</th><th scope="col">What it means</th><th scope="col">Examples</th></tr></thead>
+        <tbody>
+          <tr><td>Forks</td><td>The decisions you want to examine. Each one is varied, and the multiverse
+            includes every combination.</td><td>Include prior earnings or not; trim outliers or not; logged or raw
+            outcome.</td></tr>
+          <tr><td>Context</td><td>Choices held fixed in every model, either because they define the question or
+            because they are standard practice. They are not tested, but they are reported.</td><td>The sample frame,
+            the estimator, robust standard errors.</td></tr>
+          <tr><td>Controls</td><td>Covariates included in every specification. They are part of the baseline, not
+            under examination.</td><td>Age, education, and other standard demographic controls.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The line between forks and the rest is a research choice. A control becomes a fork once you have a reason to
+      ask whether it matters. Keeping the number of forks small makes the results readable. Holding the context fixed
+      means that any difference between two models can be traced to the forks that differ between them.</p>
+    <p>One practical rule: hold the <strong>sample constant</strong> across specifications whenever possible. If adding
+      a control drops rows because of missing values, the estimate changes for two reasons at once, and you
+      can&rsquo;t tell which one did the work.</p>
+  </section>
+
+  <section id="measuring">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Measuring the impact of a decision</h2>
+      <p class="sub">Put every estimate on one scale, then compare models that differ in a single fork.</p>
+    </div>
+
+    <h3>A common scale: effect-size units</h3>
+    <p>Raw coefficients are hard to compare across specifications, especially when a fork changes how the outcome
+      is measured. Converting each estimate into <strong>effect-size units</strong> solves this. Here we use the
+      standardized mean difference: the treatment coefficient divided by the standard deviation of the outcome.</p>
+    <div class="chain"><span class="m"><i>d</i></span> = coefficient on treatment &divide; SD of the outcome
+      &nbsp;&middot;&nbsp; <span class="m"><i>d</i></span> = 0.10 means one-tenth of a standard deviation</div>
+    <p>These are the same units used in meta-analysis (Unit 24), so a multiverse estimate can be compared directly
+      with published effect sizes.</p>
+
+    <h3>Leverage: how much does one decision move the estimate?</h3>
+    <p>For each fork, compare every pair of specifications that are identical except for that fork. The average
+      change in <span class="m"><i>d</i></span> when the fork is switched is its <strong>leverage</strong>. An
+      equivalent shortcut is to regress the estimates from all specifications on indicator variables for the forks.
+      Each coefficient is that fork&rsquo;s leverage, holding the other forks fixed.</p>
+    <p>Report two more things alongside leverage:</p>
+    <ul>
+      <li><strong>Significance by fork:</strong> the share of specifications with <span class="m"><i>p</i></span>
+        &lt; .05 under each option. A fork can move the estimate a little and still decide whether it crosses the
+        threshold.</li>
+      <li><strong>Sign flips:</strong> whether any specifications change the direction of the effect, and which forks
+        they share.</li>
+    </ul>
+    <div class="callout">
+      <p><strong>A caution about p-values in the leverage regression.</strong> All specifications use the same data,
+        so they are not independent observations. Treat the regression as a way to rank how much each decision
+        matters, not as a hypothesis test.</p>
+    </div>
+  </section>
+
+  <section id="example">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>Worked example: does job training raise earnings?</h2>
+      <p class="sub">Eight specifications, three forks: one that matters for theoretical reasons, one that matters
+        because of five people, and one that doesn&rsquo;t matter at all.</p>
+    </div>
+
+    <p>The data are the classic LaLonde (1986) job training sample as distributed in R&rsquo;s <code>MatchIt</code>
+      package: 185 participants in the National Supported Work program and 429 non-participants from a national
+      survey, 614 people in all. The outcome is 1978 earnings (<code>re78</code>, SD = &#36;7,471). Because the
+      comparison group was not randomized, estimates depend heavily on modeling choices. That is exactly the setting
+      where a multiverse is informative. Randomized versions of the same program put the benefit at roughly
+      &#36;1,800 (Dehejia &amp; Wahba, 1999).</p>
+
+    <ul>
+      <li><strong>Controls (every model):</strong> age, education, race, marital status.</li>
+      <li><strong>Context (every model):</strong> OLS, heteroskedasticity-robust (HC1) standard errors.</li>
+      <li><strong>Fork A, prior earnings:</strong> exclude or include 1974 and 1975 earnings.</li>
+      <li><strong>Fork B, trim outliers:</strong> keep everyone, or drop the top 1% of 1978 earnings (above &#36;25,565).</li>
+      <li><strong>Fork C, degree indicator:</strong> exclude or include an indicator for no high school degree.</li>
+    </ul>
+
+    <h3>The multiverse: all eight specifications</h3>
+    <div class="table-scroll">
+      <table class="spec">
+        <thead><tr><th scope="col">Spec</th><th scope="col">A: prior earnings</th><th scope="col">B: trim</th>
+          <th scope="col">C: degree</th><th scope="col">N</th><th scope="col">Estimate (&#36;)</th>
+          <th scope="col">Robust SE</th><th scope="col"><span class="m"><i>p</i></span></th>
+          <th scope="col"><span class="m"><i>d</i></span></th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="off">no</td><td class="on">yes</td><td class="off">no</td><td class="num">609</td><td class="num">369</td><td class="num">649</td><td class="num">.570</td><td class="num">0.049</td></tr>
+          <tr><td>2</td><td class="off">no</td><td class="on">yes</td><td class="on">yes</td><td class="num">609</td><td class="num">393</td><td class="num">657</td><td class="num">.550</td><td class="num">0.053</td></tr>
+          <tr><td>3</td><td class="on">yes</td><td class="on">yes</td><td class="off">no</td><td class="num">609</td><td class="num">795</td><td class="num">659</td><td class="num">.228</td><td class="num">0.106</td></tr>
+          <tr><td>4</td><td class="on">yes</td><td class="on">yes</td><td class="on">yes</td><td class="num">609</td><td class="num">798</td><td class="num">663</td><td class="num">.229</td><td class="num">0.107</td></tr>
+          <tr><td>5</td><td class="off">no</td><td class="off">no</td><td class="off">no</td><td class="num">614</td><td class="num">1,161</td><td class="num">742</td><td class="num">.118</td><td class="num">0.155</td></tr>
+          <tr><td>6</td><td class="off">no</td><td class="off">no</td><td class="on">yes</td><td class="num">614</td><td class="num">1,164</td><td class="num">741</td><td class="num">.117</td><td class="num">0.156</td></tr>
+          <tr><td>7</td><td class="on">yes</td><td class="off">no</td><td class="on">yes</td><td class="num">614</td><td class="num">1,548</td><td class="num">741</td><td class="num">.037</td><td class="num">0.207</td></tr>
+          <tr class="base"><td>8</td><td class="on">yes</td><td class="off">no</td><td class="off">no</td><td class="num">614</td><td class="num">1,570</td><td class="num">744</td><td class="num">.035</td><td class="num">0.210</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Specifications are sorted from smallest to largest effect, which is the top panel of a specification curve in
+      table form. Every estimate is positive, but they range from 0.05 to 0.21 SD, a factor of four. Only two of the
+      eight are significant at the .05 level, and both include prior earnings and keep every observation.</p>
+
+    <h3>Leverage of each decision</h3>
+    <div class="table-scroll">
+      <table class="lev">
+        <thead><tr><th scope="col">Fork</th><th scope="col">Leverage (<span class="m"><i>d</i></span>)</th>
+          <th scope="col">% of largest estimate</th><th scope="col">% significant: off / on</th><th scope="col">Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>B: trim top 1%</td><td class="num">&minus;0.103</td><td class="num">&minus;49%</td><td class="num">50% / 0%</td><td>Matters most</td></tr>
+          <tr><td>A: prior earnings</td><td class="num">+0.054</td><td class="num">+26%</td><td class="num">0% / 50%</td><td>Matters</td></tr>
+          <tr><td>C: degree indicator</td><td class="num">0.000</td><td class="num">0%</td><td class="num">25% / 25%</td><td>No impact</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Reading the results</h3>
+    <p><strong>A decision with no impact (Fork C).</strong> Adding the degree indicator moves
+      <span class="m"><i>d</i></span> by 0.000 on average, and no more than 0.004 in any pair of specifications. Education
+      is already in the model, so the indicator adds little new information. This is useful to know: a reader who
+      objects to the indicator, or insists on it, can be told the choice doesn&rsquo;t affect the conclusion. Forks
+      like this can be settled by convention.</p>
+    <p><strong>A decision that matters for a substantive reason (Fork A).</strong> Including 1974 and 1975 earnings
+      raises the estimate by 0.054 SD and, in the untrimmed sample, is the difference between a significant and a
+      non-significant result. That
+      makes sense: the program enrolled people with weak earnings histories, so without prior earnings the comparison
+      group looks better off for reasons that have nothing to do with training. Theory supports including them, and
+      the multiverse shows how much that argument matters.</p>
+    <p><strong>A decision that matters for a fragile reason (Fork B).</strong> Dropping the top 1% of earners removes
+      just five people, and all five were program participants. Losing them cuts the estimate roughly in half and
+      eliminates significance in every specification. The positive finding leans heavily on a handful of very
+      successful participants. That isn&rsquo;t necessarily wrong, since some programs do produce a few large
+      successes, but it is exactly the kind of fact a single reported specification would hide. The right response
+      is an argument about whether these cases are errors, legitimate outliers, or the point of the program, not a
+      quiet choice of whichever rule gives the better result.</p>
+
+    <h3>The code</h3>
+<pre class="code">library(sandwich); library(lmtest)
+data("lalonde", package = "MatchIt")
+d    &lt;- lalonde
+sd_y &lt;- sd(d$re78)
+cut  &lt;- quantile(d$re78, 0.99)
+
+# the multiverse: every combination of three binary forks
+grid &lt;- expand.grid(prior = c(FALSE, TRUE),
+                    trim  = c(FALSE, TRUE),
+                    nodeg = c(FALSE, TRUE))
+
+res &lt;- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) {
+  g  &lt;- grid[i, ]
+  dd &lt;- if (g$trim) d[d$re78 &lt;= cut, ] else d
+  f  &lt;- "re78 ~ treat + age + educ + race + married"       # controls
+  if (g$prior) f &lt;- paste(f, "+ re74 + re75")               # fork A
+  if (g$nodeg) f &lt;- paste(f, "+ nodegree")                  # fork C
+  m  &lt;- lm(as.formula(f), data = dd)
+  ct &lt;- coeftest(m, vcov = vcovHC(m, "HC1"))["treat", ]     # context
+  data.frame(g, n = nrow(dd), b = ct[1], se = ct[2],
+             p = ct[4], d = ct[1] / sd_y)
+}))
+
+# leverage of each fork, holding the others fixed
+coef(lm(d ~ prior + trim + nodeg, data = res))</pre>
+  </section>
+
+  <section id="field">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>From one study to a field: proposing robust frameworks</h2>
+      <p class="sub">The payoff is cumulative. A multiverse tells the next researcher where the real arguments are.</p>
+    </div>
+
+    <p>A multiverse analysis of one paper answers a narrow question: how fragile is this result? The larger goal is
+      to <strong>advance a research domain</strong> by turning scattered, undisclosed choices into a shared, defensible
+      way of modeling the problem.</p>
+    <ol>
+      <li><strong>Map the decisions.</strong> Identify which forks are high-leverage and which are not. Low-leverage
+        decisions can be standardized by convention, and arguments about them can stop.</li>
+      <li><strong>Argue the high-leverage forks on the merits.</strong> Each consequential decision needs a
+        justification from theory, the design, or the data, as with prior earnings above. The multiverse
+        doesn&rsquo;t choose the answer, but it shows where an answer is needed.</li>
+      <li><strong>Propose a reference specification.</strong> Combine the best-justified option at each high-leverage
+        fork into a recommended modeling framework for the field, and report the full multiverse around it.</li>
+      <li><strong>Make it the default.</strong> Later studies preregister the reference specification, report the
+        multiverse as a robustness appendix, and explain any departures. Results become comparable across studies, and
+        meta-analyses (Unit 24) stop mixing estimates from incompatible models.</li>
+    </ol>
+    <p>This is how the best-known multiverse studies have changed their fields. They did not just show that results
+      were fragile. They showed <em>which</em> choices were responsible, and they changed what a credible analysis in
+      that literature looks like.</p>
+  </section>
+
+  <section id="demos">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>Multiverse studies to read</h2>
+      <p class="sub">Applications rather than methods papers: each takes a live research question and runs the
+        multiverse on it.</p>
+    </div>
+    <ul class="demos">
+      <li><a href="https://doi.org/10.1177/1745691616658637"><strong>Steegen, Tuerlinckx, Gelman, &amp; Vanpaemel
+        (2016)</strong></a>. The paper that named the method, built around a reanalysis of a published study claiming
+        that women&rsquo;s religiosity and political attitudes shift with their fertility cycle. Across the defensible
+        ways of processing the data, most combinations produced large <span class="m"><i>p</i></span>-values, so the
+        finding was too sensitive to processing choices to support a firm conclusion.</li>
+      <li><a href="https://doi.org/10.1038/s41562-018-0506-1"><strong>Orben &amp; Przybylski (2019)</strong></a>. Does
+        digital technology use harm adolescent well-being? Specification curves across three large datasets
+        (combined N &gt; 355,000) found a negative but small association, explaining at most 0.4% of the variation in
+        well-being. The paper moved a heated public debate toward a question of magnitude.</li>
+      <li><a href="https://doi.org/10.1177/0956797617723726"><strong>Rohrer, Egloff, &amp; Schmukle (2017)</strong></a>.
+        Does birth order shape personality? Thousands of specifications confirmed a small effect on intellect and found
+        no meaningful effects on narrower traits such as risk taking, patience, trust, or political orientation.</li>
+      <li><a href="https://doi.org/10.1016/j.jclinepi.2015.05.029"><strong>Patel, Burford, &amp; Ioannidis
+        (2015)</strong></a>. An epidemiology version, &ldquo;vibration of effects&rdquo;: associations between
+        exposures and mortality were re-estimated under every combination of adjustment variables, showing that some
+        associations change size and even direction depending on which covariates are included.</li>
+    </ul>
+    <p>For how far analytic choices can spread results when whole teams make them independently, see the
+      many-analyst studies in Unit 22, especially Breznau et al. (2022).</p>
+  </section>
+
+  <section id="prompt">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>Getting started: an AI prompt for a multiverse replication</h2>
+      <p class="sub">Once you have a dataset and a baseline model, an AI coding agent can build and run the multiverse
+        for you.</p>
+    </div>
+    <p>The <a href="https://github.com/lecy/econometrics/blob/main/lectures4/open-science/multiverse-analysis-prompt.md">Multiverse
+      Analysis AI Prompt Guide</a> is a fill-in-the-blanks prompt for Claude Code, ChatGPT Codex, or a similar agent.
+      You supply the paper, the baseline model, the data file, and the data dictionary, then name three design choices
+      and three control variables as forks. The prompt asks the agent to:</p>
+    <ol>
+      <li>reproduce the paper&rsquo;s baseline estimate, and stop if it can&rsquo;t;</li>
+      <li>build every combination of the forks (64 specifications with six binary forks) on a constant sample;</li>
+      <li>apply standard defaults that are <em>not</em> forks: robust standard errors in every model, plus robustness
+        runs with the top and bottom 1% trimmed and with the data split into bottom, middle, and top thirds;</li>
+      <li>report a specification curve, a leverage table in effect-size units, the effect of each fork on significance,
+        and any sign flips;</li>
+      <li>leave the judgment about which choices are most justifiable to you.</li>
+    </ol>
+    <p>Treat the agent&rsquo;s output as a first draft. Check the baseline reproduction, read the code, and write the
+      interpretation yourself.</p>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section nine</p>
+      <h2>References</h2>
+      <p class="sub">Demonstration studies, methods sources, and the data for the worked example.</p>
+    </div>
+    <ul>
+      <li>Breznau, N., Rinke, E. M., Wuttke, A., et al. (2022). Observing many researchers using the same data and
+        hypothesis reveals a hidden universe of uncertainty. <em>PNAS, 119</em>(44), e2203150119.</li>
+      <li>Dehejia, R. H., &amp; Wahba, S. (1999). Causal effects in nonexperimental studies: Reevaluating the evaluation
+        of training programs. <em>Journal of the American Statistical Association, 94</em>(448), 1053&ndash;1062.</li>
+      <li>Gelman, A., &amp; Loken, E. (2014). The statistical crisis in science. <em>American Scientist, 102</em>(6),
+        460&ndash;465.</li>
+      <li>LaLonde, R. J. (1986). Evaluating the econometric evaluations of training programs with experimental data.
+        <em>American Economic Review, 76</em>(4), 604&ndash;620.</li>
+      <li>Orben, A., &amp; Przybylski, A. K. (2019). The association between adolescent well-being and digital
+        technology use. <em>Nature Human Behaviour, 3</em>, 173&ndash;182.
+        <a href="https://doi.org/10.1038/s41562-018-0506-1">https://doi.org/10.1038/s41562-018-0506-1</a></li>
+      <li>Patel, C. J., Burford, B., &amp; Ioannidis, J. P. A. (2015). Assessment of vibration of effects due to model
+        specification can demonstrate the instability of observational associations. <em>Journal of Clinical
+        Epidemiology, 68</em>(9), 1046&ndash;1058.
+        <a href="https://doi.org/10.1016/j.jclinepi.2015.05.029">https://doi.org/10.1016/j.jclinepi.2015.05.029</a></li>
+      <li>Rohrer, J. M., Egloff, B., &amp; Schmukle, S. C. (2017). Probing birth-order effects on narrow traits using
+        specification-curve analysis. <em>Psychological Science, 28</em>(12), 1821&ndash;1832.
+        <a href="https://doi.org/10.1177/0956797617723726">https://doi.org/10.1177/0956797617723726</a></li>
+      <li>Simonsohn, U., Simmons, J. P., &amp; Nelson, L. D. (2020). Specification curve analysis. <em>Nature Human
+        Behaviour, 4</em>, 1208&ndash;1214.</li>
+      <li>Steegen, S., Tuerlinckx, F., Gelman, A., &amp; Vanpaemel, W. (2016). Increasing transparency through a
+        multiverse analysis. <em>Perspectives on Psychological Science, 11</em>(5), 702&ndash;712.
+        <a href="https://doi.org/10.1177/1745691616658637">https://doi.org/10.1177/1745691616658637</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Note for <span class="m">Unit 23: Research Integrity and Open Science</span>. The worked example was computed
+      in R 4.5 with the <code>lalonde</code> data from the MatchIt package. The code above reproduces every number on
+      this page.</p>
+  </footer>
+
+</div>
+</body>
+</html>

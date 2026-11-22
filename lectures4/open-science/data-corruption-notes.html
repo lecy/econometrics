@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7M9RJPFY20"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7M9RJPFY20');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Corruption</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+  :root{
+    --ground:#ffffff;
+    --surface:#f3f4f6;
+    --ink:#1f2429;
+    --ink-mid:#4d565f;
+    --ink-soft:#6d7681;
+    --rule:#dcdfe4;
+    --rule-strong:#c3c8cf;
+    --accent:#bd5416;
+    --accent-ink:#8f3f10;
+    --accent-wash:#fbf0e7;
+
+    --navy:#153243;
+    --pumpkin:#dc965a;
+
+    --font-display:"Zilla Slab",Georgia,"Times New Roman",serif;
+    --font-body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+    --font-math:"Source Serif 4",Cambria,Georgia,"Times New Roman",serif;
+
+    --measure:36rem;
+    --step--1:.8125rem;
+    --step-0:1.0625rem;
+    --step-1:1.25rem;
+    --step-2:1.5rem;
+    --step-3:2rem;
+    --step-4:2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#15181c;
+      --surface:#1d2126;
+      --ink:#e3e6ea;
+      --ink-mid:#a9b2bc;
+      --ink-soft:#8b949e;
+      --rule:#2d333a;
+      --rule-strong:#3d444d;
+      --accent:#ee8b4a;
+      --accent-ink:#f2a771;
+      --accent-wash:#291d14;
+      --navy:#102734;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#15181c;
+    --surface:#1d2126;
+    --ink:#e3e6ea;
+    --ink-mid:#a9b2bc;
+    --ink-soft:#8b949e;
+    --rule:#2d333a;
+    --rule-strong:#3d444d;
+    --accent:#ee8b4a;
+    --accent-ink:#f2a771;
+    --accent-wash:#291d14;
+    --navy:#102734;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step-0);
+    line-height:1.62;
+    font-synthesis-weight:none;
+  }
+
+  .wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem 5rem;}
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    border-bottom:1px solid var(--rule);
+    padding:3.5rem 0 2rem;
+    display:flex;
+    flex-direction:column;
+    gap:.9rem;
+  }
+  .eyebrow{
+    font-size:var(--step--1);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--accent-ink);
+    margin:0;
+  }
+  .masthead h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:var(--step-4);
+    line-height:1.06;
+    letter-spacing:-.015em;
+    margin:0;
+    text-wrap:balance;
+    max-width:20ch;
+  }
+  .masthead .dek{margin:0;color:var(--ink-mid);max-width:var(--measure);}
+
+  .jump{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+  .jump a{
+    font-size:var(--step--1);
+    font-weight:600;
+    text-decoration:none;
+    color:var(--ink-mid);
+    border:1px solid var(--rule-strong);
+    border-radius:2px;
+    padding:.36rem .7rem;
+    background:var(--ground);
+    transition:color .15s ease,border-color .15s ease,background .15s ease;
+  }
+  .jump a:hover,.jump a:focus-visible{
+    color:var(--accent-ink);
+    border-color:var(--accent);
+    background:var(--accent-wash);
+  }
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding-top:3.25rem;}
+
+  .sec-head{margin-bottom:1.75rem;}
+  .sec-head .num{
+    font-family:var(--font-body);
+    font-size:var(--step--1);
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-3);
+    line-height:1.14;
+    margin:0;
+    max-width:24ch;
+    text-wrap:balance;
+  }
+  .sec-head .sub{margin:.7rem 0 0;color:var(--ink-mid);max-width:var(--measure);}
+
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--step-2);
+    line-height:1.24;
+    margin:2.5rem 0 .85rem;
+    max-width:32ch;
+    text-wrap:balance;
+  }
+
+  p{margin:0 0 1.05rem;max-width:var(--measure);}
+  ul,ol{max-width:var(--measure);margin:0 0 1.05rem;padding-left:1.35rem;}
+  li{margin-bottom:.55rem;}
+  li::marker{color:var(--accent);font-weight:600;}
+  ol{padding-left:1.6rem;}
+  strong{font-weight:700;color:var(--ink);}
+
+  /* ---------- section 1: key concepts panel ---------- */
+  .concepts{
+    --ink:#ffffff;
+    --ink-mid:rgba(255,255,255,.84);
+    --ink-soft:rgba(255,255,255,.62);
+    --rule:rgba(255,255,255,.16);
+    --rule-strong:rgba(255,255,255,.34);
+    --surface:rgba(255,255,255,.07);
+    --accent:var(--pumpkin);
+    --accent-ink:var(--pumpkin);
+    --accent-wash:rgba(255,255,255,.09);
+    background:var(--navy);
+    color:#ffffff;
+    border-radius:10px;
+    padding:2.5rem 2.25rem 2.75rem;
+    margin-top:1rem;
+  }
+  .concepts .claim{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.3;
+    color:var(--pumpkin);
+    margin:2.1rem 0 .7rem;
+    max-width:36ch;
+    text-wrap:balance;
+  }
+  .concepts .claim:first-of-type{margin-top:0;}
+  .concepts p,.concepts ul{color:rgba(255,255,255,.9);}
+  .concepts strong{color:#ffffff;}
+  .concepts li::marker{color:var(--pumpkin);}
+  .concepts .panel-label{
+    font-size:var(--step--1);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:rgba(255,255,255,.55);
+    margin:0 0 1.6rem;
+  }
+
+  /* ---------- math ---------- */
+  .m{font-family:var(--font-math);font-style:normal;}
+  .m i{font-style:italic;}
+  .m sub,.m sup{font-size:.68em;line-height:0;}
+  .m sub{vertical-align:-.28em;}
+  .m sup{vertical-align:.5em;}
+
+  .eq{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.1em;
+    font-family:var(--font-math);
+    font-size:1.15rem;
+    background:var(--surface);
+    border-radius:3px;
+    padding:.9rem 1.1rem;
+    margin:.9rem 0 1.1rem;
+    max-width:var(--measure);
+    overflow-x:auto;
+  }
+  .eq.center{justify-content:center;}
+  .eq .op{padding:0 .3em;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0 .12em;
+    vertical-align:.62em;
+  }
+  .frac .frac{vertical-align:baseline;}
+  .frac > span{padding:0 .4em;}
+  .frac > .num{border-bottom:1.5px solid currentColor;padding-bottom:.16em;}
+  .frac > .den{padding-top:.16em;}
+
+  .sum{font-size:1.45em;line-height:.8;padding-right:.06em;}
+
+  .sqrt{display:inline-flex;align-items:stretch;}
+  .sqrt .radical{display:inline-block;align-self:stretch;transform:scaleY(1.15);transform-origin:center;}
+  .sqrt .radicand{border-top:1.5px solid currentColor;padding:.1em .3em 0 .1em;margin-top:.16em;}
+  .sqrt.tall .radical{transform:scaleY(2.6);align-self:center;padding-right:.02em;}
+  .sqrt.tall .radicand{margin-top:.1em;padding-top:.14em;}
+
+  .bar{
+    display:inline-block;
+    line-height:1;
+    border-top:1.3px solid currentColor;
+    padding:.02em .04em 0 .02em;
+  }
+
+  /* ---------- tables ---------- */
+  .table-scroll{overflow-x:auto;margin:1.5rem 0 1.75rem;}
+  table{border-collapse:collapse;width:100%;font-size:var(--step--1);}
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:var(--step--1);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:.7rem;
+  }
+  th,td{text-align:left;padding:.72rem .85rem;border-bottom:1px solid var(--rule);vertical-align:middle;}
+  thead th{
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--ink-soft);
+    border-bottom:1.5px solid var(--rule-strong);
+    white-space:nowrap;
+  }
+  thead th .m{text-transform:none;letter-spacing:0;font-size:1.05rem;font-weight:400;color:var(--ink-mid);}
+  tbody th{font-weight:600;color:var(--ink);white-space:nowrap;width:1%;}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none;}
+
+  .roadmap{min-width:36rem;max-width:46rem;}
+  .roadmap td{font-family:var(--font-math);font-size:1.02rem;}
+
+  .reading{min-width:42rem;}
+  .reading td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    vertical-align:top;
+  }
+  .reading td:nth-child(2){width:26%;vertical-align:top;font-weight:600;}
+  .reading td:last-child{vertical-align:top;color:var(--ink-mid);}
+
+  /* ---------- misc blocks ---------- */
+  .callout{
+    background:var(--accent-wash);
+    padding:1.15rem 1.3rem;
+    margin:1.6rem 0;
+    max-width:var(--measure);
+    border-radius:3px;
+  }
+  .callout p{max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+
+  .ladder{
+    font-family:var(--font-math);
+    font-size:1.2rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:var(--measure);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  .checklist{margin:0 0 1.05rem;padding-left:1.6rem;max-width:var(--measure);}
+  .checklist > li{margin-bottom:1rem;}
+
+  footer{
+    margin-top:4rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+    font-size:var(--step--1);
+    color:var(--ink-soft);
+  }
+  footer p{max-width:var(--measure);}
+
+  @media (max-width:640px){
+    :root{--step-4:2.1rem;--step-3:1.65rem;--step-2:1.3rem;}
+    .wrap{padding:0 1.1rem 3.5rem;}
+    .concepts{padding:1.75rem 1.35rem 2rem;}
+    .eq{font-size:1rem;padding:.8rem .7rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+<style>
+  .compare{min-width:34rem;max-width:44rem;}
+  .compare tbody th{white-space:normal;width:9rem;color:var(--ink-mid);font-weight:600;}
+  .compare td{vertical-align:top;}
+  .compare td:first-of-type{color:var(--ink);}
+  .dist{min-width:34rem;max-width:46rem;}
+  .dist td:nth-child(2){font-weight:600;white-space:nowrap;}
+  .dist td:first-child{font-family:var(--font-math);font-size:1.05rem;white-space:nowrap;}
+  blockquote{
+    margin:1.6rem 0;
+    padding:1.15rem 1.3rem;
+    background:var(--accent-wash);
+    border-radius:3px;
+    max-width:var(--measure);
+  }
+  blockquote p{max-width:none;}
+  blockquote p:last-child{margin-bottom:0;}
+  .chain{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:1.05rem;
+    color:var(--accent-ink);
+    background:var(--surface);
+    border-radius:3px;
+    padding:1rem 1.2rem;
+    margin:1.3rem 0;
+    max-width:40rem;line-height:1.9;
+    overflow-x:auto;
+    
+  }
+  .concepts .chain{color:var(--pumpkin);}
+  .concepts blockquote,.concepts .callout{color:rgba(255,255,255,.92);}
+  .concepts blockquote strong,.concepts .callout strong{color:#fff;}
+  .term{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;margin:0 .1em;}
+  .term .lbl{font-family:var(--font-body);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);}
+  .concepts .term .lbl{color:rgba(255,255,255,.55);}
+  .split{min-width:30rem;max-width:40rem;}
+  .split tbody th{white-space:normal;width:9rem;}
+</style>
+<style>
+  .overview{min-width:56rem;}
+  .overview td,.overview th{vertical-align:top;}
+  .overview tbody th{white-space:normal;width:11rem;}
+  .overview td:nth-child(2){width:30%;}
+  .overview td:last-child{color:var(--ink-mid);}
+  .toolkit{min-width:44rem;}
+  .toolkit td,.toolkit th{vertical-align:top;}
+  .toolkit td:first-child{
+    font-family:var(--font-math);
+    font-variant-numeric:tabular-nums;
+    color:var(--accent-ink);
+    font-weight:600;
+    width:1%;
+    white-space:nowrap;
+  }
+  .toolkit td:nth-child(2){font-weight:600;width:22%;}
+  .toolkit td:nth-child(3){width:26%;color:var(--ink-mid);}
+  tr.tier-row th{
+    background:var(--surface);
+    color:var(--accent-ink);
+    font-size:.75rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:700;
+    white-space:normal;
+    width:auto;
+    padding:.55rem .85rem;
+  }
+  .overview a,.toolkit a,#references a,#toolkit a{color:var(--accent-ink);}
+  #references ul{max-width:44rem;padding-left:1.2rem;}
+  #references li{font-size:.97rem;}
+</style>
+<style>
+  pre.code{
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:.82rem;line-height:1.5;
+    background:var(--surface);color:var(--ink);
+    border-radius:3px;padding:.85rem 1rem;margin:.9rem 0 1.2rem;
+    max-width:40rem;overflow-x:auto;white-space:pre;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88em;background:var(--surface);padding:.05em .3em;border-radius:2px;}
+  .rules{min-width:44rem;}
+  .rules td{vertical-align:top;}
+  .rules td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
+  .rules td:nth-child(2){color:var(--accent-ink);font-weight:600;}
+  .rules td:last-child{color:var(--ink-mid);}
+  .ours{font-size:var(--step--1);color:var(--ink-soft);font-style:italic;}
+  #references a{overflow-wrap:anywhere;}
+</style>
+<style>
+  .layers{min-width:42rem;}
+  .layers td{vertical-align:top;}
+  .layers td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
+  .layers td:nth-child(2){color:var(--ink-mid);}
+  .layers td:last-child code{white-space:nowrap;}
+  .serious{min-width:36rem;}
+  .serious td{vertical-align:top;}
+  .serious td:first-child{font-weight:600;white-space:nowrap;}
+  .serious td:last-child{color:var(--ink-mid);}
+  .cases{min-width:40rem;}
+  .cases td{vertical-align:top;}
+  .cases td:first-child{font-weight:600;width:24%;}
+  .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.9rem;max-width:44rem;margin:.9rem 0 1.2rem;}
+  .pair pre.code{margin:0;}
+  .pair .lbl{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);margin:0 0 .35rem;}
+  .layer-tag{font-family:var(--font-body);font-size:var(--step--1);letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--accent-ink);margin:2.6rem 0 .2rem;}
+  .layer-tag + h3{margin-top:0;}
+  #references a,.callout a,section p a{color:var(--accent-ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Research Integrity and Evidence Synthesis</p>
+    <h1>Data Corruption: When Files Change Without Telling You</h1>
+    <p class="dek">An introduction to <em>A Taxonomy of Data Corruption</em> for Unit 25. Data can be damaged
+      without anyone making a typo or doing anything wrong. All it takes is opening a file in the wrong program
+      and clicking Save. This page explains how that happens, walks through examples of each kind of damage, and
+      ends with five habits that prevent most of it.
+      <a href="data-corruption-taxonomy.pdf">Read the full taxonomy (PDF, 20 pages)</a>.</p>
+    <nav class="jump" aria-label="Sections">
+      <a href="#concepts">Key concepts</a>
+      <a href="#guessing">Files have no instructions</a>
+      <a href="#round-trip">The round-trip test</a>
+      <a href="#layers">Six layers</a>
+      <a href="#serious">How serious is it?</a>
+      <a href="#cases">Real cases</a>
+      <a href="#canary">Try it yourself</a>
+      <a href="#habits">Five habits</a>
+      <a href="#references">References</a>
+    </nav>
+  </header>
+
+  <section id="concepts">
+    <div class="sec-head">
+      <p class="num">Section one</p>
+      <h2>Key concepts</h2>
+      <p class="sub">The whole idea in five claims.</p>
+    </div>
+
+    <div class="concepts">
+      <p class="panel-label">Key concepts</p>
+
+      <p class="claim">A data file is just a string of characters.</p>
+      <p>A CSV file doesn&rsquo;t say whether <code>00501</code> is a number or a label, or whether
+        <code>03/04/2026</code> means March 4 or April 3. The rules for reading it, called a
+        <strong>schema</strong>, are not stored in the file.</p>
+
+      <p class="claim">So software guesses.</p>
+      <p>Every program that opens a file has to decide what each value is. Excel, R, and Python all make these
+        guesses for you, and they usually guess right. That&rsquo;s why it&rsquo;s easy to stop paying attention.</p>
+
+      <p class="claim">Corruption is a wrong guess that nobody reports.</p>
+      <p>The ZIP code <code>00501</code> becomes the number <code>501</code>. The gene name <code>SEPT2</code> becomes
+        the date September 2. The file still opens normally, and no warning appears.</p>
+
+      <p class="claim">The test is a round trip.</p>
+      <div class="chain">write the file &rarr; read it back &rarr; compare &nbsp;&middot;&nbsp; anything different = corrupted</div>
+
+      <p class="claim">The damage is rarely random.</p>
+      <p>Wrong guesses hit some kinds of values more than others: ZIP codes in the Northeast, names with accents,
+        dates early in the month. That means corruption can bias a result, not just add noise.</p>
+    </div>
+  </section>
+
+  <section id="guessing">
+    <div class="sec-head">
+      <p class="num">Section two</p>
+      <h2>Files have no instructions</h2>
+      <p class="sub">Why a computer has to guess, and why that&rsquo;s a problem.</p>
+    </div>
+
+    <p>Suppose a friend texts you &ldquo;meet me 03/04.&rdquo; If your friend is American, that probably means
+      March 4. If your friend is British, it means April 3. You can ask. A computer opening a file can&rsquo;t.</p>
+    <p>A CSV file is the most common way to share data, and it is about as simple as a format can be: values
+      separated by commas, one row per line. Here is a tiny one:</p>
+    <pre class="code">zip,name,visit_date
+00501,Jos&eacute;,03/04/2026</pre>
+    <p>To use this file, a program has to answer questions the file never answers:</p>
+    <ul>
+      <li>Is <code>00501</code> a number (in which case the zeros mean nothing) or a code (in which case they matter)?</li>
+      <li>How was the letter <code>&eacute;</code> in <code>Jos&eacute;</code> stored as bytes?</li>
+      <li>Is <code>03/04/2026</code> a date, and if so, which date?</li>
+    </ul>
+    <p>Each program answers these questions with its own built-in guesses. When a guess is wrong, the value changes,
+      and nothing tells you it happened. The taxonomy calls this <strong>data corruption</strong>. It needs no
+      broken hardware and no bad luck. It is the normal behavior of normal software.</p>
+    <div class="callout">
+      <p><strong>What this page does not cover.</strong> Typos, wrong formulas, and deliberate tampering also damage
+        data, but they have different causes. This page is only about damage caused by software guessing wrong.</p>
+    </div>
+  </section>
+
+  <section id="round-trip">
+    <div class="sec-head">
+      <p class="num">Section three</p>
+      <h2>The round-trip test</h2>
+      <p class="sub">Write the data, read it back, and compare.</p>
+    </div>
+
+    <p>Opening a CSV in Excel and clicking Save, without touching a single cell, is a complete round trip. Excel
+      guesses once when it opens the file and again when it saves it. Here is a four-column file before and after:</p>
+    <div class="pair">
+      <div><p class="lbl">As written</p>
+<pre class="code">zip,account,gene,lot
+00501,1234567890123456789,SEPT2,1E5
+02134,1234567890123456790,MARCH1,2E3</pre></div>
+      <div><p class="lbl">After open and save in Excel</p>
+<pre class="code">zip,account,gene,lot
+501,1.23457E+18,2-Sep,1.00E+05
+2134,1.23457E+18,1-Mar,2.00E+03</pre></div>
+    </div>
+    <p>Every column changed:</p>
+    <ul>
+      <li><strong>zip:</strong> the leading zeros are gone. You can add them back, but only if you know every ZIP
+        code has five digits.</li>
+      <li><strong>account:</strong> Excel keeps only 15 digits, so the last digits were replaced. Two different
+        accounts are now the same number, and nothing in the file can tell you which was which.</li>
+      <li><strong>gene:</strong> the gene names turned into dates.</li>
+      <li><strong>lot:</strong> the product codes were read as numbers in scientific notation
+        (<code>1E5</code> = 100,000).</li>
+    </ul>
+  </section>
+
+  <section id="layers">
+    <div class="sec-head">
+      <p class="num">Section four</p>
+      <h2>Six layers where a guess can go wrong</h2>
+      <p class="sub">Going from bytes on a disk to a number you can analyze takes six steps. Each step is a place
+        where corruption can get in.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="layers">
+        <thead><tr><th scope="col">Layer</th><th scope="col">The question being guessed</th><th scope="col">A wrong guess looks like</th></tr></thead>
+        <tbody>
+          <tr><td>1. Encoding</td><td>Which characters do these bytes stand for?</td><td><code>Jos&eacute;</code> becomes <code>Jos&Atilde;&copy;</code></td></tr>
+          <tr><td>2. Structure</td><td>Where does each cell and row begin and end?</td><td>Values land in the wrong column, or rows vanish</td></tr>
+          <tr><td>3. Type</td><td>Is this text, a number, a date, TRUE/FALSE, or missing?</td><td><code>00501</code> becomes <code>501</code></td></tr>
+          <tr><td>4. Convention</td><td>Which format was this written in?</td><td><code>03/04/2026</code> read as April 3</td></tr>
+          <tr><td>5. Meaning</td><td>What does this value refer to?</td><td><code>3</code>, with no record that it means &ldquo;High&rdquo;</td></tr>
+          <tr><td>6. Writer</td><td>Did the saving program write what it held?</td><td><code>3.14159</code> saved as <code>3.14</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Two things to keep in mind. First, <strong>errors cascade</strong>: if a value lands in the wrong column
+      (layer 2), you&rsquo;ll then see text in a number column (layer 3). So when something looks wrong, check the
+      lowest layer first. Second, <strong>layer 5 is different</strong>. Layers 1 to 4 are wrong guesses, but no
+      program can guess what <code>3</code> means or what units a number is in. That information is simply lost
+      unless a <strong>data dictionary</strong> travels with the file.</p>
+
+    <p class="layer-tag">Layer 1</p>
+    <h3>Encoding: bytes to characters</h3>
+    <p>Computers store letters as numbers, and there is more than one table for translating between them. The
+      letters A to Z are the same in almost every table, but accented letters are not. If a file is saved with one
+      table (usually UTF-8) and opened with another, accented letters come out garbled:</p>
+    <div class="pair">
+      <div><p class="lbl">As written (UTF-8)</p>
+<pre class="code">id,name,city
+1,Jos&eacute;,Tempe
+2,Zo&euml;,Mesa
+3,M&uuml;ller,Yuma</pre></div>
+      <div><p class="lbl">Read with the wrong table</p>
+<pre class="code">&iuml;&raquo;&iquest;id,name,city
+1,Jos&Atilde;&copy;,Tempe
+2,Zo&Atilde;&laquo;,Mesa
+3,M&Atilde;&frac14;ller,Yuma</pre></div>
+    </div>
+    <p>The strange <code>&iuml;&raquo;&iquest;</code> in front of <code>id</code> is a hidden marker some programs put at the
+      start of a file. Now the first column is no longer called <code>id</code>, so code that asks for
+      <code>id</code> fails.</p>
+    <p>A quieter problem is <strong>invisible characters</strong>. <code>"Tempe"</code> and <code>"Tempe "</code>
+      (with a space at the end) look identical on screen, but a computer sees two different cities. When you merge
+      two files on city name, the rows with the extra space silently fail to match.</p>
+    <p><strong>Prevention:</strong> save files as UTF-8, tell R the encoding when you read a file, and trim extra
+      spaces from text when you import it.</p>
+
+    <p class="layer-tag">Layer 2</p>
+    <h3>Structure: characters to cells</h3>
+    <p>A CSV uses commas to separate cells. So what happens when a value itself contains a comma?</p>
+    <pre class="code">id,name,city
+1,Smith, John,Tempe</pre>
+    <p>The reader sees four cells instead of three. <code>John</code> moves into the city column, and
+      <code>Tempe</code> falls off the end. Quotation marks are meant to protect values like this
+      (<code>"Smith, John"</code>), but a single stray quote can do even more damage:</p>
+    <div class="pair">
+      <div><p class="lbl">As written: 6 people</p>
+<pre class="code">id,name,city
+1,Smith,Tempe
+2,Jones,Mesa
+3,"Lee,Phoenix
+4,Diaz,Yuma
+5,Kim",Tucson
+6,Ortiz,Flagstaff</pre></div>
+      <div><p class="lbl">What the reader finds: 4 people</p>
+<pre class="code">id  name                            city
+1   Smith                           Tempe
+2   Jones                           Mesa
+3   Lee,Phoenix4,Diaz,Yuma5,Kim     Tucson
+6   Ortiz                           Flagstaff</pre></div>
+    </div>
+    <p>Diaz and Kim no longer exist, Lee now lives in Tucson, and Python&rsquo;s pandas library gives no warning.</p>
+    <p>Spreadsheets cause structural problems too. A sheet made for people to read often has a title row, a blank
+      spacer row, and a &ldquo;Total&rdquo; row at the bottom. Read as data, the total becomes an extra observation
+      and every sum doubles. And Excel has a hard limit of 1,048,576 rows. Anything past that is never loaded, and
+      saving the file writes the shortened version over the original.</p>
+    <p><strong>Prevention:</strong> one header row, one observation per row, nothing else on the data sheet. Check
+      the number of rows before and after every step.</p>
+
+    <p class="layer-tag">Layer 3</p>
+    <h3>Type: cells to text, numbers, and dates</h3>
+    <p>This is the most common layer. Programs try to be helpful by turning anything that <em>looks</em> like a
+      number or date into one. The victims are almost always <strong>codes and identifiers</strong>: values made of
+      digits or short letter strings that were never meant to be counted.</p>
+    <div class="table-scroll">
+      <table class="layers">
+        <thead><tr><th scope="col">Value</th><th scope="col">What it really is</th><th scope="col">What it becomes</th></tr></thead>
+        <tbody>
+          <tr><td><code>00501</code></td><td>ZIP code</td><td><code>501</code></td></tr>
+          <tr><td><code>1234567890123456789</code></td><td>Account number</td><td><code>1.23457E+18</code> (last digits lost forever)</td></tr>
+          <tr><td><code>SEPT2</code>, <code>5-12</code></td><td>Gene name; apartment number</td><td>September 2; May 12</td></tr>
+          <tr><td><code>F</code></td><td>Female</td><td><code>FALSE</code> (in R, if every row is F)</td></tr>
+          <tr><td><code>NA</code></td><td>Namibia&rsquo;s country code</td><td>Missing</td></tr>
+          <tr><td><code>+14805551234</code></td><td>Phone number</td><td><code>14805551234</code>, or a formula error</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>R and Python decide the type of a whole <em>column</em> at once, which creates a different trap. Imagine a
+      column of 10,000 test scores where one person typed <code>unknown</code>. R can&rsquo;t store a word in a
+      number column, so it makes the entire column text. Now <code>mean(score)</code> fails, and in older versions of
+      R a quick fix with <code>as.numeric()</code> could return category codes instead of the actual scores.</p>
+    <p><strong>Prevention:</strong> tell R the type of each column when you read the file, and always read identifiers
+      (ZIP codes, IDs, phone numbers) as text.</p>
+
+    <p class="layer-tag">Layer 4</p>
+    <h3>Convention: which format was it written in?</h3>
+    <p>Here the program gets the type right but reads the format wrong. The result looks perfectly reasonable, which
+      makes this layer hard to spot. Dates are the classic case. A collaborator in the UK records visit dates as
+      day/month/year:</p>
+    <div class="pair">
+      <div><p class="lbl">As written (day/month)</p>
+<pre class="code">id,visit_date
+1,03/04/2026
+2,13/04/2026
+3,04/03/2026
+4,31/12/2025</pre></div>
+      <div><p class="lbl">Opened and saved on a US computer</p>
+<pre class="code">id,visit_date
+1,3/4/2026
+2,13/04/2026
+3,4/3/2026
+4,31/12/2025</pre></div>
+    </div>
+    <p>Rows 1 and 3 are now real dates, but swapped: April 3 became March 4. Rows 2 and 4 couldn&rsquo;t be read as
+      US dates (there is no 13th month), so they stayed as text. The column is now half wrong dates and half text, and
+      the only visible clue is a missing zero.</p>
+    <p>Another example is <strong>missing-value codes</strong>. Many surveys record &ldquo;no answer&rdquo; as
+      <code>-99</code>. Software sees a valid number:</p>
+    <pre class="code">income (thousands): 40, 52, 61, -99, 47
+
+mean with -99 included:  20.2
+mean of the real values: 50.0</pre>
+    <p>Other conventions that trip up readers: two-digit years (<code>45</code> is 1945 in Excel but 2045 in R),
+      decimal commas (<code>1,234</code> means 1.234 in Germany), and decorated numbers like <code>$1,200</code> or
+      <code>45%</code>.</p>
+    <p><strong>Prevention:</strong> write dates as <code>YYYY-MM-DD</code> (2026-04-03), always use four-digit years,
+      store plain numbers without symbols, and leave missing cells empty.</p>
+
+    <p class="layer-tag">Layer 5</p>
+    <h3>Meaning: what does the value refer to?</h3>
+    <p>At this layer every character survives, but the information needed to understand it is lost. This usually
+      happens when data moves from a richer format (an R data frame, a Stata or SPSS file) into a CSV, which has
+      nowhere to store it.</p>
+    <pre class="code">id,satisfaction,region
+1,Medium,3
+2,High,1
+3,Low,3</pre>
+    <p>Nothing here is wrong, but a lot is missing:</p>
+    <ul>
+      <li>Nothing says that Low &lt; Medium &lt; High, so R sorts them alphabetically: High, Low, Medium.</li>
+      <li>Nothing says that region <code>3</code> means &ldquo;West.&rdquo;</li>
+      <li>A fourth level, &ldquo;Very high,&rdquo; that nobody chose has disappeared completely.</li>
+      <li>A survey that distinguished &ldquo;refused to answer&rdquo; from &ldquo;question not asked&rdquo; now has
+        just a blank for both.</li>
+    </ul>
+    <p>Units are lost the same way. Is <code>450</code> in dollars, thousands of dollars, or 2015 dollars? And since
+      ZIP codes and county codes are made of digits, software will happily calculate an &ldquo;average ZIP code&rdquo;
+      or treat a county code as a measurement in a regression.</p>
+    <p><strong>Prevention:</strong> this layer can&rsquo;t be fixed inside the CSV. It needs a second file, a
+      <strong>data dictionary</strong>, that lists every variable&rsquo;s name, type, units, category labels, and
+      missing-value codes. Putting units in the column name (<code>revenue_usd_thousands</code>) also helps.</p>
+
+    <p class="layer-tag">Layer 6</p>
+    <h3>Writer: did the file get what the program held?</h3>
+    <p>Layers 1 to 5 go wrong when a file is <em>read</em>. Layer 6 goes wrong when it is <em>saved</em>, so the file
+      looks perfectly clean. You only notice by comparing it to the original. When Excel saves a CSV, it writes what
+      each cell <em>displays</em>, not what it stores:</p>
+    <div class="pair">
+      <div><p class="lbl">Stored in the workbook</p>
+<pre class="code">org_id:  123456789012
+revenue: 1250000.4999
+margin:  0.123456
+date:    2026-03-15</pre></div>
+      <div><p class="lbl">Written to the CSV</p>
+<pre class="code">org_id:  1.23457E+11
+revenue: 1250000.5
+margin:  12.35%
+date:    Mar-26</pre></div>
+    </div>
+    <p>The ID lost six digits, the margin lost precision and gained a percent sign, and the date lost its day. On the
+      next read it may even come back as March 26 of the current year. Formatting choices someone made to make the
+      sheet look nice have become permanent data loss.</p>
+    <p>Spreadsheet users also store information in ways a CSV can&rsquo;t hold. &ldquo;Rows highlighted in yellow
+      should be excluded&rdquo; is lost the moment the file is saved as CSV. And R&rsquo;s <code>write.csv()</code>
+      adds row numbers as an extra first column unless you tell it not to.</p>
+    <p><strong>Prevention:</strong> save data from code rather than from Excel&rsquo;s Save As, use
+      <code>row.names = FALSE</code> in R, and record exclusions in an actual column (<code>exclude = 1</code>), not
+      as a color.</p>
+  </section>
+
+  <section id="serious">
+    <div class="sec-head">
+      <p class="num">Section five</p>
+      <h2>How serious is it?</h2>
+      <p class="sub">Four questions to ask about any case of corruption.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="serious">
+        <thead><tr><th scope="col">Question</th><th scope="col">Range</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><td>Would anyone notice?</td><td>Loud (error), quiet (a warning that scrolls by), silent</td><td>A semicolon file read as one column is loud. A day-month swap is silent.</td></tr>
+          <tr><td>Can it be undone?</td><td>Reversible, fixable with outside knowledge, permanent</td><td>Garbled accents can be fixed if caught early. A truncated account number is gone.</td></tr>
+          <tr><td>How much is affected?</td><td>One cell, a column, rows, the whole file</td><td>A stray quote can swallow many rows.</td></tr>
+          <tr><td>Who is affected?</td><td>Every value, or only some kinds</td><td>Leading-zero loss only hits ZIP codes that start with 0.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The last question matters most. This kind of corruption is <strong>almost never random</strong>:</p>
+    <ul>
+      <li>ZIP codes starting with 0 are in New England, New Jersey, and Puerto Rico. If they fail to match in a merge,
+        your &ldquo;national&rdquo; sample quietly loses a region.</li>
+      <li>Encoding errors only hit names with accents, so people with Spanish, Vietnamese, or German names are the ones
+        dropped when records are matched by name.</li>
+      <li>Day-month swaps only happen for dates on the 1st through 12th of a month.</li>
+      <li>Treating <code>NA</code> as missing removes Namibia, and only Namibia.</li>
+    </ul>
+    <p>When errors are tied to geography, ethnicity, or time, they don&rsquo;t just add noise. They can
+      <strong>bias your results</strong>, which makes this a question of research validity and not only data
+      cleaning.</p>
+    <div class="callout">
+      <p><strong>The six to learn first.</strong> These are silent, permanent, and selective all at once: long
+        identifiers losing digits, text turned into dates, day-month swaps, stray quotes swallowing rows, rows cut off
+        at size limits, and Excel saving what it displays instead of what it stores.</p>
+    </div>
+  </section>
+
+  <section id="cases">
+    <div class="sec-head">
+      <p class="num">Section six</p>
+      <h2>Real cases</h2>
+      <p class="sub">This isn&rsquo;t hypothetical. Each case traces back to default software behavior with no
+        warning.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="cases">
+        <thead><tr><th scope="col">Case</th><th scope="col">What happened</th></tr></thead>
+        <tbody>
+          <tr><td>Gene names in published research, 2005&ndash;2020</td>
+            <td>A 2016 scan of genetics journals found gene names converted by Excel (like <code>SEPT2</code> to a date)
+              in about one in five papers that included gene lists. A 2021 follow-up found errors in 30.9% of such
+              articles from 2014 to 2020 (3,436 of 11,117). The problem got worse, not better.</td></tr>
+          <tr><td>Genes renamed to fit Excel, 2020</td>
+            <td>The committee that names human genes gave 27 genes new names so they would survive spreadsheets:
+              <code>MARCH1</code> became <code>MARCHF1</code> and <code>SEPT1</code> became <code>SEPTIN1</code>.
+              Scientists changed their data to fit the tool.</td></tr>
+          <tr><td>England&rsquo;s COVID-19 case counts, 2020</td>
+            <td>Public Health England loaded lab results into the old Excel <code>.xls</code> format, which stops at
+              65,536 rows. Each case took several rows, so a sheet held only about 1,400 cases. The overflow was
+              dropped, and 15,841 positive cases from September 25 to October 2 were left out of daily counts and
+              contact tracing.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>One caution: the researchers who documented the gene-name errors have said no case is known in which these
+      errors changed a study&rsquo;s conclusions. The evidence shows how <em>common</em> the errors are, not how much
+      harm they caused.</p>
+  </section>
+
+  <section id="canary">
+    <div class="sec-head">
+      <p class="num">Section seven</p>
+      <h2>Try it yourself: a canary file</h2>
+      <p class="sub">Coal miners carried canaries because the birds reacted to danger first. A canary file is built to
+        break first.</p>
+    </div>
+
+    <p>Every column below holds values chosen to break under one kind of corruption. Copy it into a plain text editor
+      (Notepad, TextEdit in plain-text mode, or RStudio) and save it as <code>canary.csv</code>.</p>
+    <pre class="code">row,zip,long_id,gene,sex,country,phone,visit_date,price,name
+1,00501,1234567890123456789,SEPT2,F,NA,+14805551234,03/04/2026,"$1,200",Jos&eacute;
+2,02134,1234567890123456790,MARCH1,F,NO,+14805551235,13/04/2026,$950,Zo&euml;
+3,85004,1234567890123456791,DEC1,F,US,+14805551236,04/03/2026,"$12,050",M&uuml;ller
+4,10001,1234567890123456792,OCT4,F,NA,+14805551237,31/12/2025,$80,Nguy&#7877;n</pre>
+    <ol>
+      <li>Open the file in a tool (Excel, Google Sheets, R, or Python) with the default settings, and save it under a
+        new name <strong>without editing anything</strong>.</li>
+      <li>Open both files in a text editor and compare them line by line.</li>
+      <li>For each value that changed, write down which layer it belongs to, whether the tool warned you, and whether
+        you could rebuild the original from the new file alone.</li>
+      <li>Try again, this time telling the tool to treat every column as text. Did the problems go away?</li>
+    </ol>
+    <p>Expect most columns to change in Excel. R&rsquo;s <code>read.csv()</code> leaves the gene names and dates alone,
+      but it drops the zeros from the ZIP codes, loses digits from the long IDs, drops the <code>+</code> from the phone
+      numbers, turns the column of <code>F</code>s into <code>FALSE</code>, and treats Namibia as missing. No tool is safe by default,
+      and the tools don&rsquo;t agree with each other. What a file contains depends on which programs it passed
+      through, which is a good reason to write that path down.</p>
+  </section>
+
+  <section id="habits">
+    <div class="sec-head">
+      <p class="num">Section eight</p>
+      <h2>Five habits that prevent most of it</h2>
+      <p class="sub">Every defense either removes the need to guess or catches a wrong guess afterward.</p>
+    </div>
+
+    <ol class="checklist">
+      <li><strong>Raw data are read-only.</strong> Keep the file exactly as you received it in a <code>data-raw</code>
+        folder, and never open it by double-clicking. If you need to look at it in Excel, use <em>Data &gt; From
+        Text/CSV</em> and set the columns to text.</li>
+      <li><strong>Every CSV travels with a data dictionary.</strong> The dictionary is the missing schema: a table of
+        column names, types, formats, units, category labels, and missing-value codes.</li>
+      <li><strong>Read files with a script that states each column&rsquo;s type.</strong> If you let the software guess,
+        you&rsquo;ve made a decision without writing it down.
+<pre class="code">library(readr)
+d &lt;- read_csv("data-raw/survey.csv",
+              col_types = cols(zip = col_character(),
+                               id  = col_character()),
+              na = "")</pre></li>
+      <li><strong>Check every hand-off.</strong> Record the number of rows when data comes in and after every step that
+        could change it, such as a merge. When data moves between programs or people, run a round trip and compare.
+<pre class="code">nrow(d)                    # before
+d2 &lt;- merge(d, counties, by = "fips")
+nrow(d2)                   # after: did any rows disappear?</pre></li>
+      <li><strong>Identifiers are text.</strong> If doing arithmetic on a column would be meaningless, it isn&rsquo;t a
+        number, whatever it looks like.</li>
+    </ol>
+    <p>These habits fit the project structure in <a href="code-and-data-notes.html">Code and Data for the Social
+      Sciences</a>: raw data kept separate and never edited, every step done in code, and documentation that travels
+      with the data.</p>
+  </section>
+
+  <section id="references">
+    <div class="sec-head">
+      <p class="num">Section nine</p>
+      <h2>References</h2>
+      <p class="sub">The full taxonomy and the sources for the real cases.</p>
+    </div>
+    <ul>
+      <li><a href="data-corruption-taxonomy.pdf"><em>A Taxonomy of Data Corruption</em></a> (PDF). The full guide: 43
+        classes across six layers, each with its cause, consequences, and fix, plus the canary-file answer key.</li>
+      <li>Ziemann, M., Eren, Y., &amp; El-Osta, A. (2016). Gene name errors are widespread in the scientific
+        literature. <em>Genome Biology, 17</em>, 177.</li>
+      <li>Abeysooriya, M., Soria, M., Kasu, M. S., &amp; Ziemann, M. (2021). Gene name errors: Lessons not learned.
+        <em>PLOS Computational Biology, 17</em>(7), e1008984.</li>
+      <li>Bruford, E. A., et al. (2020). Guidelines for human gene nomenclature. <em>Nature Genetics, 52</em>,
+        754&ndash;758.</li>
+      <li>Gentzkow, M., &amp; Shapiro, J. M. (2014). <a href="code-and-data-notes.html">Code and data for the social
+        sciences: A practitioner&rsquo;s guide</a>. University of Chicago mimeo.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Introduction for <span class="m">Unit 25: Reproducible Workflows</span>. Adapted from <em>A Taxonomy of Data
+      Corruption</em>, with examples simplified for readers new to data analysis.</p>
+  </footer>
+
+</div>
+</body>
+</html>

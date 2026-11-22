@@ -1569,6 +1569,34 @@
           cite: "Huntington-Klein, N., et al. (2021). Economic Inquiry, 59(3), 944–960."
           note: Independent teams replicate published studies from the same data and get different answers.
           url: lectures4/open-science/pubs/The%20influence%20of%20hidden%20researcher%20decisions%20in%20applied%20microeconomics.pdf
+    - title: Multiverse Analysis
+      blurb: >
+        Run a study under every combination of its defensible design decisions. Decisions you examine
+        become forks, while the rest are held fixed as context and controls. Each fork's leverage is
+        measured in effect-size units. A worked job-training example has one fork that matters for a
+        substantive reason, one that matters because of five people, and one with no impact. The goal
+        is a robust modeling framework a field can adopt. The AI prompt builds the multiverse once you
+        have a dataset and a baseline model.
+      links:
+        - { label: Notes, url: lectures4/open-science/multiverse-analysis-notes.html, kind: notes }
+        - { label: AI prompt (MD), url: lectures4/open-science/multiverse-analysis-prompt.md, kind: rmd, raw: true }
+      readings:
+        - title: Increasing Transparency Through a Multiverse Analysis
+          cite: "Steegen, S., Tuerlinckx, F., Gelman, A., & Vanpaemel, W. (2016). Perspectives on Psychological Science, 11(5), 702–712."
+          note: Names the method through a reanalysis of a claim that women's religiosity and political attitudes shift with the fertility cycle. Most defensible ways of processing the data gave large p-values, so the finding could not support a firm conclusion.
+          url: https://doi.org/10.1177/1745691616658637
+        - title: The Association Between Adolescent Well-Being and Digital Technology Use
+          cite: "Orben, A., & Przybylski, A. K. (2019). Nature Human Behaviour, 3, 173–182."
+          note: Specification curves across three large datasets (N > 355,000) find a negative but tiny association, at most 0.4% of the variation in well-being, and turn a heated screen-time debate into a question of magnitude.
+          url: https://doi.org/10.1038/s41562-018-0506-1
+        - title: Probing Birth-Order Effects on Narrow Traits Using Specification-Curve Analysis
+          cite: "Rohrer, J. M., Egloff, B., & Schmukle, S. C. (2017). Psychological Science, 28(12), 1821–1832."
+          note: Thousands of specifications confirm a small birth-order effect on intellect and find no meaningful effects on risk taking, patience, trust, or political orientation.
+          url: https://doi.org/10.1177/0956797617723726
+        - title: Assessment of Vibration of Effects Due to Model Specification Can Demonstrate the Instability of Observational Associations
+          cite: "Patel, C. J., Burford, B., & Ioannidis, J. P. A. (2015). Journal of Clinical Epidemiology, 68(9), 1046–1058."
+          note: The epidemiology version. Re-estimating associations with mortality under every combination of adjustment variables shows some change size and even direction depending on the covariates chosen.
+          url: https://doi.org/10.1016/j.jclinepi.2015.05.029
     - title: "Toolkit Guides: Networks, Data Stewardship, and What Comes Next"
       blurb: >
         Bibliometric tools for citation rings and editor networks, FAIR-compliance scoring for
@@ -1738,6 +1766,15 @@
       links:
         - { label: Notes, url: lectures4/open-science/code-and-data-notes.html, kind: notes }
         - { label: Guide (PDF), url: "https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf", kind: pdf }
+    - title: "A Taxonomy of Data Corruption"
+      blurb: >
+        How data change without anyone making a mistake: a CSV carries no rules for reading it, so
+        software guesses, and wrong guesses strip ZIP code zeros, turn gene names into dates, swap
+        days and months, and drop rows without a warning. Six layers of corruption with examples,
+        real cases, a canary file to test your tools, and five habits that prevent most of it.
+      links:
+        - { label: Notes, url: lectures4/open-science/data-corruption-notes.html, kind: notes }
+        - { label: Taxonomy (PDF), url: lectures4/open-science/data-corruption-taxonomy.pdf, kind: pdf }
     - title: "Reproducible Research in R"
       blurb: >
         Peikert, van Lissa, and Brandmaier (2021): a tutorial for the repro package, which combines
